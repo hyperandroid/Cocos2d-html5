@@ -1,0 +1,7 @@
+./idea
+./idea/*
+./node_modules
+./js
+./doc-js/*
+./doc-ts/*
+./dist/*
