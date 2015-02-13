@@ -1,0 +1,1641 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>V3 Backward compatibility tests</title>
+</head>
+<body style="margin:0; padding:0">
+
+
+
+<script src="../../../dist/all.js"></script>
+<script src="../../../lib/stats/stats.js"></script>
+
+<script>
+
+
+    var testRunner= (function() {
+
+        var TAG_GROSSINI=1;
+        var TAG_TAMARA=2;
+        var TAG_KATIA=3;
+
+        var NAME_GROSSINI = "grossini";
+        var NAME_TAMARA = "tamara";
+        var NAME_KATIA = "katia";
+
+        var s_pathGrossini='res/images/grossini.png';
+        var s_pathSister1='res/images/grossinis_sister1.png';
+        var s_pathSister2='res/images/grossinis_sister2.png';
+
+        function createBaseScene( director ) {
+
+            var winSize= director.getWinSize();
+            var scene= director.createScene();
+
+            var parent= new cc.node.Node().setColor(0.3,0.3,0.3);
+            parent.setContentSize( winSize.width, winSize.height );
+
+            var grossini;
+            var tamara;
+            var kathia;
+
+            parent.addChild( grossini= new cc.node.Sprite(s_pathGrossini).
+                    setAnchorPoint(0.5,0.5).
+                    setTag(TAG_GROSSINI).
+                    setName(NAME_GROSSINI) );
+
+            parent.addChild( tamara= new cc.node.Sprite(s_pathSister1).
+                    setAnchorPoint(0.5,0.5).
+                    setTag(TAG_TAMARA).
+                    setName(NAME_TAMARA) );
+
+            parent.addChild( kathia= new cc.node.Sprite(s_pathSister2).
+                    setAnchorPoint(0.5,0.5).
+                    setTag(TAG_KATIA).
+                    setName(NAME_KATIA) );
+
+            scene.grossini= grossini;
+            scene.kathia= kathia;
+            scene.tamara= tamara;
+
+            scene.addChild( parent );
+
+            scene.centerSprites= function (numberOfSprites) {
+                var winSize = director.getWinSize();
+
+                if (numberOfSprites === 0) {
+                    this.tamara.visible = false;
+                    this.kathia.visible = false;
+                    this.grossini.visible = false;
+                } else if (numberOfSprites == 1) {
+                    this.tamara.visible = false;
+                    this.kathia.visible = false;
+                    this.grossini.x = winSize.width / 2;
+                    this.grossini.y = winSize.height / 2;
+                }
+                else if (numberOfSprites == 2) {
+                    this.kathia.x = winSize.width / 3;
+                    this.kathia.y = winSize.height / 2;
+                    this.tamara.x = 2 * winSize.width / 3;
+                    this.tamara.y = winSize.height / 2;
+                    this.grossini.visible = false;
+                }
+                else if (numberOfSprites == 3) {
+                    this.grossini.x = winSize.width / 2;
+                    this.grossini.y = winSize.height / 2;
+                    this.tamara.x = winSize.width / 4;
+                    this.tamara.y = winSize.height / 2;
+                    this.kathia.x = 3 * winSize.width / 4;
+                    this.kathia.y = winSize.height / 2;
+                }
+            };
+
+            scene.alignSpritesLeft=function (numberOfSprites) {
+                var s = director.getWinSize();
+
+                if (numberOfSprites == 1) {
+                    this.tamara.visible = false;
+                    this.kathia.visible = false;
+                    this.grossini.x = 60;
+                    this.grossini.y = s.height / 2;
+                }
+                else if (numberOfSprites == 2) {
+                    this.kathia.x = 60;
+                    this.kathia.y = s.height / 3;
+                    this.tamara.x = 60;
+                    this.tamara.y = 2 * s.height / 3;
+                    this.grossini.visible = false;
+                }
+                else if (numberOfSprites == 3) {
+                    this.grossini.x = 60;
+                    this.grossini.y = s.height / 2;
+                    this.tamara.x = 60;
+                    this.tamara.y = 2 * s.height / 3;
+                    this.kathia.x = 60;
+                    this.kathia.y = s.height / 3;
+
+                }
+            };
+
+            return scene;
+        }
+
+        function createBaseSceneScheduler( director ) {
+            var scene= director.createScene().setColor(0.3,0.3,0.3);
+            return scene;
+
+        }
+
+        function createBaseSceneEasing( director ) {
+
+            var winSize= director.getWinSize();
+            var scene= director.createScene().setColor(0.3,0.3,.3);
+
+            // Or you can create an sprite using a filename. PNG and BMP files are supported. Probably TIFF too
+            scene.grossini = cc.Sprite.create(s_pathGrossini).setAnchorPoint(0.5,0.5);
+            scene.tamara = cc.Sprite.create(s_pathSister1).setAnchorPoint(0.5,0.5);
+            scene.kathia = cc.Sprite.create(s_pathSister2).setAnchorPoint(0.5,0.5);
+
+            scene.addChild(scene.grossini, 3);
+            scene.addChild(scene.kathia, 2);
+            scene.addChild(scene.tamara, 1);
+
+            scene.grossini.x = 60;
+            scene.grossini.y = winSize.height / 5;
+            scene.kathia.x = 60;
+            scene.kathia.y = winSize.height / 2;
+            scene.tamara.x = 60;
+            scene.tamara.y = winSize.height * 4 / 5;
+            scene.twoSprites = false;
+
+            scene.positionForTwo = function () {
+                this.twoSprites = true;
+                this.grossini.x = 60;
+                this.grossini.y = winSize.height / 5;
+                this.tamara.x = 60;
+                this.tamara.y = winSize.height * 4 / 5;
+                this.kathia.visible = false;
+            };
+
+            return scene;
+        }
+
+        var tests= [
+
+            {
+                block : "Action",
+                testcases : [
+                    {
+                    title: "Sprite properties - Manual Transformation",
+                    create: function test1(director) {
+
+                        var scene = createBaseScene(director);
+
+                        var winSize = director.getWinSize();
+
+                        scene.tamara.attr({
+                            x: 100,
+                            y: 70,
+                            opacity: 128,
+                            scaleX: 2.5,
+                            scaleY: -1.0
+                        });
+
+                        scene.grossini.attr({
+                            x: winSize.width / 2,
+                            y: winSize.height / 2,
+                            rotation: 120,
+                            color: cc.color(255, 0, 0)
+                        });
+
+                        scene.kathia.x = winSize.width - 100;
+                        scene.kathia.y = winSize.height / 2;
+                        scene.kathia.color = cc.color(0, 0, 255);
+
+                        return scene;
+                    }
+                },
+
+                    {
+                    title: "cc.MoveTo / cc.MoveBy",
+
+                    create: function test2(director) {
+
+
+                        var scene = createBaseScene(director);
+
+                        scene.centerSprites(3);
+
+                        var s = director.getWinSize();
+
+                        var actionTo = cc.MoveTo.create(2, cc.p(s.width - 40, s.height - 40));
+                        var actionBy = cc.MoveBy.create(1, cc.p(80, 80));
+                        var actionByBack = actionBy.reverse();
+
+                        scene.tamara.runAction(actionTo);
+                        scene.grossini.runAction(cc.Sequence.create(actionBy, actionByBack));
+                        scene.kathia.runAction(cc.MoveTo.create(1, cc.p(40, 40)));
+
+                        return scene;
+                    }
+                },
+
+                    {
+                    title: "cc.ScaleTo / cc.ScaleBy",
+                    create: function test3(director) {
+                        var scene = createBaseScene(director);
+
+                        scene.centerSprites(3);
+
+                        var actionTo = cc.ScaleTo.create(2, 0.5);
+                        var actionBy = cc.ScaleBy.create(2, 2);
+                        var actionBy2 = cc.ScaleBy.create(2, 0.25, 4.5);
+
+                        scene.tamara.runAction(actionTo);
+                        scene.kathia.runAction(cc.Sequence.create(actionBy2, cc.DelayTime.create(0.25), actionBy2.reverse()));
+                        scene.grossini.runAction(cc.Sequence.create(actionBy, cc.DelayTime.create(0.25), actionBy.reverse()));
+
+                        return scene;
+                    }
+                },
+
+                    {
+                    title: "cc.RotateTo / cc.RotateBy",
+                    create: function test4(director) {
+                        var scene = createBaseScene(director);
+
+                        scene.centerSprites(3);
+                        var actionTo = cc.RotateTo.create(2, 45);
+                        var actionTo2 = cc.RotateTo.create(2, -45);
+                        var actionTo0 = cc.RotateTo.create(2, 0);
+                        scene.tamara.runAction(cc.Sequence.create(actionTo, cc.DelayTime.create(0.25), actionTo0));
+
+                        var actionBy = cc.RotateBy.create(2, 360);
+                        var actionByBack = actionBy.reverse();
+                        scene.grossini.runAction(cc.Sequence.create(actionBy, cc.DelayTime.create(0.25), actionByBack));
+
+                        scene.kathia.runAction(cc.Sequence.create(actionTo2, cc.DelayTime.create(0.25), actionTo0.clone()));
+
+                        return scene;
+                    }
+                },
+
+                    {
+                    title: "cc.BezierBy / cc.BezierTo",
+                    create: function test5(director) {
+                        var scene = createBaseScene(director);
+                        scene.centerSprites(3);
+
+                        var s = director.getWinSize();
+
+                        var delay = cc.DelayTime.create(0.25);
+
+                        // 3 and only 3 control points should be used for Bezier actions.
+                        var controlPoints = [cc.p(0, 374), cc.p(300, -374), cc.p(300, 100)];
+
+                        var bezierForward = cc.BezierBy.create(2, controlPoints);
+                        var rep = cc.RepeatForever.create(
+                                cc.Sequence.create(
+                                        bezierForward, delay, bezierForward.reverse(), delay.clone()
+                                ));
+
+                        // sprite 2
+                        scene.tamara.x = 80;
+                        scene.tamara.y = 160;
+
+                        // 3 and only 3 control points should be used for Bezier actions.
+                        var controlPoints2 = [cc.p(100, s.height / 2), cc.p(200, -s.height / 2), cc.p(240, 160)];
+                        var bezierTo1 = cc.BezierTo.create(2, controlPoints2);
+
+                        // // sprite 3
+                        var controlPoints3 = controlPoints2.slice();
+                        scene.kathia.x = 400;
+                        scene.kathia.y = 160;
+                        var bezierTo2 = cc.BezierTo.create(2, controlPoints3);
+
+                        scene.grossini.runAction(rep);
+                        scene.tamara.runAction(bezierTo1);
+                        scene.kathia.runAction(bezierTo2);
+
+                        return scene;
+                    }
+                },
+
+                    {
+                    title: "cc.BezierTo copy test",
+                    create: function test6(director) {
+                        var scene = createBaseScene(director);
+
+                        var winSize = director.getWinSize();
+                        scene.centerSprites(2);
+
+                        // sprite 1
+                        scene.tamara.x = 80;
+                        scene.tamara.y = 160;
+
+                        // 3 and only 3 control points should be used for Bezier actions.
+                        var controlPoints2 = [cc.p(100, winSize.height / 2),
+                            cc.p(200, -winSize.height / 2),
+                            cc.p(240, 160)];
+                        var bezierTo1 = cc.BezierTo.create(2, controlPoints2);
+
+                        // sprite 2
+                        scene.kathia.x = 80;
+                        scene.kathia.y = 160;
+                        var bezierTo2 = bezierTo1.clone();
+
+                        scene.tamara.runAction(bezierTo1);
+                        scene.kathia.runAction(bezierTo2);
+
+                        return scene;
+                    }
+                },
+
+                    {
+                    title: "Issue 1008",
+                    create: function test7(director) {
+                        var scene = createBaseScene(director);
+
+                        scene.centerSprites(1);
+
+                        // sprite 1
+
+                        scene.grossini.x = 428;
+                        scene.grossini.y = 279;
+
+                        // 3 and only 3 control points should be used for Bezier actions.
+                        var controlPoints1 = [cc.p(428, 279), cc.p(100, 100), cc.p(100, 100)];
+                        var controlPoints2 = [cc.p(100, 100), cc.p(428, 279), cc.p(428, 279)];
+
+                        var bz1 = cc.BezierTo.create(1.5, controlPoints1);
+                        var bz2 = cc.BezierTo.create(1.5, controlPoints2);
+                        var trace = cc.CallFunc.create(function (node) {
+                            console.log("Position x: " + node._position.x + ' y:' + node._position.y);
+                        });
+                        var delay = cc.DelayTime.create(0.25);
+
+                        var rep = cc.RepeatForever.create(cc.Sequence.create(bz1, bz2, trace, delay));
+
+                        scene.grossini.runAction(rep);
+
+                        return scene;
+                    }
+                },
+
+                    {
+                    title : "cc.FadeIn / cc.FadeOut",
+                    create: function test8(director) {
+                        var scene = createBaseScene(director);
+
+                        scene.centerSprites(2);
+                        var delay = cc.DelayTime.create(0.25);
+                        var action1 = cc.FadeIn.create(1.0);
+                        var action1Back = action1.reverse();
+
+                        var action2 = cc.FadeOut.create(1.0);
+                        var action2Back = action2.reverse();
+
+                        scene.tamara.runAction(cc.Sequence.create(action1, delay, action1Back));
+                        scene.kathia.runAction(cc.Sequence.create(action2, delay.clone(), action2Back));
+
+                        return scene;
+                    }
+                },
+
+                    {
+                        title: "cc.TintTo / cc.TintBy",
+                        create: function (director) {
+                            var scene = createBaseScene(director);
+
+                            scene.centerSprites(2);
+
+                            var action1 = cc.TintTo.create(2, 255, 0, 255);
+                            var action2 = cc.TintBy.create(2, -127, -255, -127);
+                            var action2Back = action2.reverse();
+
+                            scene.tamara.runAction(action1);
+                            scene.kathia.runAction(cc.Sequence.create(action2, cc.DelayTime.create(0.25), action2Back));
+
+                            return scene;
+                        }
+                    },
+
+                    {
+                        title: "cc.Sequence: Move + Rotate",
+                        create: function (director) {
+                            var scene = createBaseScene(director);
+
+                            scene.alignSpritesLeft(1);
+
+                            var action = cc.Sequence.create(
+                                cc.MoveBy.create(1.5, cc.p(240, 0)),
+                                cc.RotateBy.create(1.5, 540)
+                            );
+
+                            scene.grossini.runAction(action);
+
+                            return scene;
+                        }
+                    },
+
+                    {
+                        title: "Sequence of InstantActions",
+                        create: function (director) {
+                            var scene = createBaseScene(director);
+
+                            scene.centerSprites(1);
+                            scene.grossini.visible = false;
+                            var action = cc.Sequence.create(
+                                cc.Place.create(cc.p(200, 200)),
+                                cc.Show.create(),
+                                cc.MoveBy.create(1, cc.p(100, 0)),
+                                cc.CallFunc.create(function(node) {console.log("callback 1"); } ),
+                                cc.CallFunc.create(function(node) {console.log("callback 2"); } ),
+                                cc.CallFunc.create(function(node) {console.log("callback 3"); } ));
+                            scene.grossini.runAction(action);
+
+                            return scene;
+                        }
+                    },
+
+                    {
+                        title: "Call Func and friends",
+                        create: function (director) {
+                            var scene = createBaseScene(director);
+
+                            scene.centerSprites(3);
+
+                            // Testing different ways to pass "this"
+                            var action = cc.Sequence.create(
+                                cc.MoveBy.create(2, cc.p(200, 0)),
+                                cc.CallFunc.create(function(node) {
+                                    console.log("callback 1 called");
+                                })
+                            );
+
+                            var action2 = cc.Sequence.create(
+                                cc.ScaleBy.create(2, 2),
+                                cc.FadeOut.create(2),
+                                cc.CallFunc.create(function(node) {
+                                    console.log("callback 2 called");
+                                })
+                            );
+
+                            var action3 = cc.Sequence.create(
+                                cc.RotateBy.create(3, 360),
+                                cc.FadeOut.create(2),
+                                cc.CallFunc.create(function(node, data) {
+                                    console.log("callback 3 called "+data);
+                                }, null, "Hi!")
+                            );
+
+                            scene.grossini.runAction(action);
+                            scene.tamara.runAction(action2);
+                            scene.kathia.runAction(action3);
+
+                            return scene;
+                        }
+                    },
+
+                    {
+                        title: "cc.CallFunc + auto remove",
+                        create: function (director) {
+                            var scene = createBaseScene(director);
+
+                            scene.centerSprites(1);
+
+                            var action = cc.Sequence.create(cc.MoveBy.create(2.0, cc.p(200, 0)),
+                            cc.CallFunc.create(function(node, data) {
+                                node.removeFromParent(data);
+                            }, scene.grossini, true));
+
+                            scene.grossini.runAction(action);
+
+                            return scene;
+                        }
+                    },
+
+                    {
+                        title: "cc.CallFunc + parameters",
+                        create: function (director) {
+                            var scene = createBaseScene(director);
+
+                            scene.centerSprites(1);
+
+                            var action = cc.CallFunc.create(function (nodeExecutingAction, value) {
+                                var control1 = "Value is: " + value;
+                                console.log("Object:" + nodeExecutingAction + ". " + control1);
+                            }, null, "Hello world");
+
+                            // BUG original code was scene.runAction
+                            scene.grossini.runAction(action);
+
+                            return scene;
+                        }
+                    },
+
+                    {
+                        title: "cc.CallFunc + cc.RepeatForever",
+                        create: function (director) {
+                            var scene = createBaseScene(director);
+
+                            scene.centerSprites(1);
+                            var action = cc.Sequence.create(
+                                cc.DelayTime.create(1),
+                                cc.CallFunc.create(function(sender) {
+                                    var repeat = cc.RepeatForever.create(cc.RotateBy.create(1, 360));
+                                    sender.runAction(repeat);
+                                }));    // not passing 'this' since it is not used by the callback func
+
+                            scene.grossini.runAction(action);
+
+                            return scene;
+                        }
+                    },
+
+                    {
+                        title: "Repeat/RepeatForever + RotateTo",
+                        create: function (director) {
+                            var scene = createBaseScene(director);
+
+                            scene.centerSprites(2);
+
+                            var act1 = cc.RotateTo.create(0.5, 90);
+                            var act2 = cc.RotateTo.create(0.5, 0);
+                            var seq = cc.Sequence.create(act1, act2);
+                            var rep1 = cc.RepeatForever.create(seq);
+                            var rep2 = cc.Repeat.create((seq.clone()), 4);
+
+                            scene.tamara.runAction(rep1);
+                            scene.kathia.runAction(rep2);
+
+                            return scene;
+                        }
+                    },
+
+                    {
+                        title: "DelayTime: m + delay + m",
+                        create: function (director) {
+                            var scene = createBaseScene(director);
+
+                            scene.alignSpritesLeft(1);
+
+                            var move = cc.MoveBy.create(1, cc.p(150, 0));
+                            var action = cc.Sequence.create(move, cc.DelayTime.create(2), move.clone());
+
+                            scene.grossini.runAction(action);
+
+                            return scene;
+                        }
+                    },
+
+                    {
+                        title: "Reverse a sequence",
+                        create: function (director) {
+                            var scene = createBaseScene(director);
+
+                            scene.alignSpritesLeft(1);
+
+                            var move1 = cc.MoveBy.create(1, cc.p(250, 0));
+                            var move2 = cc.MoveBy.create(1, cc.p(0, 50));
+                            var seq = cc.Sequence.create(move1, move2, move1.reverse());
+                            var action = cc.Sequence.create(seq, seq.reverse());
+
+                            scene.grossini.runAction(action);
+
+                            return scene;
+                        }
+                    },
+
+                    {
+                        title: "Reverse a sequence 2",
+                        create: function (director) {
+                            var scene = createBaseScene(director);
+
+                            scene.alignSpritesLeft(2);
+
+                            // Test:
+                            //   Sequence should work both with IntervalAction and InstantActions
+                            var move1 = cc.MoveBy.create(3, cc.p(250, 0));
+                            var move2 = cc.MoveBy.create(3, cc.p(0, 50));
+                            var tog1 = cc.ToggleVisibility.create();
+                            var tog2 = cc.ToggleVisibility.create();
+                            var seq = cc.Sequence.create(move1, tog1, move2, tog2, move1.reverse());
+                            var action = cc.Repeat.create(
+                                cc.Sequence.create(seq, seq.reverse()), 3
+                            );
+
+
+                            // Test:
+                            //   Also test that the reverse of Hide is Show, and vice-versa
+                            scene.kathia.runAction(action);
+
+                            var move_tamara = cc.MoveBy.create(1, cc.p(100, 0));
+                            var move_tamara2 = cc.MoveBy.create(1, cc.p(50, 0));
+                            var hide = cc.Hide.create();
+                            var seq_tamara = cc.Sequence.create(move_tamara, hide, move_tamara2);
+                            var seq_back = seq_tamara.reverse();
+                            scene.tamara.runAction(cc.Sequence.create(seq_tamara, seq_back));
+
+                            return scene;
+                        }
+                    },
+
+                    {
+                        title: "Repeat / RepeatForever actions",
+                        create: function (director) {
+                            var scene = createBaseScene(director);
+
+                            scene.alignSpritesLeft(2);
+
+                            var a1 = cc.MoveBy.create(1, cc.p(150, 0));
+                            var action1 = cc.Repeat.create(
+                                cc.Sequence.create(cc.Place.create(cc.p(60, 60)), a1),
+                                3);
+                            var action2 = cc.RepeatForever.create(
+                                cc.Sequence.create( a1.clone(), a1.reverse(), cc.DelayTime.create(0.25) )
+                            );
+
+                            scene.kathia.runAction(action1);
+                            scene.tamara.runAction(action2);
+
+                            return scene;
+                        }
+                    },
+
+                    {
+                        title: "cc.JumpTo / cc.JumpBy",
+                        create: function (director) {
+                            var scene = createBaseScene(director);
+
+                            scene.centerSprites(3);
+
+                            var actionTo = cc.JumpTo.create(2, cc.p(300, 300), 50, 4);
+                            var actionBy = cc.JumpBy.create(2, cc.p(300, 0), 50, 4);
+                            var actionUp = cc.JumpBy.create(2, cc.p(0, 0), 80, 4);
+                            var actionByBack = actionBy.reverse();
+
+                            var delay = cc.DelayTime.create(0.25);
+
+                            scene.tamara.runAction(actionTo);
+                            scene.grossini.runAction(cc.Sequence.create(actionBy, delay, actionByBack));
+                            scene.kathia.runAction(cc.RepeatForever.create(
+                                cc.Sequence.create(actionUp, delay.clone() )
+                                    ) );
+
+                            return scene;
+                        }
+                    },
+
+                    {
+                        title: "cc.Spawn: Jump + Rotate",
+                        create: function (director) {
+                            var scene = createBaseScene(director);
+                            scene.alignSpritesLeft(1);
+
+                            var action = cc.Spawn.create(
+                                cc.JumpBy.create(2, cc.p(300, 0), 50, 4),
+                                cc.RotateBy.create(2, 720));
+
+                            scene.grossini.runAction(action);
+
+                            return scene;
+                        }
+                    },
+
+                    {
+                        title: "Reverse Jump action",
+                        create: function (director) {
+                            var scene = createBaseScene(director);
+
+                            scene.alignSpritesLeft(1);
+
+                            var jump = cc.JumpBy.create(2, cc.p(300, 0), 50, 4);
+                            var delay = cc.DelayTime.create(0.25);
+                            var action = cc.Sequence.create(jump, delay, jump.reverse());
+
+                            scene.grossini.runAction(action);
+
+                            return scene;
+                        }
+                    },
+
+                    {
+                        title: "cc.Blink",
+                        create: function (director) {
+                            var scene = createBaseScene(director);
+
+                            scene.centerSprites(2);
+
+                            var action1 = cc.Blink.create(2, 10);
+                            var action2 = cc.Blink.create(2, 5);
+
+                            scene.tamara.runAction(action1);
+                            scene.kathia.runAction(action2);
+
+                            return scene;
+                        }
+                    },
+
+                    {
+                        title: "cc.Rotate Jerk",
+                        create: function (director) {
+                            var scene = createBaseScene(director);
+
+                            scene.centerSprites(2);
+                            var seq = cc.Sequence.create(
+                                    cc.RotateTo.create(0.5, -20),
+                                    cc.RotateTo.create(0.5, 20));
+
+                            var rep1 = cc.Repeat.create(seq, 10);
+                            var rep2 = cc.RepeatForever.create((seq.clone()));
+
+                            scene.tamara.runAction(rep1);
+                            scene.kathia.runAction(rep2);
+
+                            return scene;
+                        }
+                    },
+
+                    {
+                        title: "CardinalSplineBy / CardinalSplineAt",
+                        create: function (director) {
+                            var scene = createBaseScene(director);
+
+                            scene.centerSprites(2);
+
+                            var delay = cc.DelayTime.create(0.25);
+                            var winSize = director.getWinSize();
+
+                            var array = [
+                                cc.p(0, 0),
+                                cc.p(winSize.width / 2 - 30, 0),
+                                cc.p(winSize.width / 2 - 30, winSize.height - 80),
+                                cc.p(0, winSize.height - 80),
+                                cc.p(0, 0)
+                            ];
+
+                            //
+                            // sprite 1 (By)
+                            //
+                            // Spline with no tension (tension==0)
+                            //
+                            var action1 = cc.CardinalSplineBy.create(2, array, 0);
+                            var reverse1 = action1.reverse();
+                            var seq = cc.Sequence.create(action1, delay, reverse1, delay.clone() );
+
+                            scene.tamara.x = 50;
+                            scene.tamara.y = 50;
+                            scene.tamara.runAction(seq);
+
+                            //
+                            // sprite 2 (By)
+                            //
+                            // Spline with high tension (tension==1)
+                            //
+                            var action2 = cc.CardinalSplineBy.create(2, array, 1);
+                            var reverse2 = action2.reverse();
+                            var seq2 = cc.Sequence.create(action2, delay.clone(), reverse2, delay.clone());
+
+                            scene.kathia.x = winSize.width / 2;
+                            scene.kathia.y = 50;
+                            scene.kathia.runAction(seq2);
+
+                            return scene;
+                        }
+                    },
+
+                    {
+                        title: "CatmullRomBy / CatmullRomTo",
+                        create: function (director) {
+                            var scene = createBaseScene(director);
+
+                            var winSize = director.getWinSize();
+                            scene.centerSprites(2);
+
+                            var delay = cc.DelayTime.create(0.25);
+
+                            //
+                            // sprite 1 (By)
+                            //
+                            // startPosition can be any coordinate, but since the movement
+                            // is relative to the Catmull Rom curve, it is better to start with (0,0).
+                            //
+                            scene.tamara.x = 50;
+                            scene.tamara.y = 50;
+
+                            var array = [
+                                cc.p(0, 0),
+                                cc.p(80, 80),
+                                cc.p(winSize.width - 80, 80),
+                                cc.p(winSize.width - 80, winSize.height - 80),
+                                cc.p(80, winSize.height - 80),
+                                cc.p(80, 80),
+                                cc.p(winSize.width / 2, winSize.height / 2)
+                            ];
+
+                            var action1 = cc.CatmullRomBy.create(3, array);
+                            var reverse1 = action1.reverse();
+                            var seq1 = cc.Sequence.create(action1, delay, reverse1);
+
+                            scene.tamara.runAction(seq1);
+
+                            //
+                            // sprite 2 (To)
+                            //
+                            // The startPosition is not important here, because it uses a "To" action.
+                            // The initial position will be the 1st point of the Catmull Rom path
+                            //
+                            var array2 = [
+                                cc.p(winSize.width / 2, 30),
+                                cc.p(winSize.width - 80, 30),
+                                cc.p(winSize.width - 80, winSize.height - 80),
+                                cc.p(winSize.width / 2, winSize.height - 80),
+                                cc.p(winSize.width / 2, 30)
+                            ];
+
+                            var action2 = cc.CatmullRomTo.create(3,array2);
+                            var reverse2 = action2.reverse();
+
+                            var seq2 = cc.Sequence.create(action2, delay.clone(), reverse2);
+
+                            scene.kathia.runAction(seq2);
+
+                            return scene;
+                        }
+                    }
+                ]
+            },
+
+            {
+                block:"Easing",
+                testcases : [
+
+                    {
+                        title : "EaseIn - EaseOut - Stop",
+                        create : function( director ) {
+
+                            var winSize= director.getWinSize();
+                            var scene= createBaseSceneEasing(director);
+
+                            var move = cc.MoveBy.create(2, cc.p(winSize.width - 80, 0));
+                            var move_back = move.reverse();
+
+                            var move_ease_in = cc.EaseIn.create(move.clone(), 2.0);
+                            var move_ease_in_back = move_ease_in.reverse();
+
+                            var move_ease_out = cc.EaseOut.create(move.clone(), 2.0);
+                            var move_ease_out_back = move_ease_out.reverse();
+
+                            var delay = cc.DelayTime.create(0.10);
+
+                            var seq1 = cc.Sequence.create(move, delay, move_back, delay.clone());
+                            var seq2 = cc.Sequence.create(move_ease_in, delay.clone(), move_ease_in_back, delay.clone());
+                            var seq3 = cc.Sequence.create(move_ease_out, delay.clone(), move_ease_out_back, delay.clone());
+
+
+                            var a2 = scene.grossini.runAction(cc.RepeatForever.create(seq1));
+                            a2.tag = 1;
+
+                            var a1 = scene.tamara.runAction(cc.RepeatForever.create(seq2));
+                            a1.tag = 1;
+
+                            var a = scene.kathia.runAction(cc.RepeatForever.create(seq3));
+                            a.tag = 1;
+
+                            scene.scheduleOnce(function() {
+                                scene.tamara.stopActionByTag(1);
+                                scene.kathia.stopActionByTag(1);
+                                scene.grossini.stopActionByTag(1);
+                            }, 4.1);
+
+                            return scene;
+                        }
+                    },
+
+                    {
+                        title: "EaseInOut and rates",
+                        create: function (director) {
+
+                            var winSize = director.getWinSize();
+                            var scene = createBaseSceneEasing(director);
+
+                            var move = cc.MoveBy.create(2, cc.p(winSize.width - 80, 0));
+
+                            var move_ease_inout1 = cc.EaseInOut.create(move.clone(), 2.0);
+                            var move_ease_inout_back1 = move_ease_inout1.reverse();
+
+                            var move_ease_inout2 = cc.EaseInOut.create(move.clone(), 3.0);
+                            var move_ease_inout_back2 = move_ease_inout2.reverse();
+
+                            var move_ease_inout3 = cc.EaseInOut.create(move.clone(), 4.0);
+                            var move_ease_inout_back3 = move_ease_inout3.reverse();
+
+                            var delay = cc.DelayTime.create(0.1);
+
+                            var seq1 = cc.Sequence.create(move_ease_inout1, delay, move_ease_inout_back1, delay.clone());
+                            var seq2 = cc.Sequence.create(move_ease_inout2, delay.clone(), move_ease_inout_back2, delay.clone());
+                            var seq3 = cc.Sequence.create(move_ease_inout3, delay.clone(), move_ease_inout_back3, delay.clone());
+
+                            scene.tamara.runAction(cc.RepeatForever.create(seq1));
+                            scene.kathia.runAction(cc.RepeatForever.create(seq2));
+                            scene.grossini.runAction(cc.RepeatForever.create(seq3));
+
+                            return scene;
+                        }
+                    },
+
+                    {
+                        title : "ExpIn - ExpOut actions",
+                        create : function( director ) {
+
+                            var winSize= director.getWinSize();
+                            var scene= createBaseSceneEasing(director);
+
+                            var move = cc.MoveBy.create(2, cc.p(winSize.width - 80, 0));
+                            var move_back = move.reverse();
+
+                            var move_ease_in = cc.EaseExponentialIn.create(move.clone());
+                            var move_ease_in_back = move_ease_in.reverse();
+
+                            var move_ease_out = cc.EaseExponentialOut.create(move.clone());
+                            var move_ease_out_back = move_ease_out.reverse();
+
+                            var delay = cc.DelayTime.create(0.1);
+
+                            var seq1 = cc.Sequence.create(move, delay, move_back, delay.clone());
+                            var seq2 = cc.Sequence.create(move_ease_in, delay.clone(), move_ease_in_back, delay.clone());
+                            var seq3 = cc.Sequence.create(move_ease_out, delay.clone(), move_ease_out_back, delay.clone());
+
+
+                            scene.grossini.runAction(cc.RepeatForever.create(seq1));
+                            scene.tamara.runAction(cc.RepeatForever.create(seq2));
+                            scene.kathia.runAction(cc.RepeatForever.create(seq3));
+
+                            return scene;
+                        }
+                    },
+
+                    {
+                        title : "EaseExponentialInOut action",
+                        create : function( director ) {
+
+                            var winSize= director.getWinSize();
+                            var scene= createBaseSceneEasing(director);
+
+                            var move = cc.MoveBy.create(2, cc.p(winSize.width - 80, 0));
+                            var move_back = move.reverse();
+
+                            var move_ease = cc.EaseExponentialInOut.create(move.clone());
+                            var move_ease_back = move_ease.reverse();
+
+                            var delay = cc.DelayTime.create(0.1);
+
+                            var seq1 = cc.Sequence.create(move, delay, move_back, delay.clone());
+                            var seq2 = cc.Sequence.create(move_ease, delay.clone(), move_ease_back, delay.clone());
+
+                            scene.positionForTwo();
+
+                            scene.grossini.runAction(cc.RepeatForever.create(seq1));
+                            scene.tamara.runAction(cc.RepeatForever.create(seq2));
+
+                            return scene;
+                        }
+                    },
+
+                    {
+                        title : "EaseSineIn - EaseSineOut",
+                        create : function( director ) {
+
+                            var winSize= director.getWinSize();
+                            var scene= createBaseSceneEasing(director);
+
+                            var move = cc.MoveBy.create(2, cc.p(winSize.width - 80, 0));
+                            var move_back = move.reverse();
+
+                            var move_ease_in = cc.EaseSineIn.create(move.clone());
+                            var move_ease_in_back = move_ease_in.reverse();
+
+                            var move_ease_out = cc.EaseSineOut.create(move.clone());
+                            var move_ease_out_back = move_ease_out.reverse();
+
+                            var delay = cc.DelayTime.create(0.1);
+
+                            var seq1 = cc.Sequence.create(move, delay, move_back, delay.clone());
+                            var seq2 = cc.Sequence.create(move_ease_in, delay, move_ease_in_back, delay.clone());
+                            var seq3 = cc.Sequence.create(move_ease_out, delay, move_ease_out_back, delay.clone());
+
+
+                            scene.grossini.runAction(cc.RepeatForever.create(seq1));
+                            scene.tamara.runAction(cc.RepeatForever.create(seq2));
+                            scene.kathia.runAction(cc.RepeatForever.create(seq3));
+
+                            return scene;
+                        }
+                    },
+
+                    {
+                        title : "EaseSineInOut action",
+                        create : function( director ) {
+
+                            var winSize= director.getWinSize();
+                            var scene= createBaseSceneEasing(director);
+
+                            var move = cc.MoveBy.create(2, cc.p(winSize.width - 80, 0));
+                            var move_back = move.reverse();
+
+                            var move_ease = cc.EaseSineInOut.create(move.clone());
+                            var move_ease_back = move_ease.reverse();
+
+                            var delay = cc.DelayTime.create(0.1);
+
+                            var seq1 = cc.Sequence.create(move, delay, move_back, delay.clone());
+                            var seq2 = cc.Sequence.create(move_ease, delay.clone(), move_ease_back, delay.clone());
+
+                            scene.positionForTwo();
+
+                            scene.grossini.runAction(cc.RepeatForever.create(seq1));
+                            scene.tamara.runAction(cc.RepeatForever.create(seq2));
+
+                            return scene;
+                        }
+                    },
+
+                    {
+                        title : "Elastic In - Out actions",
+                        create : function( director ) {
+
+                            var winSize= director.getWinSize();
+                            var scene= createBaseSceneEasing(director);
+
+                            var move = cc.MoveBy.create(2, cc.p(winSize.width - 80, 0));
+                            var move_back = move.reverse();
+
+                            var move_ease_in = cc.EaseElasticIn.create(move.clone());
+                            var move_ease_in_back = move_ease_in.reverse();
+
+                            var move_ease_out = cc.EaseElasticOut.create(move.clone());
+                            var move_ease_out_back = move_ease_out.reverse();
+
+                            var delay = cc.DelayTime.create(0.1);
+
+                            var seq1 = cc.Sequence.create(move, delay, move_back, delay.clone());
+                            var seq2 = cc.Sequence.create(move_ease_in, delay.clone(), move_ease_in_back, delay.clone());
+                            var seq3 = cc.Sequence.create(move_ease_out, delay.clone(), move_ease_out_back, delay.clone());
+
+                            scene.grossini.runAction(cc.RepeatForever.create(seq1));
+                            scene.tamara.runAction(cc.RepeatForever.create(seq2));
+                            scene.kathia.runAction(cc.RepeatForever.create(seq3));
+
+                            return scene;
+                        }
+                    },
+
+                    {
+                        title : "EaseElasticInOut action",
+                        create : function( director ) {
+
+                            var winSize= director.getWinSize();
+                            var scene= createBaseSceneEasing(director);
+
+                            var move = cc.MoveBy.create(2, cc.p(winSize.width - 80, 0));
+
+                            var move_ease_inout1 = cc.EaseElasticInOut.create(move.clone(), 0.3);
+                            var move_ease_inout_back1 = move_ease_inout1.reverse();
+
+                            var move_ease_inout2 = cc.EaseElasticInOut.create(move.clone(), 0.45);
+                            var move_ease_inout_back2 = move_ease_inout2.reverse();
+
+                            var move_ease_inout3 = cc.EaseElasticInOut.create(move.clone(), 0.6);
+                            var move_ease_inout_back3 = move_ease_inout3.reverse();
+
+                            var delay = cc.DelayTime.create(0.1);
+
+                            var seq1 = cc.Sequence.create(move_ease_inout1, delay, move_ease_inout_back1, delay.clone());
+                            var seq2 = cc.Sequence.create(move_ease_inout2, delay.clone(), move_ease_inout_back2, delay.clone());
+                            var seq3 = cc.Sequence.create(move_ease_inout3, delay.clone(), move_ease_inout_back3, delay.clone());
+
+                            scene.tamara.runAction(cc.RepeatForever.create(seq1));
+                            scene.kathia.runAction(cc.RepeatForever.create(seq2));
+                            scene.grossini.runAction(cc.RepeatForever.create(seq3));
+
+                            return scene;
+                        }
+                    },
+
+                    {
+                        title : "Bounce In - Out actions",
+                        create : function( director ) {
+
+                            var winSize= director.getWinSize();
+                            var scene= createBaseSceneEasing(director);
+
+                            var move = cc.MoveBy.create(2, cc.p(winSize.width - 80, 0));
+                            var move_back = move.reverse();
+
+                            var move_ease_in = cc.EaseBounceIn.create(move.clone());
+                            var move_ease_in_back = move_ease_in.reverse();
+
+                            var move_ease_out = cc.EaseBounceOut.create(move.clone());
+                            var move_ease_out_back = move_ease_out.reverse();
+
+                            var delay = cc.DelayTime.create(0.1);
+
+                            var seq1 = cc.Sequence.create(move, delay, move_back, delay.clone());
+                            var seq2 = cc.Sequence.create(move_ease_in, delay.clone(), move_ease_in_back, delay.clone());
+                            var seq3 = cc.Sequence.create(move_ease_out, delay.clone(), move_ease_out_back, delay.clone());
+
+                            scene.grossini.runAction(cc.RepeatForever.create(seq1));
+                            scene.tamara.runAction(cc.RepeatForever.create(seq2));
+                            scene.kathia.runAction(cc.RepeatForever.create(seq3));
+
+                            return scene;
+                        }
+                    },
+
+                    {
+                        title : "EaseBounceInOut action",
+                        create : function( director ) {
+
+                            var winSize= director.getWinSize();
+                            var scene= createBaseSceneEasing(director);
+
+                            var move = cc.MoveBy.create(2, cc.p(winSize.width - 80, 0));
+                            var move_back = move.reverse();
+
+                            var move_ease = cc.EaseBounceInOut.create(move.clone());
+                            var move_ease_back = move_ease.reverse();
+
+                            var delay = cc.DelayTime.create(0.1);
+
+                            var seq1 = cc.Sequence.create(move, delay, move_back, delay.clone());
+                            var seq2 = cc.Sequence.create(move_ease, delay.clone(), move_ease_back, delay.clone());
+
+                            scene.positionForTwo();
+
+                            scene.grossini.runAction(cc.RepeatForever.create(seq1));
+                            scene.tamara.runAction(cc.RepeatForever.create(seq2));
+
+                            return scene;
+                        }
+                    },
+
+                    {
+                        title : "Back In - Out actions",
+                        create : function( director ) {
+
+                            var winSize= director.getWinSize();
+                            var scene= createBaseSceneEasing(director);
+
+                            var move = cc.MoveBy.create(2, cc.p(winSize.width - 80, 0));
+                            var move_back = move.reverse();
+
+                            var move_ease_in = cc.EaseBackIn.create(move.clone());
+                            var move_ease_in_back = move_ease_in.reverse();
+
+                            var move_ease_out = cc.EaseBackOut.create(move.clone());
+                            var move_ease_out_back = move_ease_out.reverse();
+
+                            var delay = cc.DelayTime.create(0.1);
+
+                            var seq1 = cc.Sequence.create(move, delay, move_back, delay.clone());
+                            var seq2 = cc.Sequence.create(move_ease_in, delay.clone(), move_ease_in_back, delay.clone());
+                            var seq3 = cc.Sequence.create(move_ease_out, delay.clone(), move_ease_out_back, delay.clone());
+
+                            scene.grossini.runAction(cc.RepeatForever.create(seq1));
+                            scene.tamara.runAction(cc.RepeatForever.create(seq2));
+                            scene.kathia.runAction(cc.RepeatForever.create(seq3));
+
+                            return scene;
+                        }
+                    },
+
+                    {
+                        title : "EaseBackInOut action",
+                        create : function( director ) {
+
+                            var winSize= director.getWinSize();
+                            var scene= createBaseSceneEasing(director);
+
+                            var move = cc.MoveBy.create(2, cc.p(winSize.width - 80, 0));
+                            var move_back = move.reverse();
+
+                            var move_ease = cc.EaseBackInOut.create(move.clone());
+                            var move_ease_back = move_ease.reverse();
+
+                            var delay = cc.DelayTime.create(0.1);
+
+                            var seq1 = cc.Sequence.create(move, delay, move_back, delay.clone());
+                            var seq2 = cc.Sequence.create(move_ease, delay.clone(), move_ease_back, delay.clone());
+
+                            scene.positionForTwo();
+
+                            scene.grossini.runAction(cc.RepeatForever.create(seq1));
+                            scene.tamara.runAction(cc.RepeatForever.create(seq2));
+
+                            return scene;
+                        }
+                    },
+
+                    {
+                        title : "Speed action",
+                        create : function( director ) {
+
+                            var winSize= director.getWinSize();
+                            var scene= createBaseSceneEasing(director);
+
+                            // rotate and jump
+                            var jump1 = cc.JumpBy.create(4, cc.p(-winSize.width + 80, 0), 100, 4);
+                            var jump2 = jump1.reverse();
+                            var rot1 = cc.RotateBy.create(4, 360 * 2);
+                            var rot2 = rot1.reverse();
+
+                            var seq3_1 = cc.Sequence.create(jump2, jump1);
+                            var seq3_2 = cc.Sequence.create(rot1, rot2);
+                            var spawn = cc.Spawn.create(seq3_1, seq3_2);
+
+                            var action1 = cc.Speed.create(cc.RepeatForever.create(spawn), 1.0);
+                            var action2 = action1.clone();
+                            var action3 = action1.clone();
+
+                            action1.setSpeed(1);
+                            action2.setSpeed(1);
+                            action3.setSpeed(1);
+
+                            scene.grossini.runAction(action2);
+                            scene.tamara.runAction(action3);
+                            scene.kathia.runAction(action1);
+
+                            scene.scheduleOnce( function(time) {
+
+                                console.log("scheduled task.");
+                                action1.setSpeed(.2+Math.random()*2);
+                                action2.setSpeed(.2+Math.random()*2);
+                                action3.setSpeed(.2+Math.random()*2);
+
+                            }, 1);
+
+                            return scene;
+                        }
+                    }
+               ]
+            },
+
+            {
+                block:"Scheduler",
+                testcases : [
+
+                    {
+                        title: "Self-remove an scheduler",
+                        create : function( director ) {
+
+                            var scene= createBaseSceneScheduler(director);
+
+                            var accum= 0;
+
+                            scene.schedule(function fn(elapsed,target) {
+                                accum += elapsed;
+                                console.log("Time: " + accum);
+                                if (accum > 3) {
+                                    target.unschedule(fn);
+                                    console.log("scheduler removed");
+                                }
+                            }, 0.500);
+
+                            scene.schedule(function fn2(elapsed,target) {
+                                console.log("This scheduler should not be removed");
+                            }, 0.500);
+
+                            return scene;
+                        }
+                    },
+
+                    {
+                        title : "Pause / Resume",
+                        create : function( director ) {
+                            var scene= createBaseSceneScheduler(director);
+
+                            scene.schedule(function tick1(elapsedTime,target) {
+                                console.log("tick1");
+                            }, 0.500);
+
+                            scene.schedule(function tick2(elapsedTime,target) {
+                                console.log("tick2");
+                            }, 0.500);
+
+                            scene.schedule(function pause(elapsedTime, target) {
+                                scene.getScheduler().pauseTarget(scene);
+                                console.log("Scene target will be paused and not resumed. No more lines.");
+                            }, 3);
+
+                            return scene;
+                        }
+                    },
+
+                    {
+                        title : "Unschedule All callbacks",
+                        create : function( director ) {
+
+                            var scene= createBaseSceneScheduler(director);
+
+
+                            scene.schedule(function fn1(elapsed, target) {
+                                console.log("tick1");
+                            }, 0.500);
+                            scene.schedule(function fn2(elapsed, target) {
+                                console.log("tick2");
+                            }, 0.500);
+                            scene.schedule(function fn3(elapsed, target) {
+                                console.log("tick3");
+                            }, 0.500);
+                            scene.schedule(function fn4(elapsed, target) {
+                                console.log("tick4");
+                            }, 0.500);
+                            scene.schedule(function unsched(elapsed, target) {
+                                target.unscheduleAllCallbacks();
+                                console.log("unschedule all");
+                            }, 4);
+
+
+                            return scene;
+                        }
+                    },
+
+                    {
+                        title : "Schedule and Unschedule from Schedule",
+                        create : function( director ) {
+
+                            var scene= createBaseSceneScheduler(director);
+
+                            function fn1() { console.log("tick1"); }
+                            function fn2() { console.log("tick2"); }
+                            function fn3() { console.log("tick3"); }
+                            function fn4() { console.log("tick4"); }
+
+                            scene.schedule(fn1, 0.500);
+                            scene.schedule(fn2, 1);
+                            scene.schedule(function unschedule(elapsedTime, target ) {
+                                target.unschedule(fn1);
+                                target.unschedule(fn2);
+                                target.unschedule(unschedule);
+                                target.schedule(fn3, 1);
+                                target.schedule(fn4, 1);
+                                console.log("   unscheduling and scheduling.");
+
+                            }, 4);
+
+                            return scene;
+                        }
+                    },
+
+                    {
+                        title : "Reschedule Callback",
+                        create : function( director ) {
+
+                            var scene= createBaseSceneScheduler(director);
+                            var interval = 1;
+                            var ticks = 0;
+                            scene.schedule(function updatefn(dt, target) {
+                                ticks++;
+                                console.log("schedUpdate: " + dt.toFixed(2));
+                                if (ticks > 3) {
+                                    interval += 1;
+                                    target.schedule(updatefn, interval);
+                                    ticks = 0;
+                                }
+
+                            }, interval);
+                            return scene;
+                        }
+                    },
+
+                    {
+                        title : "Schedule update with priority",
+                        create : function( director ) {
+
+                            var scene= createBaseSceneScheduler(director);
+
+                            function TestNode( str, priority ) {
+                                var node = new cc.node.Node();
+                                node.update = function (dt) {
+                                    console.log(str);
+                                };
+                                node.scheduleUpdateWithPriority(priority);
+
+                                return node;
+                            }
+
+                            var str = "---";
+                            var d = TestNode(str,50);
+                            scene.addChild(d);
+
+                            str = "3rd";
+                            var b = TestNode(str,0);
+                            scene.addChild(b);
+
+                            str = "1st";
+                            var a = TestNode(str, -10);
+                            scene.addChild(a);
+
+                            str = "4th";
+                            var c = TestNode(str,10);
+                            scene.addChild(c);
+
+                            str = "5th";
+                            var e = TestNode(str,20);
+                            scene.addChild(e);
+
+                            str = "2nd";
+                            var f = TestNode(str,-5);
+                            scene.addChild(f);
+
+                            scene.schedule(function(delta, node) {
+
+                                var children = node._children;
+
+                                for (var i = 0; i < children.length; i++) {
+                                    var node = children[i];
+                                    if (node) {
+                                        node.unscheduleAllCallbacks();
+                                    }
+                                }
+
+                            }, 4);
+
+                            return scene;
+                        }
+                    },
+
+                    {
+                        title : "",
+                        create : function( director ) {
+
+                            var scene= createBaseSceneScheduler(director);
+                            return scene;
+                        }
+                    }
+                ]
+            }
+        ];
+
+        function nextTest() {
+            clearTestMark();
+            currentTest++;
+            if ( currentTest>=tests[currentBlock].testcases.length ) {
+                currentBlock++;
+                if ( currentBlock>=tests.length ) {
+                    currentBlock= 0;
+                }
+                currentTest=0;
+            }
+            showCurrentTest();
+        }
+
+        function prevTest() {
+            clearTestMark();
+            currentTest--;
+            if ( currentTest<0 ) {
+                currentBlock--;
+                if ( currentBlock<0 ) {
+                    currentBlock= tests.length-1;
+                }
+                currentTest= tests[currentBlock].testcases.length-1;
+            }
+            showCurrentTest();
+        }
+
+        function showTest(block, index) {
+            clearTestMark();
+            currentBlock= block;
+            currentTest= index;
+            showCurrentTest();
+        }
+
+        function showCurrentTest() {
+            showTestMark();
+            var scene= tests[currentBlock].testcases[currentTest].create(director);
+            var title= tests[currentBlock].testcases[currentTest].title;
+            director.runScene( scene );
+            document.getElementById('title').innerHTML= title;
+        }
+
+        function clearTestMark() {
+            var elem= document.getElementById("id"+currentBlock+"_"+currentTest);
+            if ( elem ) {
+                elem.style.background= "";
+            }
+        }
+
+        function showTestMark() {
+            var elemt= document.getElementById("t");
+            elemt.value="";
+            var elem= document.getElementById("id"+currentBlock+"_"+currentTest);
+            if ( elem ) {
+                elem.style.background= "#ff0";
+            }
+        }
+
+        function toggleAutoscroll() {
+            var check= document.getElementById("autoscroll");
+            autoscroll= check.checked;
+        }
+
+        function clearConsole() {
+            var ta= document.getElementById("t");
+            ta.value= "";
+        }
+
+        var currentBlock = 0;
+        var currentTest = 0;
+        var director;
+        var autoscroll = true;
+
+        function start() {
+
+            var d= document.getElementById("menu");
+
+            for( var i=0; i<tests.length; i++ ) {
+                var test= tests[i];
+
+                var div= document.createElement("div");
+                var h1 = document.createElement("h3");
+                h1.innerHTML= test.block;
+
+                d.appendChild(div);
+                div.appendChild(h1);
+
+                var div2= document.createElement("div");
+                div.appendChild(div2);
+                for( var j=0; j<test.testcases.length; j++ ) {
+                    var s = document.createElement("span");
+                    s.id = "id"+i+"_"+j;
+                    s.style["margin-right"] = "1em;";
+                    var title= tests[i].testcases[j].title;
+                    if ( title==="" ) {
+                        title="TITLE";
+                    }
+                    s.innerHTML = "<a href='#' style='margin-right:5px; margin-left:5px; font-size:.85em;' onclick='testRunner.showTest(" + i +"," + j + ");'>" + title + "</a>";
+                    div2.appendChild(s);
+                }
+            }
+
+            var W = 800;
+            var H = 450;
+
+            director = cc.Director.getInstance().
+                    setRenderer(new cc.render.WebGLRenderer(W, H, document.getElementById('c')));
+
+            showCurrentTest();
+        }
+
+        if ( window.console ) {
+            window.console._log = window.console.log;
+
+            window.console.log = function() {
+                var str= "";
+                for( var i=0; i<arguments.length; i++ ) {
+                    str= str + arguments[i].toString();
+                    str= str + " ";
+                }
+                str= str+"\n";
+                var ta= document.getElementById("t");
+                ta.value+= str;
+
+                if ( autoscroll ) {
+                    ta.scrollTop = ta.scrollHeight;
+                }
+
+                window.console._log.apply( this, Array.prototype.slice.call(arguments) );
+            }
+        }
+
+        window.addEventListener("DOMContentLoaded", start, false );
+
+        return {
+            nextTest : nextTest,
+            prevTest : prevTest,
+            repeat : showCurrentTest,
+            showTest : showTest,
+            toggleAutoscroll : toggleAutoscroll,
+            clearConsole: clearConsole
+        };
+
+    })();
+</script>
+
+<div style="position:absolute; width:100%; height:100%;">
+    <div style="position:absolute; min-width:820px; max-width:820px; ">
+        <div style="margin:5px; text-align:center">
+            <span style="width:100%; text-align:center" id="title">title</span>
+        </div>
+        <div>
+            <span>
+                <div>
+                    <canvas id="c"></canvas>
+                </div>
+                <div>
+                    <span>Console</span>
+                    <span style="positin:absolute; float:right; margin-right:20px;">
+                        <span><button onclick="testRunner.prevTest();">&lt;</button></span>
+                        <span><button onclick="testRunner.repeat();">Repeat</button></span>
+                        <span><button onclick="testRunner.nextTest();">&gt;</button></span>
+                    </span>
+                </div>
+                <div>
+                    <textarea style="margin:5px; width:780px; height:150px;" id="t"></textarea>
+                </div >
+                <div>
+                    <span><input type="checkbox" id="autoscroll" onclick="testRunner.toggleAutoscroll();" checked>AutoScroll</span>
+                    <span><input type="button" value="Clear" onclick="testRunner.clearConsole();"></span>
+                </div>
+            </span>
+
+        </div>
+    </div>
+
+    <div style="position:absolute; overflow:scroll; right:5px; top:0; margin-left:820px; height:100%;" id="menu">
+    </div>
+</div>
+</body>
+</html>

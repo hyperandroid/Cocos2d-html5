@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>CocosJS - Path traversal test.</title>
+    <link rel="stylesheet" type="text/css" href="demos.css"/>
+    <script src="../../../dist/all.js"></script>
+</head>
+<body>
+
+<script>
+    (function() {
+
+        var AssetManager = cc.plugin.asset.AssetManager;
+
+        function loadResources() {
+            AssetManager.load(
+                    {
+                        prefix: "../res/",
+                        resources: ["dude.png@dude"]
+                    },
+                    function onEnd(resources) {
+                        initialize(resources);
+                    }
+            );
+        }
+
+        /**
+         *
+         * @param resources {Array<cc.plugin.loader.Resource}
+         */
+        function initialize(resources) {
+
+            AssetManager.addImage(resources['dude'],'dude');
+
+            // the renderer will setup pre-loaded textures for the renderer type.
+            // it will also create necessary SpriteFrames for each texture, in this case a frame for the image dude.png
+            var renderer = new cc.render.CanvasRenderer(800, 600, document.getElementById("c"));
+
+            // director is the main Cocos Node, and must exist.
+            var director = new cc.node.Director().
+                    setRenderer(renderer);
+
+            // scenes run in directors, and are the main displayable element.
+            var scene = director.createScene().setColor(1, 0, 0);
+
+            // create sprite frames (image regions) from the dude.png image. (it is a 21x7 images array).
+            // these frmes will be called dude<n> where n are the 147-1 possible values.
+            AssetManager.addSpriteFrames(AssetManager.getSpriteFrame("dude").createSubSpriteFrames(21, 7));
+
+            // create a shareable animation.
+            var animation= AssetManager.addAnimationForFrames(
+                    "run_f",
+                    [
+                        122, 121, 120, 119, 118, 117, 116, 115, 114, 113,
+                        112, 111, 110, 109, 108, 107, 106, 105, 104, 103,
+                        102, 101, 100, 99, 98, 97, 96
+                    ],
+                    "dude" );
+
+
+            // create a sprite w/o any frame.
+            var sprite = new cc.node.Sprite().
+                    setAnchorPoint(.5,1);
+
+            // create a sprite w/o any frame, y-inverted
+            var sprite2 = new cc.node.Sprite().
+                    setAnchorPoint(.5, 0).
+                    setFlippedY(true);
+
+            // add sprites to scene
+            scene.addChild(sprite);
+            scene.addChild(sprite2);
+
+            var path= createPath();
+
+            // make the sprites traverse the path with tangent rotation. the sprite will rotate while travesing the path.
+            sprite.runAction( new cc.action.PathAction().
+                            adjustRotation(true, true).
+                            setDuration(20).
+                            from( path ).
+                            setRepeatForever()
+            );
+            sprite2.runAction( new cc.action.PathAction().
+                            adjustRotation(true, true).
+                            setDuration(20).
+                            from(path).
+                            setRepeatForever()
+            );
+
+            // make the sprites have an animation sequence.
+            var animationTime= (.040 + .030*Math.random())>>0;
+            sprite.runAction( cc.repeatForever( cc.animate( animation.clone().setDelayPerUnit( animationTime ) ) ) );
+            sprite2.runAction( cc.repeatForever( cc.animate( animation.clone().setDelayPerUnit( animationTime ) ) ) );
+
+            // overwrite scene draw method to show the path as well.
+            scene.draw= function( ctx ) {
+                ctx.fillStyle= "#ccc";
+                ctx.fillRect(0,0,this._contentSize.width, this._contentSize.height);
+                ctx.beginPath();
+                ctx.strokeStyle="#00f";
+                path.paint(ctx);
+                ctx.stroke();
+                ctx.globalCompositeOperation="source-over";
+            };
+
+            // run the scene.
+            director.runScene(scene);
+        }
+
+        function createPath() {
+
+            // calculate some points ...
+            var i;
+            var R= (Math.min( 800,600 ) - 40)/2;
+            var pp= [];
+            for( i=0; i<7; i++ ) {
+                var angle= i*Math.PI/(7);
+                pp.push( new cc.math.Vector(
+                        800/2 - R*Math.cos(angle + (Math.PI*(i%2)) ) ,
+                        600/2 + R*Math.sin(angle + (Math.PI*(i%2))) ) );
+            }
+
+            // ...and build a catmullRom path from them. closed=true, and 0 tension
+            return new cc.math.Path().catmullRomTo( pp, true, 0 );
+        }
+
+        window.addEventListener("DOMContentLoaded", loadResources, false);
+
+    })();
+</script>
+
+
+<div>
+    <div>
+        <div>
+            <canvas id="c"></canvas>
+        </div>
+        <div>
+            <span id="span" class="infospan"></span>
+        </div>
+    </div>
+    <div>
+        <p>
+            This demo showcases PathAction for path traversal and sprite animation.
+        </p>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Loader</title>
+    <script src="../../../dist/all.js"></script>
+    <link rel="stylesheet" type="text/css" href="demos.css"/>
+
+</head>
+<body>
+<div>
+    <span class="title">Loader</span>
+    <p>
+        This demo uses 2 strategies to get resources. One is a Loader object, and the other is instrumenting the
+        stock AssetManager.
+    </p>
+</div>
+<script>
+    (function() {
+
+        var loader= new cc.plugin.loader.Loader( {
+            prefix : "../res/",
+            resources : [ "anim1.png", "bunny.png", "dude.png" ] });
+        loader.startLoading(
+            function() {
+                console.log("done");
+            },
+            function(resource, index, total) {
+                console.log("loaded "+resource.id+" "+index+"/"+total);
+            }
+        );
+
+        cc.plugin.asset.AssetManager.load(
+
+            {
+                prefix : "../res/",
+                resources : [ "anim1.png", "bunny.png", "dude.png" ]
+            },
+
+            function loaded() {
+                console.log("done");
+            },
+
+            function progress(resource, index, total) {
+                console.log("loaded "+resource.id+" "+index+"/"+total);
+                document.body.appendChild( resource.value )
+            }
+        );
+
+    })();
+</script>
+
+</body>
+</html>

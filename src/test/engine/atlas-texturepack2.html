@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>CocosJS - Atlas with texture packer test (2).</title>
+    <link rel="stylesheet" type="text/css" href="demos.css"/>
+    <script src="../../../dist/all.js"></script>
+</head>
+<body>
+
+<script>
+    (function() {
+
+        var W=1024;
+        var H=1024;
+        var AssetManager= cc.plugin.asset.AssetManager;
+
+        function loadResources() {
+            AssetManager.load(
+                    {
+                        prefix : "../res/",
+                        resources: [
+                            "map.png@map",
+                            "map.json@map-atlas",
+                            "grossini_family.png@grossini",
+                            "grossini_family.plist@g-atlas",
+                            "font.txt@font.txt",
+                            "arial-14.png@arial",
+                            "arial-14.fnt@arial.fnt"
+                        ]
+                    },
+                    function onEnd(resources) {
+                        initialize(resources);
+                    }
+            );
+        }
+
+        /**
+         *
+         * @param resources {object}
+         */
+        function initialize( resources ) {
+            //cc.render.RENDER_ORIGIN="top";
+
+
+            // create a texture packer.
+            // as a difference from atlas-texturepack.html demo, this one will pack atlas image's frames independently
+            // instead as the atlas image as a single element.
+            var tp= new cc.plugin.texture.TexturePacker();
+            tp.addJSONAtlas( resources['map'], resources['map-atlas']);
+            tp.addPListAtlas( resources['grossini'], resources['g-atlas']);
+            tp.pack({
+                'width': 1024,
+                'height': 1024,
+                'sortBy': "perimeter",
+                'margin': 2,
+                'debug': true   // show texture packer's allocated SpriteFrames and empty spaces.
+
+            });
+            tp.createAssets();
+
+            // the renderer will setup pre-loaded textures for the renderer type.
+            // it will also create necessary SpriteFrames for each texture, in this case a frame for the image dude.png
+            var renderer= new cc.render.WebGLRenderer(W,H,document.getElementById("c"));
+
+            // director is the main Cocos Node, and must exist.
+            var director= new cc.node.Director().
+                    setRenderer( renderer );
+
+            // scenes run in directors, and are the main displayable element.
+            var scene= director.createScene().setColor(.5,.5,1);
+
+            // build a Node that shows the texture packed image as its background.
+            // there can be more than one texture packer images, but only one will be seen.
+            var sprite0= new cc.node.Node().
+                    setPosition(0,0).
+                    setContentSize(W,H);
+            sprite0.draw= function(ctx) {
+                var s= Math.min(W,H);
+                ctx.drawTexture( cc.plugin.asset.AssetManager.getTexture("texturepage0"),
+                    0,0,s,s);
+            };
+            scene.addChild(sprite0);
+
+            // create a SpriteFont defined by a glypth designer file.
+            // font.png is an identifier defined in map.json, and references a spriteframe.
+            AssetManager.createSpriteFontFromGlypthDesigner( "font1", "font.png", resources['font.txt'] );
+
+            // sprite a sytem font
+            AssetManager.createSystemSpriteFont( "font2", {
+                size: 50,
+                fontface: "verdana",
+                style : "",         // bold, italic
+                fill: true,
+                stroke: true,
+                strokeSize: 3,
+                fillStyle: "#f0f",
+                strokeStyle: "#000",
+                characters: "0123456789qwertyuiopasdfghjklñzxcvbnmQWERTYUIOPLKJÑHGFDSAZXCVBNM !",
+                padding:5
+            } );
+
+
+
+            var text= "Atlas elements\n" +
+                      "Texture Packed\n" +
+                      "as independent\n" +
+                      " SpriteFrames ";
+            var textSize= AssetManager.getSpriteFont("font1").getTextSize(text);
+            // create a node...
+            var node= new cc.node.Node().
+                    setContentSize( textSize.width, textSize.height ).
+                    setPosition(W/2,900).
+                    setAnchorPoint(.5,.9);
+
+            // with a custom draw method that uses the font.
+            node.draw= function( ctx ) {
+                ctx.setFillStyleColorArray([.7,.7,1,.8]);
+                ctx.fillRect(0,0,this.width,this.height);
+                AssetManager.getSpriteFont("font1").drawText(ctx,text,0,0);
+            };
+            node.enableEvents(true);
+            node.addEventListener( "mouseup", function(e) {
+                if ( director.getScaleManager().getScaleStrategy()===cc.game.ScaleManagerStrategy.NONE ) {
+                    director.getScaleManager().setScale(
+                            cc.game.ScaleManagerStrategy.SCALE_ASPECT,
+                            cc.game.ScalePosition.CENTER);
+                } else {
+                    director.getScaleManager().setScale(
+                            cc.game.ScaleManagerStrategy.NONE,
+                            cc.game.ScalePosition.LEFT);
+                }
+            });
+
+            scene.startChainingActionsForNode(node).
+                    actionRotate().
+                        from(-30).
+                        to(30).
+                        setDuration(7).
+                        setInterpolator( cc.action.Interpolator.EaseInOut( 4, false, true )).
+                        setRepeatForever();
+
+            scene.addChild(node);
+
+            // run the scene.
+            director.runScene( scene );
+        }
+
+        window.addEventListener("DOMContentLoaded", loadResources, false);
+
+    })();
+</script>
+
+<div>
+    <div>
+        <div>
+            <canvas id="c"></canvas>
+        </div>
+        <div>
+            <span id="span"></span>
+        </div>
+    </div>
+    <div>
+        <p>
+            This demos shows image atlas in action. As a difference with atlas-texturepack.html demo, this one
+            texture packs two atlas images not as whole images, but only the image regions that define the atlas.
+            So if your atlas is not well packed because it contains lots of empty space, this space won't be blitted
+            to the Texture packer images.
+        </p>
+        <p>
+            <li>The font is an SpriteFrame divided into other sprite frames from a file definition.</li>
+            <li>The other elements are manually crafted SpriteFrames.</li>
+        </p>
+        <p>
+            Click the swinging Node to see the whole image and back to its original size.
+        </p>
+        <p>
+            You can see the red crossed rects and a white frame around each SpriteFrame because debug in the Texture Packer
+            is enabled.
+        </p>
+    </div>
+</div>
+
+</body>
+</html>

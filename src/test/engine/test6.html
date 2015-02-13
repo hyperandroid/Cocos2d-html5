@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Basic Director/Scene/Transition demo.</title>
+</head>
+<body style="margin:0; padding:0; background:#fff;">
+<script src="../../../dist/all.js"></script>
+
+<script src="../../../lib/stats/stats.js"></script>
+
+<script>
+    (function () {
+
+        var W = 800;
+        var H = 600;
+
+        function init( parent ) {
+
+            var NW = 700;
+            var NH = 500;
+            var R = 6;
+            var C = 8;
+            var INSET= 10;
+            var nodeW= (NW/C);
+            var nodeH= (NH/R);
+
+            for (var i = 0; i < R; i++) {
+                for (var j = 0; j < C; j++) {
+                    var n = new cc.node.Node().
+                            setPosition(j * nodeW + nodeW / 2, i * nodeH + nodeH / 2).
+                            setContentSize(nodeW - INSET, nodeH - INSET).
+                            setColor(Math.random() / 2 + .5, Math.random() / 2 + .5, Math.random() / 2 + .5);
+
+                    parent.addChild(n);
+
+                    var r = cc.repeat(cc.rotateBy(2, 180), 1);
+                    var s00 = cc.scaleBy(1.5, 0, 1);
+                    var s01 = cc.scaleBy(1.5, 1, 1);
+                    var seq0 = cc.sequence(r, s00, s01, cc.tintBy(2, -128,-128,-128));
+                    var seq1 = seq0.reverse();
+                    var seq = cc.repeatForever(cc.sequence(seq0, seq1));
+
+                    n.runAction(seq);
+
+                }
+            }
+        }
+
+        function createDirector( name, renderer ) {
+
+            document.body.appendChild(renderer._surface);
+
+            var director = new cc.node.Director().
+                    setContentSize(W, H).
+                    setColor(0, 0, 1).
+                    setRenderer( renderer ).
+                    setName(name);
+
+            var scene1 = director.createScene().
+                    setColor(1, 0, 0).
+                    setName("scene1").
+                    onEnter(function (scene) {
+                        console.log(scene._name + " enter.");
+                    }).
+                    onExit(function (scene) {
+                        console.log(scene._name + " exit.");
+                    }).
+                    onEnterTransitionDidFinish(function (scene) {
+                        console.log(scene._name + " enter did finish.");
+                    }).
+                    onExitTransitionDidStart(function (scene) {
+                        console.log(scene._name + " exit did start.");
+                    });
+            var scene2 = director.createScene().
+                    setColor(1, .5, 0.5).
+                    setName("scene2").
+                    onEnter(function (scene) {
+                        console.log(scene._name + " enter.");
+                    }).
+                    onExit(function (scene) {
+                        console.log(scene._name + " exit.");
+                    }).
+                    onEnterTransitionDidFinish(function (scene) {
+                        console.log(scene._name + " enter did finish.");
+                    }).
+                    onExitTransitionDidStart(function (scene) {
+                        console.log(scene._name + " exit did start.");
+                    });
+
+            init(scene1);
+            init(scene2);
+
+            director.runScene(
+                    scene1,
+                    new cc.transition.TransitionFade(2000).
+                            setInterpolator(cc.action.Interpolator.EaseExponentialInOut(false, false)).
+                            onTransitionEnd(function (transition) {
+                                director.runScene(
+                                        scene2,
+                                        new cc.transition.TransitionSlideInL(2000).
+                                                setInterpolator(cc.action.Interpolator.EaseExponentialInOut(false, false))
+                                );
+                            }));
+
+            return director;
+        }
+
+        createDirector("d1", new cc.render.CanvasRenderer(W,H)).setColor(0,.5,.5);
+        createDirector("d2", new cc.render.WebGLRenderer(W,H));
+    }());
+
+</script>
+</body>
+</html>
+

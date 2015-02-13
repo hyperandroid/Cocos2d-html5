@@ -1,0 +1,37 @@
+{
+  "tags": {
+    "allowUnknownTags": true
+  },
+  "plugins": [
+    "plugins/markdown",
+    "/usr/local/lib/node_modules/tsdoc/template/plugins/TSDoc.js"
+  ],
+  "opts": {
+    "template": "/usr/local/lib/node_modules/tsdoc/template",
+    "recurse": "true",
+    "query": "value",
+    "private": true,
+    "lenient": true
+  },
+  "templates": {
+    "cleverLinks": false,
+    "monospaceLinks": false
+  },
+  "source": {
+    "includePattern": "(\\.d)?\\.ts$"
+  },
+  "markdown": {
+    "parser": "gfm",
+    "hardwrap": true
+  },
+  "tsdoc": {
+    "source": "/Users/ibon/punchbox/CocosJS/src",
+    "destination": "/Users/ibon/punchbox/CocosJS/doc-ts",
+    "tutorials": "",
+    "systemName": "CocosJS",
+    "footer": "",
+    "copyright": "CocosJS Copyright © 2014 Chukong inc.",
+    "outputSourceFiles": true,
+    "commentsOnly": true
+  }
+}

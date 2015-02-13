@@ -1,0 +1,33 @@
+{
+    "name": "cocosjs",
+    "version": "0.0.1",
+    "bin": { "cocosjs" : "cmd/cocosjs" },
+    "dependencies": {
+      "gulp": "^3.6.2",
+      "gulp-jsmin": "^0.1.4",
+      "gulp-beautify": "^1.1.0",
+      "gulp-concat": "^2.2.0",
+      "gulp-jshint": "^1.6.1",
+      "gulp-rename": "^1.2.0",
+      "gulp-sass": "^0.7.1",
+      "gulp-uglify": "^0.3.1",
+      "gulp-uglifyjs": "^0.4.2",
+      "uglifyjs": "^2.3.6",
+      "optimist": ""
+    },
+    "devDependencies": {
+      "typescript" : "*",
+      "jasmine-core" : "2.0.4",
+      "jasmine-node" : "*",
+      "ink-docstrap": "^0.4.2",
+      "tsdoc" : "*",
+      "jsdoc" : "3.3.0-alpha5"
+    },
+    "engines": {
+        "node": ">=0.10.0"
+    },
+    "bugs" : {
+        "url" : ""
+    },
+    "author" : "@hyperandroid"
+}

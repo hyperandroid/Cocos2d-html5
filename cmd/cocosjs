@@ -1,0 +1,4 @@
+#!/usr/bin/env node
+
+var Cocos = require('./cocos.js');
+Cocos.cmd();

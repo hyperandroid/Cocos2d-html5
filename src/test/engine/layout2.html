@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>CocosJS - Units.</title>
+    <link rel="stylesheet" type="text/css" href="demos.css"/>
+    <script src="../../../dist/all.js"></script>
+</head>
+<body>
+
+<script>
+    (function() {
+
+        var AssetManager = cc.plugin.asset.AssetManager;
+        var W=window.innerWidth;
+        var H=window.innerHeight;
+
+        var parsedL= null;
+        var fish;
+
+        var UW=2048;
+        var UH=1536;
+        var BW=256;
+        var BH=256;
+        var FW=128;
+        var FH=128;
+        var DW=409;
+        var DH=1536;
+        var BX= UW*.5/8;
+        var BY= 0;
+
+        function layout( w, h, node ) {
+            var layoutPortrait= {
+
+                type : "border",
+                gap : ["2%","2%"],
+                insets : ["2%","2%","2%","2%"],
+
+                center : {
+                    type : "element",
+                    preferredHeight: Math.min(w,h),
+                    preferredWidth: Math.min(w,h),
+                    name : "fish"
+                },
+
+                top : {
+                    type : "grid",
+                    columns : 2,
+                    gap : ["5%", "0"],
+                    preferredHeight: ((Math.max(w,h)-Math.min(w,h))/2)+"px",
+                    elements : [
+                        {
+                            type: "element",
+                            name: "fullscreen"
+                        },
+                        {
+                            type: "grid",
+                            columns: 8,
+                            gap : ["2%","0"],
+                            elements : [ "elem[1-8]" ]
+                        }
+                    ]
+                },
+
+                bottom : {
+                    type: "element",
+                    name : "text",
+                    preferredHeight: ((Math.max(w,h)-Math.min(w,h))/2)+"px"
+                }
+            };
+
+            var layoutLandscape= {
+                type : "border",
+                gap : ["2%","2%"],
+                insets : ["2%","2%","2%","2%"],
+
+                left : {
+                    type : "element",
+                    preferredHeight: Math.min(w,h),
+                    preferredWidth: Math.min(w,h),
+                    name : "fish"
+                },
+
+                center : {
+
+                    type : "grid",
+                    rows : 3,
+                    gap : ["0", "5%"],
+                    elements : [
+                            "fullscreen",
+                            {
+                                type: "grid",
+                                columns: 4,
+                                elements: ["elem[1-8]"],
+                                gap: ["5%", "5%"]
+                            },
+                            "text"
+                    ]
+                }
+            };
+
+            var layout= (w>h) ? layoutLandscape : layoutPortrait;
+
+            parsedL= cc.plugin.layout.BaseLayout.parse(layout);
+            parsedL.layout(0,0,w,h);
+
+            parsedL.applyToNode(node, true);
+        }
+
+        /**
+         *
+         */
+        function initialize() {
+
+            cc.render.RENDER_ORIGIN="top";
+
+            // the renderer will setup pre-loaded textures for the renderer type.
+            // it will also create necessary SpriteFrames for each texture, in this case a frame for the image dude.png
+            var renderer = new cc.render.WebGLRenderer(W,H, document.getElementById("c"));
+
+            // enable resize manager
+//            renderer.setScaleStrategy( cc.render.ScaleManagerStrategy.SCALE_ASPECT, cc.render.ScalePosition.CENTER);
+            renderer.setScaleContent( UW, UH, W, H );
+            // when the canvas is resized, make the canvas take over the whole screen, or just the needed size to honor
+            // the aspect ratio.
+            renderer.adjustContentToFullScreen( cc.render.ScaleContentSceneHint.STRETCH );
+            renderer.forceOrientation(
+                    cc.render.OrientationStrategy.BOTH,
+                    function( orientation ) {
+
+                        if ( orientation===cc.render.OrientationStrategy.LANDSCAPE ) {
+                            renderer.setScaleContent(UW, UH, W, H);
+                        } else {
+                            renderer.setScaleContent(UH, UW, H, W);
+                        }
+                        layout( renderer._preferredUnits.width, renderer._preferredUnits.height, scene );
+                    },
+                    function() {
+                        // no wrong orientation, both are valid.
+                    });
+
+            // director is the main Cocos Node, and must exist.
+            var director = new cc.node.Director().
+                    setRenderer(renderer);
+
+            // scenes run in directors, and are the main displayable element.
+            var scene = director.createScene().setContentSize(UW,UH).setColor(.9,.9,.9,1);
+
+            fish= new cc.node.Node().
+                    setColor(.7,.7,.7).
+                    enableEvents(true).
+                    addEventListener("touchmove", function(e) {
+                        createFish(e.target, e.localPoint.x, e.localPoint.y );
+                    }).
+                    addEventListener("mousedrag", function(e) {
+                        createFish(e.target, e.localPoint.x, e.localPoint.y );
+                    }).
+                    setName("fish");
+
+            for( var i=1; i<=8; i++ ) {
+                scene.addChild( new cc.node.Node().setColor(0,0,1,1).setName("elem"+i) );
+            }
+            scene.addChild( new cc.node.Node().setColor(1,0,1,1).setName("text") );
+
+            scene.addChild(fish);
+            scene.addChild(createFullScreen(director));
+
+            // run the scene.
+            director.runScene(scene);
+        }
+
+        function createFullScreen(director) {
+
+            var renderer= director.getRenderer();
+            var boton= new cc.node.Node().
+                    setContentSize(BW,BH).
+                    setPosition(BX,BY).
+                    setColor(0,1,0).
+                    setName("fullscreen");
+            boton.addEventListener("mouseup", function(e) {
+                if ( renderer.isFullScreenCapable() ) {
+                    if (renderer.isFullScreen()) {
+                        renderer.endFullScreen();
+                    } else {
+                        renderer.startFullScreen();
+                    }
+                }
+            });
+
+            boton.enablePriorityEvents(true,-10);
+
+            return boton;
+
+        }
+
+        function createFish( scene, x, y) {
+
+            function createPath(x,y, px, py ) {
+                var path= new cc.math.Path().
+                        moveTo( x, y).
+                        bezierTo(
+                            typeof px==="undefined" ? Math.random()*scene.width : px,
+                            typeof py==="undefined" ? Math.random()*scene.height : py,
+                            Math.random()*fish.width,
+                            Math.random()*fish.height,
+                            Math.random()*fish.width,
+                            Math.random()*fish.height
+                        );
+
+                return path;
+            }
+
+            var index= ((Math.random()*6)|0)+1;
+
+            var sprite= new cc.node.Node().setColor(.5+Math.random()/2,.5+Math.random()/2,.5+Math.random()/2,1);
+            sprite.setContentSize(FW,FH);
+            sprite.setPosition(x,y);
+
+            sprite.runAction(
+                    new cc.action.PathAction().
+                            adjustRotation(true).
+                            from( createPath(x,y) ).
+                            setDuration(5+2*Math.random()).
+                            setInterpolator( cc.action.Interpolator.EaseInOut(2) ).
+                            onEnd( function(action, targetNode) {
+
+                                var ep0= action._segment.getEndingPoint();
+                                var ep1= action._segment.getValueAt(0.999);
+                                ep0.sub(ep1).normalize().mult( UW/8*Math.random() );
+
+                                action.restart().from( createPath( targetNode.x, targetNode.y, targetNode.x+ep0.x, targetNode.y+ep0.y ) );
+                            })
+            );
+
+            scene.addChild( sprite );
+        }
+
+        window.addEventListener("DOMContentLoaded", initialize, false);
+
+    })();
+</script>
+
+            <canvas id="c"></canvas>
+<div>
+    <div>
+        <div>
+        </div>
+        <div>
+            <span id="span"></span>
+        </div>
+    </div>
+    <div>
+        <p>
+            Change orientation.
+        </p>
+    </div>
+</div>
+<div id="orientation" class="orientation"><span class="orientation-text">Wrong orientation</span></div>
+
+</body>
+</html>

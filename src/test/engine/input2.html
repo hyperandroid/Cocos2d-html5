@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>CocosJS - Reactive Sprites.</title>
+    <style>
+
+        .pressed {
+            background: rgba(128,128,255,.5);
+            border: 1px dotted #000;
+        }
+
+        .notpressed {
+            background: rgba(255,255,255,.7);
+            border: 1px solid #000;
+        }
+
+        .cursor {
+            position:absolute;
+            width:50px;
+            height:50px;
+            display:block;
+        }
+
+        .cursorup {
+            left:70px;
+            top:10px;
+        }
+
+        .cursordown {
+            left:70px;
+            top:70px;
+        }
+
+        .cursorleft {
+            left: 10px;
+            top:37px;
+        }
+
+        .cursorright {
+            left: 130px;
+            top:37px;
+        }
+    </style>
+    <link rel="stylesheet" type="text/css" href="demos.css"/>
+    <script src="../../../dist/all.js"></script>
+</head>
+<body style="margin:0; padding:0;">
+
+<script>
+    (function() {
+
+        function setClass( node, nclass ) {
+            var cl= node.className;
+
+            cl= cl.replace("notpressed", "");
+            cl= cl.replace("pressed", "");
+
+            cl= cl.trim()+" "+nclass;
+
+            node.className= cl;
+        }
+
+        var AssetManager= cc.plugin.asset.AssetManager;
+
+        function loadResources() {
+            AssetManager.load(
+                    {
+                        prefix : "../res/",
+                        resources: ["dude.png@dude"] },
+                    function onEnd(resources) {
+                        initialize(resources);
+                    }
+            );
+        }
+
+        /**
+         *
+         * @param resources {Array<cc.plugin.loader.Resource}
+         */
+        function initialize( resources ) {
+
+            var W=800;
+            var H=600;
+
+            AssetManager.addImage( resources['dude'], 'dude' );
+
+            // the renderer will setup pre-loaded textures for the renderer type.
+            // it will also create necessary SpriteFrames for each texture, in this case a frame for the image dude.png
+            var renderer= new cc.render.WebGLRenderer(W,H,document.getElementById("c"));
+
+            // director is the main Cocos Node, and must exist.
+            var director= new cc.node.Director().
+                    setRenderer( renderer );
+
+            // scenes run in directors, and are the main displayable element.
+            var scene= director.createScene().setColor(1,0,0);
+
+            // register a sequence of keys for the konami code
+            // had this event listener been registered for keyup, it would have been fired when the 'a' key was up instead.
+            director.getInputManager().addEventListener(
+                    "keydown",
+                    function() {
+                        alert("I hereby recognize you as one of us.")
+                    },
+                    "up up down down left right left right b a");
+
+            director.getInputManager().addEventListener(
+                    "keydown",
+                    function() {
+                        alert("Welcome doomer.")
+                    },
+                    "i d k f a enter command+a");
+
+            // register a sequence of keys of 'a' and 'a' fired on keyup of the last 'a' pressed.
+            director.getInputManager().addEventListener(
+                    "keyup",
+                    function() {
+                        scene.setColor(.5+Math.random(),.5+Math.random(),.5+Math.random());
+                    },
+                    "a a");
+
+            // register a cursor for wsad or cursor keys
+            director.getInputManager().registerCursor(
+                    {
+                        up:     "w up c",
+                        down:   "s down",
+                        left:   "a left",
+                        right:  "d right"
+                    },
+                    function( keyName, isDown ) {
+                        if (keyName==="up")     { setClass(cursorUp, isDown ? "pressed" : "notpressed"); }
+                        if (keyName==="down")   { setClass(cursorDown, isDown ? "pressed" : "notpressed"); }
+                        if (keyName==="left")   { setClass(cursorLeft, isDown ? "pressed" : "notpressed"); }
+                        if (keyName==="right")  { setClass(cursorRight, isDown ? "pressed" : "notpressed"); }
+                    }
+            );
+
+            // create sprite frames for 21x7 array.
+            AssetManager.addSpriteFrames( AssetManager.getSpriteFrame("dude").createSubSpriteFrames(21,7) );
+
+            var sampleFrame= cc.plugin.asset.AssetManager.getSpriteFrame("dude0");
+
+            var rows= (H/sampleFrame.getHeight())|0;
+            var cols= (W/sampleFrame.getWidth())|0;
+            var offsetX= (W - cols*sampleFrame.getWidth())/2;
+            var offsetY= (H - rows*sampleFrame.getHeight())/2;
+
+            for( var i=0; i<rows; i++ ) {
+                for( var j=0; j<cols; j++ ) {
+
+                    var sprite= new cc.node.Sprite( { frame: cc.plugin.asset.AssetManager.getSpriteFrame("dude"+(j+i*cols)) }).
+                            setPosition( offsetX + j*sampleFrame.getWidth(), offsetY + i*sampleFrame.getHeight() );
+
+                    var fn= function(e) {
+
+                        e.target.stopAllActions();
+                        scene.startChainingActionsForNode(e.target).
+                                actionRotate().
+                                    from(0).
+                                    to(360).
+                                    setDuration(1).
+                                actionScale().
+                                    from( {x:1, y:1}).
+                                    to( {x:2, y:2}).
+                                    setDuration(1000).
+                                    setInterpolator( cc.action.Interpolator.EaseInOut(3,false,true) );
+                    };
+
+                    sprite.addEventListener( "mousemove", fn);
+                    sprite.addEventListener( "touchend", fn );
+
+                    scene.addChild( sprite );
+                    sprite.enableEvents(true );
+                }
+            }
+
+            // run the scene.
+            director.runScene( scene );
+        }
+
+        window.addEventListener("DOMContentLoaded", loadResources, false);
+
+    })();
+</script>
+
+<div>
+    <div>
+        <div>
+            <canvas id="c"></canvas>
+        </div>
+        <div id="cursorUp" class="cursor notpressed cursorup"></div>
+        <div id="cursorDown" class="cursor notpressed cursordown"></div>
+        <div id="cursorLeft" class="cursor notpressed cursorleft"></div>
+        <div id="cursorRight" class="cursor notpressed cursorright"></div>
+        <div>
+            <span id="span" class="infospan"></span>
+        </div>
+    </div>
+    <div style="margin-left:10px;">
+        <p>
+            This demo showcases input system, mouse, touch and keyboard.
+        </p>
+        <p>
+            <li>Press 'a' twice to change scene color.</li>
+            <li>Touch one sprite to make it react.</li>
+            <li>Move the mouse over the sprites to see them react.</li>
+            <li>Use WSDA cursor to move.</li>
+            <li>Enter the code, Solid.</li>
+        </p>
+    </div>
+</div>
+
+</body>
+</html>

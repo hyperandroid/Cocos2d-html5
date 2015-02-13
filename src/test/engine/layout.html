@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>CocosJS - Automatic Layout.</title>
+    <link rel="stylesheet" type="text/css" href="demos.css"/>
+    <script src="../../../dist/all.js"></script>
+</head>
+<body>
+
+
+<script>
+    (function() {
+
+        var layout = {
+
+            type: "border",
+            insets: ["5%", "2%", "5%", "2%"],
+            gap: ["2%", "2%"],
+
+            // layouts can be nested. in this case, in the border's layout north position, we lay out a row of 6 elements.
+            top: {
+                type: "grid",
+                columns: 5,
+                insets: ["5%", "5%", "5%", "5%"],
+                gap: ["20px", "5%"],
+                elements: [
+                    {
+                        type:"element",
+                        name: "f0",
+                        insets: ["5%", "5%", "5%", "5%"]
+                    },
+                    "f1","f2","f3","f4"
+                ],
+                preferredHeight: "20%"
+            },
+
+            // the center takes the remaining space after laying out north/south/east/west elements.
+            center: {
+
+                // add in the center a grid of 6 elements.
+                type: "grid",
+                columns: 6,
+                gap: ["20px", "5%"],
+                insets: ["1%", "1%", "1%", "1%"],
+
+                // piles can be an array apart of a string with wildcards.
+                elements: [
+
+                    // lay the 4 Tableau elements in a row (4 columns)
+                    "T0",
+                    "T1",
+                    "T2",
+                    "T3",
+                    // 5th column will be another layout: 4 elements in a row
+                    {
+                        type: "grid",
+                        rows: 4,
+                        elements: ["R0","R1","R2","R3"],
+                        gap: ["0", "4%"],
+                        insets: ["5%", "5%", "5%", "5%"]
+                    },
+                    // the 6th columns will be another border with a north element of 200px height (see style) and the remaining
+                    // space in this column for an element Waste0.
+                    // elements will be separated by a 25% empty space vertically
+                    {
+                        type: "grid",
+                        rows: 2,
+                        gap: ["15%", "5%"],
+                        insets: ["5%", "5%", "5%", "5%"],
+                        elements: [
+                            {
+                                type:"element",
+                                name:"Stock0",
+                                preferredHeight:"15%"
+                            },
+                            "Waste0"
+                        ]
+                    }
+                ]
+            }
+        };
+
+        var l= cc.plugin.layout.BaseLayout.parse(layout);
+        l.layout(0,0,800,600);
+
+        var c= document.createElement("canvas");
+        c.width=800;
+        c.height=600;
+        document.body.appendChild(c);
+        var ctx= c.getContext("2d");
+        ctx.strokeStyle="#f00";
+        ctx.lineWidth=2;
+
+        l.paint(ctx);
+
+        console.log( JSON.stringify( l, null, 2 ) );
+
+    })();
+</script>
+
+</body>
+</html>
