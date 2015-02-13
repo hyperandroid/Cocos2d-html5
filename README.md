@@ -20,6 +20,8 @@ In its current state, we must be humble and low demanding so that:
 * Currently only a Javascript bundle with all the library is supplied.
 * Examples are limited, not following at all the unique-responsibility principle so they may be overarchitectured.
   New simpler examples will come along soon.
+* Some code is not yet documented even at method level (the least), but the project will catch up with
+  documentation and tutorials ASAP.
 
 This release has the following features:
 
