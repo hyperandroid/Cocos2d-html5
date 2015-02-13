@@ -8,16 +8,18 @@ Currently is a pre alpha version and it is based in the following premises:
 * Offer an strong code contract were types are checked at compile time. Why Typescript: https://github.com/hyperandroid/Cocos2d-html5/wiki/Typescript.
 * High backwards compatibility with API v3.
 * Offer a plain Class hierarchy, enforcing encapsulation avoiding extension where possible.
-* Eliminate global state (singletons for everything) to local state, which allows for reusability, for example, have
+* Eliminate global state (singletons for everything) to local state, which allows for re-usability, for example, have
   different Director objects running at the same time.
 * Remove the asynchronous nature of Cocos2D initialization in favor of a more structured resource loading mechanism.
-* Leave the developer more freedom by not making assumptions and decissions on behalf of the developer.
+* Leave the developer more freedom by not making assumptions and decisions on behalf of the developer.
 
 In its current state, we must be humble and low demanding so that:
 
 * The Typescript to Javascript compilation scripts have been tested on Mac and Win 8.1 .
   They may not work in other systems.
 * Currently only a Javascript bundle with all the library is supplied.
+* Examples are limited, not following at all the unique-responsibility principle so they may be overarchitectured.
+  New simpler examples will come along soon.
 
 This release has the following features:
 
@@ -50,6 +52,9 @@ This release has the following features:
   Now there’s no need to extract rotated frames into independent images. This was a costly operation that ruined
   batching system.
   SpriteFrames can create new Frames on-the-fly from their own extends.
+* Screen resolution independence
+  CocosJS allows to decouple the mapping between a pixel and an in-game measure unit. This is great for retina
+  display support and content conformation to every screen-resolution. See demo text/engine/units.html.
 * Texture packing.
   The engine offers the possibility of building sprite packs on-the-fly from loaded images.
   This will dramatically improve rendering capabilities.
