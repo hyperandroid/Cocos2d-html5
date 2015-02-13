@@ -5,13 +5,19 @@ This version of CocosJS is a total rewrite of the Cocos2D HTML5 V3.
 Currently is a pre alpha version and it is based in the following premises:
 
 * Enforce modularity.
-* Offer an strong code contract were types are checked at compile time.
+* Offer an strong code contract were types are checked at compile time. Why Typescript: https://github.com/hyperandroid/Cocos2d-html5/wiki/Typescript.
 * High backwards compatibility with API v3.
 * Offer a plain Class hierarchy, enforcing encapsulation avoiding extension where possible.
 * Eliminate global state (singletons for everything) to local state, which allows for reusability, for example, have
   different Director objects running at the same time.
 * Remove the asynchronous nature of Cocos2D initialization in favor of a more structured resource loading mechanism.
 * Leave the developer more freedom by not making assumptions and decissions on behalf of the developer.
+
+In its current state, we must be humble and low demanding so that:
+
+* The Typescript to Javascript compilation scripts have been tested on Mac and Win 8.1 .
+  They may not work in other systems.
+* Currently only a Javascript bundle with all the library is supplied.
 
 This release has the following features:
 
@@ -106,6 +112,21 @@ to be added for the next iteration.
   setup.sh or fix your permissions: sudo chown -R $USER /usr/local [http://howtonode.org/introduction-to-npm].
 * Now you'll be able to execute 'cocos' located in cmd folder.
 
+# Contribution guide
+
+* Make sure you have a GitHub account.
+* Fork the repository on GitHub.
+* Always contribute to the latest DEV branch. Never to master.
+* Check at least Unit tests are not broken.
+* Document and LINT your code.
+* Always use curly braces {}. Always curly braces to the right, not new line.
+* Format your code.
+* Make changes to your clone of the repository.
+* Submit a pull request.
+* If the pull references a bug, issue, or anything identified with an id, include that id in the description.
+* Contribute to Javascript or Typescript at your own criteria.
+
 # Known issues:
 
 * FastSprite do not honor parent's transformation.
+

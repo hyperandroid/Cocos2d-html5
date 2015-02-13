@@ -20,3 +20,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
+
+Pieces of code from:
+
+CAAT project: https://github.com/hyperandroid/CAAT
+Namek Solitaire: https://namekgames.com/solitaire
+http://www.antigrain.com/research/adaptive_bezier/index.html
+
+Inspiration coming from:
+
+All around the internet. Thanks for all the opensource awesomeness !!
