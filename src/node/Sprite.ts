@@ -47,7 +47,7 @@ module cc.node {
 
     /**
      * @class cc.node.Sprite
-     * @extends cc.node.Node
+     * @extend cc.node.Node
      * @classdesc
      * Sprite creates an sprite, a Node that shows images with animations.
      */
@@ -199,7 +199,7 @@ module cc.node {
                 //    ctx.scale( 1, -1 );
                 //}
 
-                this._spriteFrame.draw( ctx, this );
+                this._spriteFrame.draw( ctx, this.width, this.height );
             }
         }
 

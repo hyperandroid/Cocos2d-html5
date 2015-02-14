@@ -296,7 +296,7 @@ module cc.node.sprite {
          * @param ctx {cc.render.RenderingContext}
          * @param sprite {cc.node.Sprite}
          */
-        draw( ctx : RenderingContext, sprite:cc.node.Node ) : void {
+        draw( ctx : RenderingContext, w:number, h:number ) : void {
 
             var rotated= this._rotated;
 
@@ -312,7 +312,7 @@ module cc.node.sprite {
             ctx.drawTexture(
                 this._texture,
                 this._rect.x, this._rect.y, this._rect.w, this._rect.h,
-                0,0 ,sprite.width, sprite.height );
+                0,0 ,w, h );
 
         }
 

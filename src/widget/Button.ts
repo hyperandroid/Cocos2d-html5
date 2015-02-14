@@ -118,7 +118,7 @@ module cc {
                 if ( sf ) {
                     ctx.globalAlpha = this._frameAlpha;
                     ctx.setTintColor(this._color);
-                    sf.draw( ctx, this );
+                    sf.draw( ctx, this.width, this.height );
                 }
             }
 

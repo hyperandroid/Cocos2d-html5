@@ -295,11 +295,17 @@ module cc.plugin.asset {
          * @method cc.plugin.asset.AssetManager.addSpriteFramesFromFrameWithJSON
          * @param spriteFrameId {string} a SpriteFrame in the cache.
          * @param json {any}
+         * @param prefix {string=} an optional prefix to prepend to all sprite frame names.
          */
-        static addSpriteFramesFromFrameWithJSON( spriteFrameId:string, json:any ) {
+        static addSpriteFramesFromFrameWithJSON( spriteFrameId:string, json:any, prefix?:string ) {
             var spriteFrame:SpriteFrame = AssetManager.getSpriteFrame(spriteFrameId);
             if ( spriteFrame ) {
                 var frames:SpriteFrame[]= spriteFrame.createSpriteFramesFromJSON(json);
+                if ( prefix ) {
+                    for( var i=0; i<frames.length; i++ ) {
+                        frames[i]._name = prefix + frames[i]._name;
+                    }
+                }
                 AssetManager.addSpriteFrames( frames );
             }
         }
