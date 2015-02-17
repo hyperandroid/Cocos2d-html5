@@ -25,7 +25,7 @@ In its current state, we must be humble and low demanding so that:
 
 This release has the following features:
 
-* Backward compatible Core nodes: Node, Scene, Director.
+* Backward compatible Core nodes: `Node`, `Scene`, `Director`.
   These nodes have improved functionality compared to the V3 ones.
   For example, Node can redefine is draw method to augment its capabilities and transform a Node into a LayerColor,
   or LayerGradient. Layer will be deprecated. These Nodes are backwards compatible with its V3 counterparts.
