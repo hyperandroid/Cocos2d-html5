@@ -1,7 +1,7 @@
-CocosJS V4 pre-alpha
---------------------
+Cocos2d-HTML5 V4 pre-alpha
+--------------------------
 
-This version of CocosJS is a total rewrite of the Cocos2D HTML5 V3.
+This version is a total rewrite of the [Cocos2D HTML5 V3](https://github.com/cocos2d/cocos2d-html5)
 Currently is a pre alpha version and it is based in the following premises:
 
 * Enforce modularity.
@@ -15,10 +15,10 @@ Currently is a pre alpha version and it is based in the following premises:
 
 In its current state, we must be humble and low demanding so that:
 
-* The Typescript to Javascript compilation scripts have been tested on Mac and Win 8.1 .
+* The Typescript to JavaScript compilation scripts have been tested on Mac and Win 8.1 .
   They may not work in other systems.
-* Currently only a Javascript bundle with all the library is supplied.
-* Examples are limited, not following at all the unique-responsibility principle so they may be overarchitectured.
+* Currently only a JavaScript bundle with all the library is supplied.
+* Examples are limited, not following at all the unique-responsibility principle so they may be over-architectured.
   New simpler examples will come along soon.
 * Some code is not yet documented even at method level (the least), but the project will catch up with
   documentation and tutorials ASAP.
@@ -27,9 +27,9 @@ This release has the following features:
 
 * Backward compatible Core nodes: `Node`, `Scene`, `Director`.
   These nodes have improved functionality compared to the V3 ones.
-  For example, Node can redefine is draw method to augment its capabilities and transform a Node into a LayerColor,
-  or LayerGradient. Layer will be deprecated. These Nodes are backwards compatible with its V3 counterparts.
-  Still cc.Node, cc.Scene, etc. can be used.
+  For example, `Node` can redefine is draw method to augment its capabilities and transform a `Node` into a `LayerColor`,
+  or `LayerGradient`. `Layer` will be deprecated. These `Node` objects are backwards compatible with its V3 counterparts.
+  Still `cc.Node`, `cc.Scene`, etc. can be used.
 * Actions system.
   Actions have been redesigned from the ground up.
   They offer a comprehensive lifecycle notification mechanism and have a new chaining syntax.
@@ -45,17 +45,17 @@ This release has the following features:
   compatibility.
 * Atlas.
   We have a more advanced Atlas system than V3 has.
-  It supports Atlas deep-nesting operations (atlas containing other atlases).
-  It is the foundation for Sprite animations as well as SpriteFonts.
-  Atlas objects can be loaded from a TexturePacker tool JSON or Cocos2D output.
+  It supports `Atlas` deep-nesting operations (atlas containing other atlases).
+  It is the foundation for `Sprite` animations as well as `SpriteFonts`.
+  `Atlas` objects can be loaded from a TexturePacker tool JSON or Cocos2D output.
   It is also able to read a Glypth Designer tool output to build a sprite font.
-  Atlas elements will automatically be available as SpriteFrame objects.
-* Rebuilt SpriteFrame object.
+  Atlas elements will automatically be available as `SpriteFrame` objects.
+* Rebuilt `SpriteFrame` object.
   Now there’s no need to extract rotated frames into independent images. This was a costly operation that ruined
   batching system.
-  SpriteFrames can create new Frames on-the-fly from their own extends.
+  `SpriteFrames` can create new Frames on-the-fly from their own extends.
 * Screen resolution independence
-  CocosJS allows to decouple the mapping between a pixel and an in-game measure unit. This is great for retina
+  Cocos2d-HTML5 v4 allows to decouple the mapping between a pixel and an in-game measure unit. This is great for retina
   display support and content conformation to every screen-resolution. See demo text/engine/units.html.
 * Texture packing.
   The engine offers the possibility of building sprite packs on-the-fly from loaded images.
@@ -68,7 +68,7 @@ This release has the following features:
   New types of resources can be registered by supplying a new factory setting.
   Currently there’re loaders for: image, text, json and plist.
 * Detachable renderer.
-  The new renderer integrated in CocosJS V4 is completely decoupled from the Nodes' drawing logic.
+  The new renderer integrated in Cocos2d-HTML5 V4 is completely decoupled from the Nodes' drawing logic.
   It is straightforward to build a new Node type (overwrite the draw method and use the RenderingContext parameter it
   receives).
   It also maintains (if needed) internal webgl state, so it is safe to share the gl context with the external world.
@@ -77,7 +77,7 @@ This release has the following features:
   The renderer allows to define one time rendering vertical axis orientation, either 'bottom' default, where y=0 is
   at the bottom and grows upwards, and 'up' where y=0 is on top and grows vertically (this is canvas' renderer default).
 * Path.
-  CocosJS V4 has full path capabilities.
+  Cocos2d-HTML5 V4 has full path capabilities.
   It allows to build complex path objects. Though polymorphically a path is treated as a Segment,
   Internally the Path is a collection of Container Segments.
   Each segment can be a line, bezier, cubic, cardinal spline, arc or rect.
@@ -97,13 +97,13 @@ This release has the following features:
 * Widgets: only a Button widget is available. Though there’s no Label widget available, a call to drawText in the
   Rendering Content can be performed any time, offering a basic Label component that renders a Font object.
 * Centralized AssetManager.
-  CocosV4 makes a distinction between Resources (data loaded) and Assets (data produced from assets).
-  For example, an Image object is a resource that is eventually turned into a (webgl enabled or not) Texture2D object
+  Cocos2d-HTML5 V4 makes a distinction between Resources (data loaded) and Assets (data produced from assets).
+  For example, an `Image` object is a resource that is eventually turned into a (webgl enabled or not) `Texture2D` object
   and a SpriteFrame on that texture. Or for example, a '.fnt' file is a text resource that is turned into a SpriteFont
-  object by combining a SpriteFrame, a Texture and the .fnt file contents.
+  object by combining a `SpriteFrame`, a Texture and the .fnt file contents.
   If offers a name based cache system for all in-game resources: textures, sprite frames, animations, fonts, etc.
 * Typescript
-  The engine is originally written in Typescript, and later transpiled into Javascript.
+  The engine is originally written in Typescript, and later transpiled into JavaScript.
 
 Most of these core subsystems are implementation and conceptually different to the ones in V3. For example, each Scene
 has an ActionManager, and this API version ditches global state. All the singletons like: cc.director, cc.actionManager,
@@ -114,10 +114,14 @@ to be added for the next iteration.
 
 # How to build Cocos2D V4
 
-* Install typescrypt 1.4.0+
-* Execute setup.sh in project's root folder. If you get some errors about file permissions, either use sudo to execute
-  setup.sh or fix your permissions: sudo chown -R $USER /usr/local [http://howtonode.org/introduction-to-npm].
+* Install [Typescrypt](http://www.typescriptlang.org/) 1.4.0+
+* Execute `setup.sh` in project's root folder. If you get some errors about file permissions, either use sudo to execute
+  `setup.sh` or fix your permissions: `sudo chown -R $USER /usr/local` [http://howtonode.org/introduction-to-npm].
 * Now you'll be able to execute 'cocos' located in cmd folder.
+
+# How to try the tests
+
+* XXX FIXME
 
 # Contribution guide
 
@@ -131,9 +135,8 @@ to be added for the next iteration.
 * Make changes to your clone of the repository.
 * Submit a pull request.
 * If the pull references a bug, issue, or anything identified with an id, include that id in the description.
-* Contribute to Javascript or Typescript at your own criteria.
+* Contribute to JavaScript or Typescript at your own criteria.
 
 # Known issues:
 
-* FastSprite do not honor parent's transformation.
-
+* `FastSprite` do not honor parent's transformation.
