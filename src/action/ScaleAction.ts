@@ -27,43 +27,21 @@ module cc.action {
      * Scale action initializer object.
      *
      */
-    export interface ScaleActionInitializer {
+    export interface ScaleActionInitializer extends ActionInitializer {
 
         /**
-         * X axis initial scale.
-         * @member cc.action.ScaleActionInitializer#x0
-         * @type {number}
+         * Start rotation angle value
+         * @member cc.action.ScaleActionInitializer#from
+         * @type {cc.math.Point=}
          */
-        x0 : number;
+        from? : cc.math.Point;
 
         /**
-         * Y axis initial scale.
-         * @member cc.action.ScaleActionInitializer#y0
-         * @type {number}
+         * End rotation angle value
+         * @member cc.action.ScaleActionInitializer#to
+         * @type {cc.math.Point}
          */
-        y0 : number;
-
-        /**
-         * X axis end scale.
-         * @member cc.action.ScaleActionInitializer#x1
-         * @type {number}
-         */
-        x1 : number;
-
-        /**
-         * Y axis end scale.
-         * @member cc.action.ScaleActionInitializer#y1
-         * @type {number}
-         */
-        y1 : number;
-
-        /**
-         * Is action relative ?
-         * @member cc.action.ScaleActionInitializer#relative
-         * @type {boolean}
-         */
-        relative? : boolean;
-
+        to : cc.math.Point;
     }
 
     /**
@@ -126,15 +104,13 @@ module cc.action {
         constructor( data? : ScaleActionInitializer ) {
             super();
 
-            if ( typeof data!=="undefined" ) {
-                this._scaleX0 = data.x0;
-                this._scaleY0 = data.y0;
-                this._scaleX1 = data.x1;
-                this._scaleY1 = data.y1;
-                if ( typeof data.relative!=="undefined") {
-                    this.setRelative(data.relative);
-                }
+            if ( data ) {
+                this.__createFromInitializer(data);
             }
+        }
+
+        __createFromInitializer(initializer?:ScaleActionInitializer ) {
+            super.__createFromInitializer(initializer);
         }
 
         /**
@@ -235,6 +211,18 @@ module cc.action {
             return copy;
         }
 
+
+        getInitializer() : ScaleActionInitializer {
+            var init:ScaleActionInitializer= <ScaleActionInitializer>super.getInitializer();
+
+            if ( this._fromValuesSet ) {
+                init.from = { x: this._scaleX0, y: this._scaleY0 };
+            }
+            init.to= { x: this._scaleX1, y: this._scaleY1 };
+            init.type="ScaleAction";
+
+            return init;
+        }
     }
 
 }

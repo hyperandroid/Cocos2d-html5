@@ -16,6 +16,10 @@ module cc.action {
     import SpriteFrame= cc.node.sprite.SpriteFrame;
     import Animation= cc.node.sprite.Animation;
 
+    export interface AnimateActionInitializer extends ActionInitializer {
+        animationName : string;
+    }
+
     /**
      * @class cc.action.AnimateAction
      * @extends cc.action.Action
@@ -63,12 +67,21 @@ module cc.action {
          * @method cc.action.AnimateAction#constructor
          * @param data {cc.node.sprite.Animation}
          */
-        constructor( data? : Animation ) {
+        constructor( data? : AnimateActionInitializer|Animation ) {
             super();
 
-            if (typeof data !== "undefined") {
-                this.setAnimation(data);
+            if(data) {
+                if (data instanceof cc.node.sprite.Animation) {
+                    this.setAnimation(<Animation>data);
+                } else {
+                    this.__createFromInitializer(<AnimateActionInitializer>data);
+                }
             }
+        }
+
+        __createFromInitializer(data?:AnimateActionInitializer ) {
+            super.__createFromInitializer( data );
+            this.setAnimation( cc.plugin.asset.AssetManager.getAnimationById( data.animationName ) );
         }
 
         /**
@@ -185,6 +198,15 @@ module cc.action {
                 (<Sprite>node).setSpriteFrame( this._originalSpriteFrame );
             }
         }
+
+        getInitializer() : AnimateActionInitializer {
+            var init:AnimateActionInitializer= <AnimateActionInitializer>super.getInitializer();
+            init.type="AnimateAction";
+            init.animationName= this._animation._name;
+
+            return init;
+        }
+
     }
 
 }

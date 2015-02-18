@@ -26,42 +26,11 @@ module cc.action {
      *
      * MoveAction initializer object.
      */
-    export interface MoveActionInitializer {
+    export interface MoveActionInitializer extends ActionInitializer {
 
-        /**
-         * Start x position
-         * @member cc.action.MoveActionInitializer#x0
-         * @type {number}
-         */
-        x0 : number;
+        from? : cc.math.Point;
+        to : cc.math.Point;
 
-        /**
-         * Start y position
-         * @member cc.action.MoveActionInitializer#y0
-         * @type {number}
-         */
-        y0 : number;
-
-        /**
-         * End x position
-         * @member cc.action.MoveActionInitializer#x1
-         * @type {number}
-         */
-        x1 : number;
-
-        /**
-         * End y position
-         * @member cc.action.MoveActionInitializer#y1
-         * @type {number}
-         */
-        y1 : number;
-
-        /**
-         * Is action relative ?
-         * @member cc.action.MoveActionInitializer#relative
-         * @type {boolean}
-         */
-        relative? : boolean;
     }
 
     /**
@@ -129,15 +98,13 @@ module cc.action {
         constructor( data? : MoveActionInitializer ) {
             super();
 
-            if ( typeof data!=="undefined" ) {
-                this._x0= data.x0;
-                this._y0= data.y0;
-                this._x1= data.x1;
-                this._y1= data.y1;
-                if ( typeof data.relative!=="undefined" ) {
-                    this.setRelative( data.relative );
-                }
+            if ( data ) {
+                this.__createFromInitializer(data);
             }
+        }
+
+        __createFromInitializer(initializer?:MoveActionInitializer ) {
+            super.__createFromInitializer(initializer);
         }
 
         /**
@@ -239,6 +206,20 @@ module cc.action {
             this.__genericCloneProperties( copy );
 
             return copy;
+        }
+
+        getInitializer() : MoveActionInitializer {
+            var init:MoveActionInitializer= <MoveActionInitializer>super.getInitializer();
+
+            if ( this._fromValuesSet ) {
+                init.from = { x: this._x0, y:this._y0 };
+            }
+
+            init.to= { x: this._x1, y:this._y1 };
+
+            init.type="MoveAction";
+
+            return init;
         }
 
     }

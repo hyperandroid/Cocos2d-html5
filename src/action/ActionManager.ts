@@ -36,7 +36,7 @@ module cc.action {
 
         __action(bh:Action):Action {
 
-            bh.__setOwner(this._actionManager);
+            //bh.__setOwner(this._actionManager);
             if (this._chain !== null) {
                 bh._chainAction= this._chain._action;
             }
@@ -54,38 +54,6 @@ module cc.action {
              */
             a.setDelay( a._startTime/cc.action.TIMEUNITS );
             return a;
-        }
-
-        actionMove() {
-            return this.__action(new MoveAction());
-        }
-
-        actionRotate() {
-            return this.__action(new RotateAction());
-        }
-
-        actionProperty():Action {
-            return this.__action(new PropertyAction());
-        }
-
-        actionAlpha() {
-            return this.__action(new AlphaAction());
-        }
-
-        actionTint() {
-            return this.__action(new TintAction());
-        }
-
-        actionScale() {
-            return this.__action(new ScaleAction());
-        }
-
-        actionSequence() : SequenceAction  {
-            return <SequenceAction>this.__action(new SequenceAction());
-        }
-
-        endSequence() : SequenceAction {
-            return this._action._parentSequence;
         }
 
         step(elapsedTime:number):void {
@@ -228,81 +196,6 @@ module cc.action {
             var ai = new ActionInfo(this, this._actionInfos[ this._actionInfos.length - 1 ]._target);
             this._actionInfos.push(ai);
             return ai;
-        }
-
-        /**
-         * Create and add a MoveAction object to the current Node.
-         * @method cc.action.ActionManager#actionMove
-         * @returns {cc.action.Action}
-         */
-        actionMove():Action {
-            return this.__newActionInfo().actionMove();
-        }
-
-        /**
-         * Create and add a RotateAction object to the current Node.
-         * @method cc.action.ActionManager#actionRotate
-         * @returns {cc.action.Action}
-         */
-        actionRotate():Action {
-            return this.__newActionInfo().actionRotate();
-        }
-
-        /**
-         * Create and add a AlphaAction object to the current Node.
-         * @method cc.action.ActionManager#actionAlpha
-         * @returns {cc.action.Action}
-         */
-        actionAlpha():Action {
-            return this.__newActionInfo().actionAlpha();
-        }
-
-        /**
-         * Create and add a TintAction object to the current Node.
-         * @method cc.action.ActionManager#actionTint
-         * @returns {cc.action.Action}
-         */
-        actionTint():Action {
-            return this.__newActionInfo().actionTint();
-        }
-
-        /**
-         * Create and add a ScaleAction object to the current Node.
-         * @method cc.action.ActionManager#actionScale
-         * @returns {cc.action.Action}
-         */
-        actionScale():Action {
-            return this.__newActionInfo().actionScale();
-        }
-
-        /**
-         * Create and add a PropertyAction object to the current Node.
-         * @method cc.action.ActionManager#actionProperty
-         * @returns {Action}
-         */
-        actionProperty():Action {
-            return this.__newActionInfo().actionProperty();
-        }
-
-        /**
-         * Create and add a SequenceAction object to the current Node.
-         * @method cc.action.ActionManager#actionSequence
-         * @returns {SequenceAction}
-         */
-        actionSequence():SequenceAction {
-            return this.__newActionInfo().actionSequence();
-        }
-
-        /**
-         * Chain an action to the previous one. Chaining will make them sequential in time.
-         * @method cc.action.ActionManager#then
-         * @returns {cc.action.ActionInfo}
-         */
-        then():ActionInfo {
-            var ltw = this._actionInfos[ this._actionInfos.length - 1 ];
-            var tw = this.startChainingActionsForNode(ltw._target);
-            tw.setChain(ltw);
-            return tw;
         }
 
         /**

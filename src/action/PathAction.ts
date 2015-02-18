@@ -27,12 +27,15 @@ module cc.action {
      *
      * PathAction initializer object.
      */
-    export interface PathActionInitializer {
+    export interface PathActionInitializer extends ActionInitializer {
 
         /**
          * Start x position
          * @member cc.action.PathActionInitializer#segment
          * @type {cc.math.path.Segment}
+         *
+         * pending: SegmentInitializer
+         *
          */
         segment : Segment;
 
@@ -136,15 +139,18 @@ module cc.action {
         constructor( data? : PathActionInitializer ) {
             super();
 
-            if ( typeof data!=="undefined" ) {
-
-                // BUGBUG initializer must have serializable data.
-
-                this._segment= data.segment;
-                if ( typeof data.relative!=="undefined" ) {
-                    this.setRelative( data.relative );
-                }
+            if (typeof data !== "undefined") {
+                this.__createFromInitializer(data);
             }
+        }
+
+        __createFromInitializer(data?:PathActionInitializer ) {
+            super.__createFromInitializer( data );
+
+            // BUGBUG initializer must have serializable data.
+            console.log("Path initializer not yet implemented.");
+            this._segment= data.segment;
+
         }
 
         /**
@@ -346,5 +352,16 @@ module cc.action {
             this._spriteOrientationLR= v;
             return this;
         }
+
+        getInitializer() : PathActionInitializer {
+            var init:PathActionInitializer= <PathActionInitializer>super.getInitializer();
+
+            init.type="PathAction";
+
+            // bugbug pathAction can not serialize path object.
+
+            return init;
+        }
+
     }
 }

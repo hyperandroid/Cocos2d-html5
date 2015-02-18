@@ -43,6 +43,7 @@ var scripts= [
         "js/action/JumpAction.js",
         "js/action/ActionManager.js",
         "js/action/SchedulerQueue.js",
+        "js/action/ActionChainContext.js",
 
         "js/util/Measure.js",
 

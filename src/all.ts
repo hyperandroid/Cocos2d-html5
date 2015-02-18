@@ -41,6 +41,7 @@
 /// <reference path="action/AnimateAction.ts"/>
 /// <reference path="action/ActionManager.ts"/>
 /// <reference path="action/SchedulerQueue.ts"/>
+/// <reference path="action/ActionChainContext.ts"/>
 
 /// <reference path="action_bc/Action.ts"/>
 /// <reference path="action_bc/ActionV2.ts"/>

@@ -13,6 +13,7 @@
 /// <reference path="../util/Debug.ts"/>
 /// <reference path="../locale/Locale.ts"/>
 /// <reference path="../action/SchedulerQueue.ts"/>
+/// <reference path="../action/ActionChainContext.ts"/>
 /// <reference path="./Scene.ts"/>
 
 module cc.node {
@@ -1572,6 +1573,10 @@ module cc.node {
             return this;
         }
 
+        startActionChain() : cc.action.ActionChainContext {
+            return new cc.action.ActionChainContext( this );
+        }
+
         /**
          * Schedule an action to run.
          * By the time an action is meant to be scheduled for running in a Node, there may not yet be a
@@ -1848,7 +1853,6 @@ module cc.node {
             }
 
             // PENDING: implement
-            //this.actionManager && this.actionManager.resumeTarget(this);
             //cc.eventManager.resumeTarget(this);
         }
 
@@ -1864,7 +1868,6 @@ module cc.node {
             }
 
             // PENDING: implement
-            //this.actionManager && this.actionManager.pauseTarget(this);
             //cc.eventManager.pauseTarget(this);
         }
 

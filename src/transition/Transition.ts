@@ -295,7 +295,7 @@ module cc.transition {
 
             sceneIn.resetScene().setPosition(_inX, _inY);
 
-            actionIn = new MoveAction({x0: 0, y0: 0, x1: -_inX, y1: -_inY, relative: true}).
+            actionIn = new MoveAction({ from : {x: 0, y: 0}, to: {x: -_inX, y: -_inY}, relative: true}).
                 setDuration(this._duration);
             if (this._interpolator) {
                 actionIn.setInterpolator(this._interpolator);

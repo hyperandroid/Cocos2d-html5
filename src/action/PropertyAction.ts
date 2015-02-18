@@ -13,17 +13,15 @@ module cc.action {
     import Node = cc.node.Node;
     import Action = cc.action.Action;
 
+    export interface PropertyActionInitializer extends ActionInitializer {
+
+    }
+
     /**
      * Internal helper Object to store a property information.
      */
     export class PropertyInfo {
 
-        /**
-         * Original property value.
-         * @type {number}
-         * @private
-         */
-        _original : number = 0;
 
         /**
          * Property Units. For example, when the property is not a numeric value but something like '250px'.
@@ -32,13 +30,49 @@ module cc.action {
          */
         _units : string = "";
 
+        _nested : boolean = false;
+
+        _propertyPath : string[];
+
+        _original : number;
+
         /**
          *
          * @param _property {string} property name.
          * @param _start {number} start value.
          * @param _end {number=} end value.
          */
-        constructor(public _property:string, public _start:number, public _end?:number) {
+        constructor(public _property:string, public _start?:number, public _end?:number) {
+            this._nested= _property.indexOf('.')!==-1;
+            this._propertyPath= _property.split('.');
+        }
+
+        setTargetValue( target:any, v:number ) {
+            var cursor= target;
+            for( var i=0; i<this._propertyPath.length-1; i++ ) {
+                if ( typeof cursor[ this._propertyPath[i] ]!=="undefined" ) {
+                    cursor= cursor[ this._propertyPath[i] ];
+                } else {
+                    // error, no deep path found on object
+                    return;
+                }
+            }
+
+            cursor[ this._propertyPath[i] ]= v;
+        }
+
+        getTargetValue( target:any ) : number {
+            var cursor= target;
+            for( var i=0; i<this._propertyPath.length; i++ ) {
+                if ( typeof cursor[ this._propertyPath[i] ]!=="undefined" ) {
+                    cursor= cursor[ this._propertyPath[i] ];
+                } else {
+                    // error, no deep path found on object
+                    return null;
+                }
+            }
+
+            return cursor;
         }
 
         setOriginal( n : number ) : PropertyInfo {
@@ -55,11 +89,15 @@ module cc.action {
         }
 
         getValue( v : number ) : any {
-            if ( this._units ) {
+            if ( this._units!=="" ) {
                 return "" + v + this._units;
             }
 
             return v;
+        }
+
+        getPath() : string[] {
+            return this._propertyPath;
         }
     }
 
@@ -90,13 +128,37 @@ module cc.action {
         _propertiesInfo : Array<PropertyInfo>;
 
         /**
+         * From properties values.
+         * @member cc.action.PropertyAction#_from
+         * @type {Object}
+         * @private
+         */
+        _from : any;
+
+        /**
+         * To properties values.
+         * @member cc.action.PropertyAction#_to
+         * @type {Object}
+         * @private
+         */
+        _to : any;
+
+        /**
          * PropertyAction constructor.
          * @method cc.action.PropertyAction#constructor
          */
-        constructor() {
+        constructor( data? : PropertyActionInitializer ) {
             super();
 
             this._propertiesInfo= [];
+
+            if ( data ) {
+                this.__createFromInitializer(data);
+            }
+        }
+
+        __createFromInitializer(initializer?:PropertyActionInitializer ) {
+            super.__createFromInitializer(initializer);
         }
 
         /**
@@ -105,11 +167,7 @@ module cc.action {
          * @override
          */
         initWithTarget( node : any ) {
-
-            for( var i=0; i<this._propertiesInfo.length; i++ ) {
-                var pi : PropertyInfo = this._propertiesInfo[i];
-                pi.setOriginal( node[ pi._property ] );
-            }
+            this.solveInitialValues(node);
         }
 
         /**
@@ -131,7 +189,8 @@ module cc.action {
                     v+= pr.getOriginal();
                 }
 
-                node[pr._property] = pr.getValue(v);
+                pr.setTargetValue( node, v );
+                //node[pr._property] = pr.getValue(v);
 
                 // register applied values only if there´s someone interested.
                 if ( this._onApply ) {
@@ -149,18 +208,17 @@ module cc.action {
          * @override
          */
         solveInitialValues( node : any ) {
-            if (!this._fromValuesSet) {
-                this._fromValuesSet = true;
 
-                for (var i = 0; i < this._propertiesInfo.length; i++) {
-                    var pr = this._propertiesInfo[i];
-                    if (typeof pr._start === "undefined") {
-                        pr._start = node[ pr._property ];
-                    }
-                    if (typeof pr._end === "undefined") {
-                        pr._end = node[ pr._property ];
-                    }
+            for (var i = 0; i < this._propertiesInfo.length; i++) {
+                var pr = this._propertiesInfo[i];
+                if (typeof pr._start === "undefined") {
+                    pr._start = pr.getTargetValue( node );
                 }
+                if (typeof pr._end === "undefined") {
+                    pr._end = pr.getTargetValue( node );
+                }
+
+                pr._original= pr.getTargetValue( node );
             }
         }
 
@@ -172,10 +230,14 @@ module cc.action {
          */
         from( props : any ) : Action {
 
-            for( var pr in props ) {
-                if ( props.hasOwnProperty(pr) ) {
-                    var propertyInfo = new PropertyInfo(pr, props[pr]);
-                    this._propertiesInfo.push(propertyInfo);
+            this._from= props;
+
+            if ( props ) {
+                for (var pr in props) {
+                    if (props.hasOwnProperty(pr)) {
+                        var propertyInfo = new PropertyInfo(pr, props[pr]);
+                        this._propertiesInfo.push(propertyInfo);
+                    }
                 }
             }
 
@@ -188,6 +250,8 @@ module cc.action {
          * @override
          */
         to( props : any ) : Action {
+
+            this._to= props;
 
             var i;
 
@@ -205,7 +269,7 @@ module cc.action {
                     }
 
                     if (!property) {
-                        property = new PropertyInfo(pr, 0, 0);
+                        property = new PropertyInfo(pr);
                         this._propertiesInfo.push(property);
                     }
 
@@ -246,6 +310,19 @@ module cc.action {
 
             return copy;
         }
+
+        getInitializer() : PropertyActionInitializer {
+            var init:PropertyActionInitializer= <PropertyActionInitializer>super.getInitializer();
+
+            if ( this._fromValuesSet ) {
+                init.from = this._from;
+            }
+            init.to= this._to;
+            init.type="PropertyAction";
+
+            return init;
+        }
+
     }
 
 }

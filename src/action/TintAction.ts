@@ -28,56 +28,10 @@ module cc.action {
      * TintAction initializer object.
      *
      */
-    export interface TintActionInitializer {
+    export interface TintActionInitializer extends ActionInitializer {
 
-        /**
-         * Start color red component
-         * @member cc.action.TintActionInitializer#r0
-         * @type {number}
-         */
-        r0 : number;
-
-        /**
-         * Start color green component
-         * @member cc.action.TintActionInitializer#g0
-         * @type {number}
-         */
-        g0 : number;
-
-        /**
-         * Start color blue component
-         * @member cc.action.TintActionInitializer#b0
-         * @type {number}
-         */
-        b0 : number;
-
-        /**
-         * End color red component
-         * @member cc.action.TintActionInitializer#r1
-         * @type {number}
-         */
-        r1 : number;
-
-        /**
-         * End color green component
-         * @member cc.action.TintActionInitializer#g1
-         * @type {number}
-         */
-        g1 : number;
-
-        /**
-         * End color blue component
-         * @member cc.action.TintActionInitializer#b1
-         * @type {number}
-         */
-        b1 : number;
-
-        /**
-         * Is this action relative ?
-         * @member cc.action.TintActionInitializer#relative
-         * @type {boolean}
-         */
-        relative? : boolean;
+        from? : RGBAColor;
+        to : RGBAColor;
     }
 
     /**
@@ -120,18 +74,14 @@ module cc.action {
          */
         constructor( data? : TintActionInitializer )  {
             super();
-            if (typeof data!=="undefined") {
-                this._startColor.r = data.r0;
-                this._startColor.g = data.g0;
-                this._startColor.b = data.b0;
-                this._endColor.r = data.r1;
-                this._endColor.g = data.g1;
-                this._endColor.b = data.b1;
 
-                if ( typeof data.relative!=="undefined" ) {
-                    this.setRelative( data.relative );
-                }
+            if ( data ) {
+                this.__createFromInitializer(data);
             }
+        }
+
+        __createFromInitializer(initializer?:TintActionInitializer ) {
+            super.__createFromInitializer(initializer);
         }
 
         /**
@@ -243,6 +193,18 @@ module cc.action {
             return copy;
         }
 
+
+        getInitializer() : TintActionInitializer {
+            var init:TintActionInitializer= <TintActionInitializer>super.getInitializer();
+
+            if ( this._fromValuesSet ) {
+                init.from = { r: this._startColor.r, g: this._startColor.g, b: this._startColor.b };
+            }
+            init.to= { r: this._endColor.r, g: this._endColor.g, b: this._endColor.b };
+            init.type="TintAction";
+
+            return init;
+        }
     }
 
 }

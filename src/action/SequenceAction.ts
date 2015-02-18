@@ -19,12 +19,6 @@ module cc.action {
 
     import Node= cc.node.Node;
     import Action = cc.action.Action;
-    import MoveAction = cc.action.MoveAction;
-    import RotateAction = cc.action.RotateAction;
-    import ScaleAction = cc.action.ScaleAction;
-    import PropertyAction = cc.action.PropertyAction;
-    import AlphaAction = cc.action.AlphaAction;
-    import TintAction = cc.action.TintAction;
 
     /**
      * @class cc.action.SequenceActionInitializer
@@ -33,14 +27,16 @@ module cc.action {
      *
      * Sequence action initializer object.
      */
-    export interface SequenceActionInitializer {
+    export interface SequenceActionInitializer extends ActionInitializer {
 
         /**
          * Is this Action Sequence or Spawn ?
          * @member cc.action.SequenceActionInitializer#sequential
          * @type {boolean}
          */
-        sequential : boolean;
+        sequential? : boolean;
+
+        actions? : ActionInitializer[];
     }
 
     /**
@@ -94,8 +90,22 @@ module cc.action {
         constructor( data? : SequenceActionInitializer ) {
             super();
 
-            if (typeof data!=="undefined") {
+            if (typeof data !== "undefined") {
+                this.__createFromInitializer(data);
+            }
+        }
+
+        __createFromInitializer(data?:SequenceActionInitializer ) {
+            super.__createFromInitializer( data );
+
+            if ( typeof data.sequential!=="undefined" ) {
                 this._sequential = data.sequential;
+            }
+
+            if ( data.actions ) {
+                for( var i=0; i<data.actions.length; i++ ) {
+                    this.addAction( cc.action.ParseAction( data.actions[i] ) );
+                }
             }
 
             this._onRepeat= function(action:Action, target:Node, repetitionCount:number) {
@@ -118,6 +128,14 @@ module cc.action {
             }
         }
 
+        getLastAction() {
+            if ( this._actions.length===0 ) {
+                return null;
+            }
+
+            return this._actions[ this._actions.length-1 ];
+        }
+
         __recursivelySetCreatedStatus(target:Node) {
             // first my children actions. !!!
             for( var i=0; i<this._actions.length; i++ ) {
@@ -134,6 +152,11 @@ module cc.action {
          * @private
          */
         __updateDuration() {
+
+            if (!this._actions ) {
+                return;
+            }
+
             var duration= 0;
 
             this.__sequentializeStartAndDuration();
@@ -186,15 +209,13 @@ module cc.action {
         addAction(a:Action):Action {
             this._actions.push(a);
 
-
-            a._owner= this._owner;
+            a._chainContext= this._chainContext;
             a._parentSequence= this;
 
             this.__updateDuration();
 
             return this;
         }
-
 
         /**
          * Do Sequence application process.
@@ -225,10 +246,12 @@ module cc.action {
                     }
 
                     super.__actionApply(time, node);
+
                 } else {
 
                     // apply all sub-actions for the final state.
                     if (time >= this._startTime + this.getDuration()) {
+
                         this._status = ActionStates.ENDED;
 
                         // set all sub actions to its final state.
@@ -314,89 +337,30 @@ module cc.action {
             return this;
         }
 
-
         /**
-         * @override
-         * @inheritDoc
+         * Set the Sequence as Sequence (sequential=true) or Spawn (sequential=false).
+         * @method cc.action.SequenceAction#setSequential
+         * @param b {boolean}
          */
-        actionMove():Action {
-            var a : Action = new MoveAction();
-            this.addAction(a);
-            return a;
+        setSequential( b:boolean ) {
+            this._sequential= b;
         }
 
-        /**
-         * @override
-         * @inheritDoc
-         */
-        actionRotate():Action {
-            var a : Action = new RotateAction();
-            this.addAction(a);
-            return a;
-        }
 
-        /**
-         * @override
-         * @inheritDoc
-         */
-        actionScale():Action {
-            var a : Action = new ScaleAction();
-            this.addAction(a);
-            return a;
-        }
+        getInitializer() : SequenceActionInitializer {
+            var init:SequenceActionInitializer= <SequenceActionInitializer>super.getInitializer();
 
-        /**
-         * @override
-         * @inheritDoc
-         */
-        actionAlpha():Action {
-            var a : Action = new AlphaAction();
-            this.addAction(a);
-            return a;
-        }
+            init.type="SequenceAction";
+            init.sequential= this._sequential;
 
-        /**
-         * @override
-         * @inheritDoc
-         */
-        actionTint():Action {
-            var a : Action = new TintAction();
-            this.addAction(a);
-            return a;
-        }
+            init.actions= [];
 
-        /**
-         * @override
-         * @inheritDoc
-         */
-        actionProperty():Action {
-            var a : Action = new PropertyAction();
-            this.addAction(a);
-            return a;
-        }
-
-        /**
-         * @override
-         * @inheritDoc
-         */
-        actionSequence():SequenceAction {
-            var a : SequenceAction = new SequenceAction();
-            this.addAction(a);
-            return a;
-        }
-
-        /**
-         * @override
-         * @inheritDoc
-         */
-        endSequence(): Action {
-            if ( !this._parentSequence ) {
-                return this;
+            for( var i=0; i<this._actions.length; i++ ) {
+                init.actions.push( this._actions[i].getInitializer() );
             }
 
-            return this._parentSequence;
+            return init;
         }
-
     }
 
 }

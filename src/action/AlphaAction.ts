@@ -21,28 +21,22 @@ module cc.action {
      * AlphaAction initializer object.
      *
      */
-    export interface AlphaActionInitializer {
+    export interface AlphaActionInitializer extends ActionInitializer {
 
         /**
          * Start alpha value.
          * @member cc.action.AlphaActionInitializer#start
          * @type {number}
          */
-        start : number;
+        from? : number;
 
         /**
          * End alpha value.
          * @member cc.action.AlphaActionInitializer#end
          * @type {number}
          */
-        end : number;
+        to? : number;
 
-        /**
-         * Make the action relative.
-         * @member cc.action.AlphaActionInitializer#relative
-         * @type {boolean}
-         */
-        relative? : boolean;
     }
 
     /**
@@ -88,14 +82,16 @@ module cc.action {
          */
         constructor( data? : AlphaActionInitializer ) {
             super();
+            if (data) {
+                this.__createFromInitializer(data);
+            }
+        }
 
+        __createFromInitializer(data?:AlphaActionInitializer ) {
+            super.__createFromInitializer( data );
             if ( typeof data!=="undefined" ) {
-                this._startAlpha = data.start;
-                this._endAlpha = data.end;
-
-                if ( typeof data.relative!=="undefined" ) {
-                    this.setRelative( data.relative );
-                }
+                this._startAlpha = data.to;
+                this._endAlpha = data.from;
             }
         }
 
@@ -189,6 +185,16 @@ module cc.action {
             return copy;
         }
 
+        getInitializer() : AlphaActionInitializer {
+            var init:AlphaActionInitializer= <AlphaActionInitializer>super.getInitializer();
+            if ( this._fromValuesSet ) {
+                init.from = this._startAlpha;
+            }
+            init.to= this._endAlpha;
+            init.type="AlphaAction";
+
+            return init;
+        }
     }
 
 }

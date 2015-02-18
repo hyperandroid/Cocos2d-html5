@@ -19,28 +19,21 @@ module cc.action {
      *
      * RotateAction initializer object
      */
-    export interface RotateActionInitializer {
+    export interface RotateActionInitializer extends ActionInitializer {
 
         /**
-         * Start rotation angle.
-         * @member cc.action.RotateActionInitializer#start
+         * Start rotation angle value
+         * @member cc.action.RotateActionInitializer#from
          * @type {number}
          */
-        start : number;
+        from? : number;
 
         /**
-         * End rotation angle.
-         * @member cc.action.RotateActionInitializer#end
+         * End rotation angle value
+         * @member cc.action.RotateActionInitializer#to
          * @type {number}
          */
-        end : number;
-
-        /**
-         * Is relative action ?
-         * @member cc.action.RotateActionInitializer#relative
-         * @type {boolean}
-         */
-        relative? : boolean;
+        to : number;
     }
 
     /**
@@ -83,13 +76,13 @@ module cc.action {
         constructor( data? : RotateActionInitializer ) {
             super();
 
-            if ( typeof data !== "undefined" ) {
-                this._startAngle = data.start;
-                this._endAngle= data.end;
-                if ( typeof data.relative!=="undefined" ) {
-                    this.setRelative( data.relative );
-                }
+            if ( data ) {
+                this.__createFromInitializer(data);
             }
+        }
+
+        __createFromInitializer(initializer?:RotateActionInitializer ) {
+            super.__createFromInitializer(initializer);
         }
 
         /**
@@ -186,6 +179,18 @@ module cc.action {
             return copy;
         }
 
+
+        getInitializer() : RotateActionInitializer {
+            var init:RotateActionInitializer= <RotateActionInitializer>super.getInitializer();
+
+            if ( this._fromValuesSet ) {
+                init.from = this._startAngle;
+            }
+            init.to= this._endAngle;
+            init.type="RotateAction";
+
+            return init;
+        }
     }
 
 }

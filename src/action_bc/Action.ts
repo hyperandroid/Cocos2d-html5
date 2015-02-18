@@ -131,6 +131,7 @@ module cc {
 
     function __jump( timeInSecs:number, pos:Point, amplitude:number, jumps:number, relative:boolean ) {
         return new JumpAction({
+            type: "JumpAction",
             position : pos,
             jumps : jumps,
             amplitude : amplitude,
@@ -142,7 +143,7 @@ module cc {
 
         var segment:Path = new Path().catmullRomTo(p, closed, tension);
 
-        return new PathAction({segment: segment}).
+        return new PathAction({type:"PathAction", segment: segment}).
             setRelative(relative).
             timeInfo(0, timeInSecs );
 
@@ -166,6 +167,7 @@ module cc {
 
     function __bezier( timeInSecs : number, p : Array<Point>, relative : boolean ) : Action {
         return new PathAction({
+            type : "PathAction",
             segment : new SegmentBezier({
                     p0 : { x:0, y:0 },
                     p1 : p[0],

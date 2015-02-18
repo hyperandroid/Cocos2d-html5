@@ -7,6 +7,15 @@ module cc.action {
 
     "use strict";
 
+    export interface InterpolatorInitializer {
+
+        type : string;
+        inverse? : boolean;
+        pingpong? : boolean;
+        exponent? : number;
+        period? : number;
+    }
+
     /**
      * @class cc.action.TimeInterpolator
      * @interface
@@ -25,6 +34,18 @@ module cc.action {
          * @method cc.action.TimeInterpolator#reverse
          */
         reverse() : TimeInterpolator;
+
+        getInitializer() : InterpolatorInitializer;
+    }
+
+    export function ParseInterpolator( ii:InterpolatorInitializer ) {
+        if ( ii.type==="EaseIn" || ii.type==="EaseOut" || ii.type==="EaseInOut" ) {
+            return cc.action.Interpolator[ii.type](ii.exponent, ii.inverse, ii.pingpong);
+        } else if ( ii.type==="ElasticIn" || ii.type==="ElasticOut" || ii.type==="ElasticInOut" ) {
+            return cc.action.Interpolator[ii.type](ii.period, ii.inverse, ii.pingpong);
+        } else {
+            return cc.action.Interpolator[ii.type](ii.inverse, ii.pingpong);
+        }
     }
 
     function calcTime( time:number, inverse:boolean, pingpong:boolean ) {
@@ -99,6 +120,14 @@ module cc.action {
                 return Interpolator.Linear(!inverse, pingpong);
             };
 
+            fn.getInitializer = function() : InterpolatorInitializer {
+                return {
+                    type : "Linear",
+                    inverse : inverse,
+                    pingpong : pingpong
+                };
+            };
+
             return fn;
 
         }
@@ -122,6 +151,16 @@ module cc.action {
                 return Interpolator.EaseIn( exponent, !inverse, pingpong );
             };
 
+
+            fn.getInitializer = function() : InterpolatorInitializer {
+                return {
+                    type : "EaseIn",
+                    inverse : inverse,
+                    pingpong : pingpong,
+                    exponent : exponent
+                };
+            };
+
             return fn;
         }
 
@@ -142,6 +181,15 @@ module cc.action {
 
             fn.reverse = function() : TimeInterpolator {
                 return Interpolator.EaseOut( exponent, !inverse, pingpong );
+            };
+
+            fn.getInitializer = function() : InterpolatorInitializer {
+                return {
+                    type : "EaseOut",
+                    inverse : inverse,
+                    pingpong : pingpong,
+                    exponent : exponent
+                };
             };
 
             return fn;
@@ -172,6 +220,15 @@ module cc.action {
                 return Interpolator.EaseInOut( exponent, !inverse, pingpong );
             };
 
+            fn.getInitializer = function() : InterpolatorInitializer {
+                return {
+                    type : "EaseInOut",
+                    inverse : inverse,
+                    pingpong : pingpong,
+                    exponent : exponent
+                };
+            };
+
             return fn;
         }
 
@@ -195,6 +252,14 @@ module cc.action {
                 return Interpolator.EaseExponentialIn( !inverse, pingpong );
             };
 
+            fn.getInitializer = function() : InterpolatorInitializer {
+                return {
+                    type : "EaseExponentialIn",
+                    inverse : inverse,
+                    pingpong : pingpong
+                };
+            };
+
             return fn;
         }
 
@@ -216,6 +281,14 @@ module cc.action {
 
             fn.reverse = function() : TimeInterpolator {
                 return Interpolator.EaseExponentialOut( !inverse, pingpong );
+            };
+
+            fn.getInitializer = function() : InterpolatorInitializer {
+                return {
+                    type : "EaseExponentialOut",
+                    inverse : inverse,
+                    pingpong : pingpong
+                };
             };
 
             return fn;
@@ -247,6 +320,14 @@ module cc.action {
                 return Interpolator.EaseExponentialInOut( !inverse, pingpong );
             };
 
+            fn.getInitializer = function() : InterpolatorInitializer {
+                return {
+                    type : "EaseExponentialInOut",
+                    inverse : inverse,
+                    pingpong : pingpong
+                };
+            };
+
             return fn;
         }
 
@@ -266,6 +347,14 @@ module cc.action {
 
             fn.reverse = function() : TimeInterpolator {
                 return Interpolator.EaseSineIn( !inverse, pingpong );
+            };
+
+            fn.getInitializer = function() : InterpolatorInitializer {
+                return {
+                    type : "EaseSineIn",
+                    inverse : inverse,
+                    pingpong : pingpong
+                };
             };
 
             return fn;
@@ -289,6 +378,14 @@ module cc.action {
                 return Interpolator.EaseSineOut( !inverse, pingpong );
             };
 
+            fn.getInitializer = function() : InterpolatorInitializer {
+                return {
+                    type : "EaseSineOut",
+                    inverse : inverse,
+                    pingpong : pingpong
+                };
+            };
+
             return fn;
         }
 
@@ -308,6 +405,14 @@ module cc.action {
 
             fn.reverse = function() : TimeInterpolator {
                 return Interpolator.EaseSineInOut( !inverse, pingpong );
+            };
+
+            fn.getInitializer = function() : InterpolatorInitializer {
+                return {
+                    type : "EaseSineInOut",
+                    inverse : inverse,
+                    pingpong : pingpong
+                };
             };
 
             return fn;
@@ -342,6 +447,16 @@ module cc.action {
                 return Interpolator.EaseElasticIn( period, !inverse, pingpong );
             };
 
+
+            fn.getInitializer = function() : InterpolatorInitializer {
+                return {
+                    type : "EaseElasticIn",
+                    inverse : inverse,
+                    pingpong : pingpong,
+                    period: period
+                };
+            };
+
             return fn;
         }
 
@@ -371,6 +486,15 @@ module cc.action {
 
             fn.reverse = function() : TimeInterpolator {
                 return Interpolator.EaseElasticOut( period, !inverse, pingpong );
+            };
+
+            fn.getInitializer = function() : InterpolatorInitializer {
+                return {
+                    type : "EaseElasticOut",
+                    inverse : inverse,
+                    pingpong : pingpong,
+                    period: period
+                };
             };
 
             return fn;
@@ -409,6 +533,15 @@ module cc.action {
                 return Interpolator.EaseElasticInOut( period, !inverse, pingpong );
             };
 
+            fn.getInitializer = function() : InterpolatorInitializer {
+                return {
+                    type : "EaseElasticInOut",
+                    inverse : inverse,
+                    pingpong : pingpong,
+                    period: period
+                };
+            };
+
             return fn;
         }
 
@@ -430,6 +563,14 @@ module cc.action {
                 return Interpolator.EaseBounceIn( !inverse, pingpong );
             };
 
+            fn.getInitializer = function() : InterpolatorInitializer {
+                return {
+                    type : "EaseBounceIn",
+                    inverse : inverse,
+                    pingpong : pingpong
+                };
+            };
+
             return fn;
         }
 
@@ -448,6 +589,14 @@ module cc.action {
 
             fn.reverse = function() : TimeInterpolator {
                 return Interpolator.EaseBounceOut( !inverse, pingpong );
+            };
+
+            fn.getInitializer = function() : InterpolatorInitializer {
+                return {
+                    type : "EaseBounceOut",
+                    inverse : inverse,
+                    pingpong : pingpong
+                };
             };
 
             return fn;
@@ -477,6 +626,14 @@ module cc.action {
                 return Interpolator.EaseBounceInOut( !inverse, pingpong );
             };
 
+            fn.getInitializer = function() : InterpolatorInitializer {
+                return {
+                    type : "EaseBounceInOut",
+                    inverse : inverse,
+                    pingpong : pingpong
+                };
+            };
+
             return fn;
         }
 
@@ -501,6 +658,14 @@ module cc.action {
                 return Interpolator.EaseBackIn( !inverse, pingpong );
             };
 
+            fn.getInitializer = function() : InterpolatorInitializer {
+                return {
+                    type : "EaseBackIn",
+                    inverse : inverse,
+                    pingpong : pingpong
+                };
+            };
+
             return fn;
         }
 
@@ -522,6 +687,14 @@ module cc.action {
 
             fn.reverse = function() : TimeInterpolator {
                 return Interpolator.EaseBackOut( !inverse, pingpong );
+            };
+
+            fn.getInitializer = function() : InterpolatorInitializer {
+                return {
+                    type : "EaseBackOut",
+                    inverse : inverse,
+                    pingpong : pingpong
+                };
             };
 
             return fn;
@@ -551,6 +724,14 @@ module cc.action {
 
             fn.reverse = function() : TimeInterpolator {
                 return Interpolator.EaseBackInOut( !inverse, pingpong );
+            };
+
+            fn.getInitializer = function() : InterpolatorInitializer {
+                return {
+                    type : "EaseBackInOut",
+                    inverse : inverse,
+                    pingpong : pingpong
+                };
             };
 
             return fn;
