@@ -12,6 +12,7 @@ module cc.render.shader {
 
     /**
      * @class cc.render.shader.TextureShader
+     * @extends AbstractShader
      * @classdesc
      * 
      * This shader fills rects with an image. It is expected to be invoked by calls to drawImage.

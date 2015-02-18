@@ -9,20 +9,19 @@
 <script src="../../../lib/stats/stats.js"></script>
 
 <script>
-    (function () {
-
+    (function() {
         var W = 800;
         var H = 600;
 
-        function init( parent ) {
+        function initScene(parent) {
 
             var NW = 700;
             var NH = 500;
             var R = 6;
             var C = 8;
-            var INSET= 10;
-            var nodeW= (NW/C);
-            var nodeH= (NH/R);
+            var INSET = 10;
+            var nodeW = (NW / C);
+            var nodeH = (NH / R);
 
             for (var i = 0; i < R; i++) {
                 for (var j = 0; j < C; j++) {
@@ -33,27 +32,36 @@
 
                     parent.addChild(n);
 
-                    var r = cc.repeat(cc.rotateBy(2, 180), 1);
-                    var s00 = cc.scaleBy(1.5, 0, 1);
-                    var s01 = cc.scaleBy(1.5, 1, 1);
-                    var seq0 = cc.sequence(r, s00, s01, cc.tintBy(2, -128,-128,-128));
-                    var seq1 = seq0.reverse();
-                    var seq = cc.repeatForever(cc.sequence(seq0, seq1));
+                    var ccc = (j + i * C) % 2;
 
-                    n.runAction(seq);
+
+                        var seq;
+                        var r = cc.repeat(cc.rotateBy(2, 180), 1);
+                        var s00 = cc.scaleBy(1.5, 0, 1);
+                        var s01 = cc.scaleBy(1.5, 1, 1);
+                        var seq0 = cc.sequence(r, s00, s01, cc.tintBy(2, -128, -128, -128));
+                        var seq1 = seq0.reverse();
+                        seq = cc.repeatForever(cc.sequence(seq0, seq1));
+
+                        if (ccc === 1) {
+                            var str= JSON.stringify(seq.getInitializer(), null, 2);
+                            seq = cc.action.ParseAction(JSON.parse(str));
+                        }
+
+                        n.runAction(seq);
 
                 }
             }
         }
 
-        function createDirector( name, renderer ) {
+        function createDirector(name, renderer) {
 
             document.body.appendChild(renderer._surface);
 
             var director = new cc.node.Director().
                     setContentSize(W, H).
                     setColor(0, 0, 1).
-                    setRenderer( renderer ).
+                    setRenderer(renderer).
                     setName(name);
 
             var scene1 = director.createScene().
@@ -87,27 +95,31 @@
                         console.log(scene._name + " exit did start.");
                     });
 
-            init(scene1);
-            init(scene2);
+            initScene(scene1);
+            initScene(scene2);
 
             director.runScene(
-                    scene1,
-                    new cc.transition.TransitionFade(2000).
-                            setInterpolator(cc.action.Interpolator.EaseExponentialInOut(false, false)).
-                            onTransitionEnd(function (transition) {
-                                director.runScene(
-                                        scene2,
-                                        new cc.transition.TransitionSlideInL(2000).
-                                                setInterpolator(cc.action.Interpolator.EaseExponentialInOut(false, false))
-                                );
-                            }));
+                    scene1
+//                    new cc.transition.TransitionFade(2).
+//                            setInterpolator(cc.action.Interpolator.EaseExponentialInOut(false, false)).
+//                            onTransitionEnd(function (transition) {
+//                                director.runScene(
+//                                        scene2,
+//                                        new cc.transition.TransitionSlideInL(2).
+//                                                setInterpolator(cc.action.Interpolator.EaseExponentialInOut(false, false))
+//                                );
+//                            })
+            );
 
             return director;
         }
 
-        createDirector("d1", new cc.render.CanvasRenderer(W,H)).setColor(0,.5,.5);
-        createDirector("d2", new cc.render.WebGLRenderer(W,H));
-    }());
+        window.addEventListener("DOMContentLoaded", function () {
+//                createDirector("d1", new cc.render.CanvasRenderer(W,H)).setColor(0,.5,.5);
+                createDirector("d2", new cc.render.WebGLRenderer(W, H));
+            }, false);
+
+    })();
 
 </script>
 </body>

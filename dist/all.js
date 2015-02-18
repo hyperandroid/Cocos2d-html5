@@ -4505,6 +4505,7 @@ var cc;
 /// <reference path="../util/Debug.ts"/>
 /// <reference path="../locale/Locale.ts"/>
 /// <reference path="../action/SchedulerQueue.ts"/>
+/// <reference path="../action/ActionChainContext.ts"/>
 /// <reference path="./Scene.ts"/>
 var cc;
 (function (cc) {
@@ -5895,6 +5896,9 @@ var cc;
                 this._name = name;
                 return this;
             };
+            Node.prototype.startActionChain = function () {
+                return new cc.action.ActionChainContext(this);
+            };
             /**
              * Schedule an action to run.
              * By the time an action is meant to be scheduled for running in a Node, there may not yet be a
@@ -6133,7 +6137,6 @@ var cc;
                     this._scene.resumeTarget(this);
                 }
                 // PENDING: implement
-                //this.actionManager && this.actionManager.resumeTarget(this);
                 //cc.eventManager.resumeTarget(this);
             };
             /**
@@ -6147,7 +6150,6 @@ var cc;
                     this._scene.pauseTarget(this);
                 }
                 // PENDING: implement
-                //this.actionManager && this.actionManager.pauseTarget(this);
                 //cc.eventManager.pauseTarget(this);
             };
             /**
@@ -6333,6 +6335,7 @@ var cc;
 /// <reference path="../node/Node.ts"/>
 /// <reference path="./TimeInterpolator.ts"/>
 /// <reference path="./ActionManager.ts"/>
+/// <reference path="./ActionChainContext.ts"/>
 var cc;
 (function (cc) {
     var action;
@@ -6423,7 +6426,7 @@ var cc;
          *  <li>SequenceAction. Allows for action sequencing and parallelization.
          *  <li>PropertyAction. Allows for modification of a node's arbitrary property.
          *
-         * There are other type of actions that affect or create a mix of different node properties modification lile:
+         * There are other type of actions that affect or create a mix of different node properties modification like:
          *
          *  <li>BlinkAction
          *  <li>JumpAction
@@ -6439,8 +6442,6 @@ var cc;
          *  <li>Reduce overly class-extension hierarchy from version 2 and 3
          *  <li>Full action lifecycle: START, END, PAUSE, RESUME, REPEAT.
          *
-         *
-         *
          */
         var Action = (function () {
             /**
@@ -6449,7 +6450,7 @@ var cc;
              * @constructor
              * @method cc.action.Action#constructor
              */
-            function Action() {
+            function Action(initializer) {
                 /**
                  * Delay to start applying the Action.
                  * @member cc.action.Action#_startTime
@@ -6478,13 +6479,6 @@ var cc;
                  * @private
                  */
                 this._repeatTimes = 1;
-                /**
-                 * Current number or Action application repetition.
-                 * @member cc.action.Action#_repeatTimesCount
-                 * @type {number}
-                 * @private
-                 */
-                this._repeatTimesCount = 0;
                 /**
                  * Current repetition count.
                  * @member cc.action.Action#_currentRepeatCount
@@ -6614,7 +6608,7 @@ var cc;
                  * @type {cc.action.ActionManager}
                  * @private
                  */
-                this._owner = null;
+                //_owner:ActionManager = null;
                 /**
                  * Reference for a chained action. Do not use or modify.
                  * @member cc.action.Action#_chainAction
@@ -6645,7 +6639,46 @@ var cc;
                  */
                 this._parentSequence = null;
                 this._reversed = false;
+                this._chainContext = null;
+                if (initializer) {
+                    this.__createFromInitializer(initializer);
+                }
             }
+            Action.prototype.__createFromInitializer = function (initializer) {
+                if (typeof initializer !== "undefined") {
+                    if (typeof initializer.relative !== 'undefined') {
+                        this.setRelative(initializer.relative);
+                    }
+                    if (typeof initializer.duration !== 'undefined') {
+                        this.setDuration(initializer.duration);
+                    }
+                    if (typeof initializer.delayBefore !== 'undefined') {
+                        this.setDelay(initializer.delayBefore);
+                    }
+                    if (typeof initializer.delayAfter !== 'undefined') {
+                        this.setDelayAfterApplication(initializer.delayAfter);
+                    }
+                    if (typeof initializer.interpolator !== "undefined") {
+                        this.setInterpolator(cc.action.ParseInterpolator(initializer.interpolator));
+                    }
+                    if (typeof initializer.from !== "undefined") {
+                        if (this.from) {
+                            this.from(initializer.from);
+                        }
+                    }
+                    if (typeof initializer.to !== "undefined") {
+                        if (this.to) {
+                            this.to(initializer.to);
+                        }
+                    }
+                    if (typeof initializer.repeatTimes !== "undefined") {
+                        this.setRepeatTimes(initializer.repeatTimes);
+                    }
+                    if (typeof initializer.reversed !== "undefined") {
+                        this._reversed = initializer.reversed;
+                    }
+                }
+            };
             /**
              * Set an arbitrary tag for an Action.
              * @method cc.action.Action#setTag
@@ -6669,33 +6702,12 @@ var cc;
             Action.prototype.update = function (normalizedTime, target) {
             };
             /**
-             * Set an Action's owner.
-             * Don't call this method directly.
-             * @method cc.action.Action#__setOwner
-             * @param owner {cc.action.ActionManager}
-             * @returns {cc.action.Action}
-             * @private
-             */
-            Action.prototype.__setOwner = function (owner) {
-                this._owner = owner;
-                return this;
-            };
-            /**
-             * Return an Action's owner.
-             * @method cc.action.Action#__getOwner
-             * @returns {cc.action.ActionManager}
-             */
-            Action.prototype.getOwner = function () {
-                return this._owner;
-            };
-            /**
              * Set an Action's duration. Duration is in milliseconds.
              * @method cc.action.Action#setDuration
              * @param duration {number}
              */
             Action.prototype.setDuration = function (duration) {
                 this._duration = duration * _action.TIMEUNITS;
-                //this.setDelay(this._delayBeforeApplication);
                 this.__updateDuration();
                 return this;
             };
@@ -6733,7 +6745,7 @@ var cc;
              */
             Action.prototype.restart = function () {
                 this._firstExecution = true;
-                this._repeatTimesCount = 0;
+                this._currentRepeatCount = 0;
                 this._status = 3 /* CREATED */;
                 this._currentTime = 0;
                 return this;
@@ -7067,6 +7079,9 @@ var cc;
                 if (this._onApply) {
                     this._onApply(this, node, v);
                 }
+                this.__checkRepetition(time, node);
+            };
+            Action.prototype.__checkRepetition = function (time, node) {
                 // if this is a repeating action
                 if (this._repeatTimes !== 1) {
                     // calculate current repetition value
@@ -7164,112 +7179,6 @@ var cc;
                 return this;
             };
             /**
-             * This method is called by ActionManager when chaining actions by calling <code>startChainingActionsForNode</code>.
-             * Add a Move action to the Node.
-             * @method cc.action.Action#actionMove
-             * @returns {cc.action.Action}
-             */
-            Action.prototype.actionMove = function () {
-                if (this._parentSequence) {
-                    return this._parentSequence.actionMove();
-                }
-                return this._owner.actionMove();
-            };
-            /**
-             * This method is called by ActionManager when chaining actions by calling <code>startChainingActionsForNode</code>.
-             * Add a Rotate action to the Node.
-             * @method cc.action.Action#actionRotate
-             * @returns {cc.action.Action}
-             */
-            Action.prototype.actionRotate = function () {
-                if (this._parentSequence) {
-                    return this._parentSequence.actionRotate();
-                }
-                return this._owner.actionRotate();
-            };
-            /**
-             * This method is called by ActionManager when chaining actions by calling <code>startChainingActionsForNode</code>.
-             * Add a Scale action to the Node.
-             * @method cc.action.Action#actionScale
-             * @returns {cc.action.Action}
-             */
-            Action.prototype.actionScale = function () {
-                if (this._parentSequence) {
-                    return this._parentSequence.actionScale();
-                }
-                return this._owner.actionScale();
-            };
-            /**
-             * This method is called by ActionManager when chaining actions by calling <code>startChainingActionsForNode</code>.
-             * Add a Alpha (transparency) action to the Node.
-             * @method cc.action.Action#actionAlpha
-             * @returns {cc.action.Action}
-             */
-            Action.prototype.actionAlpha = function () {
-                if (this._parentSequence) {
-                    return this._parentSequence.actionAlpha();
-                }
-                return this._owner.actionAlpha();
-            };
-            /**
-             * This method is called by ActionManager when chaining actions by calling <code>startChainingActionsForNode</code>.
-             * Add a Tint action to the Node.
-             * @method cc.action.Action#actionTint
-             * @returns {cc.action.Action}
-             */
-            Action.prototype.actionTint = function () {
-                if (this._parentSequence) {
-                    return this._parentSequence.actionTint();
-                }
-                return this._owner.actionTint();
-            };
-            /**
-             * This method is called by ActionManager when chaining actions by calling <code>startChainingActionsForNode</code>.
-             * Add a Property action to the Node.
-             * @method cc.action.Action#actionProperty
-             * @returns {cc.action.Action}
-             */
-            Action.prototype.actionProperty = function () {
-                if (this._parentSequence) {
-                    return this._parentSequence.actionProperty();
-                }
-                return this._owner.actionProperty();
-            };
-            /**
-             * This method is called by ActionManager when chaining actions by calling <code>startChainingActionsForNode</code>.
-             * Add a Sequence action to the Node.
-             * @method cc.action.Action#actionSequence
-             * @returns {cc.action.SequenceAction}
-             */
-            Action.prototype.actionSequence = function () {
-                if (this._parentSequence) {
-                    return this._parentSequence.actionSequence();
-                }
-                return this._owner.actionSequence();
-            };
-            /**
-             * End a sequence action.
-             * Underflow on calling this function (ie, calling endSequence when there's no more Sequence actions) has no
-             * effect.
-             * @method cc.action.Action#endSequence
-             * @returns {cc.action.Action}
-             */
-            Action.prototype.endSequence = function () {
-                if (!this._parentSequence) {
-                    return this;
-                }
-                return this._parentSequence.endSequence();
-            };
-            /**
-             * This method is called by ActionManager when chaining actions by calling <code>startChainingActionsForNode</code>.
-             * Calling this method will chain two actions.
-             * @method cc.action.Action#then
-             * @returns {cc.action.ActionInfo}
-             */
-            Action.prototype.then = function () {
-                return this._owner.then();
-            };
-            /**
              * This method will make actions to be applied relatively instead of absolutely.
              * For example, moveBy will add the position to the current node's position instead of traversing through the
              * path.
@@ -7355,7 +7264,7 @@ var cc;
              * @private
              */
             Action.prototype.__genericCloneProperties = function (copy) {
-                copy.setInterpolator(this._interpolator).setReversedTime(this._reversedTime).__setOwner(this.getOwner()).setSpeed(this.getSpeed()).setRepeatTimes(this._repeatTimes).setRelative(this._relativeAction);
+                copy.setInterpolator(this._interpolator).setReversedTime(this._reversedTime).setSpeed(this.getSpeed()).setRepeatTimes(this._repeatTimes).setRelative(this._relativeAction);
                 copy._startTime = this._startTime;
                 copy._duration = this._duration;
                 copy._delayAfterApplication = this._delayAfterApplication;
@@ -7416,6 +7325,32 @@ var cc;
                 this._firstExecution = true;
             };
             /**
+             * Apply this action in a pingpong way.
+             * @method cc.action.Action#pingpong
+             */
+            Action.prototype.pingpong = function () {
+                this.setInterpolator(cc.action.Interpolator.Linear(this._reversed, true));
+            };
+            Action.prototype.getInitializer = function () {
+                var obj = {};
+                if (this._delayBeforeApplication) {
+                    obj.delayBefore = this._delayBeforeApplication / cc.action.TIMEUNITS;
+                }
+                if (this._delayAfterApplication) {
+                    obj.delayAfter = this._delayAfterApplication / cc.action.TIMEUNITS;
+                }
+                obj.duration = this._duration / cc.action.TIMEUNITS;
+                obj.relative = this._relativeAction;
+                if (this._repeatTimes !== 1) {
+                    obj.repeatTimes = this._repeatTimes;
+                }
+                if (this._interpolator) {
+                    obj.interpolator = this._interpolator.getInitializer();
+                }
+                obj.reversed = this._reversed;
+                return obj;
+            };
+            /**
              * Default tag value.
              * @member cc.action.Action#DEFAULT_TAG
              * @type {string}
@@ -7436,6 +7371,18 @@ var cc;
     var action;
     (function (action) {
         "use strict";
+        function ParseInterpolator(ii) {
+            if (ii.type === "EaseIn" || ii.type === "EaseOut" || ii.type === "EaseInOut") {
+                return cc.action.Interpolator[ii.type](ii.exponent, ii.inverse, ii.pingpong);
+            }
+            else if (ii.type === "ElasticIn" || ii.type === "ElasticOut" || ii.type === "ElasticInOut") {
+                return cc.action.Interpolator[ii.type](ii.period, ii.inverse, ii.pingpong);
+            }
+            else {
+                return cc.action.Interpolator[ii.type](ii.inverse, ii.pingpong);
+            }
+        }
+        action.ParseInterpolator = ParseInterpolator;
         function calcTime(time, inverse, pingpong) {
             if (pingpong) {
                 if (time < 0.5) {
@@ -7503,6 +7450,13 @@ var cc;
                 fn.reverse = function () {
                     return Interpolator.Linear(!inverse, pingpong);
                 };
+                fn.getInitializer = function () {
+                    return {
+                        type: "Linear",
+                        inverse: inverse,
+                        pingpong: pingpong
+                    };
+                };
                 return fn;
             };
             /**
@@ -7520,6 +7474,14 @@ var cc;
                 fn.reverse = function () {
                     return Interpolator.EaseIn(exponent, !inverse, pingpong);
                 };
+                fn.getInitializer = function () {
+                    return {
+                        type: "EaseIn",
+                        inverse: inverse,
+                        pingpong: pingpong,
+                        exponent: exponent
+                    };
+                };
                 return fn;
             };
             /**
@@ -7536,6 +7498,14 @@ var cc;
                 };
                 fn.reverse = function () {
                     return Interpolator.EaseOut(exponent, !inverse, pingpong);
+                };
+                fn.getInitializer = function () {
+                    return {
+                        type: "EaseOut",
+                        inverse: inverse,
+                        pingpong: pingpong,
+                        exponent: exponent
+                    };
                 };
                 return fn;
             };
@@ -7558,6 +7528,14 @@ var cc;
                 fn.reverse = function () {
                     return Interpolator.EaseInOut(exponent, !inverse, pingpong);
                 };
+                fn.getInitializer = function () {
+                    return {
+                        type: "EaseInOut",
+                        inverse: inverse,
+                        pingpong: pingpong,
+                        exponent: exponent
+                    };
+                };
                 return fn;
             };
             /**
@@ -7575,6 +7553,13 @@ var cc;
                 fn.reverse = function () {
                     return Interpolator.EaseExponentialIn(!inverse, pingpong);
                 };
+                fn.getInitializer = function () {
+                    return {
+                        type: "EaseExponentialIn",
+                        inverse: inverse,
+                        pingpong: pingpong
+                    };
+                };
                 return fn;
             };
             /**
@@ -7591,6 +7576,13 @@ var cc;
                 };
                 fn.reverse = function () {
                     return Interpolator.EaseExponentialOut(!inverse, pingpong);
+                };
+                fn.getInitializer = function () {
+                    return {
+                        type: "EaseExponentialOut",
+                        inverse: inverse,
+                        pingpong: pingpong
+                    };
                 };
                 return fn;
             };
@@ -7615,6 +7607,13 @@ var cc;
                 fn.reverse = function () {
                     return Interpolator.EaseExponentialInOut(!inverse, pingpong);
                 };
+                fn.getInitializer = function () {
+                    return {
+                        type: "EaseExponentialInOut",
+                        inverse: inverse,
+                        pingpong: pingpong
+                    };
+                };
                 return fn;
             };
             /**
@@ -7631,6 +7630,13 @@ var cc;
                 };
                 fn.reverse = function () {
                     return Interpolator.EaseSineIn(!inverse, pingpong);
+                };
+                fn.getInitializer = function () {
+                    return {
+                        type: "EaseSineIn",
+                        inverse: inverse,
+                        pingpong: pingpong
+                    };
                 };
                 return fn;
             };
@@ -7649,6 +7655,13 @@ var cc;
                 fn.reverse = function () {
                     return Interpolator.EaseSineOut(!inverse, pingpong);
                 };
+                fn.getInitializer = function () {
+                    return {
+                        type: "EaseSineOut",
+                        inverse: inverse,
+                        pingpong: pingpong
+                    };
+                };
                 return fn;
             };
             /**
@@ -7665,6 +7678,13 @@ var cc;
                 };
                 fn.reverse = function () {
                     return Interpolator.EaseSineInOut(!inverse, pingpong);
+                };
+                fn.getInitializer = function () {
+                    return {
+                        type: "EaseSineInOut",
+                        inverse: inverse,
+                        pingpong: pingpong
+                    };
                 };
                 return fn;
             };
@@ -7692,6 +7712,14 @@ var cc;
                 fn.reverse = function () {
                     return Interpolator.EaseElasticIn(period, !inverse, pingpong);
                 };
+                fn.getInitializer = function () {
+                    return {
+                        type: "EaseElasticIn",
+                        inverse: inverse,
+                        pingpong: pingpong,
+                        period: period
+                    };
+                };
                 return fn;
             };
             /**
@@ -7716,6 +7744,14 @@ var cc;
                 };
                 fn.reverse = function () {
                     return Interpolator.EaseElasticOut(period, !inverse, pingpong);
+                };
+                fn.getInitializer = function () {
+                    return {
+                        type: "EaseElasticOut",
+                        inverse: inverse,
+                        pingpong: pingpong,
+                        period: period
+                    };
                 };
                 return fn;
             };
@@ -7747,6 +7783,14 @@ var cc;
                 fn.reverse = function () {
                     return Interpolator.EaseElasticInOut(period, !inverse, pingpong);
                 };
+                fn.getInitializer = function () {
+                    return {
+                        type: "EaseElasticInOut",
+                        inverse: inverse,
+                        pingpong: pingpong,
+                        period: period
+                    };
+                };
                 return fn;
             };
             /**
@@ -7764,6 +7808,13 @@ var cc;
                 fn.reverse = function () {
                     return Interpolator.EaseBounceIn(!inverse, pingpong);
                 };
+                fn.getInitializer = function () {
+                    return {
+                        type: "EaseBounceIn",
+                        inverse: inverse,
+                        pingpong: pingpong
+                    };
+                };
                 return fn;
             };
             /**
@@ -7779,6 +7830,13 @@ var cc;
                 };
                 fn.reverse = function () {
                     return Interpolator.EaseBounceOut(!inverse, pingpong);
+                };
+                fn.getInitializer = function () {
+                    return {
+                        type: "EaseBounceOut",
+                        inverse: inverse,
+                        pingpong: pingpong
+                    };
                 };
                 return fn;
             };
@@ -7803,6 +7861,13 @@ var cc;
                 fn.reverse = function () {
                     return Interpolator.EaseBounceInOut(!inverse, pingpong);
                 };
+                fn.getInitializer = function () {
+                    return {
+                        type: "EaseBounceInOut",
+                        inverse: inverse,
+                        pingpong: pingpong
+                    };
+                };
                 return fn;
             };
             /**
@@ -7820,6 +7885,13 @@ var cc;
                 };
                 fn.reverse = function () {
                     return Interpolator.EaseBackIn(!inverse, pingpong);
+                };
+                fn.getInitializer = function () {
+                    return {
+                        type: "EaseBackIn",
+                        inverse: inverse,
+                        pingpong: pingpong
+                    };
                 };
                 return fn;
             };
@@ -7839,6 +7911,13 @@ var cc;
                 };
                 fn.reverse = function () {
                     return Interpolator.EaseBackOut(!inverse, pingpong);
+                };
+                fn.getInitializer = function () {
+                    return {
+                        type: "EaseBackOut",
+                        inverse: inverse,
+                        pingpong: pingpong
+                    };
                 };
                 return fn;
             };
@@ -7864,6 +7943,13 @@ var cc;
                 };
                 fn.reverse = function () {
                     return Interpolator.EaseBackInOut(!inverse, pingpong);
+                };
+                fn.getInitializer = function () {
+                    return {
+                        type: "EaseBackInOut",
+                        inverse: inverse,
+                        pingpong: pingpong
+                    };
                 };
                 return fn;
             };
@@ -7929,14 +8015,17 @@ var cc;
                  * @private
                  */
                 this._endAlpha = 0;
-                if (typeof data !== "undefined") {
-                    this._startAlpha = data.start;
-                    this._endAlpha = data.end;
-                    if (typeof data.relative !== "undefined") {
-                        this.setRelative(data.relative);
-                    }
+                if (data) {
+                    this.__createFromInitializer(data);
                 }
             }
+            AlphaAction.prototype.__createFromInitializer = function (data) {
+                _super.prototype.__createFromInitializer.call(this, data);
+                if (typeof data !== "undefined") {
+                    this._startAlpha = data.to;
+                    this._endAlpha = data.from;
+                }
+            };
             /**
              * Update target Node's transparency.
              * {@link cc.action.Action#update}
@@ -8011,6 +8100,15 @@ var cc;
                 copy._originalAlpha = this._originalAlpha;
                 this.__genericCloneProperties(copy);
                 return copy;
+            };
+            AlphaAction.prototype.getInitializer = function () {
+                var init = _super.prototype.getInitializer.call(this);
+                if (this._fromValuesSet) {
+                    init.from = this._startAlpha;
+                }
+                init.to = this._endAlpha;
+                init.type = "AlphaAction";
+                return init;
             };
             return AlphaAction;
         })(Action);
@@ -8095,16 +8193,13 @@ var cc;
                  * @private
                  */
                 this._y1 = 0;
-                if (typeof data !== "undefined") {
-                    this._x0 = data.x0;
-                    this._y0 = data.y0;
-                    this._x1 = data.x1;
-                    this._y1 = data.y1;
-                    if (typeof data.relative !== "undefined") {
-                        this.setRelative(data.relative);
-                    }
+                if (data) {
+                    this.__createFromInitializer(data);
                 }
             }
+            MoveAction.prototype.__createFromInitializer = function (initializer) {
+                _super.prototype.__createFromInitializer.call(this, initializer);
+            };
             /**
              * Update target Node's position.
              * {@link cc.action.Action#update}
@@ -8188,6 +8283,15 @@ var cc;
                 this.__genericCloneProperties(copy);
                 return copy;
             };
+            MoveAction.prototype.getInitializer = function () {
+                var init = _super.prototype.getInitializer.call(this);
+                if (this._fromValuesSet) {
+                    init.from = { x: this._x0, y: this._y0 };
+                }
+                init.to = { x: this._x1, y: this._y1 };
+                init.type = "MoveAction";
+                return init;
+            };
             return MoveAction;
         })(Action);
         action.MoveAction = MoveAction;
@@ -8226,18 +8330,41 @@ var cc;
                 this._start = _start;
                 this._end = _end;
                 /**
-                 * Original property value.
-                 * @type {number}
-                 * @private
-                 */
-                this._original = 0;
-                /**
                  * Property Units. For example, when the property is not a numeric value but something like '250px'.
                  * @type {string}
                  * @private
                  */
                 this._units = "";
+                this._nested = false;
+                this._nested = _property.indexOf('.') !== -1;
+                this._propertyPath = _property.split('.');
             }
+            PropertyInfo.prototype.setTargetValue = function (target, v) {
+                var cursor = target;
+                for (var i = 0; i < this._propertyPath.length - 1; i++) {
+                    if (typeof cursor[this._propertyPath[i]] !== "undefined") {
+                        cursor = cursor[this._propertyPath[i]];
+                    }
+                    else {
+                        // error, no deep path found on object
+                        return;
+                    }
+                }
+                cursor[this._propertyPath[i]] = v;
+            };
+            PropertyInfo.prototype.getTargetValue = function (target) {
+                var cursor = target;
+                for (var i = 0; i < this._propertyPath.length; i++) {
+                    if (typeof cursor[this._propertyPath[i]] !== "undefined") {
+                        cursor = cursor[this._propertyPath[i]];
+                    }
+                    else {
+                        // error, no deep path found on object
+                        return null;
+                    }
+                }
+                return cursor;
+            };
             PropertyInfo.prototype.setOriginal = function (n) {
                 this._original = n;
                 return this;
@@ -8249,10 +8376,13 @@ var cc;
                 return new PropertyInfo(this._property, this._start, this._end);
             };
             PropertyInfo.prototype.getValue = function (v) {
-                if (this._units) {
+                if (this._units !== "") {
                     return "" + v + this._units;
                 }
                 return v;
+            };
+            PropertyInfo.prototype.getPath = function () {
+                return this._propertyPath;
             };
             return PropertyInfo;
         })();
@@ -8279,20 +8409,23 @@ var cc;
              * PropertyAction constructor.
              * @method cc.action.PropertyAction#constructor
              */
-            function PropertyAction() {
+            function PropertyAction(data) {
                 _super.call(this);
                 this._propertiesInfo = [];
+                if (data) {
+                    this.__createFromInitializer(data);
+                }
             }
+            PropertyAction.prototype.__createFromInitializer = function (initializer) {
+                _super.prototype.__createFromInitializer.call(this, initializer);
+            };
             /**
              * {@link cc.action.Action#initWithTarget}
              * @method cc.action.PropertyAction#initWithTarget
              * @override
              */
             PropertyAction.prototype.initWithTarget = function (node) {
-                for (var i = 0; i < this._propertiesInfo.length; i++) {
-                    var pi = this._propertiesInfo[i];
-                    pi.setOriginal(node[pi._property]);
-                }
+                this.solveInitialValues(node);
             };
             /**
              * Update target Node's properties.
@@ -8309,7 +8442,8 @@ var cc;
                     if (this.isRelative()) {
                         v += pr.getOriginal();
                     }
-                    node[pr._property] = pr.getValue(v);
+                    pr.setTargetValue(node, v);
+                    //node[pr._property] = pr.getValue(v);
                     // register applied values only if there´s someone interested.
                     if (this._onApply) {
                         ret[pr._property] = v;
@@ -8324,17 +8458,15 @@ var cc;
              * @override
              */
             PropertyAction.prototype.solveInitialValues = function (node) {
-                if (!this._fromValuesSet) {
-                    this._fromValuesSet = true;
-                    for (var i = 0; i < this._propertiesInfo.length; i++) {
-                        var pr = this._propertiesInfo[i];
-                        if (typeof pr._start === "undefined") {
-                            pr._start = node[pr._property];
-                        }
-                        if (typeof pr._end === "undefined") {
-                            pr._end = node[pr._property];
-                        }
+                for (var i = 0; i < this._propertiesInfo.length; i++) {
+                    var pr = this._propertiesInfo[i];
+                    if (typeof pr._start === "undefined") {
+                        pr._start = pr.getTargetValue(node);
                     }
+                    if (typeof pr._end === "undefined") {
+                        pr._end = pr.getTargetValue(node);
+                    }
+                    pr._original = pr.getTargetValue(node);
                 }
             };
             /**
@@ -8343,10 +8475,13 @@ var cc;
              * @override
              */
             PropertyAction.prototype.from = function (props) {
-                for (var pr in props) {
-                    if (props.hasOwnProperty(pr)) {
-                        var propertyInfo = new PropertyInfo(pr, props[pr]);
-                        this._propertiesInfo.push(propertyInfo);
+                this._from = props;
+                if (props) {
+                    for (var pr in props) {
+                        if (props.hasOwnProperty(pr)) {
+                            var propertyInfo = new PropertyInfo(pr, props[pr]);
+                            this._propertiesInfo.push(propertyInfo);
+                        }
                     }
                 }
                 return this;
@@ -8357,6 +8492,7 @@ var cc;
              * @override
              */
             PropertyAction.prototype.to = function (props) {
+                this._to = props;
                 var i;
                 for (var pr in props) {
                     if (props.hasOwnProperty(pr)) {
@@ -8370,7 +8506,7 @@ var cc;
                             }
                         }
                         if (!property) {
-                            property = new PropertyInfo(pr, 0, 0);
+                            property = new PropertyInfo(pr);
                             this._propertiesInfo.push(property);
                         }
                         property._end = props[pr];
@@ -8400,6 +8536,15 @@ var cc;
                 var copy = new PropertyAction().to(this.__cloneProperties());
                 this.__genericCloneProperties(copy);
                 return copy;
+            };
+            PropertyAction.prototype.getInitializer = function () {
+                var init = _super.prototype.getInitializer.call(this);
+                if (this._fromValuesSet) {
+                    init.from = this._from;
+                }
+                init.to = this._to;
+                init.type = "PropertyAction";
+                return init;
             };
             return PropertyAction;
         })(Action);
@@ -8460,14 +8605,13 @@ var cc;
                  * @type {number}
                  */
                 this._endAngle = 360;
-                if (typeof data !== "undefined") {
-                    this._startAngle = data.start;
-                    this._endAngle = data.end;
-                    if (typeof data.relative !== "undefined") {
-                        this.setRelative(data.relative);
-                    }
+                if (data) {
+                    this.__createFromInitializer(data);
                 }
             }
+            RotateAction.prototype.__createFromInitializer = function (initializer) {
+                _super.prototype.__createFromInitializer.call(this, initializer);
+            };
             /**
              * Update target Node's rotation angle.
              * {@link cc.action.Action#update}
@@ -8544,6 +8688,15 @@ var cc;
                 }
                 this.__genericCloneProperties(copy);
                 return copy;
+            };
+            RotateAction.prototype.getInitializer = function () {
+                var init = _super.prototype.getInitializer.call(this);
+                if (this._fromValuesSet) {
+                    init.from = this._startAngle;
+                }
+                init.to = this._endAngle;
+                init.type = "RotateAction";
+                return init;
             };
             return RotateAction;
         })(Action);
@@ -8624,16 +8777,13 @@ var cc;
                  * @type {number}
                  */
                 this._scaleY1 = 1;
-                if (typeof data !== "undefined") {
-                    this._scaleX0 = data.x0;
-                    this._scaleY0 = data.y0;
-                    this._scaleX1 = data.x1;
-                    this._scaleY1 = data.y1;
-                    if (typeof data.relative !== "undefined") {
-                        this.setRelative(data.relative);
-                    }
+                if (data) {
+                    this.__createFromInitializer(data);
                 }
             }
+            ScaleAction.prototype.__createFromInitializer = function (initializer) {
+                _super.prototype.__createFromInitializer.call(this, initializer);
+            };
             /**
              * Update target Node's scale.
              * {@link cc.action.Action#update}
@@ -8715,6 +8865,15 @@ var cc;
                 this.__genericCloneProperties(copy);
                 return copy;
             };
+            ScaleAction.prototype.getInitializer = function () {
+                var init = _super.prototype.getInitializer.call(this);
+                if (this._fromValuesSet) {
+                    init.from = { x: this._scaleX0, y: this._scaleY0 };
+                }
+                init.to = { x: this._scaleX1, y: this._scaleY1 };
+                init.type = "ScaleAction";
+                return init;
+            };
             return ScaleAction;
         })(Action);
         action.ScaleAction = ScaleAction;
@@ -8744,12 +8903,6 @@ var cc;
     (function (_action) {
         "use strict";
         var Action = cc.action.Action;
-        var MoveAction = cc.action.MoveAction;
-        var RotateAction = cc.action.RotateAction;
-        var ScaleAction = cc.action.ScaleAction;
-        var PropertyAction = cc.action.PropertyAction;
-        var AlphaAction = cc.action.AlphaAction;
-        var TintAction = cc.action.TintAction;
         /**
          * @class cc.action.SequenceAction
          * @extends cc.action.Action
@@ -8798,7 +8951,18 @@ var cc;
                 this._sequential = true;
                 this._prevOnRepeat = null;
                 if (typeof data !== "undefined") {
+                    this.__createFromInitializer(data);
+                }
+            }
+            SequenceAction.prototype.__createFromInitializer = function (data) {
+                _super.prototype.__createFromInitializer.call(this, data);
+                if (typeof data.sequential !== "undefined") {
                     this._sequential = data.sequential;
+                }
+                if (data.actions) {
+                    for (var i = 0; i < data.actions.length; i++) {
+                        this.addAction(cc.action.ParseAction(data.actions[i]));
+                    }
                 }
                 this._onRepeat = function (action, target, repetitionCount) {
                     var seq = action;
@@ -8807,7 +8971,7 @@ var cc;
                         seq._prevOnRepeat(action, target, repetitionCount);
                     }
                 };
-            }
+            };
             SequenceAction.prototype.onRepeat = function (callback) {
                 this._prevOnRepeat = callback;
                 return this;
@@ -8816,6 +8980,12 @@ var cc;
                 for (var i = 0; i < this._actions.length; i++) {
                     this._actions[i].__recursivelySetCreatedStatus(target);
                 }
+            };
+            SequenceAction.prototype.getLastAction = function () {
+                if (this._actions.length === 0) {
+                    return null;
+                }
+                return this._actions[this._actions.length - 1];
             };
             SequenceAction.prototype.__recursivelySetCreatedStatus = function (target) {
                 for (var i = 0; i < this._actions.length; i++) {
@@ -8831,6 +9001,9 @@ var cc;
              * @private
              */
             SequenceAction.prototype.__updateDuration = function () {
+                if (!this._actions) {
+                    return;
+                }
                 var duration = 0;
                 this.__sequentializeStartAndDuration();
                 for (var i = 0; i < this._actions.length; i++) {
@@ -8874,7 +9047,7 @@ var cc;
              */
             SequenceAction.prototype.addAction = function (a) {
                 this._actions.push(a);
-                a._owner = this._owner;
+                a._chainContext = this._chainContext;
                 a._parentSequence = this;
                 this.__updateDuration();
                 return this;
@@ -8974,77 +9147,22 @@ var cc;
                 return this;
             };
             /**
-             * @override
-             * @inheritDoc
+             * Set the Sequence as Sequence (sequential=true) or Spawn (sequential=false).
+             * @method cc.action.SequenceAction#setSequential
+             * @param b {boolean}
              */
-            SequenceAction.prototype.actionMove = function () {
-                var a = new MoveAction();
-                this.addAction(a);
-                return a;
+            SequenceAction.prototype.setSequential = function (b) {
+                this._sequential = b;
             };
-            /**
-             * @override
-             * @inheritDoc
-             */
-            SequenceAction.prototype.actionRotate = function () {
-                var a = new RotateAction();
-                this.addAction(a);
-                return a;
-            };
-            /**
-             * @override
-             * @inheritDoc
-             */
-            SequenceAction.prototype.actionScale = function () {
-                var a = new ScaleAction();
-                this.addAction(a);
-                return a;
-            };
-            /**
-             * @override
-             * @inheritDoc
-             */
-            SequenceAction.prototype.actionAlpha = function () {
-                var a = new AlphaAction();
-                this.addAction(a);
-                return a;
-            };
-            /**
-             * @override
-             * @inheritDoc
-             */
-            SequenceAction.prototype.actionTint = function () {
-                var a = new TintAction();
-                this.addAction(a);
-                return a;
-            };
-            /**
-             * @override
-             * @inheritDoc
-             */
-            SequenceAction.prototype.actionProperty = function () {
-                var a = new PropertyAction();
-                this.addAction(a);
-                return a;
-            };
-            /**
-             * @override
-             * @inheritDoc
-             */
-            SequenceAction.prototype.actionSequence = function () {
-                var a = new SequenceAction();
-                this.addAction(a);
-                return a;
-            };
-            /**
-             * @override
-             * @inheritDoc
-             */
-            SequenceAction.prototype.endSequence = function () {
-                if (!this._parentSequence) {
-                    return this;
+            SequenceAction.prototype.getInitializer = function () {
+                var init = _super.prototype.getInitializer.call(this);
+                init.type = "SequenceAction";
+                init.sequential = this._sequential;
+                init.actions = [];
+                for (var i = 0; i < this._actions.length; i++) {
+                    init.actions.push(this._actions[i].getInitializer());
                 }
-                return this._parentSequence;
+                return init;
             };
             return SequenceAction;
         })(Action);
@@ -9108,18 +9226,13 @@ var cc;
                  * @type {cc.math.RGBAColor}
                  */
                 this._endColor = { r: 1, g: 1, b: 1 };
-                if (typeof data !== "undefined") {
-                    this._startColor.r = data.r0;
-                    this._startColor.g = data.g0;
-                    this._startColor.b = data.b0;
-                    this._endColor.r = data.r1;
-                    this._endColor.g = data.g1;
-                    this._endColor.b = data.b1;
-                    if (typeof data.relative !== "undefined") {
-                        this.setRelative(data.relative);
-                    }
+                if (data) {
+                    this.__createFromInitializer(data);
                 }
             }
+            TintAction.prototype.__createFromInitializer = function (initializer) {
+                _super.prototype.__createFromInitializer.call(this, initializer);
+            };
             /**
              * Update target Node's tint color.
              * {@link cc.action.Action#update}
@@ -9215,6 +9328,15 @@ var cc;
                 this.__genericCloneProperties(copy);
                 return copy;
             };
+            TintAction.prototype.getInitializer = function () {
+                var init = _super.prototype.getInitializer.call(this);
+                if (this._fromValuesSet) {
+                    init.from = { r: this._startColor.r, g: this._startColor.g, b: this._startColor.b };
+                }
+                init.to = { r: this._endColor.r, g: this._endColor.g, b: this._endColor.b };
+                init.type = "TintAction";
+                return init;
+            };
             return TintAction;
         })(Action);
         action.TintAction = TintAction;
@@ -9287,10 +9409,19 @@ var cc;
                  * @private
                  */
                 this._animation = null;
-                if (typeof data !== "undefined") {
-                    this.setAnimation(data);
+                if (data) {
+                    if (data instanceof cc.node.sprite.Animation) {
+                        this.setAnimation(data);
+                    }
+                    else {
+                        this.__createFromInitializer(data);
+                    }
                 }
             }
+            AnimateAction.prototype.__createFromInitializer = function (data) {
+                _super.prototype.__createFromInitializer.call(this, data);
+                this.setAnimation(cc.plugin.asset.AssetManager.getAnimationById(data.animationName));
+            };
             /**
              * Set the Animation object instance.
              * @method cc.action.AnimateAction#setAnimation
@@ -9388,6 +9519,12 @@ var cc;
                 if (this._animation._restoreOriginalFrame) {
                     node.setSpriteFrame(this._originalSpriteFrame);
                 }
+            };
+            AnimateAction.prototype.getInitializer = function () {
+                var init = _super.prototype.getInitializer.call(this);
+                init.type = "AnimateAction";
+                init.animationName = this._animation._name;
+                return init;
             };
             return AnimateAction;
         })(Action);
@@ -9500,13 +9637,15 @@ var cc;
                  */
                 this._spriteOrientationLR = true;
                 if (typeof data !== "undefined") {
-                    // BUGBUG initializer must have serializable data.
-                    this._segment = data.segment;
-                    if (typeof data.relative !== "undefined") {
-                        this.setRelative(data.relative);
-                    }
+                    this.__createFromInitializer(data);
                 }
             }
+            PathAction.prototype.__createFromInitializer = function (data) {
+                _super.prototype.__createFromInitializer.call(this, data);
+                // BUGBUG initializer must have serializable data.
+                console.log("Path initializer not yet implemented.");
+                this._segment = data.segment;
+            };
             /**
              * Update target Node's position.
              * {@link cc.action.Action#update}
@@ -9675,6 +9814,12 @@ var cc;
                 this._spriteOrientationLR = v;
                 return this;
             };
+            PathAction.prototype.getInitializer = function () {
+                var init = _super.prototype.getInitializer.call(this);
+                init.type = "PathAction";
+                // bugbug pathAction can not serialize path object.
+                return init;
+            };
             return PathAction;
         })(Action);
         action.PathAction = PathAction;
@@ -9746,15 +9891,18 @@ var cc;
                  */
                 this._jumps = 1;
                 this._jumpTo = null;
+                if (data) {
+                    this.__createFromInitializer(data);
+                }
+            }
+            JumpAction.prototype.__createFromInitializer = function (data) {
+                _super.prototype.__createFromInitializer.call(this, data);
                 if (typeof data !== "undefined") {
                     this._amplitude = data.amplitude;
                     this._jumps = data.jumps;
                     this._jumpTo = new Vector(data.position.x, data.position.y);
-                    if (typeof data.relative !== "undefined") {
-                        this.setRelative(data.relative);
-                    }
                 }
-            }
+            };
             /**
              * Update target Node's position.
              * {@link cc.action.Action#update}
@@ -9813,6 +9961,17 @@ var cc;
                 this.__genericCloneProperties(copy);
                 return copy;
             };
+            JumpAction.prototype.getInitializer = function () {
+                var init = _super.prototype.getInitializer.call(this);
+                init.type = "JumpAction";
+                init.jumps = this._jumps;
+                init.amplitude = this._amplitude;
+                init.position = {
+                    x: this._jumpTo.x,
+                    y: this._jumpTo.y
+                };
+                return init;
+            };
             return JumpAction;
         })(Action);
         action.JumpAction = JumpAction;
@@ -9830,7 +9989,6 @@ var cc;
     var action;
     (function (__action) {
         "use strict";
-        var SequenceAction = cc.action.SequenceAction;
         var __index = 0;
         /**
          * @class cc.action.ActionInfo
@@ -9850,7 +10008,7 @@ var cc;
                 this._chain = null;
             }
             ActionInfo.prototype.__action = function (bh) {
-                bh.__setOwner(this._actionManager);
+                //bh.__setOwner(this._actionManager);
                 if (this._chain !== null) {
                     bh._chainAction = this._chain._action;
                 }
@@ -9867,30 +10025,6 @@ var cc;
                  */
                 a.setDelay(a._startTime / cc.action.TIMEUNITS);
                 return a;
-            };
-            ActionInfo.prototype.actionMove = function () {
-                return this.__action(new __action.MoveAction());
-            };
-            ActionInfo.prototype.actionRotate = function () {
-                return this.__action(new __action.RotateAction());
-            };
-            ActionInfo.prototype.actionProperty = function () {
-                return this.__action(new __action.PropertyAction());
-            };
-            ActionInfo.prototype.actionAlpha = function () {
-                return this.__action(new __action.AlphaAction());
-            };
-            ActionInfo.prototype.actionTint = function () {
-                return this.__action(new __action.TintAction());
-            };
-            ActionInfo.prototype.actionScale = function () {
-                return this.__action(new __action.ScaleAction());
-            };
-            ActionInfo.prototype.actionSequence = function () {
-                return this.__action(new SequenceAction());
-            };
-            ActionInfo.prototype.endSequence = function () {
-                return this._action._parentSequence;
             };
             ActionInfo.prototype.step = function (elapsedTime) {
                 this._action.step(elapsedTime, this._target);
@@ -10015,73 +10149,6 @@ var cc;
                 var ai = new ActionInfo(this, this._actionInfos[this._actionInfos.length - 1]._target);
                 this._actionInfos.push(ai);
                 return ai;
-            };
-            /**
-             * Create and add a MoveAction object to the current Node.
-             * @method cc.action.ActionManager#actionMove
-             * @returns {cc.action.Action}
-             */
-            ActionManager.prototype.actionMove = function () {
-                return this.__newActionInfo().actionMove();
-            };
-            /**
-             * Create and add a RotateAction object to the current Node.
-             * @method cc.action.ActionManager#actionRotate
-             * @returns {cc.action.Action}
-             */
-            ActionManager.prototype.actionRotate = function () {
-                return this.__newActionInfo().actionRotate();
-            };
-            /**
-             * Create and add a AlphaAction object to the current Node.
-             * @method cc.action.ActionManager#actionAlpha
-             * @returns {cc.action.Action}
-             */
-            ActionManager.prototype.actionAlpha = function () {
-                return this.__newActionInfo().actionAlpha();
-            };
-            /**
-             * Create and add a TintAction object to the current Node.
-             * @method cc.action.ActionManager#actionTint
-             * @returns {cc.action.Action}
-             */
-            ActionManager.prototype.actionTint = function () {
-                return this.__newActionInfo().actionTint();
-            };
-            /**
-             * Create and add a ScaleAction object to the current Node.
-             * @method cc.action.ActionManager#actionScale
-             * @returns {cc.action.Action}
-             */
-            ActionManager.prototype.actionScale = function () {
-                return this.__newActionInfo().actionScale();
-            };
-            /**
-             * Create and add a PropertyAction object to the current Node.
-             * @method cc.action.ActionManager#actionProperty
-             * @returns {Action}
-             */
-            ActionManager.prototype.actionProperty = function () {
-                return this.__newActionInfo().actionProperty();
-            };
-            /**
-             * Create and add a SequenceAction object to the current Node.
-             * @method cc.action.ActionManager#actionSequence
-             * @returns {SequenceAction}
-             */
-            ActionManager.prototype.actionSequence = function () {
-                return this.__newActionInfo().actionSequence();
-            };
-            /**
-             * Chain an action to the previous one. Chaining will make them sequential in time.
-             * @method cc.action.ActionManager#then
-             * @returns {cc.action.ActionInfo}
-             */
-            ActionManager.prototype.then = function () {
-                var ltw = this._actionInfos[this._actionInfos.length - 1];
-                var tw = this.startChainingActionsForNode(ltw._target);
-                tw.setChain(ltw);
-                return tw;
             };
             /**
              * Execute all scheduled Actions in this ActionManager.
@@ -10642,6 +10709,207 @@ var cc;
             return SchedulerQueue;
         })(Action);
         action.SchedulerQueue = SchedulerQueue;
+    })(action = cc.action || (cc.action = {}));
+})(cc || (cc = {}));
+
+/**
+ * License: see license.txt file
+ */
+/// <reference path="../node/Node.ts"/>
+/// <reference path="./MoveAction.ts"/>
+/// <reference path="./JumpAction.ts"/>
+/// <reference path="./RotateAction.ts"/>
+/// <reference path="./PropertyAction.ts"/>
+/// <reference path="./AlphaAction.ts"/>
+/// <reference path="./TintAction.ts"/>
+/// <reference path="./ScaleAction.ts"/>
+/// <reference path="./SequenceAction.ts"/>
+/// <reference path="./PathAction.ts"/>
+var cc;
+(function (cc) {
+    var action;
+    (function (_action) {
+        function ParseAction(actionDef) {
+            if (cc.action[actionDef.type] !== "undefined") {
+                var action = new cc.action[actionDef.type]();
+                action.__createFromInitializer(actionDef);
+                return action;
+            }
+            console.log("Error, action initializer w/o type.");
+            console.log(JSON.stringify(actionDef, null, 2));
+            return null;
+        }
+        _action.ParseAction = ParseAction;
+        var ActionChainContext = (function () {
+            function ActionChainContext(_target) {
+                this._target = _target;
+                this._chainAction = null;
+                this._currentAction = null;
+                this._sequenceStack = [];
+                this._currentSequence = null;
+            }
+            ActionChainContext.prototype.__action = function (ctor) {
+                this.action(new ctor());
+                if (ctor === cc.action.SequenceAction) {
+                    this._sequenceStack.push(this._currentAction);
+                    this._currentSequence = this._currentAction;
+                }
+                return this;
+            };
+            ActionChainContext.prototype.action = function (_currentAction) {
+                var currentAction;
+                if (_currentAction instanceof cc.action.Action) {
+                    currentAction = _currentAction;
+                }
+                else {
+                    currentAction = cc.action.ParseAction(_currentAction);
+                }
+                if (this._currentSequence) {
+                    this._currentSequence.addAction(currentAction);
+                }
+                else {
+                    this._target.runAction(currentAction);
+                }
+                if (this._chainAction) {
+                    currentAction._chainAction = this._chainAction;
+                    this._chainAction = null;
+                }
+                this._currentAction = currentAction;
+                currentAction.__updateDuration();
+                return this;
+            };
+            ActionChainContext.prototype.actionPath = function () {
+                return this.__action(cc.action.PathAction);
+            };
+            ActionChainContext.prototype.actionMove = function () {
+                return this.__action(cc.action.MoveAction);
+            };
+            ActionChainContext.prototype.actionRotate = function () {
+                return this.__action(cc.action.RotateAction);
+            };
+            ActionChainContext.prototype.actionProperty = function () {
+                return this.__action(cc.action.PropertyAction);
+            };
+            ActionChainContext.prototype.actionAlpha = function () {
+                return this.__action(cc.action.AlphaAction);
+            };
+            ActionChainContext.prototype.actionTint = function () {
+                return this.__action(cc.action.TintAction);
+            };
+            ActionChainContext.prototype.actionScale = function () {
+                return this.__action(cc.action.ScaleAction);
+            };
+            ActionChainContext.prototype.actionSequence = function () {
+                return this.__action(cc.action.SequenceAction);
+            };
+            ActionChainContext.prototype.endSequence = function () {
+                if (this._sequenceStack.length) {
+                    this._sequenceStack.pop();
+                    if (this._sequenceStack.length) {
+                        this._currentSequence = this._sequenceStack[this._sequenceStack.length - 1];
+                    }
+                    else {
+                        this._currentSequence = null;
+                    }
+                    this._currentAction = this._currentSequence;
+                }
+                return this;
+            };
+            ActionChainContext.prototype.from = function (obj) {
+                if (this._currentAction) {
+                    this._currentAction.from(obj);
+                }
+                return this;
+            };
+            ActionChainContext.prototype.to = function (obj) {
+                if (this._currentAction) {
+                    this._currentAction.to(obj);
+                }
+                return this;
+            };
+            ActionChainContext.prototype.setInterpolator = function (i) {
+                if (this._currentAction) {
+                    this._currentAction.setInterpolator(i);
+                }
+                return this;
+            };
+            ActionChainContext.prototype.setRelative = function (b) {
+                if (this._currentAction) {
+                    this._currentAction.setRelative(b);
+                }
+                return this;
+            };
+            ActionChainContext.prototype.setDuration = function (d) {
+                if (this._currentAction) {
+                    this._currentAction.setDuration(d);
+                }
+                return this;
+            };
+            ActionChainContext.prototype.setRepeatForever = function (obj) {
+                if (this._currentAction) {
+                    this._currentAction.setRepeatForever(obj);
+                }
+                return this;
+            };
+            ActionChainContext.prototype.setRepeatTimes = function (n) {
+                if (this._currentAction) {
+                    this._currentAction.setRepeatTimes(n);
+                }
+                return this;
+            };
+            ActionChainContext.prototype.then = function () {
+                this._chainAction = this._currentAction;
+                return this;
+            };
+            ActionChainContext.prototype.timeInfo = function (delay, duration, interpolator) {
+                this._currentAction.timeInfo(delay, duration, interpolator);
+                return this;
+            };
+            ActionChainContext.prototype.onEnd = function (f) {
+                if (this._currentAction) {
+                    this._currentAction.onEnd(f);
+                }
+                return this;
+            };
+            ActionChainContext.prototype.onStart = function (f) {
+                if (this._currentAction) {
+                    this._currentAction.onStart(f);
+                }
+                return this;
+            };
+            ActionChainContext.prototype.onRepeat = function (f) {
+                if (this._currentAction) {
+                    this._currentAction.onRepeat(f);
+                }
+                return this;
+            };
+            ActionChainContext.prototype.onPause = function (f) {
+                if (this._currentAction) {
+                    this._currentAction.onPause(f);
+                }
+                return this;
+            };
+            ActionChainContext.prototype.onResume = function (f) {
+                if (this._currentAction) {
+                    this._currentAction.onResume(f);
+                }
+                return this;
+            };
+            ActionChainContext.prototype.onApply = function (f) {
+                if (this._currentAction) {
+                    this._currentAction.onApply(f);
+                }
+                return this;
+            };
+            ActionChainContext.prototype.setSequential = function (b) {
+                if (this._currentAction.setSequential) {
+                    this._currentAction.setSequential(b);
+                }
+                return this;
+            };
+            return ActionChainContext;
+        })();
+        _action.ActionChainContext = ActionChainContext;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
 
@@ -11959,7 +12227,7 @@ var cc;
     var node;
     (function (node) {
         var sprite;
-        (function (_sprite) {
+        (function (sprite) {
             var Vector = cc.math.Vector;
             var Rectangle = cc.math.Rectangle;
             function __createSpriteFrame(from, x, y, w, h, name, rotated, offsetx, offsety) {
@@ -12200,7 +12468,7 @@ var cc;
                  * @param ctx {cc.render.RenderingContext}
                  * @param sprite {cc.node.Sprite}
                  */
-                SpriteFrame.prototype.draw = function (ctx, sprite) {
+                SpriteFrame.prototype.draw = function (ctx, w, h) {
                     var rotated = this._rotated;
                     if (ctx.type === "webgl") {
                         if (!this._texture.isWebGLEnabled()) {
@@ -12209,7 +12477,7 @@ var cc;
                             this.__calculateNormalizedRect();
                         }
                     }
-                    ctx.drawTexture(this._texture, this._rect.x, this._rect.y, this._rect.w, this._rect.h, 0, 0, sprite.width, sprite.height);
+                    ctx.drawTexture(this._texture, this._rect.x, this._rect.y, this._rect.w, this._rect.h, 0, 0, w, h);
                 };
                 /**
                  * Create a set of new SpriteFrames from this SpriteFrame area, and defined by a JSON object.
@@ -12280,7 +12548,7 @@ var cc;
                 };
                 return SpriteFrame;
             })();
-            _sprite.SpriteFrame = SpriteFrame;
+            sprite.SpriteFrame = SpriteFrame;
         })(sprite = node.sprite || (node.sprite = {}));
     })(node = cc.node || (cc.node = {}));
 })(cc || (cc = {}));
@@ -12529,7 +12797,7 @@ var cc;
         var __m0 = new Float32Array([1, 0, 0, 0, 1, 0, 0, 0, 1]);
         /**
          * @class cc.node.Sprite
-         * @extends cc.node.Node
+         * @extend cc.node.Node
          * @classdesc
          * Sprite creates an sprite, a Node that shows images with animations.
          */
@@ -12661,7 +12929,7 @@ var cc;
                     //    ctx.translate( 0, this._contentSize.height );
                     //    ctx.scale( 1, -1 );
                     //}
-                    this._spriteFrame.draw(ctx, this);
+                    this._spriteFrame.draw(ctx, this.width, this.height);
                 }
             };
             /**
@@ -12954,7 +13222,7 @@ var cc;
                 if (sf) {
                     ctx.globalAlpha = this._frameAlpha;
                     ctx.setTintColor(this._color);
-                    sf.draw(ctx, this);
+                    sf.draw(ctx, this.width, this.height);
                 }
             };
             Button.prototype.init = function (obj) {
@@ -14214,7 +14482,7 @@ var cc;
                         break;
                 }
                 sceneIn.resetScene().setPosition(_inX, _inY);
-                actionIn = new MoveAction({ x0: 0, y0: 0, x1: -_inX, y1: -_inY, relative: true }).setDuration(this._duration);
+                actionIn = new MoveAction({ from: { x: 0, y: 0 }, to: { x: -_inX, y: -_inY }, relative: true }).setDuration(this._duration);
                 if (this._interpolator) {
                     actionIn.setInterpolator(this._interpolator);
                 }
@@ -14904,6 +15172,7 @@ var cc;
             var AbstractShader = cc.render.shader.AbstractShader;
             /**
              * @class cc.render.shader.TextureShader
+             * @extends AbstractShader
              * @classdesc
              *
              * This shader fills rects with an image. It is expected to be invoked by calls to drawImage.
@@ -15258,15 +15527,16 @@ var cc;
                 console.log("Buffers: in bufferData mode with whole buffer.");
             })();
             var Buffer = (function () {
-                function Buffer(_gl, _type, initialValue) {
+                function Buffer(_gl, _type, initialValue, usage) {
                     this._gl = _gl;
                     this._type = _type;
                     this._buffer = null;
                     this._prevValue = null;
+                    this._usage = usage;
                     this._buffer = _gl.createBuffer();
                     if (initialValue) {
                         this._gl.bindBuffer(_type, this._buffer);
-                        this._gl.bufferData(_type, initialValue, _gl.STREAM_DRAW);
+                        this._gl.bufferData(_type, initialValue, usage);
                     }
                 }
                 /**
@@ -15277,15 +15547,15 @@ var cc;
                 Buffer.prototype.enableWithValue = function (v) {
                     this._gl.bindBuffer(this._type, this._buffer);
                     //if ( this._prevValue!==v ) {
-                    this._gl.bufferData(this._type, v, this._gl.STREAM_DRAW);
-                    //this._gl.bufferSubData( this._type, 0, v );
+                    //    this._gl.bufferData( this._type, v, this._usage );
+                    this._gl.bufferSubData(this._type, 0, v);
                     //this._prevValue= v;
                     //}
                 };
                 Buffer.prototype.forceEnableWithValue = function (v) {
                     this._gl.bindBuffer(this._type, this._buffer);
-                    this._gl.bufferData(this._type, v, this._gl.STREAM_DRAW);
-                    //this._gl.bufferSubData( this._type, 0, v );
+                    //this._gl.bufferData( this._type, v, this._usage );
+                    this._gl.bufferSubData(this._type, 0, v);
                 };
                 return Buffer;
             })();
@@ -16300,14 +16570,14 @@ var cc;
                     indexBufferIndex += 6;
                     elementIndex += 4;
                 }
-                this._glDataBuffers.push(new Buffer(this._gl, this._gl.ARRAY_BUFFER, this._dataBufferFloat));
-                this._glDataBuffers.push(new Buffer(this._gl, this._gl.ARRAY_BUFFER, this._dataBufferFloat));
-                this._glDataBuffers.push(new Buffer(this._gl, this._gl.ARRAY_BUFFER, this._dataBufferFloat));
-                this._glDataBuffers.push(new Buffer(this._gl, this._gl.ARRAY_BUFFER, this._dataBufferFloat));
-                this._glIndexBuffers.push(new Buffer(this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer));
-                this._glIndexBuffers.push(new Buffer(this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer));
-                this._glIndexBuffers.push(new Buffer(this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer));
-                this._glIndexBuffers.push(new Buffer(this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer));
+                this._glDataBuffers.push(new Buffer(this._gl, this._gl.ARRAY_BUFFER, this._dataBufferFloat, this._gl.DYNAMIC_DRAW));
+                this._glDataBuffers.push(new Buffer(this._gl, this._gl.ARRAY_BUFFER, this._dataBufferFloat, this._gl.DYNAMIC_DRAW));
+                this._glDataBuffers.push(new Buffer(this._gl, this._gl.ARRAY_BUFFER, this._dataBufferFloat, this._gl.DYNAMIC_DRAW));
+                this._glDataBuffers.push(new Buffer(this._gl, this._gl.ARRAY_BUFFER, this._dataBufferFloat, this._gl.DYNAMIC_DRAW));
+                this._glIndexBuffers.push(new Buffer(this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer, this._gl.STATIC_DRAW));
+                this._glIndexBuffers.push(new Buffer(this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer, this._gl.STATIC_DRAW));
+                this._glIndexBuffers.push(new Buffer(this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer, this._gl.STATIC_DRAW));
+                this._glIndexBuffers.push(new Buffer(this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer, this._gl.STATIC_DRAW));
                 this._glDataBuffer = this._glDataBuffers[0];
                 this._glIndexBuffer = this._glIndexBuffers[0];
             }
@@ -16429,8 +16699,8 @@ var cc;
                 }
                 // simply rebind the buffer, not modify its contents.
                 this._gl.bindBuffer(this._gl.ELEMENT_ARRAY_BUFFER, this._glIndexBuffer._buffer);
-                this._glDataBuffer.forceEnableWithValue(this._dataBufferFloat);
-                //this._glDataBuffer.enableWithValue(this._dataBufferFloat.subarray(0, this._dataBufferIndex));
+                //this._glDataBuffer.forceEnableWithValue(this._dataBufferFloat);
+                this._glDataBuffer.enableWithValue(this._dataBufferFloat.subarray(0, this._dataBufferIndex));
                 shader.flushBuffersWithContent(rcs);
                 this._gl.drawElements(this._gl.TRIANGLES, this._indexBufferIndex, this._gl.UNSIGNED_SHORT, 0);
                 // reset buffer data index.
@@ -20395,11 +20665,17 @@ var cc;
                  * @method cc.plugin.asset.AssetManager.addSpriteFramesFromFrameWithJSON
                  * @param spriteFrameId {string} a SpriteFrame in the cache.
                  * @param json {any}
+                 * @param prefix {string=} an optional prefix to prepend to all sprite frame names.
                  */
-                AssetManager.addSpriteFramesFromFrameWithJSON = function (spriteFrameId, json) {
+                AssetManager.addSpriteFramesFromFrameWithJSON = function (spriteFrameId, json, prefix) {
                     var spriteFrame = AssetManager.getSpriteFrame(spriteFrameId);
                     if (spriteFrame) {
                         var frames = spriteFrame.createSpriteFramesFromJSON(json);
+                        if (prefix) {
+                            for (var i = 0; i < frames.length; i++) {
+                                frames[i]._name = prefix + frames[i]._name;
+                            }
+                        }
                         AssetManager.addSpriteFrames(frames);
                     }
                 };
@@ -24483,6 +24759,7 @@ var cc;
     cc.jumpBy = jumpBy;
     function __jump(timeInSecs, pos, amplitude, jumps, relative) {
         return new JumpAction({
+            type: "JumpAction",
             position: pos,
             jumps: jumps,
             amplitude: amplitude,
@@ -24491,7 +24768,7 @@ var cc;
     }
     function __catmull(timeInSecs, p, tension, relative, closed) {
         var segment = new Path().catmullRomTo(p, closed, tension);
-        return new PathAction({ segment: segment }).setRelative(relative).timeInfo(0, timeInSecs);
+        return new PathAction({ type: "PathAction", segment: segment }).setRelative(relative).timeInfo(0, timeInSecs);
     }
     function cardinalSplineTo(timeInSecs, p, tension, closed) {
         if (closed === void 0) { closed = false; }
@@ -24515,6 +24792,7 @@ var cc;
     cc.catmullRomBy = catmullRomBy;
     function __bezier(timeInSecs, p, relative) {
         return new PathAction({
+            type: "PathAction",
             segment: new SegmentBezier({
                 p0: { x: 0, y: 0 },
                 p1: p[0],

@@ -6,6 +6,7 @@
 /// <reference path="../node/Node.ts"/>
 /// <reference path="./TimeInterpolator.ts"/>
 /// <reference path="./ActionManager.ts"/>
+/// <reference path="./ActionChainContext.ts"/>
 
 
 module cc.action {
@@ -115,6 +116,88 @@ module cc.action {
     }
 
     /**
+     * @class cc.action.ActionInitializer
+     * @interface
+     * @classdesc
+     *
+     * This object describes a base Action initializer object.
+     */
+    export interface ActionInitializer {
+
+        /**
+         * Action type. A cc.action constructor function name.
+         * Type is necessary when deserializing Actions.
+         * @member cc.action.ActionInitializer#type
+         * @type {string=}
+         */
+        type? : string;
+
+        /**
+         * Action duration. The value must be in the correct Time units.
+         * @member cc.action.ActionInitializer#duration
+         * @type {number}
+         */
+        duration? : number;
+
+        /**
+         * Action before-application delay. The value must be in the correct Time units.
+         * @member cc.action.ActionInitializer#delayBefore
+         * @type {number}
+         */
+        delayBefore? : number;
+
+        /**
+         * Action after-application delay. The value must be in the correct Time units.
+         * @member cc.action.ActionInitializer#delayAfter
+         * @type {number}
+         */
+        delayAfter? : number;
+
+        /**
+         * Start alpha value.
+         * @member cc.action.ActionInitializer#interpolator
+         * @type {cc.action.InterpolatorInitializer=}
+         */
+        interpolator? : InterpolatorInitializer;
+
+        /**
+         * Start alpha value.
+         * @member cc.action.ActionInitializer#from
+         * @type {any=}
+         */
+        from? : any;
+
+        /**
+         * End alpha value.
+         * @member cc.action.ActionInitializer#to
+         * @type {any}
+         */
+        to? : any;
+
+        /**
+         * Make the action relative.
+         * @member cc.action.ActionInitializer#relative
+         * @type {boolean=}
+         */
+        relative? : boolean;
+
+        /**
+         * Set repetition count.
+         * @member cc.action.ActionInitializer#repeatTimes
+         * @type {number=}
+         */
+        repeatTimes? : number;
+
+        /**
+         * Set reversed action.
+         * @member cc.action.ActionInitializer#reversed
+         * @type {boolean=}
+         */
+        reversed? : boolean;
+    }
+
+
+    /**
      *
      *  @class cc.action.Action
      *  @classdesc
@@ -153,7 +236,7 @@ module cc.action {
      *  <li>SequenceAction. Allows for action sequencing and parallelization.
      *  <li>PropertyAction. Allows for modification of a node's arbitrary property.
      *
-     * There are other type of actions that affect or create a mix of different node properties modification lile:
+     * There are other type of actions that affect or create a mix of different node properties modification like:
      *
      *  <li>BlinkAction
      *  <li>JumpAction
@@ -168,8 +251,6 @@ module cc.action {
      *  <li>Change concept of easing action. Easing is a property of an Action's time.
      *  <li>Reduce overly class-extension hierarchy from version 2 and 3
      *  <li>Full action lifecycle: START, END, PAUSE, RESUME, REPEAT.
-     *
-     *
      *
      */
     export class Action {
@@ -213,14 +294,6 @@ module cc.action {
          * @private
          */
         _repeatTimes:number = 1;
-
-        /**
-         * Current number or Action application repetition.
-         * @member cc.action.Action#_repeatTimesCount
-         * @type {number}
-         * @private
-         */
-        _repeatTimesCount:number = 0;
 
         /**
          * Current repetition count.
@@ -366,7 +439,7 @@ module cc.action {
          * @type {cc.action.ActionManager}
          * @private
          */
-        _owner:ActionManager = null;
+        //_owner:ActionManager = null;
 
         /**
          * Reference for a chained action. Do not use or modify.
@@ -403,13 +476,54 @@ module cc.action {
 
         _reversed : boolean = false;
 
+        _chainContext : cc.action.ActionChainContext = null;
+
         /**
          * Build an Action instance.
          * This type of objects must augmented.
          * @constructor
          * @method cc.action.Action#constructor
          */
-        constructor() {
+        constructor( initializer?:ActionInitializer ) {
+            if ( initializer ) {
+                this.__createFromInitializer( initializer );
+            }
+        }
+
+        __createFromInitializer(initializer?:ActionInitializer ) {
+            if ( typeof initializer!=="undefined" ) {
+                if ( typeof initializer.relative!=='undefined' ) {
+                    this.setRelative( initializer.relative );
+                }
+                if ( typeof initializer.duration!=='undefined' ) {
+                    this.setDuration( initializer.duration );
+                }
+                if ( typeof initializer.delayBefore!=='undefined' ) {
+                    this.setDelay( initializer.delayBefore );
+                }
+                if ( typeof initializer.delayAfter!=='undefined' ) {
+                    this.setDelayAfterApplication( initializer.delayAfter );
+                }
+                if ( typeof initializer.interpolator!=="undefined" ) {
+                    this.setInterpolator( cc.action.ParseInterpolator( initializer.interpolator ) );
+                }
+                if ( typeof initializer.from!=="undefined" ) {
+                    if ( this.from ) {
+                        this.from( initializer.from );
+                    }
+                }
+                if ( typeof initializer.to!=="undefined" ) {
+                    if ( this.to ) {
+                        this.to( initializer.to );
+                    }
+                }
+                if ( typeof initializer.repeatTimes!=="undefined" ) {
+                    this.setRepeatTimes(initializer.repeatTimes);
+                }
+                if ( typeof initializer.reversed!=="undefined" ) {
+                    this._reversed= initializer.reversed;
+                }
+            }
         }
 
         /**
@@ -438,35 +552,12 @@ module cc.action {
         }
 
         /**
-         * Set an Action's owner.
-         * Don't call this method directly.
-         * @method cc.action.Action#__setOwner
-         * @param owner {cc.action.ActionManager}
-         * @returns {cc.action.Action}
-         * @private
-         */
-        __setOwner(owner:ActionManager):Action {
-            this._owner = owner;
-            return this;
-        }
-
-        /**
-         * Return an Action's owner.
-         * @method cc.action.Action#__getOwner
-         * @returns {cc.action.ActionManager}
-         */
-        getOwner():ActionManager {
-            return this._owner;
-        }
-
-        /**
          * Set an Action's duration. Duration is in milliseconds.
          * @method cc.action.Action#setDuration
          * @param duration {number}
          */
         setDuration(duration:number):Action {
             this._duration = duration*TIMEUNITS;
-            //this.setDelay(this._delayBeforeApplication);
             this.__updateDuration();
             return this;
         }
@@ -508,7 +599,7 @@ module cc.action {
          */
         restart():Action {
             this._firstExecution = true;
-            this._repeatTimesCount = 0;
+            this._currentRepeatCount = 0;
             this._status = ActionStates.CREATED;
             this._currentTime= 0;
             return this;
@@ -717,8 +808,6 @@ module cc.action {
             return this;
         }
 
-
-
         /**
          * Convert time into a normalized value in the range of the application duration.
          * The values will converted, so that 0 will be just after starting each repetition,
@@ -807,7 +896,7 @@ module cc.action {
          * @param delta {number} elapsed time since last application.
          * @param node {cc.node.Node}  node the action is being applied to.
          */
-        step(delta:number, node:Node):void {
+        step(delta:number, node:any):void {
 
             delta*= cc.action.TIMEUNITS;
 
@@ -824,7 +913,7 @@ module cc.action {
          * @param node {cc.node.Node} target to apply action to.
          * @private
          */
-        __stepImpl(delta:number, time:number, node:Node):void {
+        __stepImpl(delta:number, time:number, node:any):void {
 
 
             // if an action is not ended, it has the chance of updating value
@@ -863,7 +952,7 @@ module cc.action {
          * @param node {cc.node.Node} target node.
          * @private
          */
-        __actionApply(time:number, node:Node) {
+        __actionApply(time:number, node:any) {
 
 
             // manage first execution. it gives the chance to the Action of initializing with the target node
@@ -894,6 +983,11 @@ module cc.action {
             if (this._onApply) {
                 this._onApply(this, node, v);
             }
+
+            this.__checkRepetition( time, node );
+        }
+
+        __checkRepetition( time, node ) {
 
             // if this is a repeating action
             if (this._repeatTimes !== 1) {
@@ -942,6 +1036,7 @@ module cc.action {
          */
         stop(node:Node) {
             this._status = ActionStates.ENDED;
+
             if (this._onEnd) {
                 this._onEnd(this, node);
             }
@@ -1002,122 +1097,6 @@ module cc.action {
                 this._interpolator = interpolator;
             }
             return this;
-        }
-
-        /**
-         * This method is called by ActionManager when chaining actions by calling <code>startChainingActionsForNode</code>.
-         * Add a Move action to the Node.
-         * @method cc.action.Action#actionMove
-         * @returns {cc.action.Action}
-         */
-        actionMove():Action {
-            if (this._parentSequence) {
-                return this._parentSequence.actionMove();
-            }
-            return this._owner.actionMove();
-        }
-
-        /**
-         * This method is called by ActionManager when chaining actions by calling <code>startChainingActionsForNode</code>.
-         * Add a Rotate action to the Node.
-         * @method cc.action.Action#actionRotate
-         * @returns {cc.action.Action}
-         */
-        actionRotate():Action {
-            if (this._parentSequence) {
-                return this._parentSequence.actionRotate();
-            }
-            return this._owner.actionRotate();
-        }
-
-        /**
-         * This method is called by ActionManager when chaining actions by calling <code>startChainingActionsForNode</code>.
-         * Add a Scale action to the Node.
-         * @method cc.action.Action#actionScale
-         * @returns {cc.action.Action}
-         */
-        actionScale():Action {
-            if (this._parentSequence) {
-                return this._parentSequence.actionScale();
-            }
-            return this._owner.actionScale();
-        }
-
-        /**
-         * This method is called by ActionManager when chaining actions by calling <code>startChainingActionsForNode</code>.
-         * Add a Alpha (transparency) action to the Node.
-         * @method cc.action.Action#actionAlpha
-         * @returns {cc.action.Action}
-         */
-        actionAlpha():Action {
-            if (this._parentSequence) {
-                return this._parentSequence.actionAlpha();
-            }
-            return this._owner.actionAlpha();
-        }
-
-        /**
-         * This method is called by ActionManager when chaining actions by calling <code>startChainingActionsForNode</code>.
-         * Add a Tint action to the Node.
-         * @method cc.action.Action#actionTint
-         * @returns {cc.action.Action}
-         */
-        actionTint():Action {
-            if (this._parentSequence) {
-                return this._parentSequence.actionTint();
-            }
-            return this._owner.actionTint();
-        }
-
-        /**
-         * This method is called by ActionManager when chaining actions by calling <code>startChainingActionsForNode</code>.
-         * Add a Property action to the Node.
-         * @method cc.action.Action#actionProperty
-         * @returns {cc.action.Action}
-         */
-        actionProperty():Action {
-            if (this._parentSequence) {
-                return this._parentSequence.actionProperty();
-            }
-            return this._owner.actionProperty();
-        }
-
-        /**
-         * This method is called by ActionManager when chaining actions by calling <code>startChainingActionsForNode</code>.
-         * Add a Sequence action to the Node.
-         * @method cc.action.Action#actionSequence
-         * @returns {cc.action.SequenceAction}
-         */
-        actionSequence():SequenceAction {
-            if (this._parentSequence) {
-                return this._parentSequence.actionSequence();
-            }
-            return this._owner.actionSequence();
-        }
-
-        /**
-         * End a sequence action.
-         * Underflow on calling this function (ie, calling endSequence when there's no more Sequence actions) has no
-         * effect.
-         * @method cc.action.Action#endSequence
-         * @returns {cc.action.Action}
-         */
-        endSequence():Action {
-            if (!this._parentSequence) {
-                return this;
-            }
-
-            return this._parentSequence.endSequence();
-        }
-
-        /**
-         * This method is called by ActionManager when chaining actions by calling <code>startChainingActionsForNode</code>.
-         * Calling this method will chain two actions.
-         * @method cc.action.Action#then
-         * @returns {cc.action.ActionInfo}
-         */
-        then():ActionInfo {
-            return this._owner.then();
         }
 
         /**
@@ -1215,7 +1194,7 @@ module cc.action {
         __genericCloneProperties(copy) {
             copy.setInterpolator(this._interpolator).
                 setReversedTime(this._reversedTime).
-                __setOwner(this.getOwner()).
+                //__setOwner(this.getOwner()).
                 setSpeed(this.getSpeed()).
                 setRepeatTimes(this._repeatTimes).
                 setRelative(this._relativeAction);
@@ -1287,6 +1266,40 @@ module cc.action {
             this._currentTime= 0;
             this._status= ActionStates.CREATED;
             this._firstExecution= true;
+        }
+
+        /**
+         * Apply this action in a pingpong way.
+         * @method cc.action.Action#pingpong
+         */
+        pingpong() {
+            this.setInterpolator( cc.action.Interpolator.Linear( this._reversed, true ) );
+        }
+
+        getInitializer() : ActionInitializer {
+
+            var obj:any= {};
+
+            if ( this._delayBeforeApplication ) {
+                obj.delayBefore= this._delayBeforeApplication/cc.action.TIMEUNITS;
+            }
+            if ( this._delayAfterApplication ) {
+                obj.delayAfter= this._delayAfterApplication/cc.action.TIMEUNITS;
+            }
+            obj.duration= this._duration/cc.action.TIMEUNITS;
+            obj.relative= this._relativeAction;
+
+            if ( this._repeatTimes!==1 ) {
+                obj.repeatTimes = this._repeatTimes;
+            }
+
+            if ( this._interpolator ) {
+                obj.interpolator= this._interpolator.getInitializer();
+            }
+
+            obj.reversed= this._reversed;
+
+            return obj;
         }
     }
 

@@ -179,15 +179,15 @@ module cc.render {
 
             }
 
-            this._glDataBuffers.push( new Buffer( this._gl, this._gl.ARRAY_BUFFER, this._dataBufferFloat ) );
-            this._glDataBuffers.push( new Buffer( this._gl, this._gl.ARRAY_BUFFER, this._dataBufferFloat ) );
-            this._glDataBuffers.push( new Buffer( this._gl, this._gl.ARRAY_BUFFER, this._dataBufferFloat ) );
-            this._glDataBuffers.push( new Buffer( this._gl, this._gl.ARRAY_BUFFER, this._dataBufferFloat ) );
+            this._glDataBuffers.push( new Buffer( this._gl, this._gl.ARRAY_BUFFER, this._dataBufferFloat, this._gl.DYNAMIC_DRAW ) );
+            this._glDataBuffers.push( new Buffer( this._gl, this._gl.ARRAY_BUFFER, this._dataBufferFloat, this._gl.DYNAMIC_DRAW ) );
+            this._glDataBuffers.push( new Buffer( this._gl, this._gl.ARRAY_BUFFER, this._dataBufferFloat, this._gl.DYNAMIC_DRAW ) );
+            this._glDataBuffers.push( new Buffer( this._gl, this._gl.ARRAY_BUFFER, this._dataBufferFloat, this._gl.DYNAMIC_DRAW ) );
 
-            this._glIndexBuffers.push( new Buffer( this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer ) );
-            this._glIndexBuffers.push( new Buffer( this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer ) );
-            this._glIndexBuffers.push( new Buffer( this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer ) );
-            this._glIndexBuffers.push( new Buffer( this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer ) );
+            this._glIndexBuffers.push( new Buffer( this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer, this._gl.STATIC_DRAW ) );
+            this._glIndexBuffers.push( new Buffer( this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer, this._gl.STATIC_DRAW ) );
+            this._glIndexBuffers.push( new Buffer( this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer, this._gl.STATIC_DRAW ) );
+            this._glIndexBuffers.push( new Buffer( this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer, this._gl.STATIC_DRAW ) );
 
             this._glDataBuffer= this._glDataBuffers[0];
             this._glIndexBuffer= this._glIndexBuffers[0];
@@ -338,8 +338,8 @@ module cc.render {
             // simply rebind the buffer, not modify its contents.
             this._gl.bindBuffer( this._gl.ELEMENT_ARRAY_BUFFER, this._glIndexBuffer._buffer );
 
-            this._glDataBuffer.forceEnableWithValue(this._dataBufferFloat);
-            //this._glDataBuffer.enableWithValue(this._dataBufferFloat.subarray(0, this._dataBufferIndex));
+            //this._glDataBuffer.forceEnableWithValue(this._dataBufferFloat);
+            this._glDataBuffer.enableWithValue(this._dataBufferFloat.subarray(0, this._dataBufferIndex));
 
             shader.flushBuffersWithContent( rcs );
 

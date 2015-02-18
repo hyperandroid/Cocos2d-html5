@@ -23,7 +23,7 @@ module cc.action {
      * JumpAction initialization helper object.
      *
      */
-    export interface JumpActionInitializer {
+    export interface JumpActionInitializer extends ActionInitializer {
 
         jumps : number;
 
@@ -31,12 +31,6 @@ module cc.action {
 
         position : cc.math.Point;
 
-        /**
-         * Make the action relative.
-         * @member cc.action.JumpActionInitializer#relative
-         * @type {boolean}
-         */
-        relative? : boolean;
     }
 
     /**
@@ -91,14 +85,18 @@ module cc.action {
         constructor(data?:JumpActionInitializer) {
             super();
 
+            if (data) {
+                this.__createFromInitializer(data);
+            }
+        }
+
+        __createFromInitializer(data?:JumpActionInitializer ) {
+            super.__createFromInitializer( data );
+
             if (typeof data !== "undefined") {
                 this._amplitude = data.amplitude;
                 this._jumps= data.jumps;
                 this._jumpTo= new Vector( data.position.x, data.position.y );
-
-                if (typeof data.relative !== "undefined") {
-                    this.setRelative(data.relative);
-                }
             }
         }
 
@@ -175,6 +173,20 @@ module cc.action {
             this.__genericCloneProperties(copy);
 
             return copy;
+        }
+
+        getInitializer() : JumpActionInitializer {
+            var init:JumpActionInitializer= <JumpActionInitializer>super.getInitializer();
+            init.type="JumpAction";
+
+            init.jumps= this._jumps;
+            init.amplitude= this._amplitude;
+            init.position= {
+                x : this._jumpTo.x,
+                y : this._jumpTo.y
+            };
+
+            return init;
         }
 
     }

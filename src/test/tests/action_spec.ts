@@ -108,7 +108,7 @@ module test.math {
             expect(node.y).toEqual(120);
 
             // now the action is ENDED
-            expect(ma.getStatus()).toEqual(cc.action.ActionStates.ENDED);
+            //expect(ma.getStatus()).toEqual(cc.action.ActionStates.ENDED);
         });
 
         it("test basic action capabilities: action over time and won't be reapplied bc is ended.", function () {
@@ -133,10 +133,11 @@ module test.math {
 
         it("test basic ActionManager chaining.", function() {
 
-            var am= new cc.action.ActionManager();
+            var scene= new cc.node.Scene();
             var node= new cc.node.Node();
+            scene.addChild(node);
 
-            am.startChainingActionsForNode(node).
+            node.startActionChain().
                 actionMove().
                     from({x:10, y:30}).
                     to({x:110, y:130}).
@@ -147,20 +148,22 @@ module test.math {
                     to({x:220, y:200}).
                     timeInfo(0,2);
 
-            am.step( 1 );
+            expect(scene._actionManager._actionInfos.length).toBe(3);
+            scene._actionManager.step( 1 );
             expect(node.x===60 && node.y===80).toBe(true);
-            am.step( 1 );
-            am.step( 1.999 );
-            am.step( 6 );
+            scene._actionManager.step( 1 );
+            scene._actionManager.step( 1.999 );
+            scene._actionManager.step( 6 );
             expect(node.x===220 && node.y===200).toBe(true);
         });
 
         it("test basic ActionManager complex chaining.", function() {
 
-            var am= new cc.action.ActionManager();
+            var scene= new cc.node.Scene();
             var node= new cc.node.Node();
+            scene.addChild(node);
 
-            am.startChainingActionsForNode(node).
+            node.startActionChain().
                 actionMove().
                     from({x:10, y:30}).
                     to({x:110, y:130}).
@@ -175,16 +178,17 @@ module test.math {
                     to({x:50, y:430}).
                     timeInfo(0,2000);
 
-            am.step( 1000 );
+            scene._actionManager.step( 1000 );
             expect(node.x===60 && node.y===80).toBe(true);
-            am.step( 3000 );
+            scene._actionManager.step( 3000 );
             expect(node.x===110 && node.y===130).toBe(true);
         });
 
         it("test lifecycle.", function() {
 
-            var am= new cc.action.ActionManager();
+            var scene= new cc.node.Scene();
             var node= new cc.node.Node();
+            scene.addChild(node);
 
             var reps= 4;
             var duration= 1;
@@ -197,7 +201,7 @@ module test.math {
             var application : boolean= false;
             var applicationCount : number = 0;
 
-            am.startChainingActionsForNode(node).
+            node.startActionChain().
                 actionMove().
                     from({x:10, y:30}).
                     to({x:110, y:50}).
@@ -226,9 +230,9 @@ module test.math {
                     to({x:220, y:200}).
                     timeInfo(0,2);
 
-            am.step(.5);
+            scene._actionManager.step(.5);
             expect(start).toEqual(true);
-            am.step(1.500);
+            scene._actionManager.step(1.500);
             expect(repeat).toEqual(true);
 
             expect(application).toEqual(true);
@@ -238,7 +242,7 @@ module test.math {
             expect(applicationCount).toEqual(2);
             expect(node.rotationAngle).toEqual(180);
 
-            am.step(6);
+            scene._actionManager.step(6);
             expect(end).toEqual(true);
             expect(repeatCount).toEqual(reps);
 
@@ -355,28 +359,30 @@ module test.math {
             var actionBy2 = cc.scaleBy(2, 0.25, 4.5);
             var seq= cc.sequence(actionBy2, cc.delayTime(1), actionBy2.reverse());
 
-            var am= new ActionManager();
+            var scene= new cc.node.Scene();
             var node= new Node();
+            scene.addChild( node );
 
             // schedule a sequence
-            am.scheduleActionForNode( node, seq );
+            node.runAction( seq );
 
-            am.step( 2.500 );
+            scene._actionManager.step( 2.500 );
             expect( node.scaleX===1.25 && node.scaleY===5.5 ).toBe( true );
-            am.step( 5.000 );
+            scene._actionManager.step( 5.000 );
             expect( node.scaleX===1 && node.scaleY===1 ).toBe(true);
 
             // manually build a sequence. This is what the system does internally with cc.sequence objects.
             var node2= new Node();
-            am.startChainingActionsForNode(node2).
+            scene.addChild( node2 );
+            node2.startActionChain().
                 action( actionBy2.clone() ).
                 then().
                 action( cc.delayTime(1) ).
                 then().
                 action( actionBy2.clone().reverse() );
-            am.step( 2.500 );
+            scene._actionManager.step( 2.500 );
             expect( node2.scaleX===1.25 && node2.scaleY===5.5 ).toBe( true );
-            am.step( 5.000 );
+            scene._actionManager.step( 5.000 );
             expect( node2.scaleX===1 && node2.scaleY===1 ).toBe(true);
         });
 
@@ -384,9 +390,10 @@ module test.math {
 
 
             var node: Node = new Node();
-            var am : ActionManager= new cc.action.ActionManager();
+            var scene= new cc.node.Scene();
+            scene.addChild(node);
 
-            am.startChainingActionsForNode(node).
+            node.startActionChain().
                 actionSequence().
                     actionRotate().
                         from(0).
@@ -409,7 +416,7 @@ module test.math {
                         setRelative(true).
                 endSequence();
 
-            var seq : cc.action.SequenceAction= <cc.action.SequenceAction>am._actionInfos[0]._action;
+            var seq : cc.action.SequenceAction= <cc.action.SequenceAction>scene._actionManager._actionInfos[1]._action;
 
             expect(seq._actions[0]._startTime).toBe(0);
             expect(seq._actions[1]._startTime).toBe(1000);
@@ -476,9 +483,9 @@ module test.math {
 
             it("fires callbacks", function() {
 
-                var action= new Action().timeInfo(0, 1000);
+                var action= new Action().timeInfo(0, 1);
                 var seq= cc.sequence( cf0,action,cf1,action.reverse(),cf2);
-                seq.step(4000, null);
+                seq.step(4, null);
 
                 expect( fired[0]&&fired[1]&&fired[2] ).toBe(true);
                 expect( order[0]===1 && order[1]===2 && order[2]===3 ).toBe(true);
@@ -487,9 +494,9 @@ module test.math {
 
             it("fires callbacks reverse", function() {
 
-                var action= new Action().timeInfo(0, 1000);
+                var action= new Action().timeInfo(0, 1);
                 var seq= cc.sequence( cf0,action,cf1,action.reverse(),cf2).reverse();
-                seq.step(4000, null);
+                seq.step(4, null);
 
                 expect( fired[0]&&fired[1]&&fired[2] ).toBe(true);
 
@@ -550,6 +557,125 @@ module test.math {
                 expect(node.x).toEqual(50);
                 expect(node.y).toEqual(100);
 
+            });
+        });
+
+        describe("Property Action", function() {
+
+            it("Basic usage, 1 property", function() {
+                var pa0:cc.action.PropertyAction = new PropertyAction({
+                    duration: 2,
+                    from: {
+                        x: 5
+                    },
+                    to: {
+                        x: 10
+                    }
+                });
+
+                var obj = {
+                    x: 0
+                };
+
+                pa0.step(2, obj);
+
+                expect(obj.x).toEqual(10);
+            });
+
+            it("Usage 2, 'from' value inferred from target object", function() {
+                var pa0:cc.action.PropertyAction = new PropertyAction({
+                    duration: 2,
+                    to: {
+                        x: 10
+                    }
+                });
+
+                var obj = {
+                    x: 1
+                };
+
+                pa0.initWithTarget(obj);
+
+                pa0.step(0, obj);
+                expect(obj.x).toEqual(1);
+
+                pa0.step(2, obj);
+                expect(obj.x).toEqual(10);
+            });
+
+            it("Usage 3, lazy 'to' value inferred from target", function() {
+                var pa0:cc.action.PropertyAction = new PropertyAction({
+                    duration: 2,
+                    from: {
+                        x: 3
+                    }
+                });
+
+                var obj = {
+                    x: 10
+                };
+
+                pa0.initWithTarget(obj);
+
+                pa0.step(0, obj);
+                expect(obj.x).toEqual(3);
+                pa0.step(2, obj);
+                expect(obj.x).toEqual(10);
+            });
+
+            it("Usage 4, multiproperties with lazy values", function() {
+
+                var pa0:cc.action.PropertyAction = new PropertyAction({
+                    duration: 2,
+                    from : {
+                        y:7
+                    },
+                    to: {
+                        x: 10
+                    }
+                });
+
+                var obj = {
+                    x: 100,
+                    y: 200
+                };
+
+                pa0.initWithTarget(obj);
+
+                pa0.step(2, obj);
+                expect(obj.x).toEqual(10);
+                expect(obj.y).toEqual(200);
+            });
+
+            it("Usage 5, nested props", function() {
+
+                var pa0:cc.action.PropertyAction = new PropertyAction({
+                    duration: 2,
+                    from : {
+                        "p0.y":7
+                    },
+                    to: {
+                        "p1.x": 10
+                    }
+                });
+
+                var obj = {
+                    p0 : {
+                        x: 100,
+                        y: 0
+                    },
+                    p1 : {
+                        x: 0,
+                        y: 200
+                    }
+                };
+
+
+                pa0.initWithTarget(obj);
+
+                pa0.step(2, obj);
+                expect(obj.p1.x).toEqual(10);
+                expect(obj.p0.y).toEqual(0);
             });
         });
     });
