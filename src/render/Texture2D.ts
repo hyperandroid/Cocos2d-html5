@@ -239,7 +239,7 @@ module cc.render {
 
         generateMipmap() {
 
-            if (!this._webglState) {
+            if (!this._webglState || this._hasMipmaps ) {
                 return;
             }
             var gl= this._webglState._gl;

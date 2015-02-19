@@ -72,7 +72,6 @@ module cc.render.shader {
                         "attribute vec2 aScale; \n" +
 
                         "uniform mat4 uProjection; \n" +
-                        //"uniform mat4 uTransform; \n" +
 
                         "varying vec2 vTextureCoord; \n" +
                         "varying vec4 vAttrColor; \n" +
@@ -96,7 +95,7 @@ module cc.render.shader {
 
                         "void main(void) { \n" +
 
-                        "  gl_FragColor = texture2D(uTextureSampler, vec2(vTextureCoord)) * vAttrColor; \n" +
+                        "  gl_FragColor = texture2D(uTextureSampler,vTextureCoord) * vAttrColor; \n" +
 
                         "}\n",
                     attributes: ["aPosition", "aColor", "aTexture", "aAnchorPosition", "aRotation", "aScale"],
@@ -105,13 +104,6 @@ module cc.render.shader {
                             type: "m4v",
                             value: [1.0,0,0,0, 0,1.0,0,0, 0,0,1.0,0, 0,0,0,1.0]
                         },
-                        //"uTransform": {
-                        //    type: "m4v",
-                        //    value: [1.0, 0, 0, 0,
-                        //            0, 1.0, 0, 0,
-                        //            0, 0, 1.0, 0,
-                        //            0, 0, 0, 1.0 ]
-                        //},
                         "uTextureSampler": {
                             type: "t",
                             value: null
@@ -121,7 +113,6 @@ module cc.render.shader {
 
             this._uniformTextureSampler = this.findUniform("uTextureSampler");
             this._uniformProjection = this.findUniform("uProjection");
-            //this._uniformTransform = this.findUniform("uTransform");
 
             this._attributePosition = this.findAttribute("aPosition");
             this._attributeColor = this.findAttribute("aColor");

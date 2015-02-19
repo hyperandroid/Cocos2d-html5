@@ -48,8 +48,8 @@ module cc.node {
             }
 
             if (this._spriteFrame) {
-                ctx.globalAlpha = this._frameAlpha;
-                ctx.setTintColor(this._color);
+                //ctx.globalAlpha = this._frameAlpha;
+                //ctx.setTintColor(this._color);
 
                 if ( ctx.type==="webgl" ) {
                     (<cc.render.DecoratedWebGLRenderingContext>ctx).batchGeometryWithSpriteFast(this);

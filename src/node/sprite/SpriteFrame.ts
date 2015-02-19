@@ -298,8 +298,6 @@ module cc.node.sprite {
          */
         draw( ctx : RenderingContext, w:number, h:number ) : void {
 
-            var rotated= this._rotated;
-
             if ( ctx.type==="webgl" ) {
 
                 if (!this._texture.isWebGLEnabled()) {
