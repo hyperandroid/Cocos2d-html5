@@ -31,7 +31,6 @@ module cc.action {
         _chain:ActionInfo = null;
 
         constructor(public _actionManager:ActionManager, public _target:Node, public _action?:Action) {
-
         }
 
         __action(bh:Action):Action {
@@ -124,8 +123,15 @@ module cc.action {
          * @private
          */
         _actionInfos:Array<ActionInfo> = [];
+        _scheduler:SchedulerQueue= null;
 
         constructor() {
+            this._scheduler= new SchedulerQueue();
+            this.scheduleActionForNode(null, this._scheduler);
+        }
+
+        getScheduler() : SchedulerQueue {
+            return this._scheduler;
         }
 
         /**
@@ -172,18 +178,6 @@ module cc.action {
             }
 
             return this;
-        }
-
-        /**
-         * Start a chaining actions for a Node.
-         * @method cc.action.ActionManager#startChainingActionsForNode
-         * @param target {cc.node.Node} normally a Node, but could be any other object.
-         * @returns {cc.action.ActionInfo}
-         */
-        startChainingActionsForNode(target:Node):ActionInfo {
-            var ai = new ActionInfo(this, target);
-            this._actionInfos.push(ai);
-            return ai;
         }
 
         /**

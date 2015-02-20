@@ -132,8 +132,7 @@ module cc.node {
         constructor() {
             super();
 
-            this._scheduler= new SchedulerQueue();
-            this._actionManager.scheduleActionForNode(null, this._scheduler);
+            this._scheduler= this._actionManager.getScheduler();
 
             this._sceneGraphPriorityTree= new cc.input.SceneGraphInputTreeNode(this);
             this._priorityTree= [];
@@ -325,13 +324,7 @@ module cc.node {
             }
 
             this.resetScene();
-         }
-
-        //__setTransform():Node {
-        //    this.__setLocalTransform();
-        //    this.__setWorldTransform();
-        //    return this;
-        //}
+        }
 
         /**
          * Notify event registered callback.
@@ -420,10 +413,6 @@ module cc.node {
             return this;
         }
 
-        startChainingActionsForNode( node:Node ) : cc.action.ActionInfo {
-            return this._actionManager.startChainingActionsForNode(node);
-        }
-
         stopActionsForNode( node:Node ) {
             this._actionManager.stopActionsForNode(node);
         }
@@ -436,11 +425,6 @@ module cc.node {
             return this;
         }
 
-        __setLocalTransform() {
-            super.__setLocalTransform();
-            //this._modelViewMatrix[4]*= -1;
-            //this._modelViewMatrix[5]+= this._contentSize.height;
-        }
 
         /////////////// SCHEDULER METHODS BEGIN ////////////////
 

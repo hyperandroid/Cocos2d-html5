@@ -32,8 +32,6 @@ module cc.node {
     import Renderer= cc.render.Renderer;
     import Dimension = cc.math.Dimension;
 
-    import SchedulerQueue= cc.action.SchedulerQueue;
-
     /**
      * Enumeration of Director status.
      *
@@ -62,7 +60,7 @@ module cc.node {
      * <li>Every Director present in a Document, will share a common Texture and Image cache for better resource management.
      *
      * <li>A Director object runs Scenes. The process of switching scenes is handled using a <code>Transition</code> object.
-     * <li>The preferred way of buiding scenes is by calling <code>director.createScene() -> Scene</code>
+     * <li>The preferred way of building scenes is by calling <code>director.createScene() -> Scene</code>
      *
      * @see{cc.node.Scene}
      * @see{cc.node.Transition}
@@ -152,6 +150,8 @@ module cc.node {
          */
         _inputManager : cc.input.InputManager = null;
 
+        _scheduler : cc.action.SchedulerQueue= null;
+
         /**
          * Create a new Director instance.
          * @method cc.node.Director#constructor
@@ -160,6 +160,7 @@ module cc.node {
             super();
 
             this._scenesActionManager = new ActionManager();
+            this._scheduler= this._scenesActionManager.getScheduler();
             this._inputManager= new cc.input.InputManager();
 
             // BUGBUG deprecated
@@ -301,7 +302,7 @@ module cc.node {
          * @param scene {cc.node.Scene}
          * @param transition {cc.transition.Transition}
          */
-        runScene(scene_or_transition:Scene|cc.transition.Transition, transition?:cc.transition.Transition):void {
+        runScene(scene_or_transition: Scene|cc.transition.Transition, transition?:cc.transition.Transition):void {
 
             var scene:Scene;
 
@@ -337,9 +338,9 @@ module cc.node {
                 this._exitingScene = this._currentScene;
                 transition.initialize(scene, this._currentScene).
                     onDirectorTransitionEnd((tr:cc.transition.Transition) => {
-                        if ( this._exitingScene ) {
-                            this.__sceneExitedDirector(this._exitingScene);
-                        }
+                        //if ( this._exitingScene ) {
+                        //    this.__sceneExitedDirector(this._exitingScene);
+                        //}
                         this._exitingScene = null;
                     });
             } else {
@@ -576,6 +577,63 @@ module cc.node {
          */
         getWinSize():Dimension {
             return this._contentSize.clone();
+        }
+
+
+        scheduleTask( task:cc.action.SchedulerQueueTask ) {
+            this._scheduler.scheduleTask(task);
+        }
+
+
+        /**
+         * Schedule a task for the node.
+         * This node will be passed as target to the specified callback function.
+         * If already exist a task in the scheduler for the same pair of node and callback, the task will be updated
+         * with the new data.
+         * @method cc.node.Node#schedule
+         * @param callback_fn {cc.action.SchedulerTaskCallback} callback to invoke
+         * @param interval {number} repeat interval time. the task will be fired every this amount of milliseconds.
+         * @param repeat {number=} number of repetitions. if not set, infinite will be used.
+         * @param delay {number=} wait this millis before firing the task.
+         */
+        schedule(callback_fn:cc.action.SchedulerTaskCallback, interval:number, repeat?:number, delay?:number) {
+
+            var task:cc.action.SchedulerQueueTask= cc.action.SchedulerQueue.createSchedulerTask(
+                                    this,callback_fn,interval,repeat,delay);
+
+            this._scheduler.scheduleTask(task);
+        }
+
+        /**
+         * Schedule a single shot task. Will fired only once.
+         * @method cc.node.Node#scheduleOnce
+         * @param callback_fn {cc.action.SchedulerTaskCallback} scheduler callback.
+         * @param delay {number} milliseconds to wait before firing the task.
+         * @returns {cc.node.Node}
+         */
+        scheduleOnce(callback_fn:cc.action.SchedulerTaskCallback, delay:number) {
+            this.schedule(callback_fn, 0.0, 0, delay);
+        }
+
+        /**
+         * Unschedule a task for the node.
+         * @method cc.node.Node#unschedule
+         * @param callback_fn {cc.action.SchedulerTaskCallback} callback to unschedule.
+         */
+        unschedule(callback_fn:cc.action.SchedulerTaskCallback) {
+
+            if (!callback_fn)
+                return;
+
+            this._scheduler.unscheduleCallbackForTarget(this, callback_fn);
+        }
+
+        /**
+         * Unschedule all tasks for the node.
+         * @method cc.node.Node#unscheduleAllCallbacks
+         */
+        unscheduleAllCallbacks(target?:Node) {
+            this._scheduler.unscheduleAllCallbacks(target?target:this);
         }
 
     }
