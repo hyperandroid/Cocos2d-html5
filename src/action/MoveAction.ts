@@ -21,6 +21,7 @@ module cc.action {
 
     /**
      * @class cc.action.MoveActionInitializer
+     * @extends cc.action.ActionInitializer
      * @interface
      * @classdesc
      *
@@ -28,7 +29,18 @@ module cc.action {
      */
     export interface MoveActionInitializer extends ActionInitializer {
 
+        /**
+         * Move from point.
+         * @member cc.action.MoveActionInitializer#from
+         * @type {cc.math.Point}
+         */
         from? : cc.math.Point;
+
+        /**
+         * Move to point.
+         * @member cc.action.MoveActionInitializer#to
+         * @type {cc.math.Point}
+         */
         to : cc.math.Point;
 
     }
@@ -103,6 +115,12 @@ module cc.action {
             }
         }
 
+        /**
+         * Initialize the action with an initializer object.
+         * @method cc.action.MoveAction#__createFromInitializer
+         * @param initializer {cc.action.MoveActionInitializer}
+         * @private
+         */
         __createFromInitializer(initializer?:MoveActionInitializer ) {
             super.__createFromInitializer(initializer);
         }
@@ -208,6 +226,11 @@ module cc.action {
             return copy;
         }
 
+        /**
+         * Serialize the action current definition.
+         * @method cc.action.MoveAction#getInitializer
+         * @returns {cc.action.MoveActionInitializer}
+         */
         getInitializer() : MoveActionInitializer {
             var init:MoveActionInitializer= <MoveActionInitializer>super.getInitializer();
 

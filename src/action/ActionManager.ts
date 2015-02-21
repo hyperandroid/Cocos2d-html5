@@ -21,8 +21,8 @@ module cc.action {
      * @classdesc
      *
      * This class is the information an <code>ActionManager</code> manages and keeps track of an
-     * <code>Action</code> and a <code>Node</code>. It is an internal class for ActionManagers.
-     *
+     * <code>Action</code> and a <code>Target</code>. It is an internal class for ActionManagers
+     * <p>
      * You will have no direct interaction with this class.
      *
      */
@@ -91,28 +91,8 @@ module cc.action {
      * The ActionManager has a virtual timeline fed by Directors or Scenes.
      * On average, no direct interaction with this class will happen.
      * <br>
-     * This class also offers a new API interface for adding actions to a Node. For example:
-     *
-     * <pre>
-     * am.startChainingActionsForNode(n0).
-     *        actionSequence().
-     *            setRepeatForever().
-     *            actionRotate().
-     *                to(360).
-     *                setRelative(true).
-     *                setDuration(1000).
-     *            actionSequence().
-     *                actionScale().
-     *                    to({ x: .5, y: .5 }).
-     *                    setRelative(true).
-     *                    setDuration(1500).
-     *                actionRotate().
-     *                    to(0).
-     *                    setRelative(true).
-     *                    setDuration(1500).
-     *            endSequence().
-     * </pre>
-     *
+     * <p>
+     *     ActionManager instances have a scheduler implementation as an Action of type: SchedulerQueue
      */
     export class ActionManager {
 
@@ -123,13 +103,32 @@ module cc.action {
          * @private
          */
         _actionInfos:Array<ActionInfo> = [];
+
+        /**
+         * In V4 a scheduler is an Action, integrated in the ActionManager.
+         * This is the SchedulerQueue implementation.
+         * @member cc.action.ActionManager#_scheduler
+         * @type {cc.action.SchedulerQueue}
+         * @private
+         */
         _scheduler:SchedulerQueue= null;
 
+        /**
+         * Create a new ActionManager instance object.
+         * The developer will surely never interact directly with this object.
+         * The why to work with it is by calling Node Action/Scheduler methods.
+         * @member cc.action.ActionManager#constructor
+         */
         constructor() {
             this._scheduler= new SchedulerQueue();
             this.scheduleActionForNode(null, this._scheduler);
         }
 
+        /**
+         * Get the Scheduler instance.
+         * @member cc.action.ActionManager#getScheduler
+         * @returns {cc.action.SchedulerQueue}
+         */
         getScheduler() : SchedulerQueue {
             return this._scheduler;
         }
@@ -142,7 +141,7 @@ module cc.action {
          * @param action {cc.action.Action}
          * @returns {ActionInfo}
          */
-        scheduleActionForNode(target:Node, action:Action):ActionManager {
+        scheduleActionForNode(target:any, action:Action):ActionManager {
 
             var tw = new ActionInfo(this, target);
             tw.action( action );
@@ -158,7 +157,7 @@ module cc.action {
          * @param tag {string} action tag.
          * @returns {cc.action.ActionManager}
          */
-        stopNodeActionByTag( target:Node, tag:string ) : ActionManager {
+        stopNodeActionByTag( target:any, tag:string ) : ActionManager {
 
             for( var i=0; i<this._actionInfos.length; i++ ) {
                 if ( this._actionInfos[i]._target===target && this._actionInfos[i]._action._tag===tag ) {
@@ -169,7 +168,12 @@ module cc.action {
             return this;
         }
 
-        stopActionsForNode( target:Node ) : ActionManager {
+        /**
+         * Stop the Action objects associated with a target object.
+         * @param target
+         * @returns {cc.action.ActionManager}
+         */
+        stopActionsForNode( target:any ) : ActionManager {
 
             for( var i=0; i<this._actionInfos.length; i++ ) {
                 if ( this._actionInfos[i]._target===target ) {
@@ -257,22 +261,34 @@ module cc.action {
         }
 
         /**
-         * Get the number of scheduled actions (in any state).
-         * @method cc.action.ActionManager#getNumActionsForNode
-         * @param node {cc.node.Node} Node to check for actions.
-         * @returns {number} number of actions for the Node.
+         * Get the number of scheduled actions (in any state) for a target.
+         * @method cc.action.ActionManager#getNumActionsForTarget
+         * @param target {object} target to check for actions.
+         * @returns {number} number of actions for the target.
          */
-        getNumActionsForNode( node : Node ) : number {
+        getNumActionsForTarget( target : any ) : number {
 
             var count : number = 0;
 
             for( var i=0; i<this._actionInfos.length; i++ ) {
-                if ( this._actionInfos[i]._target===node ) {
+                if ( this._actionInfos[i]._target===target ) {
                     count++;
                 }
             }
 
             return count;
+        }
+
+        /**
+         * Get the number of scheduled actions (in any state).
+         * @method cc.action.ActionManager#getNumActionsForNode
+         * @param node {object} target to check for actions.
+         * @returns {number} number of actions for the Node.
+         *
+         * @deprecated use getNumActionsForTarget instead.
+         */
+        getNumActionsForNode( node : any ) : number {
+            return this.getNumActionsForTarget(node);
         }
     }
 }

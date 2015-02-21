@@ -7,12 +7,45 @@ module cc.action {
 
     "use strict";
 
+    /**
+     * @class cc.action.InterpolatorInitializer
+     * @interface
+     */
     export interface InterpolatorInitializer {
 
+        /**
+         * Interpolator type.
+         * @member cc.action.InterpolatorInitializer#type
+         * @type {string}
+         */
         type : string;
+
+        /**
+         * Is inverted ?
+         * @member cc.action.InterpolatorInitializer#inverse
+         * @type {boolean}
+         */
         inverse? : boolean;
+
+        /**
+         * Is pingpong ?
+         * @member cc.action.InterpolatorInitializer#pingpong
+         * @type {boolean}
+         */
         pingpong? : boolean;
+
+        /**
+         * some interpolators need an exponent value.
+         * @member cc.action.InterpolatorInitializer#exponent
+         * @type {number}
+         */
         exponent? : number;
+
+        /**
+         * some interpolators need an period value.
+         * @member cc.action.InterpolatorInitializer#period
+         * @type {number}
+         */
         period? : number;
     }
 
@@ -38,6 +71,17 @@ module cc.action {
         getInitializer() : InterpolatorInitializer;
     }
 
+    /**
+     *
+     * This function creates a new TimeIntepolator object from a JSON object.
+     * It can be the result of serializing an interpolator.
+     *
+     * @name ParseInterpolator
+     * @memberOf cc.action
+     * @param ii {cc.action.InterpolatorInitializer}
+     * @returns {cc.action.TimeInterpolator}
+     * @constructor
+     */
     export function ParseInterpolator( ii:InterpolatorInitializer ) {
         if ( ii.type==="EaseIn" || ii.type==="EaseOut" || ii.type==="EaseInOut" ) {
             return cc.action.Interpolator[ii.type](ii.exponent, ii.inverse, ii.pingpong);

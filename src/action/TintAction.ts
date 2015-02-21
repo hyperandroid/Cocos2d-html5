@@ -22,6 +22,7 @@ module cc.action {
 
     /**
      * @class cc.action.TintActionInitializer
+     * @extends cc.action.ActionInitializer
      * @interface
      * @classdesc
      *
@@ -30,7 +31,18 @@ module cc.action {
      */
     export interface TintActionInitializer extends ActionInitializer {
 
+        /**
+         * Tint initial color
+         * @method cc.action.TintActionInitializer#from
+         * @type {cc.math.RGBAColor}
+         */
         from? : RGBAColor;
+
+        /**
+         * Tint final color
+         * @method cc.action.TintActionInitializer#to
+         * @type {cc.math.RGBAColor}
+         */
         to : RGBAColor;
     }
 
@@ -80,6 +92,12 @@ module cc.action {
             }
         }
 
+        /**
+         * Initialize the action with an initializer object.
+         * @method cc.action.TintAction#__createFromInitializer
+         * @param data {cc.action.TintActionInitializer}
+         * @private
+         */
         __createFromInitializer(initializer?:TintActionInitializer ) {
             super.__createFromInitializer(initializer);
         }
@@ -193,7 +211,11 @@ module cc.action {
             return copy;
         }
 
-
+        /**
+         * Serialize the action current definition.
+         * @method cc.action.TintAction#getInitializer
+         * @returns {cc.action.TintActionInitializer}
+         */
         getInitializer() : TintActionInitializer {
             var init:TintActionInitializer= <TintActionInitializer>super.getInitializer();
 

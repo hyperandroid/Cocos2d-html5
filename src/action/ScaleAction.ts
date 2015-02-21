@@ -21,6 +21,7 @@ module cc.action {
 
     /**
      * @class cc.action.ScaleActionInitializer
+     * @extends cc.action.ActionInitializer
      * @interface
      * @classdesc
      *
@@ -30,14 +31,14 @@ module cc.action {
     export interface ScaleActionInitializer extends ActionInitializer {
 
         /**
-         * Start rotation angle value
+         * Start scale value. The scale is for x and y axis.
          * @member cc.action.ScaleActionInitializer#from
          * @type {cc.math.Point=}
          */
         from? : cc.math.Point;
 
         /**
-         * End rotation angle value
+         * End scale value. The scale is for x and y axis.
          * @member cc.action.ScaleActionInitializer#to
          * @type {cc.math.Point}
          */
@@ -74,28 +75,28 @@ module cc.action {
          * @member cc.action.ScaleAction#_scaleX0
          * @type {number}
          */
-        _scaleX0:number = 1
+        _scaleX0:number = 1;
 
         /**
          * Action start y axis Scale.
          * @member cc.action.ScaleAction#_scaleY0
          * @type {number}
          */
-        _scaleY0:number = 1
+        _scaleY0:number = 1;
 
         /**
          * Action end x axis Scale.
          * @member cc.action.ScaleAction#_scaleX1
          * @type {number}
          */
-        _scaleX1:number = 1
+        _scaleX1:number = 1;
 
         /**
          * Action end y axis Scale.
          * @member cc.action.ScaleAction#_scaleY1
          * @type {number}
          */
-        _scaleY1:number = 1
+        _scaleY1:number = 1;
 
         /**
          * Build a new ScaleAction instance.
@@ -109,6 +110,12 @@ module cc.action {
             }
         }
 
+        /**
+         * Initialize the action with an initializer object.
+         * @method cc.action.ScaleAction#__createFromInitializer
+         * @param data {cc.action.ScaleActionInitializer}
+         * @private
+         */
         __createFromInitializer(initializer?:ScaleActionInitializer ) {
             super.__createFromInitializer(initializer);
         }
@@ -211,7 +218,11 @@ module cc.action {
             return copy;
         }
 
-
+        /**
+         * Serialize the action current definition.
+         * @method cc.action.ScaleAction#getInitializer
+         * @returns {cc.action.ScaleActionInitializer}
+         */
         getInitializer() : ScaleActionInitializer {
             var init:ScaleActionInitializer= <ScaleActionInitializer>super.getInitializer();
 

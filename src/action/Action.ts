@@ -3,7 +3,6 @@
  */
 
 
-/// <reference path="../node/Node.ts"/>
 /// <reference path="./TimeInterpolator.ts"/>
 /// <reference path="./ActionManager.ts"/>
 /// <reference path="./ActionChainContext.ts"/>
@@ -25,7 +24,19 @@ module cc.action {
     var SECONDS:number= 1000;
     var MILLISECONDS:number= 1;
 
+    /**
+     * Change time units on actions, schedulers, etc to seconds.
+     * This is the default type.
+     * @name setTimeReferenceInSeconds
+     * @memberof cc.action
+     */
     export function setTimeReferenceInSeconds() { cc.action.TIMEUNITS= SECONDS; }
+
+    /**
+     * Change time units on actions, schedulers, etc to milliseconds.
+     * @name setTimeReferenceInMillis
+     * @memberof cc.action
+     */
     export function setTimeReferenceInMillis() { cc.action.TIMEUNITS=  MILLISECONDS; }
 
     "use strict";
@@ -36,8 +47,8 @@ module cc.action {
      * @memberOf cc.action
      * @callback ActionCallbackApplicationCallback
      * @param action {cc.action.Action} Executed Action.
-     * @param target: {cc.node.Node} Node the Action applied to.
-     * @param value: {Object} Current Node property value set.
+     * @param target: {object} target the Action applied to.
+     * @param value: {Object} Current target property value set.
      */
 
     /**
@@ -45,7 +56,7 @@ module cc.action {
      * @memberOf cc.action
      * @callback ActionCallbackStartOrEndOrPauseOrResumeCallback
      * @param action {cc.action.Action} Executed Action.
-     * @param target: {cc.node.Node} Node the Action applied to.
+     * @param target: {object} target the Action applied to.
      */
 
     /**
@@ -53,13 +64,9 @@ module cc.action {
      * @memberOf cc.action
      * @callback ActionCallbackRepeatCallback
      * @param action {cc.action.Action} Executed Action.
-     * @param target: {cc.node.Node} Node the Action applied to.
+     * @param target: {object} target the Action applied to.
      * @param repetitionCount {number} Current repetition count.
      */
-
-    import Node= cc.node.Node;
-    import TimeInterpolator= cc.action.TimeInterpolator;
-    import ActionInfo= cc.action.ActionInfo;
 
     /**
      * Action internal states.
@@ -88,15 +95,15 @@ module cc.action {
     }
 
     export interface ActionCallbackStartOrEndOrPauseOrResumeCallback {
-        (action:Action, target:Node) : void;
+        (action:Action, target:any) : void;
     }
 
     export interface ActionCallbackRepeatCallback {
-        (action:Action, target:Node, repetitionCount:number) : void;
+        (action:Action, target:any, repetitionCount:number) : void;
     }
 
     export interface ActionCallbackApplicationCallback {
-        (action:Action, target:Node, value:any) : void;
+        (action:Action, target:any, value:any) : void;
     }
 
     /**
@@ -120,7 +127,8 @@ module cc.action {
      * @interface
      * @classdesc
      *
-     * This object describes a base Action initializer object.
+     * This object describes a base Action initializer object. It contains all common information for actions,
+     * and can be used as serializable data.
      */
     export interface ActionInitializer {
 
@@ -202,7 +210,8 @@ module cc.action {
      *  @class cc.action.Action
      *  @classdesc
      *
-     * Actions are scheduled objects that modify a node's internal state.
+     * Actions are scheduled objects that modify an arbitray object's internal state. It could be a node, or any other
+     * object type.
      * For example, schedule a rotation from 0 to 360 degrees, scale from to twice a node's size, or a combination of
      * both.
      * <br>
@@ -226,15 +235,15 @@ module cc.action {
      *
      * Predefined actions exist for the following node's properties:
      *
-     *  <li>AlphaAction. Modifies a node's transparency values.
-     *  <li>MoveAction. Modifies a node's position by traversing a straight line.
-     *  <li>PathAction. Modifies a node's position by traversing a complex path.
-     *  <li>RotateAction. Modifies a node's rotation angle.
-     *  <li>ScaleAction. Modifies a node's scale.
-     *  <li>TintAction. Modifies a node's color. This action will only have a visible result when the node is rendered
+     *  <li>AlphaAction. Modifies transparency values.
+     *  <li>MoveAction. Modifies position by traversing a straight line.
+     *  <li>PathAction. Modifies position by traversing a complex path.
+     *  <li>RotateAction. Modifies rotation angle.
+     *  <li>ScaleAction. Modifies scale.
+     *  <li>TintAction. Modifies s color. This action will only have a visible result when the node is rendered
      *      using WebGL.
      *  <li>SequenceAction. Allows for action sequencing and parallelization.
-     *  <li>PropertyAction. Allows for modification of a node's arbitrary property.
+     *  <li>PropertyAction. Allows for modification of an object's arbitrary property. Either deeply nested or not.
      *
      * There are other type of actions that affect or create a mix of different node properties modification like:
      *
@@ -398,7 +407,7 @@ module cc.action {
          * @type {cc.action.TimeInterpolator}
          * @private
          */
-        _interpolator:TimeInterpolator = null;
+        _interpolator:cc.action.TimeInterpolator = null;
 
         /**
          * if the from values for an Action have not been set, a call to __setInitialValues with
@@ -474,8 +483,22 @@ module cc.action {
          */
         _parentSequence:SequenceAction = null;
 
+        /**
+         * Is the action reversed ?
+         * This happens by a call to reverse() or setReversed()
+         * @member cc.action.Action#_reversed
+         * @type {boolean}
+         * @private
+         */
         _reversed : boolean = false;
 
+        /**
+         * When a call to node.startActionChain() is made, an ActionChainContext object is created. It is a fachade
+         * for chainable api. apart from that, does nothing to the Action.
+         * @member cc.action.Action#_chainContext
+         * @type {cc.action.ActionChainContext}
+         * @private
+         */
         _chainContext : cc.action.ActionChainContext = null;
 
         /**
@@ -483,6 +506,7 @@ module cc.action {
          * This type of objects must augmented.
          * @constructor
          * @method cc.action.Action#constructor
+         * @param initilizer {cc.action.ActionInitializer=} a JSON object describing a base Action info.
          */
         constructor( initializer?:ActionInitializer ) {
             if ( initializer ) {
@@ -490,7 +514,13 @@ module cc.action {
             }
         }
 
-        __createFromInitializer(initializer?:ActionInitializer ) {
+        /**
+         * Initialize the action with an initializer object.
+         * @method cc.action.Action#__createFromInitializer
+         * @param initializer {cc.action.ActionInitializer}
+         * @private
+         */
+        __createFromInitializer(initializer:ActionInitializer ) {
             if ( typeof initializer!=="undefined" ) {
                 if ( typeof initializer.relative!=='undefined' ) {
                     this.setRelative( initializer.relative );
@@ -538,16 +568,16 @@ module cc.action {
         }
 
         /**
-         * Update an Action's target node.
+         * Update an Action's target object.
          * This function must be overriden by Action subclass Objects.
          * @method cc.action.Action#update
          * @param normalizedTime {number} value between 0 and 1.
-         * @param target {cc.node.Node} node instance the action will be applied for.
+         * @param target {any} object instance the action will be applied for.
          *
          * @returns {Object} a value descriptive for the action type. For example, ScaleAction will return an object with
-         * the scale applied, and MoveAction a <code>cc.math.Vector</code> with node's set position.
+         * the scale applied, and MoveAction a <code>cc.math.Vector</code> with object's set position.
          */
-        update(normalizedTime:number, target:Node):any {
+        update(normalizedTime:number, target:any):any {
 
         }
 
@@ -564,7 +594,7 @@ module cc.action {
 
         /**
          * Set an action's pre application delay.
-         * An action will take this milliseconds to start applying values in a node.
+         * An action will take this milliseconds to start applying values in a target.
          * @method cc.action.Action#setDelay
          * @param d {number} milliseconds.
          * @returns {cc.action.Action}
@@ -707,7 +737,7 @@ module cc.action {
 
         /**
          * Register a callback notification function fired whenever the action applies.
-         * The action applies once per frame, and allows for getting values that have been set on the node.
+         * The action applies once per frame, and allows for getting values that have been set on the target.
          * @method cc.action.Action#onApply
          * @param callback { cc.action.ActionCallbackApplicationCallback }
          * @return Action
@@ -743,10 +773,10 @@ module cc.action {
         /**
          * Pause this action.
          * @method cc.action.Action#pause
-         * @param target {Node=}
+         * @param target {object=}
          * @returns Action
          */
-        pause(target?:Node) {
+        pause(target?:any) {
             this._status = ActionStates.PAUSED;
             if (this._onPause) {
                 this._onPause(this, target);
@@ -803,7 +833,7 @@ module cc.action {
          * @param interpolator {cc.action.TimeInterpolator}
          * @returns Action
          */
-        setInterpolator(interpolator:TimeInterpolator):Action {
+        setInterpolator(interpolator:cc.action.TimeInterpolator):Action {
             this._interpolator = interpolator;
             return this;
         }
@@ -891,18 +921,18 @@ module cc.action {
 
         /**
          * This method must no be called directly.
-         * The director loop will call this method in order to apply node actions.
+         * The director loop will call this method in order to apply target actions.
          * @method cc.action.Action#step
          * @param delta {number} elapsed time since last application.
-         * @param node {cc.node.Node}  node the action is being applied to.
+         * @param target {object}  target object the action is being applied to.
          */
-        step(delta:number, node:any):void {
+        step(delta:number, target:any):void {
 
             delta*= cc.action.TIMEUNITS;
 
             this._currentTime += delta * this._speed;
 
-            this.__stepImpl(delta, this._currentTime, node);
+            this.__stepImpl(delta, this._currentTime, target);
         }
 
         /**
@@ -910,10 +940,10 @@ module cc.action {
          * @method cc.action.Action#__stepImpl
          * @param delta {number} elapsed time since last application.
          * @param time {number} Action accumulated time.
-         * @param node {cc.node.Node} target to apply action to.
+         * @param target {object} target to apply action to.
          * @private
          */
-        __stepImpl(delta:number, time:number, node:any):void {
+        __stepImpl(delta:number, time:number, target:any):void {
 
 
             // if an action is not ended, it has the chance of updating value
@@ -922,23 +952,23 @@ module cc.action {
                 // actions can be paused w/o even been started.
                 if (this._status === ActionStates.RESUMED) {
                     if (this._onResume) {
-                        this._onResume(this, node);
+                        this._onResume(this, target);
                     }
                 }
 
 
                 // if the action is not ended, but can be executed due to time
                 if (this.__isActionApplicable(time)) {
-                    this.__actionApply(time, node);
+                    this.__actionApply(time, target);
                 } else {
 
                     // if the action is expired, ie, current time is beyong the start and duration
                     if (time >= this._startTime + this.getDuration()) {
 
                         // apply for final state anyway
-                        this.__actionApply(time, node);
+                        this.__actionApply(time, target);
                         // set the action as ENDED
-                        this.stop(node);
+                        this.stop(target);
                     }
                 }
             }
@@ -949,10 +979,10 @@ module cc.action {
          * Do not call directly.
          * @method cc.action.Action#__actionApply
          * @param time {number} current action's application time.
-         * @param node {cc.node.Node} target node.
+         * @param target {object} target node.
          * @private
          */
-        __actionApply(time:number, node:any) {
+        __actionApply(time:number, target:any) {
 
 
             // manage first execution. it gives the chance to the Action of initializing with the target node
@@ -960,13 +990,13 @@ module cc.action {
 
                 // callback for onStart. only once. from now on, the action is not first_execution
                 if (this._onStart) {
-                    this._onStart(this, node);
+                    this._onStart(this, target);
                 }
 
                 this._firstExecution = false;
 
                 // initialize with the target before updating its values.
-                this.initWithTarget(node);
+                this.initWithTarget(target);
             }
 
             // current status RUNNING
@@ -977,17 +1007,24 @@ module cc.action {
             var ntime = this.__normalizeTime(time);
 
             // update target
-            var v = this.update(ntime, node);
+            var v = this.update(ntime, target);
 
             // application callback. called each time the node has changed properties.
             if (this._onApply) {
-                this._onApply(this, node, v);
+                this._onApply(this, target, v);
             }
 
-            this.__checkRepetition( time, node );
+            this.__checkRepetition( time, target );
         }
 
-        __checkRepetition( time, node ) {
+        /**
+         * Do code specific for checking action repetition and callback invocation when it makes sense.
+         * @method cc.action.Action#__checkRepetition
+         * @param time {number} current action application time .
+         * @param target {object} target object the action is being applied to.
+         * @private
+         */
+        __checkRepetition( time:number, target:any ) {
 
             // if this is a repeating action
             if (this._repeatTimes !== 1) {
@@ -1004,7 +1041,7 @@ module cc.action {
 
                     // callback about repetition
                     if (this._onRepeat) {
-                        this._onRepeat(this, node, repeatIndex);
+                        this._onRepeat(this, target, repeatIndex);
                     }
                 }
             }
@@ -1015,30 +1052,30 @@ module cc.action {
          * Pass in the target node this action will act on.
          * This method must be overriden by each action type.
          * @method cc.action.Action#initWithTarget
-         * @param node {cc.node.Node}
+         * @param target {object}
          */
-        initWithTarget(node:Node):void {
+        initWithTarget(target:any):void {
         }
 
         /**
          * Solve Action first application values.
          * Must be overriden.
          * @method cc.action.Action#solveInitialValues
-         * @param node {cc.node.Node}
+         * @param target {object}
          */
-        solveInitialValues(node:Node) {
+        solveInitialValues(target:any) {
         }
 
         /**
          * End this action immediately. Will call onEnd callback if set.
          * @method cc.action.Action#stop
-         * @param node {cc.node.Node=}
+         * @param target {object=}
          */
-        stop(node:Node) {
+        stop(target?:any) {
             this._status = ActionStates.ENDED;
 
             if (this._onEnd) {
-                this._onEnd(this, node);
+                this._onEnd(this, target);
             }
         }
 
@@ -1090,7 +1127,7 @@ module cc.action {
          * @param interpolator {cc.action.TimeInterpolator} a time interpolator interface object.
          * @returns {cc.action.Action}
          */
-        timeInfo(delay:number, duration:number, interpolator?:TimeInterpolator):Action {
+        timeInfo(delay:number, duration:number, interpolator?:cc.action.TimeInterpolator):Action {
             this._duration = duration*TIMEUNITS;
             this.setDelay(delay);
             if (typeof interpolator !== "undefined") {
@@ -1222,7 +1259,7 @@ module cc.action {
          * @param i {cc.action.Interpolator} an interpolator/easing function.
          * @returns {cc.action.Action}
          */
-        easing(i:TimeInterpolator):Action {
+        easing(i:cc.action.TimeInterpolator):Action {
             this.setInterpolator(i);
             return this;
         }
@@ -1259,7 +1296,14 @@ module cc.action {
             return this;
         }
 
-        __recursivelySetCreatedStatus(target:Node) {
+        /**
+         * This method is called from a SequenceAction object. It clears current action status info so that it can
+         * be restarted.
+         * @method cc.action.Action#__recursivelySetCreatedStatus
+         * @param target {any}
+         * @private
+         */
+        __recursivelySetCreatedStatus(target:any) {
             if ( this._status!==ActionStates.ENDED ) {
                 this.update( this._reversed ? 0 : 1,target);
             }
@@ -1276,6 +1320,12 @@ module cc.action {
             this.setInterpolator( cc.action.Interpolator.Linear( this._reversed, true ) );
         }
 
+        /**
+         * Build an initializer object out of the Action current state and info.
+         * Every Action type must override and super.call this method.
+         * @method cc.action.Action#getInitializer
+         * @returns {cc.action.ActionInitializer}
+         */
         getInitializer() : ActionInitializer {
 
             var obj:any= {};

@@ -22,6 +22,7 @@ module cc.action {
 
     /**
      * @class cc.action.PathActionInitializer
+     * @extends cc.action.ActionInitializer
      * @interface
      * @classdesc
      *
@@ -30,7 +31,7 @@ module cc.action {
     export interface PathActionInitializer extends ActionInitializer {
 
         /**
-         * Start x position
+         * Path traversal segment
          * @member cc.action.PathActionInitializer#segment
          * @type {cc.math.path.Segment}
          *
@@ -39,12 +40,6 @@ module cc.action {
          */
         segment : Segment;
 
-        /**
-         * Is action relative ?
-         * @member cc.action.PathActionInitializer#relative
-         * @type {boolean}
-         */
-        relative? : boolean;
     }
 
     /**
@@ -144,6 +139,12 @@ module cc.action {
             }
         }
 
+        /**
+         * Initialize the action with an initializer object.
+         * @method cc.action.PathAction#__createFromInitializer
+         * @param data {cc.action.PathActionInitializer}
+         * @private
+         */
         __createFromInitializer(data?:PathActionInitializer ) {
             super.__createFromInitializer( data );
 
@@ -197,6 +198,18 @@ module cc.action {
             return __PathActionUpdateValue;
         }
 
+        /**
+         * Calculate a tangential angle based on the current path position.
+         * It the node is a sprite, it will also flip the node if necessary based on the property:
+         * _tangentialRotationFullAngle and _spriteOrientationLR
+         *
+         * @method cc.action.PathAction#__getTangentialAngle
+         * @param node {cc.node.Node|cc.node.Sprite}
+         * @param lefttoright {boolean}
+         * @param angle {number}
+         * @returns {number}
+         * @private
+         */
         __getTangentialAngle( node:Node, lefttoright:boolean, angle:number ) {
 
             if ( !this._tangentialRotationFullAngle ) {
@@ -220,6 +233,11 @@ module cc.action {
             return angle*180/Math.PI;
         }
 
+        /**
+         * Restart the action.
+         * @method cc.action.PathAction#restart
+         * @returns {cc.action.PathAction}
+         */
         restart() : PathAction {
             super.restart();
             this._pathAdjusted= false;
@@ -353,6 +371,11 @@ module cc.action {
             return this;
         }
 
+        /**
+         * Serialize the action current definition.
+         * @method cc.action.PathAction#getInitializer
+         * @returns {cc.action.PathActionInitializer}
+         */
         getInitializer() : PathActionInitializer {
             var init:PathActionInitializer= <PathActionInitializer>super.getInitializer();
 
