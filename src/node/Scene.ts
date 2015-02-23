@@ -308,6 +308,8 @@ module cc.node {
 
         /**
          * Notifiy event registered callback.
+         *
+         *
          * @method cc.node.Scene#callOnEnter
          */
         callOnEnter() : void {

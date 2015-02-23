@@ -134,10 +134,6 @@ module cc.input {
         return mie;
     }
 
-    //function createEventTouch( e:TouchEvent, event:string, node:Node ) : MouseInputManagerEvent {
-    //
-    //}
-
     function routeEvent( e:MouseInputManagerEvent ) : Node {
         if ( _scene) {
             return _scene.findNodeAtScreenPoint(e);
@@ -264,7 +260,7 @@ module cc.input {
                 if (node !== null) {
                     ee._type = event==="mousedrag" || event==="mousemove" ? "mouseover" : "touchover";
                     ee._target = node;
-                    node.notifyEvent(ee)
+                    node.notifyEvent(ee);
                 }
             }
 

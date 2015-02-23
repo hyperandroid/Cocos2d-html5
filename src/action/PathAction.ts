@@ -32,11 +32,9 @@ module cc.action {
 
         /**
          * Path traversal segment
+         * pending: SegmentInitializer
          * @member cc.action.PathActionInitializer#segment
          * @type {cc.math.path.Segment}
-         *
-         * pending: SegmentInitializer
-         *
          */
         segment : Segment;
 

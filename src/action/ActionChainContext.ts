@@ -38,7 +38,7 @@ module cc.action {
     }
 
     /**
-     * @class ActionChainContext
+     * @class cc.action.ActionChainContext
      * @classdesc
      *
      * An ActionChainContext is an object whose only purpose is offer a chainable Action construction API.

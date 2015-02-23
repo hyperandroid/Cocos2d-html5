@@ -99,16 +99,18 @@
             initScene(scene2);
 
             director.runScene(
-                    scene1
-//                    new cc.transition.TransitionFade(2).
-//                            setInterpolator(cc.action.Interpolator.EaseExponentialInOut(false, false)).
-//                            onTransitionEnd(function (transition) {
-//                                director.runScene(
-//                                        scene2,
-//                                        new cc.transition.TransitionSlideInL(2).
-//                                                setInterpolator(cc.action.Interpolator.EaseExponentialInOut(false, false))
-//                                );
-//                            })
+                    scene1,
+                    new cc.transition.TransitionSlideInT(2).
+                            setInterpolator(cc.action.Interpolator.EaseExponentialInOut(false, false)).
+                            onTransitionEnd(function (transition) {
+                                director.scheduleOnce( function( delta, target) {
+                                    director.runScene(
+                                            scene2,
+                                            new cc.transition.TransitionSlideInL(2).
+                                                    setInterpolator(cc.action.Interpolator.EaseExponentialInOut(false, false))
+                                    );
+                                }, 5 )
+                            })
             );
 
             return director;

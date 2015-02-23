@@ -63,6 +63,8 @@
 /// <reference path="render/GeometryBatcher.ts"/>
 /// <reference path="render/DecoratedWebGLRenderingContext.ts"/>
 
+/// <reference path="render/RenderUtil.ts"/>
+
 /// <reference path="widget/Button.ts"/>
 /// <reference path="widget/Label.ts"/>
 
