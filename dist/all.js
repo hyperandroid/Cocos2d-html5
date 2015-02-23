@@ -4911,7 +4911,7 @@ var cc;
              */
             Node.prototype.setScale = function (x, y) {
                 this.scaleX = x;
-                this.scaleY = y;
+                this.scaleY = typeof y === "undefined" ? x : y;
                 return this;
             };
             /**
@@ -5738,7 +5738,7 @@ var cc;
                 }
                 this._parent.removeChild(this, cleanup);
                 if (cleanup) {
-                    this.unscheduleAllCallbacks();
+                    this.cleanup();
                 }
                 return this;
             };
@@ -5747,7 +5747,7 @@ var cc;
              * @method cc.node.Node#removeAllChildren
              * @returns {cc.node.Node}
              */
-            Node.prototype.removeAllChildren = function () {
+            Node.prototype.removeAllChildren = function (cleanup) {
                 for (var i = 0; i < this._children.length; i++) {
                     this._children[i]._parent = null;
                 }
@@ -6332,7 +6332,6 @@ var cc;
 /**
  * License: see license.txt file.
  */
-/// <reference path="../node/Node.ts"/>
 /// <reference path="./TimeInterpolator.ts"/>
 /// <reference path="./ActionManager.ts"/>
 /// <reference path="./ActionChainContext.ts"/>
@@ -6352,15 +6351,49 @@ var cc;
         _action.TIMEUNITS = 1000;
         var SECONDS = 1000;
         var MILLISECONDS = 1;
+        /**
+         * Change time units on actions, schedulers, etc to seconds.
+         * This is the default type.
+         * @name setTimeReferenceInSeconds
+         * @memberof cc.action
+         */
         function setTimeReferenceInSeconds() {
             cc.action.TIMEUNITS = SECONDS;
         }
         _action.setTimeReferenceInSeconds = setTimeReferenceInSeconds;
+        /**
+         * Change time units on actions, schedulers, etc to milliseconds.
+         * @name setTimeReferenceInMillis
+         * @memberof cc.action
+         */
         function setTimeReferenceInMillis() {
             cc.action.TIMEUNITS = MILLISECONDS;
         }
         _action.setTimeReferenceInMillis = setTimeReferenceInMillis;
         "use strict";
+        /**
+         * Callback definition for Action Apply event.
+         * @memberOf cc.action
+         * @callback ActionCallbackApplicationCallback
+         * @param action {cc.action.Action} Executed Action.
+         * @param target: {object} target the Action applied to.
+         * @param value: {Object} Current target property value set.
+         */
+        /**
+         * Callback definition for Action Start, End, Pause and Resume events.
+         * @memberOf cc.action
+         * @callback ActionCallbackStartOrEndOrPauseOrResumeCallback
+         * @param action {cc.action.Action} Executed Action.
+         * @param target: {object} target the Action applied to.
+         */
+        /**
+         * Callback definition for Action Repeat event.
+         * @memberOf cc.action
+         * @callback ActionCallbackRepeatCallback
+         * @param action {cc.action.Action} Executed Action.
+         * @param target: {object} target the Action applied to.
+         * @param repetitionCount {number} Current repetition count.
+         */
         /**
          * Action internal states.
          * <br>
@@ -6392,7 +6425,8 @@ var cc;
          *  @class cc.action.Action
          *  @classdesc
          *
-         * Actions are scheduled objects that modify a node's internal state.
+         * Actions are scheduled objects that modify an arbitray object's internal state. It could be a node, or any other
+         * object type.
          * For example, schedule a rotation from 0 to 360 degrees, scale from to twice a node's size, or a combination of
          * both.
          * <br>
@@ -6416,15 +6450,15 @@ var cc;
          *
          * Predefined actions exist for the following node's properties:
          *
-         *  <li>AlphaAction. Modifies a node's transparency values.
-         *  <li>MoveAction. Modifies a node's position by traversing a straight line.
-         *  <li>PathAction. Modifies a node's position by traversing a complex path.
-         *  <li>RotateAction. Modifies a node's rotation angle.
-         *  <li>ScaleAction. Modifies a node's scale.
-         *  <li>TintAction. Modifies a node's color. This action will only have a visible result when the node is rendered
+         *  <li>AlphaAction. Modifies transparency values.
+         *  <li>MoveAction. Modifies position by traversing a straight line.
+         *  <li>PathAction. Modifies position by traversing a complex path.
+         *  <li>RotateAction. Modifies rotation angle.
+         *  <li>ScaleAction. Modifies scale.
+         *  <li>TintAction. Modifies s color. This action will only have a visible result when the node is rendered
          *      using WebGL.
          *  <li>SequenceAction. Allows for action sequencing and parallelization.
-         *  <li>PropertyAction. Allows for modification of a node's arbitrary property.
+         *  <li>PropertyAction. Allows for modification of an object's arbitrary property. Either deeply nested or not.
          *
          * There are other type of actions that affect or create a mix of different node properties modification like:
          *
@@ -6449,6 +6483,7 @@ var cc;
              * This type of objects must augmented.
              * @constructor
              * @method cc.action.Action#constructor
+             * @param initilizer {cc.action.ActionInitializer=} a JSON object describing a base Action info.
              */
             function Action(initializer) {
                 /**
@@ -6638,12 +6673,32 @@ var cc;
                  * @private
                  */
                 this._parentSequence = null;
+                /**
+                 * Is the action reversed ?
+                 * This happens by a call to reverse() or setReversed()
+                 * @member cc.action.Action#_reversed
+                 * @type {boolean}
+                 * @private
+                 */
                 this._reversed = false;
+                /**
+                 * When a call to node.startActionChain() is made, an ActionChainContext object is created. It is a fachade
+                 * for chainable api. apart from that, does nothing to the Action.
+                 * @member cc.action.Action#_chainContext
+                 * @type {cc.action.ActionChainContext}
+                 * @private
+                 */
                 this._chainContext = null;
                 if (initializer) {
                     this.__createFromInitializer(initializer);
                 }
             }
+            /**
+             * Initialize the action with an initializer object.
+             * @method cc.action.Action#__createFromInitializer
+             * @param initializer {cc.action.ActionInitializer}
+             * @private
+             */
             Action.prototype.__createFromInitializer = function (initializer) {
                 if (typeof initializer !== "undefined") {
                     if (typeof initializer.relative !== 'undefined') {
@@ -6690,14 +6745,14 @@ var cc;
                 return this;
             };
             /**
-             * Update an Action's target node.
+             * Update an Action's target object.
              * This function must be overriden by Action subclass Objects.
              * @method cc.action.Action#update
              * @param normalizedTime {number} value between 0 and 1.
-             * @param target {cc.node.Node} node instance the action will be applied for.
+             * @param target {any} object instance the action will be applied for.
              *
              * @returns {Object} a value descriptive for the action type. For example, ScaleAction will return an object with
-             * the scale applied, and MoveAction a <code>cc.math.Vector</code> with node's set position.
+             * the scale applied, and MoveAction a <code>cc.math.Vector</code> with object's set position.
              */
             Action.prototype.update = function (normalizedTime, target) {
             };
@@ -6713,7 +6768,7 @@ var cc;
             };
             /**
              * Set an action's pre application delay.
-             * An action will take this milliseconds to start applying values in a node.
+             * An action will take this milliseconds to start applying values in a target.
              * @method cc.action.Action#setDelay
              * @param d {number} milliseconds.
              * @returns {cc.action.Action}
@@ -6843,7 +6898,7 @@ var cc;
             };
             /**
              * Register a callback notification function fired whenever the action applies.
-             * The action applies once per frame, and allows for getting values that have been set on the node.
+             * The action applies once per frame, and allows for getting values that have been set on the target.
              * @method cc.action.Action#onApply
              * @param callback { cc.action.ActionCallbackApplicationCallback }
              * @return Action
@@ -6876,7 +6931,7 @@ var cc;
             /**
              * Pause this action.
              * @method cc.action.Action#pause
-             * @param target {Node=}
+             * @param target {object=}
              * @returns Action
              */
             Action.prototype.pause = function (target) {
@@ -7007,44 +7062,44 @@ var cc;
             };
             /**
              * This method must no be called directly.
-             * The director loop will call this method in order to apply node actions.
+             * The director loop will call this method in order to apply target actions.
              * @method cc.action.Action#step
              * @param delta {number} elapsed time since last application.
-             * @param node {cc.node.Node}  node the action is being applied to.
+             * @param target {object}  target object the action is being applied to.
              */
-            Action.prototype.step = function (delta, node) {
+            Action.prototype.step = function (delta, target) {
                 delta *= cc.action.TIMEUNITS;
                 this._currentTime += delta * this._speed;
-                this.__stepImpl(delta, this._currentTime, node);
+                this.__stepImpl(delta, this._currentTime, target);
             };
             /**
              * Actual step implementation.
              * @method cc.action.Action#__stepImpl
              * @param delta {number} elapsed time since last application.
              * @param time {number} Action accumulated time.
-             * @param node {cc.node.Node} target to apply action to.
+             * @param target {object} target to apply action to.
              * @private
              */
-            Action.prototype.__stepImpl = function (delta, time, node) {
+            Action.prototype.__stepImpl = function (delta, time, target) {
                 // if an action is not ended, it has the chance of updating value
                 if (this._status !== 4 /* ENDED */) {
                     // actions can be paused w/o even been started.
                     if (this._status === 5 /* RESUMED */) {
                         if (this._onResume) {
-                            this._onResume(this, node);
+                            this._onResume(this, target);
                         }
                     }
                     // if the action is not ended, but can be executed due to time
                     if (this.__isActionApplicable(time)) {
-                        this.__actionApply(time, node);
+                        this.__actionApply(time, target);
                     }
                     else {
                         // if the action is expired, ie, current time is beyong the start and duration
                         if (time >= this._startTime + this.getDuration()) {
                             // apply for final state anyway
-                            this.__actionApply(time, node);
+                            this.__actionApply(time, target);
                             // set the action as ENDED
-                            this.stop(node);
+                            this.stop(target);
                         }
                     }
                 }
@@ -7054,19 +7109,19 @@ var cc;
              * Do not call directly.
              * @method cc.action.Action#__actionApply
              * @param time {number} current action's application time.
-             * @param node {cc.node.Node} target node.
+             * @param target {object} target node.
              * @private
              */
-            Action.prototype.__actionApply = function (time, node) {
+            Action.prototype.__actionApply = function (time, target) {
                 // manage first execution. it gives the chance to the Action of initializing with the target node
                 if (this._firstExecution) {
                     // callback for onStart. only once. from now on, the action is not first_execution
                     if (this._onStart) {
-                        this._onStart(this, node);
+                        this._onStart(this, target);
                     }
                     this._firstExecution = false;
                     // initialize with the target before updating its values.
-                    this.initWithTarget(node);
+                    this.initWithTarget(target);
                 }
                 // current status RUNNING
                 this._status = 2 /* RUNNING */;
@@ -7074,14 +7129,21 @@ var cc;
                 // action length, start time, etc. it also applies the easing (if any).
                 var ntime = this.__normalizeTime(time);
                 // update target
-                var v = this.update(ntime, node);
+                var v = this.update(ntime, target);
                 // application callback. called each time the node has changed properties.
                 if (this._onApply) {
-                    this._onApply(this, node, v);
+                    this._onApply(this, target, v);
                 }
-                this.__checkRepetition(time, node);
+                this.__checkRepetition(time, target);
             };
-            Action.prototype.__checkRepetition = function (time, node) {
+            /**
+             * Do code specific for checking action repetition and callback invocation when it makes sense.
+             * @method cc.action.Action#__checkRepetition
+             * @param time {number} current action application time .
+             * @param target {object} target object the action is being applied to.
+             * @private
+             */
+            Action.prototype.__checkRepetition = function (time, target) {
                 // if this is a repeating action
                 if (this._repeatTimes !== 1) {
                     // calculate current repetition value
@@ -7094,7 +7156,7 @@ var cc;
                         this._currentRepeatCount = repeatIndex;
                         // callback about repetition
                         if (this._onRepeat) {
-                            this._onRepeat(this, node, repeatIndex);
+                            this._onRepeat(this, target, repeatIndex);
                         }
                     }
                 }
@@ -7103,27 +7165,27 @@ var cc;
              * Pass in the target node this action will act on.
              * This method must be overriden by each action type.
              * @method cc.action.Action#initWithTarget
-             * @param node {cc.node.Node}
+             * @param target {object}
              */
-            Action.prototype.initWithTarget = function (node) {
+            Action.prototype.initWithTarget = function (target) {
             };
             /**
              * Solve Action first application values.
              * Must be overriden.
              * @method cc.action.Action#solveInitialValues
-             * @param node {cc.node.Node}
+             * @param target {object}
              */
-            Action.prototype.solveInitialValues = function (node) {
+            Action.prototype.solveInitialValues = function (target) {
             };
             /**
              * End this action immediately. Will call onEnd callback if set.
              * @method cc.action.Action#stop
-             * @param node {cc.node.Node=}
+             * @param target {object=}
              */
-            Action.prototype.stop = function (node) {
+            Action.prototype.stop = function (target) {
                 this._status = 4 /* ENDED */;
                 if (this._onEnd) {
-                    this._onEnd(this, node);
+                    this._onEnd(this, target);
                 }
             };
             /**
@@ -7316,6 +7378,13 @@ var cc;
                 this._reversedTime = b;
                 return this;
             };
+            /**
+             * This method is called from a SequenceAction object. It clears current action status info so that it can
+             * be restarted.
+             * @method cc.action.Action#__recursivelySetCreatedStatus
+             * @param target {any}
+             * @private
+             */
             Action.prototype.__recursivelySetCreatedStatus = function (target) {
                 if (this._status !== 4 /* ENDED */) {
                     this.update(this._reversed ? 0 : 1, target);
@@ -7331,6 +7400,12 @@ var cc;
             Action.prototype.pingpong = function () {
                 this.setInterpolator(cc.action.Interpolator.Linear(this._reversed, true));
             };
+            /**
+             * Build an initializer object out of the Action current state and info.
+             * Every Action type must override and super.call this method.
+             * @method cc.action.Action#getInitializer
+             * @returns {cc.action.ActionInitializer}
+             */
             Action.prototype.getInitializer = function () {
                 var obj = {};
                 if (this._delayBeforeApplication) {
@@ -7371,6 +7446,17 @@ var cc;
     var action;
     (function (action) {
         "use strict";
+        /**
+         *
+         * This function creates a new TimeIntepolator object from a JSON object.
+         * It can be the result of serializing an interpolator.
+         *
+         * @name ParseInterpolator
+         * @memberOf cc.action
+         * @param ii {cc.action.InterpolatorInitializer}
+         * @returns {cc.action.TimeInterpolator}
+         * @constructor
+         */
         function ParseInterpolator(ii) {
             if (ii.type === "EaseIn" || ii.type === "EaseOut" || ii.type === "EaseInOut") {
                 return cc.action.Interpolator[ii.type](ii.exponent, ii.inverse, ii.pingpong);
@@ -8019,6 +8105,12 @@ var cc;
                     this.__createFromInitializer(data);
                 }
             }
+            /**
+             * Initialize the action with an initializer object.
+             * @method cc.action.AlphaAction#__createFromInitializer
+             * @param data {cc.action.AlphaActionInitializer}
+             * @private
+             */
             AlphaAction.prototype.__createFromInitializer = function (data) {
                 _super.prototype.__createFromInitializer.call(this, data);
                 if (typeof data !== "undefined") {
@@ -8101,6 +8193,11 @@ var cc;
                 this.__genericCloneProperties(copy);
                 return copy;
             };
+            /**
+             * Serialize the action current definition.
+             * @method cc.action.AlphaAction#getInitializer
+             * @returns {cc.action.AlphaActionInitializer}
+             */
             AlphaAction.prototype.getInitializer = function () {
                 var init = _super.prototype.getInitializer.call(this);
                 if (this._fromValuesSet) {
@@ -8197,6 +8294,12 @@ var cc;
                     this.__createFromInitializer(data);
                 }
             }
+            /**
+             * Initialize the action with an initializer object.
+             * @method cc.action.MoveAction#__createFromInitializer
+             * @param initializer {cc.action.MoveActionInitializer}
+             * @private
+             */
             MoveAction.prototype.__createFromInitializer = function (initializer) {
                 _super.prototype.__createFromInitializer.call(this, initializer);
             };
@@ -8283,6 +8386,11 @@ var cc;
                 this.__genericCloneProperties(copy);
                 return copy;
             };
+            /**
+             * Serialize the action current definition.
+             * @method cc.action.MoveAction#getInitializer
+             * @returns {cc.action.MoveActionInitializer}
+             */
             MoveAction.prototype.getInitializer = function () {
                 var init = _super.prototype.getInitializer.call(this);
                 if (this._fromValuesSet) {
@@ -8316,9 +8424,38 @@ var cc;
         "use strict";
         var Action = cc.action.Action;
         /**
+         * @class cc.action.PropertyInfo
+         * @classdesc
+         *
          * Internal helper Object to store a property information.
+         * It stores:
+         * <li>a property name, for example 'x' or 'p0.x'
+         * <li>the property path. For example ['x'] or ['p0','x']
+         * <li>original property value for a target object
+         *
+         * It is responsible for setting and getting the deep property path values too.
+         *
+         * Referenced properties MUST be numeric.
          */
         var PropertyInfo = (function () {
+            /**
+             * Property name.
+             * @member cc.action.PropertyInfo#_property
+             * @type {string}
+             * @private
+             */
+            /**
+             * Property start value.
+             * @member cc.action.PropertyInfo#_start
+             * @type {number}
+             * @private
+             */
+            /**
+             * Property end value.
+             * @member cc.action.PropertyInfo#_end
+             * @type {number}
+             * @private
+             */
             /**
              *
              * @param _property {string} property name.
@@ -8331,14 +8468,27 @@ var cc;
                 this._end = _end;
                 /**
                  * Property Units. For example, when the property is not a numeric value but something like '250px'.
+                 * @member cc.action.PropertyInfo#_units
                  * @type {string}
                  * @private
                  */
                 this._units = "";
+                /**
+                 * If the property is a deep property, like 'p0.x' or 'a.b.c.d.value' this property will indicate it.
+                 * @member cc.action.PropertyInfo#_nested
+                 * @type {boolean}
+                 * @private
+                 */
                 this._nested = false;
                 this._nested = _property.indexOf('.') !== -1;
                 this._propertyPath = _property.split('.');
             }
+            /**
+             * Set the property value in a target object
+             * @method cc.action.PropertyInfo#setTargetValue
+             * @param target {any}
+             * @param v {number}
+             */
             PropertyInfo.prototype.setTargetValue = function (target, v) {
                 var cursor = target;
                 for (var i = 0; i < this._propertyPath.length - 1; i++) {
@@ -8352,6 +8502,12 @@ var cc;
                 }
                 cursor[this._propertyPath[i]] = v;
             };
+            /**
+             * Get the property value from a target object
+             * @method cc.action.PropertyInfo#getTargetValue
+             * @param target {any}
+             * @returns {number}
+             */
             PropertyInfo.prototype.getTargetValue = function (target) {
                 var cursor = target;
                 for (var i = 0; i < this._propertyPath.length; i++) {
@@ -8365,22 +8521,36 @@ var cc;
                 }
                 return cursor;
             };
+            /**
+             * Set PropertyInfo original target value.
+             * @param n {number}
+             * @returns {cc.action.PropertyInfo}
+             */
             PropertyInfo.prototype.setOriginal = function (n) {
                 this._original = n;
                 return this;
             };
+            /**
+             * Get property original value in the original target object.
+             * @method cc.action.PropertyInfo#getOriginal
+             * @returns {number}
+             */
             PropertyInfo.prototype.getOriginal = function () {
                 return this._original;
             };
+            /**
+             * Clone the PropertyInfo object.
+             * @method cc.action.PropertyInfo#clone
+             * @returns {cc.action.PropertyInfo}
+             */
             PropertyInfo.prototype.clone = function () {
                 return new PropertyInfo(this._property, this._start, this._end);
             };
-            PropertyInfo.prototype.getValue = function (v) {
-                if (this._units !== "") {
-                    return "" + v + this._units;
-                }
-                return v;
-            };
+            /**
+             * Get the property path.
+             * @method cc.action.PropertyInfo#getPath
+             * @returns {string[]}
+             */
             PropertyInfo.prototype.getPath = function () {
                 return this._propertyPath;
             };
@@ -8416,6 +8586,12 @@ var cc;
                     this.__createFromInitializer(data);
                 }
             }
+            /**
+             * Initialize the action with an initializer object.
+             * @method cc.action.PropertyAction#__createFromInitializer
+             * @param data {cc.action.PropertyActionInitializer}
+             * @private
+             */
             PropertyAction.prototype.__createFromInitializer = function (initializer) {
                 _super.prototype.__createFromInitializer.call(this, initializer);
             };
@@ -8537,6 +8713,11 @@ var cc;
                 this.__genericCloneProperties(copy);
                 return copy;
             };
+            /**
+             * Serialize the action current definition.
+             * @method cc.action.PropertyAction#getInitializer
+             * @returns {cc.action.PropertyActionInitializer}
+             */
             PropertyAction.prototype.getInitializer = function () {
                 var init = _super.prototype.getInitializer.call(this);
                 if (this._fromValuesSet) {
@@ -8609,6 +8790,12 @@ var cc;
                     this.__createFromInitializer(data);
                 }
             }
+            /**
+             * Initialize the action with an initializer object.
+             * @method cc.action.RotateAction#__createFromInitializer
+             * @param initializer {cc.action.RotateActionInitializer}
+             * @private
+             */
             RotateAction.prototype.__createFromInitializer = function (initializer) {
                 _super.prototype.__createFromInitializer.call(this, initializer);
             };
@@ -8689,6 +8876,11 @@ var cc;
                 this.__genericCloneProperties(copy);
                 return copy;
             };
+            /**
+             * Serialize the action current definition.
+             * @method cc.action.RotateAction#getInitializer
+             * @returns {cc.action.RotateActionInitializer}
+             */
             RotateAction.prototype.getInitializer = function () {
                 var init = _super.prototype.getInitializer.call(this);
                 if (this._fromValuesSet) {
@@ -8781,6 +8973,12 @@ var cc;
                     this.__createFromInitializer(data);
                 }
             }
+            /**
+             * Initialize the action with an initializer object.
+             * @method cc.action.ScaleAction#__createFromInitializer
+             * @param data {cc.action.ScaleActionInitializer}
+             * @private
+             */
             ScaleAction.prototype.__createFromInitializer = function (initializer) {
                 _super.prototype.__createFromInitializer.call(this, initializer);
             };
@@ -8865,6 +9063,11 @@ var cc;
                 this.__genericCloneProperties(copy);
                 return copy;
             };
+            /**
+             * Serialize the action current definition.
+             * @method cc.action.ScaleAction#getInitializer
+             * @returns {cc.action.ScaleActionInitializer}
+             */
             ScaleAction.prototype.getInitializer = function () {
                 var init = _super.prototype.getInitializer.call(this);
                 if (this._fromValuesSet) {
@@ -8954,6 +9157,12 @@ var cc;
                     this.__createFromInitializer(data);
                 }
             }
+            /**
+             * Initialize the action with an initializer object.
+             * @method cc.action.SequenceAction#__createFromInitializer
+             * @param data {cc.action.SequenceActionInitializer}
+             * @private
+             */
             SequenceAction.prototype.__createFromInitializer = function (data) {
                 _super.prototype.__createFromInitializer.call(this, data);
                 if (typeof data.sequential !== "undefined") {
@@ -8972,21 +9181,44 @@ var cc;
                     }
                 };
             };
+            /**
+             * Set onRepeat callback. This method is overridden since repeating sequences must have a custom onRepeat
+             * implementation.
+             * @method cc.action.SequenceAction#onRepeat
+             * @param callback {cc.action.ActionCallbackRepeatCallback}
+             * @returns {cc.action.SequenceAction}
+             */
             SequenceAction.prototype.onRepeat = function (callback) {
                 this._prevOnRepeat = callback;
                 return this;
             };
+            /**
+             * When a Sequence repeats, it must recursively clear the status of all its children Actions.
+             * @method cc.action.SequenceAction#recursivelySetCreatedStatus
+             * @param target
+             */
             SequenceAction.prototype.recursivelySetCreatedStatus = function (target) {
                 for (var i = 0; i < this._actions.length; i++) {
                     this._actions[i].__recursivelySetCreatedStatus(target);
                 }
             };
+            /**
+             * Get the last Action on the sequence.
+             * @method cc.action.SequenceAction#getLastAction
+             * @returns {cc.action.Action}
+             */
             SequenceAction.prototype.getLastAction = function () {
                 if (this._actions.length === 0) {
                     return null;
                 }
                 return this._actions[this._actions.length - 1];
             };
+            /**
+             * Recursive set created status implementation.
+             * @method cc.action.SequenceAction#__recursivelySetCreatedStatus
+             * @param target {object}
+             * @private
+             */
             SequenceAction.prototype.__recursivelySetCreatedStatus = function (target) {
                 for (var i = 0; i < this._actions.length; i++) {
                     this._actions[i].__recursivelySetCreatedStatus(target);
@@ -9154,6 +9386,11 @@ var cc;
             SequenceAction.prototype.setSequential = function (b) {
                 this._sequential = b;
             };
+            /**
+             * Serialize the action current definition.
+             * @method cc.action.SequenceAction#getInitializer
+             * @returns {cc.action.SequenceActionInitializer}
+             */
             SequenceAction.prototype.getInitializer = function () {
                 var init = _super.prototype.getInitializer.call(this);
                 init.type = "SequenceAction";
@@ -9230,6 +9467,12 @@ var cc;
                     this.__createFromInitializer(data);
                 }
             }
+            /**
+             * Initialize the action with an initializer object.
+             * @method cc.action.TintAction#__createFromInitializer
+             * @param data {cc.action.TintActionInitializer}
+             * @private
+             */
             TintAction.prototype.__createFromInitializer = function (initializer) {
                 _super.prototype.__createFromInitializer.call(this, initializer);
             };
@@ -9328,6 +9571,11 @@ var cc;
                 this.__genericCloneProperties(copy);
                 return copy;
             };
+            /**
+             * Serialize the action current definition.
+             * @method cc.action.TintAction#getInitializer
+             * @returns {cc.action.TintActionInitializer}
+             */
             TintAction.prototype.getInitializer = function () {
                 var init = _super.prototype.getInitializer.call(this);
                 if (this._fromValuesSet) {
@@ -9418,6 +9666,11 @@ var cc;
                     }
                 }
             }
+            /**
+             * Initialize the action with an initializer Object
+             * @method cc.action.AnimateAction#__createFromInitializer
+             * @param data {cc.action.AnimateActionInitializer}
+             */
             AnimateAction.prototype.__createFromInitializer = function (data) {
                 _super.prototype.__createFromInitializer.call(this, data);
                 this.setAnimation(cc.plugin.asset.AssetManager.getAnimationById(data.animationName));
@@ -9520,6 +9773,11 @@ var cc;
                     node.setSpriteFrame(this._originalSpriteFrame);
                 }
             };
+            /**
+             * Get current action state initializer object.
+             * @method cc.action.AnimateAction#getInitializer
+             * @returns {cc.action.AnimateActionInitializer}
+             */
             AnimateAction.prototype.getInitializer = function () {
                 var init = _super.prototype.getInitializer.call(this);
                 init.type = "AnimateAction";
@@ -9640,6 +9898,12 @@ var cc;
                     this.__createFromInitializer(data);
                 }
             }
+            /**
+             * Initialize the action with an initializer object.
+             * @method cc.action.PathAction#__createFromInitializer
+             * @param data {cc.action.PathActionInitializer}
+             * @private
+             */
             PathAction.prototype.__createFromInitializer = function (data) {
                 _super.prototype.__createFromInitializer.call(this, data);
                 // BUGBUG initializer must have serializable data.
@@ -9681,6 +9945,18 @@ var cc;
                 }
                 return __PathActionUpdateValue;
             };
+            /**
+             * Calculate a tangential angle based on the current path position.
+             * It the node is a sprite, it will also flip the node if necessary based on the property:
+             * _tangentialRotationFullAngle and _spriteOrientationLR
+             *
+             * @method cc.action.PathAction#__getTangentialAngle
+             * @param node {cc.node.Node|cc.node.Sprite}
+             * @param lefttoright {boolean}
+             * @param angle {number}
+             * @returns {number}
+             * @private
+             */
             PathAction.prototype.__getTangentialAngle = function (node, lefttoright, angle) {
                 if (!this._tangentialRotationFullAngle) {
                     if (this._spriteOrientationLR) {
@@ -9704,6 +9980,11 @@ var cc;
                 }
                 return angle * 180 / Math.PI;
             };
+            /**
+             * Restart the action.
+             * @method cc.action.PathAction#restart
+             * @returns {cc.action.PathAction}
+             */
             PathAction.prototype.restart = function () {
                 _super.prototype.restart.call(this);
                 this._pathAdjusted = false;
@@ -9814,6 +10095,11 @@ var cc;
                 this._spriteOrientationLR = v;
                 return this;
             };
+            /**
+             * Serialize the action current definition.
+             * @method cc.action.PathAction#getInitializer
+             * @returns {cc.action.PathActionInitializer}
+             */
             PathAction.prototype.getInitializer = function () {
                 var init = _super.prototype.getInitializer.call(this);
                 init.type = "PathAction";
@@ -9895,6 +10181,12 @@ var cc;
                     this.__createFromInitializer(data);
                 }
             }
+            /**
+             * Initialize the action with an initializer object.
+             * @method cc.action.JumpAction#__createFromInitializer
+             * @param data {cc.action.JumpActionInitializer}
+             * @private
+             */
             JumpAction.prototype.__createFromInitializer = function (data) {
                 _super.prototype.__createFromInitializer.call(this, data);
                 if (typeof data !== "undefined") {
@@ -9961,6 +10253,11 @@ var cc;
                 this.__genericCloneProperties(copy);
                 return copy;
             };
+            /**
+             * Serialize the action current definition.
+             * @method cc.action.JumpAction#getInitializer
+             * @returns {cc.action.JumpActionInitializer}
+             */
             JumpAction.prototype.getInitializer = function () {
                 var init = _super.prototype.getInitializer.call(this);
                 init.type = "JumpAction";
@@ -9995,8 +10292,8 @@ var cc;
          * @classdesc
          *
          * This class is the information an <code>ActionManager</code> manages and keeps track of an
-         * <code>Action</code> and a <code>Node</code>. It is an internal class for ActionManagers.
-         *
+         * <code>Action</code> and a <code>Target</code>. It is an internal class for ActionManagers
+         * <p>
          * You will have no direct interaction with this class.
          *
          */
@@ -10058,30 +10355,16 @@ var cc;
          * The ActionManager has a virtual timeline fed by Directors or Scenes.
          * On average, no direct interaction with this class will happen.
          * <br>
-         * This class also offers a new API interface for adding actions to a Node. For example:
-         *
-         * <pre>
-         * am.startChainingActionsForNode(n0).
-         *        actionSequence().
-         *            setRepeatForever().
-         *            actionRotate().
-         *                to(360).
-         *                setRelative(true).
-         *                setDuration(1000).
-         *            actionSequence().
-         *                actionScale().
-         *                    to({ x: .5, y: .5 }).
-         *                    setRelative(true).
-         *                    setDuration(1500).
-         *                actionRotate().
-         *                    to(0).
-         *                    setRelative(true).
-         *                    setDuration(1500).
-         *            endSequence().
-         * </pre>
-         *
+         * <p>
+         *     ActionManager instances have a scheduler implementation as an Action of type: SchedulerQueue
          */
         var ActionManager = (function () {
+            /**
+             * Create a new ActionManager instance object.
+             * The developer will surely never interact directly with this object.
+             * The why to work with it is by calling Node Action/Scheduler methods.
+             * @member cc.action.ActionManager#constructor
+             */
             function ActionManager() {
                 /**
                  * Collection of pairs of Node-Action to execute.
@@ -10090,7 +10373,25 @@ var cc;
                  * @private
                  */
                 this._actionInfos = [];
+                /**
+                 * In V4 a scheduler is an Action, integrated in the ActionManager.
+                 * This is the SchedulerQueue implementation.
+                 * @member cc.action.ActionManager#_scheduler
+                 * @type {cc.action.SchedulerQueue}
+                 * @private
+                 */
+                this._scheduler = null;
+                this._scheduler = new __action.SchedulerQueue();
+                this.scheduleActionForNode(null, this._scheduler);
             }
+            /**
+             * Get the Scheduler instance.
+             * @member cc.action.ActionManager#getScheduler
+             * @returns {cc.action.SchedulerQueue}
+             */
+            ActionManager.prototype.getScheduler = function () {
+                return this._scheduler;
+            };
             /**
              * Associate a target with an action.
              * This method is useful when you pretend to reuse predefined behavior objects.
@@ -10120,6 +10421,11 @@ var cc;
                 }
                 return this;
             };
+            /**
+             * Stop the Action objects associated with a target object.
+             * @param target
+             * @returns {cc.action.ActionManager}
+             */
             ActionManager.prototype.stopActionsForNode = function (target) {
                 for (var i = 0; i < this._actionInfos.length; i++) {
                     if (this._actionInfos[i]._target === target) {
@@ -10127,17 +10433,6 @@ var cc;
                     }
                 }
                 return this;
-            };
-            /**
-             * Start a chaining actions for a Node.
-             * @method cc.action.ActionManager#startChainingActionsForNode
-             * @param target {cc.node.Node} normally a Node, but could be any other object.
-             * @returns {cc.action.ActionInfo}
-             */
-            ActionManager.prototype.startChainingActionsForNode = function (target) {
-                var ai = new ActionInfo(this, target);
-                this._actionInfos.push(ai);
-                return ai;
             };
             /**
              * Helper method to build a new ActionInfo with basic information.
@@ -10206,19 +10501,30 @@ var cc;
                 return this._actionInfos.length;
             };
             /**
-             * Get the number of scheduled actions (in any state).
-             * @method cc.action.ActionManager#getNumActionsForNode
-             * @param node {cc.node.Node} Node to check for actions.
-             * @returns {number} number of actions for the Node.
+             * Get the number of scheduled actions (in any state) for a target.
+             * @method cc.action.ActionManager#getNumActionsForTarget
+             * @param target {object} target to check for actions.
+             * @returns {number} number of actions for the target.
              */
-            ActionManager.prototype.getNumActionsForNode = function (node) {
+            ActionManager.prototype.getNumActionsForTarget = function (target) {
                 var count = 0;
                 for (var i = 0; i < this._actionInfos.length; i++) {
-                    if (this._actionInfos[i]._target === node) {
+                    if (this._actionInfos[i]._target === target) {
                         count++;
                     }
                 }
                 return count;
+            };
+            /**
+             * Get the number of scheduled actions (in any state).
+             * @method cc.action.ActionManager#getNumActionsForNode
+             * @param node {object} target to check for actions.
+             * @returns {number} number of actions for the Node.
+             *
+             * @deprecated use getNumActionsForTarget instead.
+             */
+            ActionManager.prototype.getNumActionsForNode = function (node) {
+                return this.getNumActionsForTarget(node);
             };
             return ActionManager;
         })();
@@ -10479,15 +10785,39 @@ var cc;
                 this._status = 2 /* RUNNING */;
                 this._firstExecution = false;
             }
+            /**
+             * SchedulerQueue repeats forever by default.
+             * @method cc.action.SchedulerAction#setRepeatForever
+             * @returns {cc.action.SchedulerQueue}
+             */
             SchedulerQueue.prototype.setRepeatForever = function () {
                 return this;
             };
+            /**
+             * SchedulerQueue repeats forever by default.
+             * @method cc.action.SchedulerAction#setRepeatTimes
+             * @param n {number}
+             * @returns {cc.action.SchedulerQueue}
+             */
             SchedulerQueue.prototype.setRepeatTimes = function (n) {
                 return this;
             };
+            /**
+             * SchedulerQueue have 0 duration.
+             * @method cc.action.SchedulerAction#setDuration
+             * @param d {number}
+             * @returns {cc.action.SchedulerQueue}
+             */
             SchedulerQueue.prototype.setDuration = function (d) {
                 return this;
             };
+            /**
+             * SchedulerQueue can't have time info redefined.
+             * @method cc.action.SchedulerAction#timeInfo
+             * @param delay {number}
+             * @param duration {number}
+             * @returns {cc.action.SchedulerQueue}
+             */
             SchedulerQueue.prototype.timeInfo = function (delay, duration) {
                 return this;
             };
@@ -10729,6 +11059,14 @@ var cc;
 (function (cc) {
     var action;
     (function (_action) {
+        /**
+         * This function parses an Action based on an initializer object.
+         * Initializer objects are just JSON objects which could got from a call to action.getInitializer().
+         * @name ParseAction
+         * @memberOf cc.action
+         * @param actionDef {cc.action.ActionInitializer}
+         * @returns {cc.action.Action}
+         */
         function ParseAction(actionDef) {
             if (cc.action[actionDef.type] !== "undefined") {
                 var action = new cc.action[actionDef.type]();
@@ -10740,14 +11078,96 @@ var cc;
             return null;
         }
         _action.ParseAction = ParseAction;
+        /**
+         * @class ActionChainContext
+         * @classdesc
+         *
+         * An ActionChainContext is an object whose only purpose is offer a chainable Action construction API.
+         * It keeps track of the last created action and its type. It is a fachade to the last created action for a Node
+         * so that calling the chain context methods will forward calls to such Action.
+         * It is expected to execute in the context of a cc.node.Node object only.
+         * For example, this object allows for an api call like this:
+         *
+         * <code>
+         *     actionSequence().
+         *        setRepeatForever().
+         *        onEnd( function() {
+         *            console.log("end");
+         *        }).
+         *        actionRotate().
+         *            to(180).
+         *            setRelative(true).
+         *            setDuration(1).
+         *        actionScale().
+         *            to( {x:0, y:1 }).
+         *            setRelative(true).
+         *            setDuration(1.5).
+         *        actionScale().
+         *            to( {x:1, y:1}).
+         *            setRelative(true).
+         *            setDuration(1.5).
+         *        actionTint().
+         *            to( {r: -.5, g: -.5, b: -.5 } ).
+         *            setRelative(true).
+         *            setDuration( 2).
+         *    endSequence();
+         * </code>
+         *
+         */
         var ActionChainContext = (function () {
+            /**
+             * Node for which the chain actions are being performed.
+             * @name _target
+             * @memberof cc.action.ActionChainContext
+             * @type {cc.node.Node}
+             */
+            /**
+             * Create a new ActionChainContext object instance.
+             * @method cc.action.ActionChainContext#constructor
+             * @constructor
+             * @param _target {cc.node.Node}
+             */
             function ActionChainContext(_target) {
                 this._target = _target;
+                /**
+                 * When a call to .then() is made, this property keeps track of the previously built action.
+                 * @member cc.action.ActionChainContext#_chainAction
+                 * @type {cc.action.Action}
+                 * @private
+                 */
                 this._chainAction = null;
+                /**
+                 * The current action the chain context methods will forward calls to.
+                 * @member cc.action.ActionChainContext#_currentAction
+                 * @type {cc.action.Action}
+                 * @private
+                 */
                 this._currentAction = null;
+                /**
+                 * Stack which tracks how many actionSequence calls have been done.
+                 * @member cc.action.ActionChainContext#_sequenceStack
+                 * @type {Array<cc.action.SequenceAction>}
+                 * @private
+                 */
                 this._sequenceStack = [];
+                /**
+                 * Last SequenceAction tracked.
+                 * @member cc.action.ActionChainContext#_currentSequence
+                 * @type {cc.action.SequenceAction}
+                 * @private
+                 */
                 this._currentSequence = null;
             }
+            /**
+             * Create an Action from a constructor function.
+             * If a new SequenceAction is to be build, it will be pushed to the SequenceAction stack.
+             * The resulting action will be set as the current chain context Action so that all context calls will be forwarded
+             * to this action.
+             * @method cc.action.ActionChainContext#__action
+             * @param ctor {object} a constructor function
+             * @returns {cc.action.ActionChainContext}
+             * @private
+             */
             ActionChainContext.prototype.__action = function (ctor) {
                 this.action(new ctor());
                 if (ctor === cc.action.SequenceAction) {
@@ -10756,6 +11176,12 @@ var cc;
                 }
                 return this;
             };
+            /**
+             * Chain a complete action or an action built form an ActionInitializer object.
+             * @method cc.action.ActionChainContext#action
+             * @param _currentAction {cc.action.Action|cc.action.ActionInitializer}
+             * @returns {cc.action.ActionChainContext}
+             */
             ActionChainContext.prototype.action = function (_currentAction) {
                 var currentAction;
                 if (_currentAction instanceof cc.action.Action) {
@@ -10778,30 +11204,77 @@ var cc;
                 currentAction.__updateDuration();
                 return this;
             };
+            /**
+             * Start chaining for a new PathAction.
+             * @method cc.action.ActionChainContext#actionPath
+             * @returns {cc.action.ActionChainContext}
+             */
             ActionChainContext.prototype.actionPath = function () {
                 return this.__action(cc.action.PathAction);
             };
+            /**
+             * Start chaining for a new MoveAction.
+             * @method cc.action.ActionChainContext#actionMove
+             * @returns {cc.action.ActionChainContext}
+             */
             ActionChainContext.prototype.actionMove = function () {
                 return this.__action(cc.action.MoveAction);
             };
+            /**
+             * Start chaining for a new RotateAction.
+             * @method cc.action.ActionChainContext#actionRotate
+             * @returns {cc.action.ActionChainContext}
+             */
             ActionChainContext.prototype.actionRotate = function () {
                 return this.__action(cc.action.RotateAction);
             };
+            /**
+             * Start chaining for a new PropertyAction.
+             * @method cc.action.ActionChainContext#actionProperty
+             * @returns {cc.action.ActionChainContext}
+             */
             ActionChainContext.prototype.actionProperty = function () {
                 return this.__action(cc.action.PropertyAction);
             };
+            /**
+             * Start chaining for a new AlphaAction.
+             * @method cc.action.ActionChainContext#actionAlpha
+             * @returns {cc.action.ActionChainContext}
+             */
             ActionChainContext.prototype.actionAlpha = function () {
                 return this.__action(cc.action.AlphaAction);
             };
+            /**
+             * Start chaining for a new TintAction.
+             * @method cc.action.ActionChainContext#actionTint
+             * @returns {cc.action.ActionChainContext}
+             */
             ActionChainContext.prototype.actionTint = function () {
                 return this.__action(cc.action.TintAction);
             };
+            /**
+             * Start chaining for a new ScaleAction.
+             * @method cc.action.ActionChainContext#actionScale
+             * @returns {cc.action.ActionChainContext}
+             */
             ActionChainContext.prototype.actionScale = function () {
                 return this.__action(cc.action.ScaleAction);
             };
+            /**
+             * Start chaining for a new SequenceAction.
+             * @method cc.action.ActionChainContext#actionSequence
+             * @returns {cc.action.ActionChainContext}
+             */
             ActionChainContext.prototype.actionSequence = function () {
                 return this.__action(cc.action.SequenceAction);
             };
+            /**
+             * End a Sequence Action context.
+             * This will pop the latest Sequence from the stack.
+             * If the stack gets empty, actions will be added in the context of the Target node, and not the sequence.
+             * @method cc.action.ActionChainContext#endSequence
+             * @returns {cc.action.ActionChainContext}
+             */
             ActionChainContext.prototype.endSequence = function () {
                 if (this._sequenceStack.length) {
                     this._sequenceStack.pop();
@@ -10815,92 +11288,190 @@ var cc;
                 }
                 return this;
             };
+            /**
+             * Set action 'from' value for the current action.
+             * @method cc.action.ActionChainContext#from
+             * @param obj {object} the value to set for 'from' action property.
+             * @returns {cc.action.ActionChainContext}
+             */
             ActionChainContext.prototype.from = function (obj) {
                 if (this._currentAction) {
                     this._currentAction.from(obj);
                 }
                 return this;
             };
+            /**
+             * Set action 'to' value for the current action.
+             * @method cc.action.ActionChainContext#from
+             * @param obj {object} the value to set for 'from' action property.
+             * @returns {cc.action.ActionChainContext}
+             */
             ActionChainContext.prototype.to = function (obj) {
                 if (this._currentAction) {
                     this._currentAction.to(obj);
                 }
                 return this;
             };
+            /**
+             * Set action interpolator value for the current action.
+             * @method cc.action.ActionChainContext#setInterpolator
+             * @param i {cc.action.TimeInterpolator} a interpolator (easing function).
+             * @returns {cc.action.ActionChainContext}
+             */
             ActionChainContext.prototype.setInterpolator = function (i) {
                 if (this._currentAction) {
                     this._currentAction.setInterpolator(i);
                 }
                 return this;
             };
+            /**
+             * Set action as relative.
+             * @method cc.action.ActionChainContext#setRelative
+             * @param b {boolean}
+             * @returns {cc.action.ActionChainContext}
+             */
             ActionChainContext.prototype.setRelative = function (b) {
                 if (this._currentAction) {
                     this._currentAction.setRelative(b);
                 }
                 return this;
             };
+            /**
+             * Set action duration.
+             * @method cc.action.ActionChainContext#setDuration
+             * @param d {number}
+             * @returns {cc.action.ActionChainContext}
+             */
             ActionChainContext.prototype.setDuration = function (d) {
                 if (this._currentAction) {
                     this._currentAction.setDuration(d);
                 }
                 return this;
             };
+            /**
+             * Set action repetition forever.
+             * @method cc.action.ActionChainContext#setRepeatForever
+             * @param obj {cc.action.RepeatTimesOptions=} some repetition attributes.
+             * @returns {cc.action.ActionChainContext}
+             */
             ActionChainContext.prototype.setRepeatForever = function (obj) {
                 if (this._currentAction) {
                     this._currentAction.setRepeatForever(obj);
                 }
                 return this;
             };
+            /**
+             * Set action repetition times.
+             * @method cc.action.ActionChainContext#setRepeatTimes
+             * @param n {number} repetition count
+             * @returns {cc.action.ActionChainContext}
+             */
             ActionChainContext.prototype.setRepeatTimes = function (n) {
                 if (this._currentAction) {
                     this._currentAction.setRepeatTimes(n);
                 }
                 return this;
             };
+            /**
+             * Chain two actions. After a call to then, any of the actionXXX methods should be called. The newly
+             * created action will be chained with the current one. Chain means that will start when the preivous ends.
+             * @method cc.action.ActionChainContext#then
+             * @returns {cc.action.ActionChainContext}
+             */
             ActionChainContext.prototype.then = function () {
                 this._chainAction = this._currentAction;
                 return this;
             };
+            /**
+             * Set duration and interpolator into in one call.
+             * @method cc.action.ActionChainContext#timeInfo
+             * @param delay {number} delay before application
+             * @param duration {number} action duration in time units.
+             * @param interpolator {cc.action.TimeInterpolator=} optional interpolator
+             * @returns {cc.action.ActionChainContext}
+             */
             ActionChainContext.prototype.timeInfo = function (delay, duration, interpolator) {
                 this._currentAction.timeInfo(delay, duration, interpolator);
                 return this;
             };
+            /**
+             * Set action onEnd callback.
+             * @method cc.action.ActionChainContext#onEnd
+             * @param f {cc.action.ActionCallbackStartOrEndOrPauseOrResumeCallback}
+             * @returns {cc.action.ActionChainContext}
+             */
             ActionChainContext.prototype.onEnd = function (f) {
                 if (this._currentAction) {
                     this._currentAction.onEnd(f);
                 }
                 return this;
             };
+            /**
+             * Set action onStart callback.
+             * @method cc.action.ActionChainContext#onStart
+             * @param f {cc.action.ActionCallbackStartOrEndOrPauseOrResumeCallback}
+             * @returns {cc.action.ActionChainContext}
+             */
             ActionChainContext.prototype.onStart = function (f) {
                 if (this._currentAction) {
                     this._currentAction.onStart(f);
                 }
                 return this;
             };
+            /**
+             * Set action onRepeat callback.
+             * @method cc.action.ActionChainContext#onRepeat
+             * @param f {cc.action.ActionCallbackRepeatCallback}
+             * @returns {cc.action.ActionChainContext}
+             */
             ActionChainContext.prototype.onRepeat = function (f) {
                 if (this._currentAction) {
                     this._currentAction.onRepeat(f);
                 }
                 return this;
             };
+            /**
+             * Set action onPause callback.
+             * @method cc.action.ActionChainContext#onPause
+             * @param f {cc.action.ActionCallbackStartOrEndOrPauseOrResumeCallback}
+             * @returns {cc.action.ActionChainContext}
+             */
             ActionChainContext.prototype.onPause = function (f) {
                 if (this._currentAction) {
                     this._currentAction.onPause(f);
                 }
                 return this;
             };
+            /**
+             * Set action onResume callback.
+             * @method cc.action.ActionChainContext#onResume
+             * @param f {cc.action.ActionCallbackStartOrEndOrPauseOrResumeCallback}
+             * @returns {cc.action.ActionChainContext}
+             */
             ActionChainContext.prototype.onResume = function (f) {
                 if (this._currentAction) {
                     this._currentAction.onResume(f);
                 }
                 return this;
             };
+            /**
+             * Set action onApply callback.
+             * @method cc.action.ActionChainContext#onApply
+             * @param f {cc.action.ActionCallbackApplicationCallback}
+             * @returns {cc.action.ActionChainContext}
+             */
             ActionChainContext.prototype.onApply = function (f) {
                 if (this._currentAction) {
                     this._currentAction.onApply(f);
                 }
                 return this;
             };
+            /**
+             * If the current action is a sequence, set the Sequence as sequential or spawn.
+             * @method cc.action.ActionChainContext#setSequential
+             * @param b {boolean}
+             * @returns {cc.action.ActionChainContext}
+             */
             ActionChainContext.prototype.setSequential = function (b) {
                 if (this._currentAction.setSequential) {
                     this._currentAction.setSequential(b);
@@ -11056,7 +11627,6 @@ var cc;
         "use strict";
         var Node = cc.node.Node;
         var ActionManager = cc.action.ActionManager;
-        var SchedulerQueue = cc.action.SchedulerQueue;
         /**
          * @class cc.node.Scene
          * @extends cc.node.Node
@@ -11149,8 +11719,7 @@ var cc;
                 this._scheduler = null;
                 this._sceneGraphPriorityTree = null;
                 this._priorityTree = null;
-                this._scheduler = new SchedulerQueue();
-                this._actionManager.scheduleActionForNode(null, this._scheduler);
+                this._scheduler = this._actionManager.getScheduler();
                 this._sceneGraphPriorityTree = new cc.input.SceneGraphInputTreeNode(this);
                 this._priorityTree = [];
                 this.setGlobalAlpha(true);
@@ -11299,6 +11868,8 @@ var cc;
             };
             /**
              * Notifiy event registered callback.
+             *
+             *
              * @method cc.node.Scene#callOnEnter
              */
             Scene.prototype.callOnEnter = function () {
@@ -11312,11 +11883,6 @@ var cc;
                 }
                 this.resetScene();
             };
-            //__setTransform():Node {
-            //    this.__setLocalTransform();
-            //    this.__setWorldTransform();
-            //    return this;
-            //}
             /**
              * Notify event registered callback.
              * @method cc.node.Scene#callOnExit
@@ -11394,9 +11960,6 @@ var cc;
                 this._actionManager.stopNodeActionByTag(node, tag);
                 return this;
             };
-            Scene.prototype.startChainingActionsForNode = function (node) {
-                return this._actionManager.startChainingActionsForNode(node);
-            };
             Scene.prototype.stopActionsForNode = function (node) {
                 this._actionManager.stopActionsForNode(node);
             };
@@ -11405,11 +11968,6 @@ var cc;
             };
             Scene.prototype.getScene = function () {
                 return this;
-            };
-            Scene.prototype.__setLocalTransform = function () {
-                _super.prototype.__setLocalTransform.call(this);
-                //this._modelViewMatrix[4]*= -1;
-                //this._modelViewMatrix[5]+= this._contentSize.height;
             };
             /////////////// SCHEDULER METHODS BEGIN ////////////////
             Scene.prototype.scheduleTask = function (task) {
@@ -11574,7 +12132,7 @@ var cc;
          * <li>Every Director present in a Document, will share a common Texture and Image cache for better resource management.
          *
          * <li>A Director object runs Scenes. The process of switching scenes is handled using a <code>Transition</code> object.
-         * <li>The preferred way of buiding scenes is by calling <code>director.createScene() -> Scene</code>
+         * <li>The preferred way of building scenes is by calling <code>director.createScene() -> Scene</code>
          *
          * @see{cc.node.Scene}
          * @see{cc.node.Transition}
@@ -11660,7 +12218,9 @@ var cc;
                  * @private
                  */
                 this._inputManager = null;
+                this._scheduler = null;
                 this._scenesActionManager = new ActionManager();
+                this._scheduler = this._scenesActionManager.getScheduler();
                 this._inputManager = new cc.input.InputManager();
                 // BUGBUG deprecated
                 cc.director = this;
@@ -11801,9 +12361,9 @@ var cc;
                 if (typeof transition !== "undefined") {
                     this._exitingScene = this._currentScene;
                     transition.initialize(scene, this._currentScene).onDirectorTransitionEnd(function (tr) {
-                        if (_this._exitingScene) {
-                            _this.__sceneExitedDirector(_this._exitingScene);
-                        }
+                        //if ( this._exitingScene ) {
+                        //    this.__sceneExitedDirector(this._exitingScene);
+                        //}
                         _this._exitingScene = null;
                     });
                 }
@@ -11993,6 +12553,51 @@ var cc;
              */
             Director.prototype.getWinSize = function () {
                 return this._contentSize.clone();
+            };
+            Director.prototype.scheduleTask = function (task) {
+                this._scheduler.scheduleTask(task);
+            };
+            /**
+             * Schedule a task for the node.
+             * This node will be passed as target to the specified callback function.
+             * If already exist a task in the scheduler for the same pair of node and callback, the task will be updated
+             * with the new data.
+             * @method cc.node.Node#schedule
+             * @param callback_fn {cc.action.SchedulerTaskCallback} callback to invoke
+             * @param interval {number} repeat interval time. the task will be fired every this amount of milliseconds.
+             * @param repeat {number=} number of repetitions. if not set, infinite will be used.
+             * @param delay {number=} wait this millis before firing the task.
+             */
+            Director.prototype.schedule = function (callback_fn, interval, repeat, delay) {
+                var task = cc.action.SchedulerQueue.createSchedulerTask(this, callback_fn, interval, repeat, delay);
+                this._scheduler.scheduleTask(task);
+            };
+            /**
+             * Schedule a single shot task. Will fired only once.
+             * @method cc.node.Node#scheduleOnce
+             * @param callback_fn {cc.action.SchedulerTaskCallback} scheduler callback.
+             * @param delay {number} milliseconds to wait before firing the task.
+             * @returns {cc.node.Node}
+             */
+            Director.prototype.scheduleOnce = function (callback_fn, delay) {
+                this.schedule(callback_fn, 0.0, 0, delay);
+            };
+            /**
+             * Unschedule a task for the node.
+             * @method cc.node.Node#unschedule
+             * @param callback_fn {cc.action.SchedulerTaskCallback} callback to unschedule.
+             */
+            Director.prototype.unschedule = function (callback_fn) {
+                if (!callback_fn)
+                    return;
+                this._scheduler.unscheduleCallbackForTarget(this, callback_fn);
+            };
+            /**
+             * Unschedule all tasks for the node.
+             * @method cc.node.Node#unscheduleAllCallbacks
+             */
+            Director.prototype.unscheduleAllCallbacks = function (target) {
+                this._scheduler.unscheduleAllCallbacks(target ? target : this);
             };
             return Director;
         })(Node);
@@ -12194,7 +12799,7 @@ var cc;
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
             };
             Texture2D.prototype.generateMipmap = function () {
-                if (!this._webglState) {
+                if (!this._webglState || this._hasMipmaps) {
                     return;
                 }
                 var gl = this._webglState._gl;
@@ -12469,7 +13074,6 @@ var cc;
                  * @param sprite {cc.node.Sprite}
                  */
                 SpriteFrame.prototype.draw = function (ctx, w, h) {
-                    var rotated = this._rotated;
                     if (ctx.type === "webgl") {
                         if (!this._texture.isWebGLEnabled()) {
                             cc.Debug.warn(cc.locale.SPRITEFRAME_WARN_TEXTURE_NOT_WEBGL_INITIALIZED, "SpriteFrame.draw");
@@ -12806,6 +13410,7 @@ var cc;
             /**
              * @method cc.node.Sprite#constructor
              * @param ddata {cc.node.SpriteInitializer}
+             * @param rect {cc.math.Rectangle}
              */
             function Sprite(ddata, rect) {
                 _super.call(this);
@@ -12925,10 +13530,6 @@ var cc;
                 if (this._spriteFrame) {
                     ctx.globalAlpha = this._frameAlpha;
                     ctx.setTintColor(this._color);
-                    //if ( ctx.type==="canvas" && cc.render.RENDER_ORIGIN==="bottom" ) {
-                    //    ctx.translate( 0, this._contentSize.height );
-                    //    ctx.scale( 1, -1 );
-                    //}
                     this._spriteFrame.draw(ctx, this.width, this.height);
                 }
             };
@@ -13100,8 +13701,8 @@ var cc;
                     return;
                 }
                 if (this._spriteFrame) {
-                    ctx.globalAlpha = this._frameAlpha;
-                    ctx.setTintColor(this._color);
+                    //ctx.globalAlpha = this._frameAlpha;
+                    //ctx.setTintColor(this._color);
                     if (ctx.type === "webgl") {
                         ctx.batchGeometryWithSpriteFast(this);
                     }
@@ -15418,20 +16019,13 @@ var cc;
                 function FastTextureShader(gl) {
                     _super.call(this, gl, {
                         vertexShader: "" + "precision lowp float; \n" + "attribute vec2 aPosition; \n" + "attribute vec4 aColor; \n" + "attribute vec2 aTexture; \n" + "attribute vec2 aAnchorPosition; \n" + "attribute float aRotation; \n" + "attribute vec2 aScale; \n" + "uniform mat4 uProjection; \n" + "varying vec2 vTextureCoord; \n" + "varying vec4 vAttrColor; \n" + "void main(void) { \n" + "vec2 v;\n" + "vec2 sv = aAnchorPosition * aScale; \n" + "float _rotation= aRotation * 0.017453292519943295;\n" + " v.x = sv.x * cos(_rotation) - sv.y * sin(_rotation); \n" + " v.y = sv.x * sin(_rotation) + sv.y * cos(_rotation); \n" + "gl_Position = uProjection * vec4( v + aPosition, 0.0, 1.0 );\n" + "vTextureCoord = aTexture;\n" + "vAttrColor = aColor;\n" + "}\n",
-                        fragmentShader: "" + "precision lowp float; \n" + "varying vec2 vTextureCoord; \n" + "uniform sampler2D uTextureSampler; \n" + "varying vec4 vAttrColor;\n" + "void main(void) { \n" + "  gl_FragColor = texture2D(uTextureSampler, vec2(vTextureCoord)) * vAttrColor; \n" + "}\n",
+                        fragmentShader: "" + "precision lowp float; \n" + "varying vec2 vTextureCoord; \n" + "uniform sampler2D uTextureSampler; \n" + "varying vec4 vAttrColor;\n" + "void main(void) { \n" + "  gl_FragColor = texture2D(uTextureSampler,vTextureCoord) * vAttrColor; \n" + "}\n",
                         attributes: ["aPosition", "aColor", "aTexture", "aAnchorPosition", "aRotation", "aScale"],
                         uniforms: {
                             "uProjection": {
                                 type: "m4v",
                                 value: [1.0, 0, 0, 0, 0, 1.0, 0, 0, 0, 0, 1.0, 0, 0, 0, 0, 1.0]
                             },
-                            //"uTransform": {
-                            //    type: "m4v",
-                            //    value: [1.0, 0, 0, 0,
-                            //            0, 1.0, 0, 0,
-                            //            0, 0, 1.0, 0,
-                            //            0, 0, 0, 1.0 ]
-                            //},
                             "uTextureSampler": {
                                 type: "t",
                                 value: null
@@ -15478,7 +16072,6 @@ var cc;
                     this._attributeScale = null;
                     this._uniformTextureSampler = this.findUniform("uTextureSampler");
                     this._uniformProjection = this.findUniform("uProjection");
-                    //this._uniformTransform = this.findUniform("uTransform");
                     this._attributePosition = this.findAttribute("aPosition");
                     this._attributeColor = this.findAttribute("aColor");
                     this._attributeTexture = this.findAttribute("aTexture");
@@ -15528,11 +16121,12 @@ var cc;
             })();
             var Buffer = (function () {
                 function Buffer(_gl, _type, initialValue, usage) {
+                    //this._usage= usage;
                     this._gl = _gl;
                     this._type = _type;
                     this._buffer = null;
                     this._prevValue = null;
-                    this._usage = usage;
+                    this._usage = _gl.STATIC_DRAW;
                     this._buffer = _gl.createBuffer();
                     if (initialValue) {
                         this._gl.bindBuffer(_type, this._buffer);
@@ -15547,15 +16141,15 @@ var cc;
                 Buffer.prototype.enableWithValue = function (v) {
                     this._gl.bindBuffer(this._type, this._buffer);
                     //if ( this._prevValue!==v ) {
-                    //    this._gl.bufferData( this._type, v, this._usage );
-                    this._gl.bufferSubData(this._type, 0, v);
+                    this._gl.bufferData(this._type, v, this._usage);
+                    //this._gl.bufferSubData( this._type, 0, v );
                     //this._prevValue= v;
                     //}
                 };
                 Buffer.prototype.forceEnableWithValue = function (v) {
                     this._gl.bindBuffer(this._type, this._buffer);
-                    //this._gl.bufferData( this._type, v, this._usage );
-                    this._gl.bufferSubData(this._type, 0, v);
+                    this._gl.bufferData(this._type, v, this._usage);
+                    //this._gl.bufferSubData( this._type, 0, v );
                 };
                 return Buffer;
             })();
@@ -16551,7 +17145,7 @@ var cc;
                  */
                 this._gl = null;
                 this._gl = glstate._gl;
-                this._dataArrayBuffer = new ArrayBuffer(GeometryBatcher.MAX_QUADS * 40);
+                this._dataArrayBuffer = new ArrayBuffer(GeometryBatcher.MAX_QUADS * 40 * 4);
                 this._dataBufferFloat = new Float32Array(this._dataArrayBuffer); // 40 is fastshader vertex size.
                 this._dataBufferByte = new Uint8Array(this._dataArrayBuffer);
                 this._dataBufferUint = new Uint32Array(this._dataArrayBuffer);
@@ -16700,9 +17294,11 @@ var cc;
                 // simply rebind the buffer, not modify its contents.
                 this._gl.bindBuffer(this._gl.ELEMENT_ARRAY_BUFFER, this._glIndexBuffer._buffer);
                 //this._glDataBuffer.forceEnableWithValue(this._dataBufferFloat);
-                this._glDataBuffer.enableWithValue(this._dataBufferFloat.subarray(0, this._dataBufferIndex));
+                this._glDataBuffer.forceEnableWithValue(this._dataBufferFloat.subarray(0, this._dataBufferIndex));
+                //this._glDataBuffer.enableWithValue(this._dataBufferFloat.subarray(0, this._dataBufferIndex));
                 shader.flushBuffersWithContent(rcs);
                 this._gl.drawElements(this._gl.TRIANGLES, this._indexBufferIndex, this._gl.UNSIGNED_SHORT, 0);
+                //this._gl.drawArrays(this._gl.TRIANGLE_STRIP, 0, 4);
                 // reset buffer data index.
                 this._dataBufferIndex = 0;
                 this._indexBufferIndex = 0;
@@ -16724,16 +17320,21 @@ var cc;
                 var db = this._dataBufferFloat;
                 var dbuint = this._dataBufferUint;
                 var dbi = this._dataBufferIndex;
-                var w0 = (sprite._contentSize.width) * (1 - sprite._transformationAnchor.x);
-                var w1 = (sprite._contentSize.width) * -sprite._transformationAnchor.x;
-                var h1 = sprite._contentSize.height * (1 - sprite._transformationAnchor.y);
-                var h0 = sprite._contentSize.height * -sprite._transformationAnchor.y;
+                //var w0 = (sprite._contentSize.width ) * (1-sprite._transformationAnchor.x);
+                //var w1 = (sprite._contentSize.width ) * -sprite._transformationAnchor.x;
+                //
+                //var h1 = sprite._contentSize.height * (1-sprite._transformationAnchor.y);
+                //var h0 = sprite._contentSize.height * -sprite._transformationAnchor.y;
                 dbuint[dbi + 2] = dbuint[dbi + 12] = dbuint[dbi + 22] = dbuint[dbi + 32] = cc;
                 db[dbi] = db[dbi + 10] = db[dbi + 20] = db[dbi + 30] = sprite.x;
                 db[dbi + 1] = db[dbi + 11] = db[dbi + 21] = db[dbi + 31] = sprite.y;
                 db[dbi + 7] = db[dbi + 17] = db[dbi + 27] = db[dbi + 37] = sprite.rotationAngle;
                 db[dbi + 8] = db[dbi + 18] = db[dbi + 28] = db[dbi + 38] = sprite.scaleX;
                 db[dbi + 9] = db[dbi + 19] = db[dbi + 29] = db[dbi + 39] = sprite.scaleY;
+                var w0 = sprite.width / 2.0;
+                var w1 = -w0;
+                var h1 = sprite.height / 2.0;
+                var h0 = -h1;
                 db[dbi + 3] = u0;
                 db[dbi + 4] = v0;
                 db[dbi + 5] = w0;
