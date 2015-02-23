@@ -15,5 +15,5 @@ npm install gulp-rename@^1.2.0
 npm install gulp-sass@^0.7.1
 npm install gulp-uglify@^0.3.1
 npm install gulp-uglifyjs@^0.4.2
-npm install uglifyjs@^2.3.6
+npm install uglify-js@^2.3.6
 chmod 755 cmd/cocosjs

@@ -5572,8 +5572,9 @@ var cc;
                     }
                 }
                 if (callback) {
-                    callback(e);
+                    return callback(e);
                 }
+                return false;
             };
             Node.prototype.getScreenPointInLocalSpace = function (p) {
                 var matrix = this.getInverseWorldModelViewMatrix();
@@ -11079,7 +11080,7 @@ var cc;
         }
         _action.ParseAction = ParseAction;
         /**
-         * @class ActionChainContext
+         * @class cc.action.ActionChainContext
          * @classdesc
          *
          * An ActionChainContext is an object whose only purpose is offer a chainable Action construction API.
@@ -11782,16 +11783,26 @@ var cc;
                 });
                 return this;
             };
-            Scene.prototype.findNodeAtScreenPoint = function (e) {
+            Scene.prototype.findNodeAtScreenPoint = function (p, callback) {
+                var pp = new cc.math.Vector();
+                pp.set(p.x, p.y);
                 for (var i = 0; i < this._priorityTree.length; i++) {
                     var node = this._priorityTree[i].node;
-                    e._localPoint.set(e._screenPoint.x, e._screenPoint.y);
-                    if (node.isScreenPointInNode(e._localPoint)) {
-                        return node;
+                    p.set(pp.x, pp.y);
+                    if (node.isScreenPointInNode(p)) {
+                        if (callback) {
+                            if (!callback(node)) {
+                                return node;
+                            }
+                        }
+                        else {
+                            return node;
+                        }
                     }
                 }
                 // now, for scene-graph priority.
-                return this._sceneGraphPriorityTree.findNodeAtScreenPoint(e);
+                p.set(pp.x, pp.y);
+                return this._sceneGraphPriorityTree.findNodeAtScreenPoint(p, callback);
             };
             /**
              * Increment scene's timeline.
@@ -18839,6 +18850,67 @@ var cc;
  */
 var cc;
 (function (cc) {
+    var render;
+    (function (render) {
+        var util;
+        (function (util) {
+            function getAlphaChannel(image) {
+                return getChannel(image, 3);
+            }
+            util.getAlphaChannel = getAlphaChannel;
+            function getRedChannel(image) {
+                return getChannel(image, 0);
+            }
+            util.getRedChannel = getRedChannel;
+            function getGreenChannel(image) {
+                return getChannel(image, 1);
+            }
+            util.getGreenChannel = getGreenChannel;
+            function getBlueChannel(image) {
+                return getChannel(image, 2);
+            }
+            util.getBlueChannel = getBlueChannel;
+            function getChannel(image, channel) {
+                var canvas = null;
+                var ctx = null;
+                if (image instanceof HTMLCanvasElement) {
+                    canvas = image;
+                    ctx = canvas.getContext("2d");
+                }
+                else {
+                    var canvas = createCanvas(image.width, image.height);
+                    ctx = canvas.getContext("2d");
+                    ctx.drawImage(image, 0, 0);
+                }
+                var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                return extractChannel(imageData.data, canvas.width, canvas.height, 3);
+            }
+            util.getChannel = getChannel;
+            function createCanvas(w, h) {
+                var canvas = document.createElement("canvas");
+                canvas.width = w;
+                canvas.height = h;
+                return canvas;
+            }
+            util.createCanvas = createCanvas;
+            function extractChannel(data, width, height, channel) {
+                var ret = typeof Uint8Array !== "undefined" ? new Uint8Array(width * height) : new Array(width * height);
+                var pos = 0;
+                for (var i = 0; i < data.length; i += 4) {
+                    ret[pos++] = data[i + channel];
+                }
+                return ret;
+            }
+            util.extractChannel = extractChannel;
+        })(util = render.util || (render.util = {}));
+    })(render = cc.render || (cc.render = {}));
+})(cc || (cc = {}));
+
+/**
+ * License: see license.txt file.
+ */
+var cc;
+(function (cc) {
     //export function extend(derived, base) {
     //    for (var p in base) {
     //        if (base.hasOwnProperty(p)) {
@@ -23334,6 +23406,7 @@ var cc;
  * License: see license.txt file.
  */
 /// <reference path="../node/Node.ts"/>
+/// <reference path="../math/Point.ts"/>
 /// <reference path="../locale/Locale.ts"/>
 /// <reference path="../util/Debug.ts"/>
 /// <reference path="./KeyboardInputManager.ts"/>
@@ -23383,6 +23456,11 @@ var cc;
                 enumerable: true,
                 configurable: true
             });
+            /**
+             * Get the event target.
+             * @method cc.input.InputManagerEvent#getCurrentTarget
+             * @returns {cc.node.Node}
+             */
             InputManagerEvent.prototype.getCurrentTarget = function () {
                 return this._target;
             };
@@ -23416,7 +23494,7 @@ var cc;
          * @class cc.input.InputManager
          * @classdesc
          *
-         * General input manger object.
+         * General input manager object.
          *
          */
         var InputManager = (function () {
@@ -23640,8 +23718,12 @@ var cc;
              * @param e {cc.input.MouseInputManager}
              * @returns {cc.node.Node}
              */
-            SceneGraphInputTreeNode.prototype.findNodeAtScreenPoint = function (e) {
-                return this.__findNodeAtScreenPoint(this, e);
+            SceneGraphInputTreeNode.prototype.findNodeAtScreenPoint = function (p, callback) {
+                var node = this.__findNodeAtScreenPoint(this, p, callback);
+                if (!node && callback) {
+                    callback(null);
+                }
+                return node;
             };
             /**
              * findNodeAtScreenPoint's implementation
@@ -23651,10 +23733,12 @@ var cc;
              * @returns {cc.node.Node}
              * @private
              */
-            SceneGraphInputTreeNode.prototype.__findNodeAtScreenPoint = function (inputNode, e) {
+            SceneGraphInputTreeNode.prototype.__findNodeAtScreenPoint = function (inputNode, p, callback) {
                 var i;
+                var pp = new cc.math.Vector();
+                pp.set(p.x, p.y);
                 for (i = 0; i < inputNode.children.length; i++) {
-                    var node = this.__findNodeAtScreenPoint(inputNode.children[i], e);
+                    var node = this.__findNodeAtScreenPoint(inputNode.children[i], p, callback);
                     if (node) {
                         return node;
                     }
@@ -23662,11 +23746,21 @@ var cc;
                 // all enabled nodes, must be added to the list of enabled elements.
                 if (inputNode.enabled) {
                     var node = inputNode.node;
-                    e.localPoint.set(e._screenPoint.x, e._screenPoint.y);
-                    if (node.isScreenPointInNode(e.localPoint)) {
-                        return node;
+                    p.set(pp.x, pp.y);
+                    if (node.isScreenPointInNode(p)) {
+                        //return node;
+                        if (callback) {
+                            if (!callback(node)) {
+                                return node;
+                            }
+                            p.set(pp.x, pp.y);
+                        }
+                        else {
+                            return node;
+                        }
                     }
                 }
+                p.set(pp.x, pp.y);
                 return null;
             };
             return SceneGraphInputTreeNode;
@@ -23789,12 +23883,9 @@ var cc;
             mie.initializeEventForTarget(node, event);
             return mie;
         }
-        //function createEventTouch( e:TouchEvent, event:string, node:Node ) : MouseInputManagerEvent {
-        //
-        //}
-        function routeEvent(e) {
+        function routeEvent(p, callback) {
             if (_scene) {
-                return _scene.findNodeAtScreenPoint(e);
+                return _scene.findNodeAtScreenPoint(p, callback);
             }
             return null;
         }
@@ -23814,20 +23905,27 @@ var cc;
         }
         function __inputDown(ee, event) {
             _isMouseDown = true;
-            var node = routeEvent(ee);
-            // new node is not previous one. complicated, this is a down, and a move usually comes first
-            // so what ? out to the previous one ?
-            if (_currentCaptureNode !== node && _currentCaptureNode) {
-                ee._type = event === "mousedown" ? "mouseout" : "touchend";
-                _currentCaptureNode.notifyEvent(ee);
-            }
-            ee._type = event;
-            _currentCaptureNode = node;
-            if (_currentCaptureNode) {
-                ee._target = _currentCaptureNode;
-                _currentCaptureNode.notifyEvent(ee);
-            }
-            _prevScreenPoint.set(ee.screenPoint.x, ee.screenPoint.y);
+            ee._localPoint.set(ee._screenPoint.x, ee._screenPoint.y);
+            routeEvent(ee._localPoint, function (node) {
+                var ret = false;
+                if (node) {
+                    ee._type = event;
+                    ee._target = node;
+                    ret = node.notifyEvent(ee);
+                }
+                if (_currentCaptureNode !== node && !ret) {
+                    if (_currentCaptureNode) {
+                        ee._type = event === "mousedown" ? "mouseout" : "touchend";
+                        ee._target = _currentCaptureNode;
+                        _currentCaptureNode.notifyEvent(ee);
+                    }
+                }
+                if (!ret) {
+                    _currentCaptureNode = node;
+                }
+                _prevScreenPoint.set(ee.screenPoint.x, ee.screenPoint.y);
+                return ret;
+            });
         }
         /**
          * Mouse up handler
@@ -23844,7 +23942,9 @@ var cc;
             __inputUp(createEvent(e, "mouseup", _currentCaptureNode), "mouseup");
         }
         function __inputUp(ee, event) {
-            var node = routeEvent(ee);
+            ee._localPoint.set(ee._screenPoint.x, ee._screenPoint.y);
+            var node = routeEvent(ee._localPoint);
+            var ret = false;
             if (_currentCaptureNode) {
                 // up in a different node
                 if (_currentCaptureNode !== node) {
@@ -23891,33 +23991,47 @@ var cc;
             __inputMove(createEvent(e, event, _currentCaptureNode), event);
         }
         function __inputMove(ee, event) {
+            if (_isMouseDown) {
+                _isDragging = true;
+                _isDraggingInCapture = true;
+            }
             // drag is sent to the captured node.
             if (!_isDragging) {
-                var node = routeEvent(ee);
-                // there's a new target node different to the previous one
-                if (node !== _currentCaptureNode) {
-                    // if there's a previous capture node notify mouse-out on it.
-                    if (_currentCaptureNode) {
-                        ee._type = event === "mousedrag" || event === "mousemove" ? "mouseout" : "touchout";
-                        _currentCaptureNode.notifyEvent(ee);
-                    }
-                    if (node !== null) {
-                        ee._type = event === "mousedrag" || event === "mousemove" ? "mouseover" : "touchover";
+                ee._localPoint.set(ee._screenPoint.x, ee._screenPoint.y);
+                routeEvent(ee._localPoint, function (node) {
+                    var ret = false;
+                    if (node) {
+                        ee._type = event;
                         ee._target = node;
-                        node.notifyEvent(ee);
+                        ret = node.notifyEvent(ee);
                     }
-                }
-                // set capture node as the new found node
-                _currentCaptureNode = node;
-                if (_isMouseDown) {
-                    _isDragging = true;
-                    _isDraggingInCapture = true;
-                }
+                    if (node !== _currentCaptureNode && !ret) {
+                        // if there's a previous capture node notify mouse-out on it.
+                        if (_currentCaptureNode) {
+                            ee._type = event === "mousedrag" || event === "mousemove" ? "mouseout" : "touchout";
+                            ee._target = _currentCaptureNode;
+                            _currentCaptureNode.notifyEvent(ee);
+                        }
+                        if (node) {
+                            ee._type = event === "mousedrag" || event === "mousemove" ? "mouseover" : "touchover";
+                            ee._target = node;
+                            ret = node.notifyEvent(ee);
+                        }
+                    }
+                    if (!ret) {
+                        _currentCaptureNode = node;
+                    }
+                    _prevScreenPoint.set(ee.screenPoint.x, ee.screenPoint.y);
+                    return ret;
+                });
             }
             else {
                 // dragging
                 // dragging outside the capture node ??
-                var node = routeEvent(ee);
+                //routeEvent( ee.screenPoint, function(node:Node) : boolean {
+                ee._localPoint.set(ee._screenPoint.x, ee._screenPoint.y);
+                var node = routeEvent(ee._localPoint);
+                var ret = false;
                 if (node !== _currentCaptureNode) {
                     if (_currentCaptureNode) {
                         ee._type = ee._type = event === "mousedrag" || event === "mousemove" ? "mouseout" : "touchout";
@@ -23935,14 +24049,15 @@ var cc;
                         _currentCaptureNode.notifyEvent(ee);
                     }
                 }
+                // notify mouse-over to the new capture node
+                if (_currentCaptureNode !== null) {
+                    ee._type = event;
+                    ee._target = _currentCaptureNode;
+                    //ret= _currentCaptureNode.notifyEvent( ee );
+                    ret = _currentCaptureNode.notifyEvent(ee);
+                }
+                _prevScreenPoint.set(ee.screenPoint.x, ee.screenPoint.y);
             }
-            // notify mouse-over to the new capture node
-            if (_currentCaptureNode !== null) {
-                ee._type = event;
-                ee._target = _currentCaptureNode;
-                _currentCaptureNode.notifyEvent(ee);
-            }
-            _prevScreenPoint.set(ee.screenPoint.x, ee.screenPoint.y);
         }
         /**
          * double click handler.
@@ -23961,10 +24076,14 @@ var cc;
                 _currentCaptureNode.notifyEvent(ee);
             }
             else {
-                _currentCaptureNode = routeEvent(ee);
-                if (_currentCaptureNode) {
-                    _currentCaptureNode.notifyEvent(ee);
-                }
+                ee._localPoint.set(ee._screenPoint.x, ee._screenPoint.y);
+                routeEvent(ee._localPoint, function (node) {
+                    var ret = false;
+                    if (_currentCaptureNode) {
+                        ret = _currentCaptureNode.notifyEvent(ee);
+                    }
+                    return ret;
+                });
             }
             _prevScreenPoint = null;
         }

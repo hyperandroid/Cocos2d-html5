@@ -132,7 +132,7 @@
                 AssetManager.getSpriteFont("font2").drawText(ctx,"MOAR System fonts!!",0,125);
             };
 
-            scene.startChainingActionsForNode(node).
+            node.startActionChain().
                     actionRotate().
                         from(0).
                         to(360).

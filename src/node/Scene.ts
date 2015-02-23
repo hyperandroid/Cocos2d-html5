@@ -209,18 +209,30 @@ module cc.node {
             return this;
         }
 
-        findNodeAtScreenPoint( e:cc.input.MouseInputManagerEvent ) : Node {
+        findNodeAtScreenPoint( p:cc.math.Vector, callback?:(node:Node)=>boolean ) : Node {
+
+            var pp= new cc.math.Vector();
+            pp.set( p.x, p.y );
+
             // first, check on priority input
             for( var i=0; i<this._priorityTree.length; i++ ) {
                 var node:Node= this._priorityTree[i].node;
-                e._localPoint.set( e._screenPoint.x, e._screenPoint.y );
-                if ( node.isScreenPointInNode( e._localPoint ) ) {
-                    return node;
+
+                p.set( pp.x, pp.y );
+                if ( node.isScreenPointInNode( p ) ) {
+                    if (callback) {
+                        if (!callback(node)) {
+                            return node;
+                        }
+                    } else {
+                        return node;
+                    }
                 }
             }
 
             // now, for scene-graph priority.
-            return this._sceneGraphPriorityTree.findNodeAtScreenPoint( e );
+            p.set( pp.x, pp.y );
+            return this._sceneGraphPriorityTree.findNodeAtScreenPoint( p, callback );
         }
 
         /**

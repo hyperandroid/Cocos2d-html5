@@ -110,6 +110,7 @@
             AssetManager.addAnimationForFrames( "swim5", [ 0,1,2,1 ], "anim5" );
             AssetManager.addAnimationForFrames( "swim6", [ 0,1,2,1 ], "anim6" );
 
+            scene.enableEvents(true);
             scene.addEventListener("mouseup", function(e) {
                 createFish(e.target, e.localPoint.x, e.localPoint.y );
             });

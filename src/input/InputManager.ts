@@ -3,6 +3,7 @@
  */
 
 /// <reference path="../node/Node.ts"/>
+/// <reference path="../math/Point.ts"/>
 /// <reference path="../locale/Locale.ts"/>
 /// <reference path="../util/Debug.ts"/>
 /// <reference path="./KeyboardInputManager.ts"/>
@@ -350,8 +351,13 @@ module cc.input {
          * @param e {cc.input.MouseInputManager}
          * @returns {cc.node.Node}
          */
-        findNodeAtScreenPoint( e:MouseInputManagerEvent ) : Node {
-            return this.__findNodeAtScreenPoint( this, e );
+        findNodeAtScreenPoint( p:cc.math.Vector, callback?:(node:Node)=>boolean ) : Node {
+            var node= this.__findNodeAtScreenPoint( this, p, callback );
+            if (!node && callback) {
+                callback(null);
+            }
+
+            return node;
         }
 
         /**
@@ -362,12 +368,15 @@ module cc.input {
          * @returns {cc.node.Node}
          * @private
          */
-        __findNodeAtScreenPoint( inputNode:SceneGraphInputTreeNode, e:MouseInputManagerEvent ) : Node {
+        __findNodeAtScreenPoint( inputNode:SceneGraphInputTreeNode, p:cc.math.Vector, callback?:(node:Node)=>boolean ) : Node {
 
             var i;
 
+            var pp= new cc.math.Vector();
+            pp.set( p.x, p.y );
+
             for( i=0;i<inputNode.children.length; i++ ) {
-                var node:Node= this.__findNodeAtScreenPoint( inputNode.children[i], e );
+                var node:Node= this.__findNodeAtScreenPoint( inputNode.children[i], p, callback );
                 if ( node ) {
                     return node;
                 }
@@ -376,12 +385,21 @@ module cc.input {
             // all enabled nodes, must be added to the list of enabled elements.
             if ( inputNode.enabled ) {
                 var node:Node= inputNode.node;
-                e.localPoint.set( e._screenPoint.x, e._screenPoint.y );
-                if ( node.isScreenPointInNode(e.localPoint) ) {
-                    return node;
+                p.set( pp.x, pp.y );
+                if ( node.isScreenPointInNode(p) ) {
+                    //return node;
+                    if ( callback ) {
+                        if (!callback(node) ) {
+                            return node;
+                        }
+                        p.set( pp.x, pp.y );
+                    } else {
+                        return node;
+                    }
                 }
             }
 
+            p.set( pp.x, pp.y );
             return null;
         }
     }

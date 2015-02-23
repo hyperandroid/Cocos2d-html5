@@ -1173,7 +1173,7 @@ module cc.node {
             return this;
         }
 
-        notifyEvent( e:any ) {
+        notifyEvent( e:any ) : boolean {
             var callback= this._inputEvents[e.type];
             if ( e.type==="touchstart" ) {
                 if (!callback) {
@@ -1198,8 +1198,10 @@ module cc.node {
             }
 
             if ( callback ) {
-                callback(e);
+                return callback(e);
             }
+
+            return false;
         }
 
         getScreenPointInLocalSpace( p:Vector ) {

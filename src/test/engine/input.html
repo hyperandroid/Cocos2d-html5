@@ -93,8 +93,8 @@
                 node._children[1].enableEvents(true);
             } else {
 
-                node._children[0].enablePriorityEvents(true, priority);
                 node._children[1].enablePriorityEvents(true, priority);
+                node._children[0].enablePriorityEvents(true, priority);
                 node.enablePriorityEvents(true, priority);
             }
 

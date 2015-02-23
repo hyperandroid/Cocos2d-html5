@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>CocosJS - Anchors test.</title>
+    <link rel="stylesheet" type="text/css" href="demos.css"/>
+    <script src="../../../dist/all.js"></script>
+</head>
+<body>
+
+<script>
+    (function() {
+
+        var W= 800;
+        var H= 600;
+        var AssetManager= cc.plugin.asset.AssetManager;
+
+        function loadResources() {
+            AssetManager.load(
+                    {
+                        prefix : "../res/",
+                        resources: ["dude.png@dude"] },
+                    function onEnd(resources) {
+                        initialize(resources);
+                    }
+            );
+        }
+
+        function eventInTransparentMask( mask, threshold, e ) {
+
+            var lx= e.localPoint.x>>0;
+            var ly= e.localPoint.y>>0;
+
+//document.getElementById("localc").innerHTML="("+lx+","+ly+")";
+            var sprite= e.target;
+            var spriteFrame= sprite._spriteFrame;
+
+            if ( cc.render.RENDER_ORIGIN==="bottom" ) {
+                ly= spriteFrame.height-ly-1;
+            }
+
+            lx+= spriteFrame._rect.x;
+            ly+= spriteFrame._rect.y;
+
+            var transparentIndex= lx + ly* spriteFrame._texture._imageWidth;
+//document.getElementById("maskc").innerHTML="Dude "+sprite._name+" mask[ "+lx+","+ly+" ] = " + mask[transparentIndex];
+
+            return mask[ transparentIndex ]<=threshold;
+        }
+
+        /**
+         *
+         * @param resources {Array<cc.plugin.loader.Resource}
+         */
+        function initialize( resources ) {
+
+            AssetManager.addImage( resources['dude'], 'dude' );
+
+            var res= resources['dude'];
+            var mask= cc.render.util.getAlphaChannel( res );
+
+/*
+var canvas= cc.render.util.createCanvas( res.width, res.height );
+var ctx= canvas.getContext("2d");
+var id= ctx.getImageData(0,0,res.width,res.height);
+for( var i=0; i<mask.length; i++ ) {
+    id.data[i<<2]= 255;
+    id.data[i*4 + 3]= mask[i];
+}
+            ctx.putImageData(id, 0, 0 );
+            document.body.appendChild( canvas);
+*/
+
+            // the renderer will setup pre-loaded textures for the renderer type.
+            // it will also create necessary SpriteFrames for each texture, in this case a frame for the image dude.png
+            var renderer= new cc.render.WebGLRenderer(W,H,document.getElementById("c"));
+
+
+            // director is the main Cocos Node, and must exist.
+            var director= new cc.node.Director().
+                    setRenderer( renderer );
+
+            // scenes run in directors, and are the main displayable element.
+            var scene= director.createScene().setColor(.8,.8,.8);
+
+            // create sprite frames (image regions) from the dude.png image. (it is a 21x7 images array).
+            AssetManager.addSpriteFrames( AssetManager.getSpriteFrame("dude").createSubSpriteFrames(21,7) );
+
+            for( var i=0; i<50; i++ ) {
+                var s= Math.random() + 1;
+                var dude= new cc.node.Sprite({frameName:'dude'+((Math.random()*21*7)>>0) }).
+                                setPosition( Math.random()*W, Math.random()*H).
+                                setRotation( Math.random()*360).
+                                setScale( s, s).
+                                setName( "dude"+i );
+
+                dude.enableEvents( true );
+
+                dude.addEventListener( "mousedown", function(e) {
+
+                    if ( eventInTransparentMask(mask, 32, e) ) {
+                        e.target.setColor( 1,1,1 );
+                        return true;    // bubble to the next
+                    }
+
+                    e.target.setColor( 0,1,0 );
+                });
+
+                dude.addEventListener( "mousemove", function(e) {
+
+                    if ( eventInTransparentMask(mask, 32, e) ) {
+                        e.target.setColor( 1,1,1 );
+                        return true; // bubble to the next
+                    }
+
+                    e.target.setColor( 0,1,0 );
+
+                });
+
+                dude.addEventListener( "mousedrag", function(e) {
+
+                    if (!eventInTransparentMask(mask, 32, e)) {
+                        e.target.setColor(0, 1, 0);
+                    }
+
+                    var node= e.target;
+                    var parent= e.target._parent;
+
+                    // get local in-node coordinate.
+                    var p0= new cc.math.Vector();
+                    p0.set(e.localPoint.x, e.localPoint.y);
+                    // transform it to screen space
+                    var matrix= node._worldModelViewMatrix;
+                    cc.math.Matrix3.transformPoint( matrix, p0 );
+
+                    // get previous screen space coordinate
+                    var p1= new cc.math.Vector();
+                    p1.set(e.prevScreenPoint.x, e.prevScreenPoint.y);
+
+                    // transform both screen coordinates to local space.
+                    var matrixp= parent.getInverseWorldModelViewMatrix();
+                    cc.math.Matrix3.transformPoint( matrixp, p0 );
+                    cc.math.Matrix3.transformPoint( matrixp, p1 );
+
+                    // add the difference to current node position.
+                    node.x+= p0.x - p1.x;
+                    node.y+= p0.y - p1.y;
+
+                });
+
+                dude.addEventListener( "mouseout", function(e) {
+                    e.target.setColor( 1,1,1 );
+                });
+
+                scene.addChild( dude );
+            }
+
+            // run the scene.
+            director.runScene( scene );
+        }
+
+        window.addEventListener("DOMContentLoaded", loadResources, false);
+
+    })();
+</script>
+
+<div>
+    <div>
+        <div>
+            <canvas id="c"></canvas>
+        </div>
+    </div>
+    <div>
+        <span id="localc"></span>
+    </div>
+    <div>
+        <span id="maskc"></span>
+    </div>
+</div>
+
+</body>
+</html>
