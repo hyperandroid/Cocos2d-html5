@@ -308,9 +308,36 @@ module cc.action {
             this._firstExecution= false;
         }
 
+        /**
+         * SchedulerQueue repeats forever by default.
+         * @method cc.action.SchedulerAction#setRepeatForever
+         * @returns {cc.action.SchedulerQueue}
+         */
         setRepeatForever() : Action { return this; }
+
+        /**
+         * SchedulerQueue repeats forever by default.
+         * @method cc.action.SchedulerAction#setRepeatTimes
+         * @param n {number}
+         * @returns {cc.action.SchedulerQueue}
+         */
         setRepeatTimes( n:number ) : Action { return this; }
+
+        /**
+         * SchedulerQueue have 0 duration.
+         * @method cc.action.SchedulerAction#setDuration
+         * @param d {number}
+         * @returns {cc.action.SchedulerQueue}
+         */
         setDuration( d : number ) : Action { return this; }
+
+        /**
+         * SchedulerQueue can't have time info redefined.
+         * @method cc.action.SchedulerAction#timeInfo
+         * @param delay {number}
+         * @param duration {number}
+         * @returns {cc.action.SchedulerQueue}
+         */
         timeInfo( delay:number, duration:number ) : Action {return this;}
 
         /**
@@ -337,8 +364,6 @@ module cc.action {
 
             return task;
         }
-
-        scheduleTask( target:SchedulerQueueTask );
 
         /**
          * Schedule a task.

@@ -89,6 +89,7 @@ module cc.node {
         /**
          * @method cc.node.Sprite#constructor
          * @param ddata {cc.node.SpriteInitializer}
+         * @param rect {cc.math.Rectangle}
          */
         constructor( ddata : any, rect?:cc.math.Rectangle ) {
             super();
@@ -193,12 +194,6 @@ module cc.node {
             if ( this._spriteFrame ) {
                 ctx.globalAlpha= this._frameAlpha;
                 ctx.setTintColor( this._color );
-
-                //if ( ctx.type==="canvas" && cc.render.RENDER_ORIGIN==="bottom" ) {
-                //    ctx.translate( 0, this._contentSize.height );
-                //    ctx.scale( 1, -1 );
-                //}
-
                 this._spriteFrame.draw( ctx, this.width, this.height );
             }
         }

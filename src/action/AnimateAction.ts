@@ -16,7 +16,23 @@ module cc.action {
     import SpriteFrame= cc.node.sprite.SpriteFrame;
     import Animation= cc.node.sprite.Animation;
 
+    /**
+     * @class cc.action.AnimateActionInitializer
+     * @extends ActionInitializer
+     * @interface
+     * @classdesc
+     *
+     * AnimateAction initializer object.
+     * AnimateAction objects don't have a from and to clauses, but a animation name.
+     *
+     */
     export interface AnimateActionInitializer extends ActionInitializer {
+
+        /**
+         * Animation name.
+         * The animation must exist in the AssetManager.
+         * @member cc.action.AnimateActionInitializer#animationName
+         */
         animationName : string;
     }
 
@@ -79,6 +95,11 @@ module cc.action {
             }
         }
 
+        /**
+         * Initialize the action with an initializer Object
+         * @method cc.action.AnimateAction#__createFromInitializer
+         * @param data {cc.action.AnimateActionInitializer}
+         */
         __createFromInitializer(data?:AnimateActionInitializer ) {
             super.__createFromInitializer( data );
             this.setAnimation( cc.plugin.asset.AssetManager.getAnimationById( data.animationName ) );
@@ -199,6 +220,11 @@ module cc.action {
             }
         }
 
+        /**
+         * Get current action state initializer object.
+         * @method cc.action.AnimateAction#getInitializer
+         * @returns {cc.action.AnimateActionInitializer}
+         */
         getInitializer() : AnimateActionInitializer {
             var init:AnimateActionInitializer= <AnimateActionInitializer>super.getInitializer();
             init.type="AnimateAction";

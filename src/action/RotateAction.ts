@@ -14,6 +14,7 @@ module cc.action {
 
     /**
      * @class cc.action.RotateActionInitializer
+     * @extends cc.action.ActionInitializer
      * @interface
      * @classdesc
      *
@@ -81,6 +82,12 @@ module cc.action {
             }
         }
 
+        /**
+         * Initialize the action with an initializer object.
+         * @method cc.action.RotateAction#__createFromInitializer
+         * @param initializer {cc.action.RotateActionInitializer}
+         * @private
+         */
         __createFromInitializer(initializer?:RotateActionInitializer ) {
             super.__createFromInitializer(initializer);
         }
@@ -179,7 +186,11 @@ module cc.action {
             return copy;
         }
 
-
+        /**
+         * Serialize the action current definition.
+         * @method cc.action.RotateAction#getInitializer
+         * @returns {cc.action.RotateActionInitializer}
+         */
         getInitializer() : RotateActionInitializer {
             var init:RotateActionInitializer= <RotateActionInitializer>super.getInitializer();
 

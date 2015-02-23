@@ -55,6 +55,11 @@ module cc.input {
             return this._target;
         }
 
+        /**
+         * Get the event target.
+         * @method cc.input.InputManagerEvent#getCurrentTarget
+         * @returns {cc.node.Node}
+         */
         getCurrentTarget() : cc.node.Node {
             return this._target;
         }
@@ -85,7 +90,7 @@ module cc.input {
      * @class cc.input.InputManager
      * @classdesc
      *
-     * General input manger object.
+     * General input manager object.
      *
      */
     export class InputManager {

@@ -15,8 +15,10 @@ module cc.action {
     import  Vector= cc.math.Vector;
 
     var __v0= new Vector();
+
     /**
-     * @class JumpActionInitializer
+     * @class cc.action.JumpActionInitializer
+     * @extends cc.action.ActionInitializer
      * @interface
      * @classdesc
      *
@@ -25,10 +27,25 @@ module cc.action {
      */
     export interface JumpActionInitializer extends ActionInitializer {
 
+        /**
+         * Number of jumps
+         * @member cc.action.JumpActionInitializer#jumps
+         * @type {number}
+         */
         jumps : number;
 
+        /**
+         * Jump amplitude (max height)
+         * @member cc.action.JumpActionInitializer#amplitude
+         * @type {number}
+         */
         amplitude : number;
 
+        /**
+         * Start jump position.
+         * @member cc.action.JumpActionInitializer#position
+         * @type {cc.math.Vector}
+         */
         position : cc.math.Point;
 
     }
@@ -90,6 +107,12 @@ module cc.action {
             }
         }
 
+        /**
+         * Initialize the action with an initializer object.
+         * @method cc.action.JumpAction#__createFromInitializer
+         * @param data {cc.action.JumpActionInitializer}
+         * @private
+         */
         __createFromInitializer(data?:JumpActionInitializer ) {
             super.__createFromInitializer( data );
 
@@ -175,6 +198,11 @@ module cc.action {
             return copy;
         }
 
+        /**
+         * Serialize the action current definition.
+         * @method cc.action.JumpAction#getInitializer
+         * @returns {cc.action.JumpActionInitializer}
+         */
         getInitializer() : JumpActionInitializer {
             var init:JumpActionInitializer= <JumpActionInitializer>super.getInitializer();
             init.type="JumpAction";

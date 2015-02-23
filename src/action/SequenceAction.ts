@@ -22,6 +22,7 @@ module cc.action {
 
     /**
      * @class cc.action.SequenceActionInitializer
+     * @extends cc.action.ActionInitializer
      * @interface
      * @classdesc
      *
@@ -95,6 +96,12 @@ module cc.action {
             }
         }
 
+        /**
+         * Initialize the action with an initializer object.
+         * @method cc.action.SequenceAction#__createFromInitializer
+         * @param data {cc.action.SequenceActionInitializer}
+         * @private
+         */
         __createFromInitializer(data?:SequenceActionInitializer ) {
             super.__createFromInitializer( data );
 
@@ -108,7 +115,7 @@ module cc.action {
                 }
             }
 
-            this._onRepeat= function(action:Action, target:Node, repetitionCount:number) {
+            this._onRepeat= function(action:Action, target:any, repetitionCount:number) {
                 var seq : SequenceAction= <SequenceAction>action;
                 seq.recursivelySetCreatedStatus(target);
                 if ( seq._prevOnRepeat ) {
@@ -117,17 +124,34 @@ module cc.action {
             };
         }
 
+        /**
+         * Set onRepeat callback. This method is overridden since repeating sequences must have a custom onRepeat
+         * implementation.
+         * @method cc.action.SequenceAction#onRepeat
+         * @param callback {cc.action.ActionCallbackRepeatCallback}
+         * @returns {cc.action.SequenceAction}
+         */
         onRepeat( callback : ActionCallbackRepeatCallback ) : Action {
             this._prevOnRepeat= callback;
             return this;
         }
 
-        recursivelySetCreatedStatus(target:Node) {
+        /**
+         * When a Sequence repeats, it must recursively clear the status of all its children Actions.
+         * @method cc.action.SequenceAction#recursivelySetCreatedStatus
+         * @param target
+         */
+        recursivelySetCreatedStatus(target:any) {
             for( var i=0; i<this._actions.length; i++ ) {
                 this._actions[i].__recursivelySetCreatedStatus(target);
             }
         }
 
+        /**
+         * Get the last Action on the sequence.
+         * @method cc.action.SequenceAction#getLastAction
+         * @returns {cc.action.Action}
+         */
         getLastAction() {
             if ( this._actions.length===0 ) {
                 return null;
@@ -136,7 +160,13 @@ module cc.action {
             return this._actions[ this._actions.length-1 ];
         }
 
-        __recursivelySetCreatedStatus(target:Node) {
+        /**
+         * Recursive set created status implementation.
+         * @method cc.action.SequenceAction#__recursivelySetCreatedStatus
+         * @param target {object}
+         * @private
+         */
+        __recursivelySetCreatedStatus(target:any) {
             // first my children actions. !!!
             for( var i=0; i<this._actions.length; i++ ) {
                 this._actions[i].__recursivelySetCreatedStatus(target);
@@ -346,7 +376,11 @@ module cc.action {
             this._sequential= b;
         }
 
-
+        /**
+         * Serialize the action current definition.
+         * @method cc.action.SequenceAction#getInitializer
+         * @returns {cc.action.SequenceActionInitializer}
+         */
         getInitializer() : SequenceActionInitializer {
             var init:SequenceActionInitializer= <SequenceActionInitializer>super.getInitializer();
 

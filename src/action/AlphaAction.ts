@@ -15,6 +15,7 @@ module cc.action {
 
     /**
      * @class cc.action.AlphaActionInitializer
+     * @extends cc.action.ActionInitializer
      * @interface
      * @classdesc
      *
@@ -87,6 +88,12 @@ module cc.action {
             }
         }
 
+        /**
+         * Initialize the action with an initializer object.
+         * @method cc.action.AlphaAction#__createFromInitializer
+         * @param data {cc.action.AlphaActionInitializer}
+         * @private
+         */
         __createFromInitializer(data?:AlphaActionInitializer ) {
             super.__createFromInitializer( data );
             if ( typeof data!=="undefined" ) {
@@ -185,6 +192,11 @@ module cc.action {
             return copy;
         }
 
+        /**
+         * Serialize the action current definition.
+         * @method cc.action.AlphaAction#getInitializer
+         * @returns {cc.action.AlphaActionInitializer}
+         */
         getInitializer() : AlphaActionInitializer {
             var init:AlphaActionInitializer= <AlphaActionInitializer>super.getInitializer();
             if ( this._fromValuesSet ) {

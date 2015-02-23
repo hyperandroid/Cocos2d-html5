@@ -13,28 +13,84 @@ module cc.action {
     import Node = cc.node.Node;
     import Action = cc.action.Action;
 
+    /**
+     * @class cc.action.PropertyActionInitializer
+     * @extends cc.action.ActionInitializer
+     * @interface
+     */
     export interface PropertyActionInitializer extends ActionInitializer {
 
     }
 
     /**
+     * @class cc.action.PropertyInfo
+     * @classdesc
+     *
      * Internal helper Object to store a property information.
+     * It stores:
+     * <li>a property name, for example 'x' or 'p0.x'
+     * <li>the property path. For example ['x'] or ['p0','x']
+     * <li>original property value for a target object
+     *
+     * It is responsible for setting and getting the deep property path values too.
+     *
+     * Referenced properties MUST be numeric.
      */
     export class PropertyInfo {
 
 
         /**
          * Property Units. For example, when the property is not a numeric value but something like '250px'.
+         * @member cc.action.PropertyInfo#_units
          * @type {string}
          * @private
          */
         _units : string = "";
 
+        /**
+         * If the property is a deep property, like 'p0.x' or 'a.b.c.d.value' this property will indicate it.
+         * @member cc.action.PropertyInfo#_nested
+         * @type {boolean}
+         * @private
+         */
         _nested : boolean = false;
 
+        /**
+         * A split('.') of the _property value.
+         * @member cc.action.PropertyInfo#_propertyPath
+         * @type {Array<string>}
+         * @private
+         */
         _propertyPath : string[];
 
+        /**
+         * Original property value.
+         * @member cc.action.PropertyInfo#_original
+         * @type {number}
+         * @private
+         */
         _original : number;
+
+        /**
+         * Property name.
+         * @member cc.action.PropertyInfo#_property
+         * @type {string}
+         * @private
+         */
+
+        /**
+         * Property start value.
+         * @member cc.action.PropertyInfo#_start
+         * @type {number}
+         * @private
+         */
+
+        /**
+         * Property end value.
+         * @member cc.action.PropertyInfo#_end
+         * @type {number}
+         * @private
+         */
 
         /**
          *
@@ -47,6 +103,12 @@ module cc.action {
             this._propertyPath= _property.split('.');
         }
 
+        /**
+         * Set the property value in a target object
+         * @method cc.action.PropertyInfo#setTargetValue
+         * @param target {any}
+         * @param v {number}
+         */
         setTargetValue( target:any, v:number ) {
             var cursor= target;
             for( var i=0; i<this._propertyPath.length-1; i++ ) {
@@ -61,6 +123,12 @@ module cc.action {
             cursor[ this._propertyPath[i] ]= v;
         }
 
+        /**
+         * Get the property value from a target object
+         * @method cc.action.PropertyInfo#getTargetValue
+         * @param target {any}
+         * @returns {number}
+         */
         getTargetValue( target:any ) : number {
             var cursor= target;
             for( var i=0; i<this._propertyPath.length; i++ ) {
@@ -75,27 +143,39 @@ module cc.action {
             return cursor;
         }
 
+        /**
+         * Set PropertyInfo original target value.
+         * @param n {number}
+         * @returns {cc.action.PropertyInfo}
+         */
         setOriginal( n : number ) : PropertyInfo {
             this._original= n;
             return this;
         }
 
+        /**
+         * Get property original value in the original target object.
+         * @method cc.action.PropertyInfo#getOriginal
+         * @returns {number}
+         */
         getOriginal() : number {
             return this._original;
         }
 
+        /**
+         * Clone the PropertyInfo object.
+         * @method cc.action.PropertyInfo#clone
+         * @returns {cc.action.PropertyInfo}
+         */
         clone() : PropertyInfo {
             return new PropertyInfo( this._property, this._start, this._end );
         }
 
-        getValue( v : number ) : any {
-            if ( this._units!=="" ) {
-                return "" + v + this._units;
-            }
-
-            return v;
-        }
-
+        /**
+         * Get the property path.
+         * @method cc.action.PropertyInfo#getPath
+         * @returns {string[]}
+         */
         getPath() : string[] {
             return this._propertyPath;
         }
@@ -157,6 +237,12 @@ module cc.action {
             }
         }
 
+        /**
+         * Initialize the action with an initializer object.
+         * @method cc.action.PropertyAction#__createFromInitializer
+         * @param data {cc.action.PropertyActionInitializer}
+         * @private
+         */
         __createFromInitializer(initializer?:PropertyActionInitializer ) {
             super.__createFromInitializer(initializer);
         }
@@ -311,6 +397,11 @@ module cc.action {
             return copy;
         }
 
+        /**
+         * Serialize the action current definition.
+         * @method cc.action.PropertyAction#getInitializer
+         * @returns {cc.action.PropertyActionInitializer}
+         */
         getInitializer() : PropertyActionInitializer {
             var init:PropertyActionInitializer= <PropertyActionInitializer>super.getInitializer();
 

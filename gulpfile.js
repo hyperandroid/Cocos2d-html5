@@ -74,6 +74,7 @@ var scripts= [
         "js/render/GeometryBatcher.js",
         "js/render/DecoratedWebGLRenderingContext.js",
         "js/render/ScaleManager.js",
+        "js/render/RenderUtil.js",
 
         "js/util/util.js",
 

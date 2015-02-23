@@ -155,7 +155,7 @@ module cc.render {
 
             this._gl= glstate._gl;
 
-            this._dataArrayBuffer= new ArrayBuffer(GeometryBatcher.MAX_QUADS*40);
+            this._dataArrayBuffer= new ArrayBuffer(GeometryBatcher.MAX_QUADS*40*4);
             this._dataBufferFloat= new Float32Array(this._dataArrayBuffer);    // 40 is fastshader vertex size.
             this._dataBufferByte= new Uint8Array(this._dataArrayBuffer);
             this._dataBufferUint= new Uint32Array(this._dataArrayBuffer);
@@ -339,11 +339,13 @@ module cc.render {
             this._gl.bindBuffer( this._gl.ELEMENT_ARRAY_BUFFER, this._glIndexBuffer._buffer );
 
             //this._glDataBuffer.forceEnableWithValue(this._dataBufferFloat);
-            this._glDataBuffer.enableWithValue(this._dataBufferFloat.subarray(0, this._dataBufferIndex));
+            this._glDataBuffer.forceEnableWithValue(this._dataBufferFloat.subarray(0, this._dataBufferIndex));
+            //this._glDataBuffer.enableWithValue(this._dataBufferFloat.subarray(0, this._dataBufferIndex));
 
             shader.flushBuffersWithContent( rcs );
 
             this._gl.drawElements(this._gl.TRIANGLES, this._indexBufferIndex, this._gl.UNSIGNED_SHORT, 0);
+            //this._gl.drawArrays(this._gl.TRIANGLE_STRIP, 0, 4);
 
             // reset buffer data index.
             this._dataBufferIndex= 0;
@@ -375,11 +377,12 @@ module cc.render {
             var dbuint= this._dataBufferUint;
             var dbi=this._dataBufferIndex;
 
-            var w0 = (sprite._contentSize.width ) * (1-sprite._transformationAnchor.x);
-            var w1 = (sprite._contentSize.width ) * -sprite._transformationAnchor.x;
+            //var w0 = (sprite._contentSize.width ) * (1-sprite._transformationAnchor.x);
+            //var w1 = (sprite._contentSize.width ) * -sprite._transformationAnchor.x;
+            //
+            //var h1 = sprite._contentSize.height * (1-sprite._transformationAnchor.y);
+            //var h0 = sprite._contentSize.height * -sprite._transformationAnchor.y;
 
-            var h1 = sprite._contentSize.height * (1-sprite._transformationAnchor.y);
-            var h0 = sprite._contentSize.height * -sprite._transformationAnchor.y;
 
             dbuint[dbi+2]= dbuint[dbi+12]= dbuint[dbi+22]= dbuint[dbi+32]= cc;
             db[dbi  ]= db[dbi+10]= db[dbi+20]= db[dbi+30]= sprite.x;
@@ -387,6 +390,12 @@ module cc.render {
             db[dbi+7]= db[dbi+17]= db[dbi+27]= db[dbi+37]= sprite.rotationAngle;
             db[dbi+8]= db[dbi+18]= db[dbi+28]= db[dbi+38]= sprite.scaleX;
             db[dbi+9]= db[dbi+19]= db[dbi+29]= db[dbi+39]= sprite.scaleY;
+
+            var w0 = sprite.width/2.0;
+            var w1 = -w0;
+
+            var h1 = sprite.height/2.0;
+            var h0 = -h1;
 
             db[dbi+3]= u0;
             db[dbi+4]= v0;

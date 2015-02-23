@@ -493,7 +493,7 @@ module cc.node {
         setScale(x:number, y?:number):Node {
 
             this.scaleX= x;
-            this.scaleY= y;
+            this.scaleY= typeof y==="undefined" ? x : y;
 
             return this;
         }
@@ -1394,7 +1394,7 @@ module cc.node {
             this._parent.removeChild( this, cleanup );
 
             if ( cleanup ) {
-                this.unscheduleAllCallbacks();
+                this.cleanup();
             }
 
             return this;
@@ -1405,7 +1405,7 @@ module cc.node {
          * @method cc.node.Node#removeAllChildren
          * @returns {cc.node.Node}
          */
-        removeAllChildren() : Node {
+        removeAllChildren( cleanup? : boolean ) : Node {
             for( var i=0; i<this._children.length; i++ ) {
                 this._children[i]._parent= null;
             }
