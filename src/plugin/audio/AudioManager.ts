@@ -335,6 +335,8 @@ module cc.plugin.audio {
          */
         _convolverEnabled:boolean= false;
 
+        _playbackRate:number = 1;
+
         /**
          * @method cc.plugin.audio.AudioEffect#constructor
          * @param buffer {object} Audio buffer object.
@@ -463,6 +465,21 @@ module cc.plugin.audio {
 
         }
 
+        setPlaybackRate( rate:number ) {
+            this._playbackRate= rate;
+
+            if ( this._source ) {
+                var wasPlaying= this.isPlaying();
+                if (wasPlaying) {
+                    this.pause();
+                }
+                this._source.playbackRate.value = rate;
+                if (wasPlaying) {
+                    this.resume();
+                }
+            }
+        }
+
         /**
          * Get audio duration. If the audio loops, getDuration will be Number.MAX_VALUE, and the buffer or sprite duration
          * otherwise plus the delay otherwise.
@@ -518,12 +535,6 @@ module cc.plugin.audio {
                 chain[i].connect( chain[i+1] );
             }
 
-            //if (this._filterEnabled) {
-            //    this._filter.connect(this._gain);
-            //    this._source.connect(this._filter);
-            //} else {
-            //    this._source.connect( this._gain );
-            //}
         }
 
         /**
@@ -595,6 +606,8 @@ module cc.plugin.audio {
 
             this._startPlaybackTime= audioContext.currentTime;
             this._delayTime= delay;
+
+            this._source.playbackRate.value= this._playbackRate;
 
             if ( this._isSprite ) {
                 if ( this._isWebAudio ) {
@@ -701,7 +714,7 @@ module cc.plugin.audio {
         getRemainingTime() {
             // sometimes, an few milliseconds negative time could happen when you mess around a lot with pause/resume
             return this._status===AudioEffectStatus.PLAY || this._status===AudioEffectStatus.PAUSE ?
-                Math.max(0,this._duration - this.getCurrentTime()) :
+                Math.max(0,this._duration - this.getCurrentTime() ) :
                 0;
         }
 
@@ -726,7 +739,7 @@ module cc.plugin.audio {
                 return;
             }
 
-            var timeleft= this.getRemainingTime();
+            var timeleft= this.getRemainingTime() / this._playbackRate;
             var me= this;
 
             this._endTimerId= setTimeout( function() {
@@ -743,7 +756,7 @@ module cc.plugin.audio {
                         me._onEnd(me);
                     }
                 }
-            }, timeleft*1000 );
+            }, timeleft * 1000 );
 
         }
 
