@@ -134,9 +134,9 @@ module cc.input {
         return mie;
     }
 
-    function routeEvent( e:MouseInputManagerEvent ) : Node {
+    function routeEvent( p:Vector, callback?:(node:Node)=>boolean ) : Node {
         if ( _scene) {
-            return _scene.findNodeAtScreenPoint(e);
+            return _scene.findNodeAtScreenPoint( p, callback );
         }
 
         return null;
@@ -158,23 +158,34 @@ module cc.input {
     function __inputDown( ee:MouseInputManagerEvent, event ) {
         _isMouseDown = true;
 
-        var node:Node = routeEvent(ee);
+        ee._localPoint.set( ee._screenPoint.x, ee._screenPoint.y );
+        routeEvent( ee._localPoint , function(node:Node) : boolean {
 
-        // new node is not previous one. complicated, this is a down, and a move usually comes first
-        // so what ? out to the previous one ?
-        if (_currentCaptureNode!==node && _currentCaptureNode) {
-            ee._type=event==="mousedown" ? "mouseout" : "touchend";
-            _currentCaptureNode.notifyEvent( ee );
-        }
+            var ret= false;
 
-        ee._type=event;
-        _currentCaptureNode= node;
-        if ( _currentCaptureNode ) {
-            ee._target= _currentCaptureNode;
-            _currentCaptureNode.notifyEvent(ee);
-        }
+            if ( node ) {
+                ee._type = event;
+                ee._target = node;
+                ret= node.notifyEvent(ee);
+            }
 
-        _prevScreenPoint.set( ee.screenPoint.x, ee.screenPoint.y );
+            if (_currentCaptureNode !== node && !ret ) {
+
+                if ( _currentCaptureNode ) {
+                    ee._type = event === "mousedown" ? "mouseout" : "touchend";
+                    ee._target = _currentCaptureNode;
+                    _currentCaptureNode.notifyEvent(ee);
+                }
+            }
+
+            if (!ret) {
+                _currentCaptureNode = node;
+            }
+
+            _prevScreenPoint.set(ee.screenPoint.x, ee.screenPoint.y);
+
+            return ret;
+        } );
     }
 
     /**
@@ -192,41 +203,45 @@ module cc.input {
 
     function __inputUp( ee:MouseInputManagerEvent, event ) {
 
-        var node:Node = routeEvent(ee);
+        ee._localPoint.set( ee._screenPoint.x, ee._screenPoint.y );
+        var node= routeEvent( ee._localPoint );
 
-        if ( _currentCaptureNode ) {
-            // up in a different node
-            if (_currentCaptureNode !== node) {
-                // send out to the previous one.
-                ee._type= event==="mouseup" ? "mouseout" : "touchend";
-                ee._target=_currentCaptureNode;
-                ee.localPoint.x= ee.screenPoint.x;
-                ee.localPoint.y= ee.screenPoint.y;
-                _currentCaptureNode.isScreenPointInNode(ee.localPoint);
-                _currentCaptureNode.notifyEvent(ee);
+            var ret= false;
 
-                // eat the out.
-            } else {
-                // up in the same captured node
+            if (_currentCaptureNode) {
+                // up in a different node
+                if (_currentCaptureNode !== node) {
+                    // send out to the previous one.
+                    ee._type = event === "mouseup" ? "mouseout" : "touchend";
+                    ee._target = _currentCaptureNode;
+                    ee.localPoint.x = ee.screenPoint.x;
+                    ee.localPoint.y = ee.screenPoint.y;
+                    _currentCaptureNode.isScreenPointInNode(ee.localPoint);
+                    _currentCaptureNode.notifyEvent(ee);
 
-                // notify mouse up
-                _currentCaptureNode.notifyEvent(ee);
+                    // eat the out.
+                } else {
+                    // up in the same captured node
 
-                // and if not dragging, mouse click
-                if ( !_isDragging && event==="mouseup") {
-                    ee._type="mouseclick";
-                    ee._target=_currentCaptureNode;
-                    _currentCaptureNode.notifyEvent( ee );
+                    // notify mouse up
+                    _currentCaptureNode.notifyEvent(ee);
+
+                    // and if not dragging, mouse click
+                    if (!_isDragging && event === "mouseup") {
+                        ee._type = "mouseclick";
+                        ee._target = _currentCaptureNode;
+                        _currentCaptureNode.notifyEvent(ee);
+                    }
                 }
             }
-        }
 
-        _currentCaptureNode= null;
-        _isMouseDown= false;
-        _isDragging= false;
-        _isDraggingInCapture= false;
+            _currentCaptureNode = null;
+            _isMouseDown = false;
+            _isDragging = false;
+            _isDraggingInCapture = false;
 
-        _prevScreenPoint= null;
+            _prevScreenPoint = null;
+
     }
 
     /**
@@ -245,66 +260,95 @@ module cc.input {
     }
 
     function __inputMove( ee:MouseInputManagerEvent, event:string ) {
+
+        if (_isMouseDown) {
+            _isDragging = true;
+            _isDraggingInCapture = true;
+        }
+
         // drag is sent to the captured node.
         if (!_isDragging) {
-            var node:Node = routeEvent(ee);
 
-            // there's a new target node different to the previous one
-            if (node !== _currentCaptureNode) {
-                // if there's a previous capture node notify mouse-out on it.
-                if (_currentCaptureNode) {
-                    ee._type = event==="mousedrag" || event==="mousemove" ? "mouseout" : "touchout";
-                    _currentCaptureNode.notifyEvent(ee);
-                }
 
-                if (node !== null) {
-                    ee._type = event==="mousedrag" || event==="mousemove" ? "mouseover" : "touchover";
+            ee._localPoint.set( ee._screenPoint.x, ee._screenPoint.y );
+            routeEvent( ee._localPoint, function(node:Node) : boolean {
+
+                var ret= false;
+
+                if ( node ) {
+                    ee._type= event;
                     ee._target = node;
-                    node.notifyEvent(ee);
+                    ret= node.notifyEvent( ee );
                 }
-            }
 
-            // set capture node as the new found node
-            _currentCaptureNode = node;
+                if (node !== _currentCaptureNode && !ret) {
+                    // if there's a previous capture node notify mouse-out on it.
+                    if (_currentCaptureNode) {
+                        ee._type = event === "mousedrag" || event === "mousemove" ? "mouseout" : "touchout";
+                        ee._target= _currentCaptureNode;
+                        _currentCaptureNode.notifyEvent(ee);
+                    }
 
-            if (_isMouseDown) {
-                _isDragging = true;
-                _isDraggingInCapture= true;
-            }
+                    if ( node ) {
+                        ee._type= event === "mousedrag" || event === "mousemove" ? "mouseover" : "touchover";
+                        ee._target = node;
+                        ret= node.notifyEvent( ee );
+                    }
+                }
+
+                if (!ret) {
+                    _currentCaptureNode = node;
+                }
+
+                _prevScreenPoint.set( ee.screenPoint.x, ee.screenPoint.y );
+
+                return ret;
+            });
+
         } else {
             // dragging
 
 
             // dragging outside the capture node ??
-            var node:Node = routeEvent(ee);
+            //routeEvent( ee.screenPoint, function(node:Node) : boolean {
 
-            if ( node!==_currentCaptureNode ) {
-                if (_currentCaptureNode) {
-                    ee._type = ee._type = event === "mousedrag" || event === "mousemove" ? "mouseout" : "touchout";
-                    ee.localPoint.x = ee.screenPoint.x;
-                    ee.localPoint.y = ee.screenPoint.y;
-                    _currentCaptureNode.getScreenPointInLocalSpace(ee.localPoint);
-                    _currentCaptureNode.notifyEvent(ee);
-                    _isDraggingInCapture = false;
-                }
-            } else {
-                if (!_isDraggingInCapture) {
-                    _isDraggingInCapture= true;
-                    ee._type = ee._type = event==="mousedrag" || event==="mousemove" ? "mouseover" : "touchover";
-                    _currentCaptureNode.notifyEvent(ee);
-                }
-            }
+            ee._localPoint.set( ee._screenPoint.x, ee._screenPoint.y );
+            var node= routeEvent( ee._localPoint );
 
+                var ret= false;
+
+                if (node !== _currentCaptureNode) {
+                    if (_currentCaptureNode) {
+                        ee._type = ee._type = event === "mousedrag" || event === "mousemove" ? "mouseout" : "touchout";
+                        ee.localPoint.x = ee.screenPoint.x;
+                        ee.localPoint.y = ee.screenPoint.y;
+                        _currentCaptureNode.getScreenPointInLocalSpace(ee.localPoint);
+                        _currentCaptureNode.notifyEvent(ee);
+                        _isDraggingInCapture = false;
+                    }
+                } else {
+                    if (!_isDraggingInCapture) {
+                        _isDraggingInCapture = true;
+                        ee._type = ee._type = event === "mousedrag" || event === "mousemove" ? "mouseover" : "touchover";
+                        _currentCaptureNode.notifyEvent(ee);
+                    }
+                }
+
+                // notify mouse-over to the new capture node
+                if (_currentCaptureNode !== null) {
+                    ee._type= event;
+                    ee._target= _currentCaptureNode;
+                    //ret= _currentCaptureNode.notifyEvent( ee );
+                    ret= _currentCaptureNode.notifyEvent( ee );
+                }
+
+                _prevScreenPoint.set( ee.screenPoint.x, ee.screenPoint.y );
+
+                //return ret;
+
+            //});
         }
 
-        // notify mouse-over to the new capture node
-        if (_currentCaptureNode !== null) {
-            ee._type= event;
-            ee._target= _currentCaptureNode;
-            _currentCaptureNode.notifyEvent( ee );
-        }
-
-        _prevScreenPoint.set( ee.screenPoint.x, ee.screenPoint.y );
     }
 
     /**
@@ -321,10 +365,16 @@ module cc.input {
         if (_currentCaptureNode) {
             _currentCaptureNode.notifyEvent( ee);
         } else {
-            _currentCaptureNode = routeEvent(ee);
-            if ( _currentCaptureNode ) {
-                _currentCaptureNode.notifyEvent(ee);
-            }
+            ee._localPoint.set( ee._screenPoint.x, ee._screenPoint.y );
+            routeEvent( ee._localPoint, function(node:Node) : boolean {
+
+                var ret= false;
+                if (_currentCaptureNode) {
+                    ret= _currentCaptureNode.notifyEvent(ee);
+                }
+
+                return ret;
+            });
         }
 
         _prevScreenPoint= null;

@@ -155,7 +155,7 @@
                     var fn= function(e) {
 
                         e.target.stopAllActions();
-                        scene.startChainingActionsForNode(e.target).
+                        e.target.startActionChain().
                                 actionRotate().
                                     from(0).
                                     to(360).

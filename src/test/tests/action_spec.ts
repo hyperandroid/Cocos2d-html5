@@ -443,7 +443,8 @@ module test.math {
             var am : ActionManager= new cc.action.ActionManager();
             am.scheduleActionForNode(node,seq);
 
-            var seq : cc.action.SequenceAction= <cc.action.SequenceAction>am._actionInfos[0]._action;
+            // _actionInfos[0] is the scheduler always.
+            var seq : cc.action.SequenceAction= <cc.action.SequenceAction>am._actionInfos[1]._action;
 
             expect(seq._actions[0]._startTime).toBe(0);
             expect(seq._actions[1]._startTime).toBe(1000);
@@ -451,7 +452,7 @@ module test.math {
 
             expect(seq._actions[2]._startTime).toBe(4000);
 
-            expect(am._actionInfos[0]._action._duration).toBe(6000);
+            expect(am._actionInfos[1]._action._duration).toBe(6000);
 
         });
 

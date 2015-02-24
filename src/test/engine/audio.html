@@ -220,6 +220,22 @@
                         col10.appendChild(selectc);
                     row.appendChild(col10);
 
+                    var col11= document.createElement('td');
+                        var text92 = document.createTextNode("playback rate:");
+                        col11.appendChild(text92);
+                        var positionrate= document.createElement('input');
+                        positionrate.type= "range";
+                        positionrate.min= 0.5;
+                        positionrate.max= 2;
+                        positionrate.step= .01
+                        positionrate.value= 0.5;
+                        positionrate.onchange= function(e) {
+                            audioEffect.setPlaybackRate( parseFloat(positionrate.value) );
+                        };
+
+                        col11.appendChild(positionrate);
+                    row.appendChild(col11);
+
                 table.appendChild(row);
         }
 
