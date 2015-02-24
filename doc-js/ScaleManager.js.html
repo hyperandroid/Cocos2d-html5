@@ -1,0 +1,1443 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>CocosJS Source: render/ScaleManager.js</title>
+
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+	<link type="text/css" rel="stylesheet" href="styles/sunlight.default.css">
+
+	<link type="text/css" rel="stylesheet" href="styles/site.cerulean.css">
+
+</head>
+
+<body>
+<div class="container-fluid">
+	<div class="navbar navbar-fixed-top ">
+		<div class="navbar-inner">
+			<a class="brand" href="index.html">CocosJS</a>
+			<ul class="nav">
+				
+				<li class="dropdown">
+					<a href="namespaces.list.html" class="dropdown-toggle" data-toggle="dropdown">Namespaces<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="global.html#cc">cc</a>
+						</li>
+						
+						<li>
+							<a href="global.html#cc#action">cc.action</a>
+						</li>
+						
+						<li>
+							<a href="cc.Debug.html">cc.Debug</a>
+						</li>
+						
+						<li>
+							<a href="cc.game.html">cc.game</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.html">cc.input</a>
+						</li>
+						
+						<li>
+							<a href="cc.locale.html">cc.locale</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.html">cc.math</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path_.html">cc.math.path</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.html">cc.node</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.sprite.html">cc.node.sprite</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.html">cc.plugin</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.asset.html">cc.plugin.asset</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.audio.html">cc.plugin.audio</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.html">cc.plugin.layout</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.html">cc.plugin.loader</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.texture.html">cc.plugin.texture</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.html">cc.render</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.html">cc.render.shader</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.WebGLState.html">cc.render.WebGLState</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.html">cc.transition</a>
+						</li>
+						
+						<li>
+							<a href="cc.util.html">cc.util</a>
+						</li>
+						
+						<li>
+							<a href="cc.widget.html">cc.widget</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+				<li class="dropdown">
+					<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="cc.action.Action.html">cc.action.Action</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ActionChainContext.html">cc.action.ActionChainContext</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ActionChainContext_constructor.html">cc.action.ActionChainContext#constructor</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ActionInfo.html">cc.action.ActionInfo</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ActionManager.html">cc.action.ActionManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.AlphaAction.html">cc.action.AlphaAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.AnimateAction.html">cc.action.AnimateAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.Interpolator.html">cc.action.Interpolator</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.JumpAction.html">cc.action.JumpAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.MoveAction.html">cc.action.MoveAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ParseInterpolator.html">cc.action.ParseInterpolator</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.PathAction.html">cc.action.PathAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.PropertyAction.html">cc.action.PropertyAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.PropertyInfo.html">cc.action.PropertyInfo</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.RotateAction.html">cc.action.RotateAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ScaleAction.html">cc.action.ScaleAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.SchedulerQueue.html">cc.action.SchedulerQueue</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.SchedulerQueueTask.html">cc.action.SchedulerQueueTask</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.SequenceAction.html">cc.action.SequenceAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.TintAction.html">cc.action.TintAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.game.Game.html">cc.game.Game</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.InputManager.html">cc.input.InputManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.InputManagerEvent.html">cc.input.InputManagerEvent</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.KeyActionInfo.html">cc.input.KeyActionInfo</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.KeyboardCursor.html">cc.input.KeyboardCursor</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.KeyboardInputManager.html">cc.input.KeyboardInputManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.KeyInfo.html">cc.input.KeyInfo</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.MouseInputManager.html">cc.input.MouseInputManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.MouseInputManagerEvent.html">cc.input.MouseInputManagerEvent</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.PriorityInputNode.html">cc.input.PriorityInputNode</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.SceneGraphInputTreeNode.html">cc.input.SceneGraphInputTreeNode</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Color.html">cc.math.Color</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Dimension.html">cc.math.Dimension</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Matrix3.html">cc.math.Matrix3</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Path.html">cc.math.Path</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.ContainerSegment.html">cc.math.path.ContainerSegment</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.SegmentArc.html">cc.math.path.SegmentArc</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.SegmentBezier.html">cc.math.path.SegmentBezier</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.SegmentCardinalSpline.html">cc.math.path.SegmentCardinalSpline</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path_.html#SegmentLine">cc.math.path.SegmentLine</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.SegmentQuadratic.html">cc.math.path.SegmentQuadratic</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.SubPath.html">cc.math.path.SubPath</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Rectangle.html">cc.math.Rectangle</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Vector.html">cc.math.Vector</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.Director.html">cc.node.Director</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.FastSprite.html">cc.node.FastSprite</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.Node.html">cc.node.Node</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.Scene.html">cc.node.Scene</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.Sprite_.html">cc.node.Sprite</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.sprite.Animation.html">cc.node.sprite.Animation</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.sprite.AnimationCache.html">cc.node.sprite.AnimationCache</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.sprite.SpriteFrame.html">cc.node.sprite.SpriteFrame</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.asset.AssetManager.html">cc.plugin.asset.AssetManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.audio.AudioEffect.html">cc.plugin.audio.AudioEffect</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.audio.AudioManager.html">cc.plugin.audio.AudioManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.font.FontMetrics.html">cc.plugin.font.FontMetrics</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.font.SpriteFont.html">cc.plugin.font.SpriteFont</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.font.SpriteFontChar.html">cc.plugin.font.SpriteFontChar</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.BorderLayout.html">cc.plugin.layout.BorderLayout</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.Gap.html">cc.plugin.layout.Gap</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.GridLayout.html">cc.plugin.layout.GridLayout</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.Insets.html">cc.plugin.layout.Insets</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.LayerLayout.html">cc.plugin.layout.LayerLayout</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.Layout.html">cc.plugin.layout.Layout</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.Unit.html">cc.plugin.layout.Unit</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.Loader.html">cc.plugin.loader.Loader</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.ResourceLoaderAudioBuffer.html">cc.plugin.loader.ResourceLoaderAudioBuffer</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.ResourceLoaderImage.html">cc.plugin.loader.ResourceLoaderImage</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.ResourceLoaderJSON.html">cc.plugin.loader.ResourceLoaderJSON</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.ResourceLoaderXML.html">cc.plugin.loader.ResourceLoaderXML</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.texture.TexturePacker.html">cc.plugin.texture.TexturePacker</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.texture.TexturePackerNode.html">cc.plugin.texture.TexturePackerNode</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.texture.TexturePackerPage.html">cc.plugin.texture.TexturePackerPage</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.CanvasRenderer.html">cc.render.CanvasRenderer</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.DecoratedWebGLRenderingContext.html">cc.render.DecoratedWebGLRenderingContext</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.GeometryBatcher.html">cc.render.GeometryBatcher</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.Pattern.html">cc.render.Pattern</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.Renderer.html">cc.render.Renderer</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.RenderingContextSnapshot.html">cc.render.RenderingContextSnapshot</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.ScaleManager.html">cc.render.ScaleManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.AbstractShader.html">cc.render.shader.AbstractShader</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.Attribute.html">cc.render.shader.Attribute</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.MatrixUniform.html">cc.render.shader.MatrixUniform</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.SolidColorShader.html">cc.render.shader.SolidColorShader</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.TextureShader.html">cc.render.shader.TextureShader</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.TextureUniform.html">cc.render.shader.TextureUniform</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.Uniform.html">cc.render.shader.Uniform</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.Texture2D.html">cc.render.Texture2D</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.WebGLRenderer.html">cc.render.WebGLRenderer</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.Transition.html">cc.transition.Transition</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionFade.html">cc.transition.TransitionFade</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionMove.html">cc.transition.TransitionMove</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionSlideInB.html">cc.transition.TransitionSlideInB</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionSlideInL.html">cc.transition.TransitionSlideInL</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionSlideInR.html">cc.transition.TransitionSlideInR</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionSlideInT.html">cc.transition.TransitionSlideInT</a>
+						</li>
+						
+						<li>
+							<a href="cc.util.Resource.html">cc.util.Resource</a>
+						</li>
+						
+						<li>
+							<a href="cc.widget.Button.html">cc.widget.Button</a>
+						</li>
+						
+						<li>
+							<a href="cc.widget.Label.html">cc.widget.Label</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+				<li class="dropdown">
+					<a href="global.html" class="dropdown-toggle" data-toggle="dropdown">Global<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="global.html#__extends">__extends</a>
+						</li>
+						
+						<li>
+							<a href="global.html#test">test</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+			</ul>
+		</div>
+	</div>
+
+	<div class="row-fluid">
+
+		
+			<div class="span12">
+				
+				<div id="main">
+					
+
+
+		<h1 class="page-title">Source: render/ScaleManager.js</h1>
+    
+<section>
+	<article>
+		<pre
+			class="sunlight-highlight-javascript linenums">/**
+ * License: see license.txt file
+ */
+/// &lt;reference path="../math/Dimension.ts"/>
+/// &lt;reference path="../math/Matrix3.ts"/>
+/// &lt;reference path="../locale/Locale.ts"/>
+/// &lt;reference path="../util/Debug.ts"/>
+var cc;
+(function (cc) {
+    var render;
+    (function (render) {
+        /**
+         * When setScaleContent is called on a renderer, this hint will tell how to position scenes in director's area.
+         * TOP and BOTTOM values are specified regardless of y-axis rendering origin. TOP will always be TOP of the screen.
+         * @tsenum cc.render.ScaleContentSceneHint
+         */
+        (function (ScaleContentSceneHint) {
+            ScaleContentSceneHint[ScaleContentSceneHint["TOP"] = 1] = "TOP";
+            ScaleContentSceneHint[ScaleContentSceneHint["LEFT"] = 2] = "LEFT";
+            ScaleContentSceneHint[ScaleContentSceneHint["BOTTOM"] = 4] = "BOTTOM";
+            ScaleContentSceneHint[ScaleContentSceneHint["RIGHT"] = 8] = "RIGHT";
+            ScaleContentSceneHint[ScaleContentSceneHint["CENTER"] = 16] = "CENTER";
+            ScaleContentSceneHint[ScaleContentSceneHint["STRETCH"] = 32] = "STRETCH";
+        })(render.ScaleContentSceneHint || (render.ScaleContentSceneHint = {}));
+        var ScaleContentSceneHint = render.ScaleContentSceneHint;
+        /**
+         * Values for Scale canvas and Scale content.
+         * @tsenum cc.render.ScaleManagerStrategy
+         */
+        (function (ScaleManagerStrategy) {
+            ScaleManagerStrategy[ScaleManagerStrategy["NONE"] = 0] = "NONE";
+            ScaleManagerStrategy[ScaleManagerStrategy["SCALE_FIT"] = 1] = "SCALE_FIT";
+            ScaleManagerStrategy[ScaleManagerStrategy["SCALE_ASPECT"] = 2] = "SCALE_ASPECT";
+            ScaleManagerStrategy[ScaleManagerStrategy["SCALE_CONTENT"] = 128] = "SCALE_CONTENT";
+        })(render.ScaleManagerStrategy || (render.ScaleManagerStrategy = {}));
+        var ScaleManagerStrategy = render.ScaleManagerStrategy;
+        /**
+         * Values for forcing orientation.
+         * @tsenum cc.render.OrientationStrategy
+         */
+        (function (OrientationStrategy) {
+            OrientationStrategy[OrientationStrategy["BOTH"] = 0] = "BOTH";
+            OrientationStrategy[OrientationStrategy["PORTRAIT"] = 1] = "PORTRAIT";
+            OrientationStrategy[OrientationStrategy["LANDSCAPE"] = 2] = "LANDSCAPE";
+        })(render.OrientationStrategy || (render.OrientationStrategy = {}));
+        var OrientationStrategy = render.OrientationStrategy;
+        /**
+         * Values for canvas positioning inside parent node after setting canvas Scale values.
+         * @tsenum cc.render.ScalePosition
+         */
+        (function (ScalePosition) {
+            ScalePosition[ScalePosition["NONE"] = 0] = "NONE";
+            ScalePosition[ScalePosition["CENTER"] = 1] = "CENTER";
+            ScalePosition[ScalePosition["LEFT"] = 2] = "LEFT";
+            ScalePosition[ScalePosition["RIGHT"] = 4] = "RIGHT";
+        })(render.ScalePosition || (render.ScalePosition = {}));
+        var ScalePosition = render.ScalePosition;
+        /**
+         * @class cc.render.ScaleManager
+         * @classdesc
+         *
+         *
+         * The ScaleManager object has different responsibilities that affect the final visual of the built Canvas object.
+         * &lt;p>
+         * Its main responsibilities are:
+         * &lt;ul>
+         *     &lt;li>Up/Down scale the canvas object to fit the screen.
+         *     &lt;li>Up/Down scale the game content.
+         *     &lt;li>Fix the orientation and notify when it changes.
+         * &lt;/ul>
+         * &lt;p>
+         * There are important differences between the first and second responsibility, as well as important performance/visual
+         * implications.
+         *
+         * &lt;h3>Up/Down scale the canvas object.&lt;/h3>
+         * &lt;p>
+         *     This feature affects the canvas object, which is scaled using css attributes. This operation affects the final
+         *     game's visual quality. For example, if your game uses a 400x300 pixels canvas object, and the window is 1200x900
+         *     pixels, the canvas object could be scaled by 3 in each axe, which will lower the visual quality. There are
+         *     ways of overcoming this by up/down scaling the game content though.
+         * &lt;p>
+         *     These scaling operations are sensitive to the DOM node that contains the canvas object though. Internally, this
+         *     API call modifies the canvas size with a CSS style.
+         * &lt;p>
+         *     There are two different modifiers which will tell how to up/down scale the canvas object:
+         *
+         *     &lt;h4>Scale strategy (How to scale the canvas)&lt;/h4>
+         *
+         *     &lt;ul>NONE&lt;/ul>
+         *     &lt;p>
+         *         This modifier does not change the canvas in any way. It will be presented on screen with the original size
+         *     &lt;ul>SCALE_FIT&lt;/ul>
+         *     &lt;p>
+         *         This modifier will stretch the canvas to fit the DOM parent container object. The stretching can be uneven,
+         *         breaking the aspect ratio.
+         *     &lt;ul>SCALE_ASPECT&lt;/ul>
+         *     &lt;p>
+         *         This modifier will stretch the canvas preserving its aspect ratio. The final scaled Canvas may not take
+         *         over the whole parent node's screen area, and some letterboxing effect may occur. This effect makes some
+         *         horizontal or vertical lines appear since the canvas can't cover the whole area. You control how these
+         *         lines appear with the ScalePosition modifier.
+         *
+         *     &lt;h4>Scale position (how to position the canvas relative to the parent's client area.&lt;/h4>
+         *     &lt;ul>NONE&lt;/ul>
+         *     &lt;p>
+         *         Do nothing special. Follow the natural browser rules to position the canvas in the parent. If the
+         *         scale strategy is SCALE_ASPECT, the letter-boxing will be on the right/bottom or left/bottom (depending
+         *         if the browser writes text left-to-right or right-to-left respectively).
+         *     &lt;ul>LEFT&lt;/ul>
+         *     &lt;p>
+         *         Force the canvas position to be left in the parent Node's client area.
+         *     &lt;ul>RIGHT&lt;/ul>
+         *     &lt;p>
+         *         Force the canvas position to be right in the parent Node's client area.
+         *     &lt;ul>CENTER&lt;/ul>
+         *     &lt;p>
+         *         Force the canvas position to be centered in the parent Node's client area. When the ccale strategy is
+         *         SCALE_ASPECT, this is the best option since the letterbox will be evenly distributed to the sides or
+         *         top/down of the canvas.
+         *
+         * &lt;h3>Up/down scale the canvas content, not the canvas itself.&lt;/h3>
+         * &lt;p>
+         *     This feature affects the Canvas content which has a direct impact in better visual quality (if higher resolution
+         *     graphics are used) but has an impact in performance as well (bigger graphics, could mean lower performance).
+         * &lt;p>
+         *     When you want to build a retina enabled game, this is the feature you need to focus on.
+         * &lt;p>
+         *     Basically, what we want to achieve is to break the bound between pixels and in-game units. This is what happens
+         *     with retina displays, which for example, report a 480x320 viewport size, while the actual screen resolution
+         *     is 960x640. The system is breaking the bound between points and pixels.
+         * &lt;p>
+         *     For our games, we may to achieve the same effect, and it is achieved by setting the ratio between pixels and
+         *     game units.
+         * &lt;p>
+         *     A call in the ScaleManager of the form: &lt;code>setScaleContent( unitsWidth:number, unitsHeight:number )&lt;/code>
+         *     must be done. This will instrument the CocosJS core to break the bound, and start upscaling content.
+         *     CocosJS already makes all internal considerations to draw bigger resources in the same screen area resulting
+         *     in an upgraded visual experience at no cost.
+         * &lt;p>
+         *     Internally this API will build a bigger canvas to conform to all the available space, so don't rely on
+         *     canvas.width or canvas.height values at all in your game.
+         *
+         *
+         * &lt;h3>Orientation&lt;/h3>
+         * &lt;p>
+         *     This feature affects mobile device or screen orientation. Events for this events can be fired as well if the
+         *     browser window aspect ratio changes.
+         * &lt;p>
+         *     Even though the screen orientation can't yet be locked in HTML5, this API will allow you to manually switch
+         *     to a wrong-orientation mode. The default orientation mode is BOTH, so any orientation will be considered valid.
+         * &lt;p>
+         *     A call to &lt;code>ScaleManager.forceOrientation( orientation:OrientationStrategy, onOk, onError )&lt;/code>
+         *     must be done to enable orientation control.
+         *
+         *
+         */
+        var ScaleManager = (function () {
+            /**
+             * Create a new ScaleManager object instance.
+             * @method cc.render.ScaleManager#constructor
+             */
+            function ScaleManager(renderer) {
+                /**
+                 * A DOM Node, and is the reference node to calculate values for ScaleStrategy's canvas
+                 * positioning. Null means to use the window as reference.
+                 * @member cc.render.ScaleManager#_referenceParentNode
+                 * @type {HTMLElement}
+                 * @private
+                 */
+                this._referenceParentNode = null;
+                /**
+                 * The Scale strategy for up/down scaling the canvas object. Values are from the enum
+                 * object ScaleManagerStrategy. By default, no scale on the canvas will be applied.
+                 * @member cc.render.ScaleManager#_scaleStrategy
+                 * @type {number}
+                 * @private
+                 */
+                this._scaleStrategy = 0 /* NONE */;
+                /**
+                 * The Canvas position after setting a ScaleStrategy value. By default, no Position will be forced since by default,
+                 * there's no scale to apply. Values are from the enum object ScalePosition.
+                 * @member cc.render.ScaleManager#_scalePosition
+                 * @type {number}
+                 * @private
+                 */
+                this._scalePosition = 0 /* NONE */;
+                /**
+                 * The preferred Game orientation. By default, both orientations are suitable. The values are from the enum
+                 * object OrientationStrategy.
+                 * @member cc.render.ScaleManager#_forceOrientationStrategy
+                 * @type {number}
+                 * @private
+                 */
+                this._forceOrientationStrategy = 0 /* BOTH */;
+                /**
+                 * Internal boolean that sets current orientation as valid or not depending on the forced orientation strategy.
+                 * @member cc.render.ScaleManager#_wrongOrientation
+                 * @type {boolean}
+                 * @private
+                 */
+                this._wrongOrientation = false;
+                /**
+                 * Callback invoked when the device is or enters in a wrong orientation.
+                 * @member cc.render.ScaleManager#_onOrientationError
+                 * @type {cc.render.OrientationCallback}
+                 * @private
+                 */
+                this._onOrientationError = null;
+                /**
+                 * Callback invoked when the device is or enters in a valid orientation.
+                 * @member cc.render.ScaleManager#_onOrientationOk
+                 * @type {cc.render.OrientationCallback}
+                 * @private
+                 */
+                this._onOrientationOk = null;
+                /**
+                 * Is the game in fullscreen ?
+                 * @member cc.render.ScaleManager#_fullScreen
+                 * @type {boolean}
+                 * @private
+                 */
+                this._fullScreen = false;
+                /**
+                 * Is current browser/device/wrapper full screen capable ?
+                 * @member cc.render.ScaleManager#_fullScreenCapable
+                 * @type {boolean}
+                 * @private
+                 */
+                this._fullScreenCapable = false;
+                /**
+                 * Canvas object to apply the Scale strategies to.
+                 * @member cc.render.ScaleManager#_surface
+                 * @type {HTMLCanvasElement}
+                 * @private
+                 */
+                this._surface = null;
+                /**
+                 * Current browser vendor prefix for orientation and full screen operations.
+                 * @member cc.render.ScaleManager#_prefix
+                 * @type {string}
+                 * @private
+                 */
+                this._prefix = null;
+                /**
+                 * When resizing the window object, the ScaleManager must wait a few milliseconds to fire its internal
+                 * orientation, and scale tests. This member is the setTimeout generated id.
+                 * @member cc.render.ScaleManager#_windowResizeTimer
+                 * @type {number}
+                 * @private
+                 */
+                this._windowResizeTimer = null;
+                /**
+                 * Callback invoked when the system exits full screen.
+                 * @member cc.render.ScaleManager#_onExitFullScreen
+                 * @type {cc.render.FullScreenCallback}
+                 * @private
+                 */
+                this._onExitFullScreen = null;
+                /**
+                 * Callback invoked when the system enters full screen.
+                 * @member cc.render.ScaleManager#_onEnterFullScreen
+                 * @type {cc.render.FullScreenCallback}
+                 * @private
+                 */
+                this._onEnterFullScreen = null;
+                /**
+                 * Cached vendor-dependent enter fullscreen function name.
+                 * @member cc.render.ScaleManager#_requestFullScreen
+                 * @type {string}
+                 * @private
+                 */
+                this._requestFullScreen = null;
+                /**
+                 * Cached vendor-dependent exit fullscreen function name.
+                 * @member cc.render.ScaleManager#_exitFullScreen
+                 * @type {string}
+                 * @private
+                 */
+                this._exitFullScreen = null;
+                /**
+                 * When scale content is enabled, this is the internal matrix to achieve the expected result.
+                 * @member cc.render.ScaleManager#_unitsMatrix
+                 * @type {Float32Array}
+                 * @private
+                 */
+                this._unitsMatrix = new Float32Array(9);
+                /**
+                 * If scale content is enabled, this is the scale ratio to convert units to pixels.
+                 * @member cc.render.ScaleManager#_unitsFactor
+                 * @type {number}
+                 * @private
+                 */
+                this._unitsFactor = 1;
+                /**
+                 * Has setContentScale been called ?
+                 * @member cc.render.ScaleManager#_contentScaled
+                 * @type {boolean}
+                 * @private
+                 */
+                this._contentScaled = false;
+                // bugbug refactor this.
+                this._renderer = null;
+                this._onWindowResized = null;
+                this._renderer = renderer;
+                this._units = new cc.math.Dimension();
+                cc.math.Matrix3.identity(this._unitsMatrix);
+                this._unitsFactor = 1;
+                this.__initialize();
+                this.setScaleSurface(renderer._surface);
+                //this.setScaleContent( renderer._surface.width, renderer._surface.height );
+                this.__setScaleContentMatrix();
+            }
+            /**
+             * Initialize the ScaleManager, get method cache names, etc.
+             * @method cc.render.ScaleManager#__initialize
+             * @private
+             */
+            ScaleManager.prototype.__initialize = function () {
+                var prefix = ['', 'moz', 'ms', 'webkit'];
+                for (var i = 0; i &lt; prefix.length; i++) {
+                    if (document.body[prefix[i] + (prefix[i] === '' ? 'requestFullscreen' : 'RequestFullscreen')]) {
+                        this._prefix = prefix[i];
+                        this._requestFullScreen = prefix[i] === '' ? 'requestFullscreen' : prefix[i] + 'RequestFullscreen';
+                        this._exitFullScreen = prefix[i] === '' ? 'exitFullscreen' : prefix[i] + 'ExitFullscreen';
+                        if (prefix[i] === 'moz') {
+                            this._exitFullScreen = 'mozCancelFullScreen';
+                        }
+                        else if (prefix[i] === 'ms') {
+                            document.addEventListener('MSFullscreenChange', this.__fullScreenChange.bind(this), false);
+                            document.addEventListener('MSFullscreenError', this.__fullScreenError.bind(this), false);
+                        }
+                        else {
+                            document.addEventListener(this._prefix + 'fullscreenchange', this.__fullScreenChange.bind(this), false);
+                            document.addEventListener(this._prefix + 'fullscreenerror', this.__fullScreenError.bind(this), false);
+                        }
+                        break;
+                    }
+                }
+                this._fullScreenCapable = null !== this._prefix;
+                window.addEventListener('resize', this.__windowResized.bind(this), false);
+            };
+            /**
+             * Set the canvas to apply the ScaleStrategy to.
+             * @method cc.render.ScaleManager#setScaleSurface
+             * @param surface {HTMLCanvasElement}
+             */
+            ScaleManager.prototype.setScaleSurface = function (surface) {
+                this._surface = surface;
+                this._units.width = surface.width;
+                this._units.height = surface.height;
+                this.checkOrientation();
+                var me = this;
+                setTimeout(function () {
+                    me.__setScaleImpl();
+                }, 200);
+            };
+            /**
+             * After setting scale content, this value is the ratio to transform in-game units to pixels.
+             * @method cc.render.ScaleManager#getUnitsFactor
+             * @returns {number}
+             */
+            ScaleManager.prototype.getUnitsFactor = function () {
+                return this._unitsFactor;
+            };
+            /**
+             * Enable orientation change detection. If not set, landscape and portrait will be valid orientations.
+             * @method cc.render.ScaleManager#forceOrientation
+             * @param os {cc.render.OrientationStrategy} enum orientation value
+             * @param onOk {cc.render.OrientationOkCallback=} callback invoked when the orientation changes and is valid.
+             * @param onError {cc.render.OrientationErrorCallback=} callback invoked when the orientation changes and is NOT valid.
+             * @returns {cc.render.ScaleManager}
+             */
+            ScaleManager.prototype.forceOrientation = function (os, onOk, onError) {
+                this._forceOrientationStrategy = os;
+                // don't use setters to prevent fire reflow events.
+                if (onOk) {
+                    this._onOrientationOk = onOk;
+                }
+                if (onError) {
+                    this._onOrientationError = onError;
+                }
+                this.checkOrientation();
+                return this;
+            };
+            /**
+             * Check whether the orientation is valid, and invoke callbacks accordingly.
+             * @method cc.render.ScaleManager#checkOrientation
+             * @private
+             */
+            ScaleManager.prototype.checkOrientation = function () {
+                var currentOrientation = window.innerWidth > window.innerHeight ? 2 /* LANDSCAPE */ : 1 /* PORTRAIT */;
+                if (this._forceOrientationStrategy === 0 /* BOTH */) {
+                    if (this._onOrientationOk) {
+                        this._onOrientationOk(currentOrientation);
+                    }
+                }
+                if (currentOrientation !== this._forceOrientationStrategy) {
+                    this._wrongOrientation = true;
+                    if (this._onOrientationError) {
+                        this._onOrientationError();
+                    }
+                }
+                else {
+                    if (this._wrongOrientation &amp;&amp; this._onOrientationOk) {
+                        if (this._onOrientationOk) {
+                            this._onOrientationOk(currentOrientation);
+                        }
+                    }
+                    this._wrongOrientation = false;
+                }
+            };
+            /**
+             * Get whether the current orientation is valid compared to the expected orientation.
+             * @method cc.render.ScaleManager#isWrongOrientation
+             * @returns {boolean}
+             */
+            ScaleManager.prototype.isWrongOrientation = function () {
+                return this._wrongOrientation;
+            };
+            /**
+             * Get whether the system is able to switch to full screen mode.
+             * @method cc.render.ScaleManager#isFullScreenCapable
+             * @returns {boolean}
+             */
+            ScaleManager.prototype.isFullScreenCapable = function () {
+                return this._fullScreenCapable;
+            };
+            /**
+             * Start full screen process. If success the optional f callback function will be called.
+             * @method cc.render.ScaleManager#startFullScreen
+             * @param f {cc.render.FullScreenCallback=} callback invoked when successfully switching to full screen.
+             */
+            ScaleManager.prototype.startFullScreen = function (f) {
+                if (this._fullScreenCapable) {
+                    if (typeof f !== "undefined") {
+                        this.onEnterFullScreen(f);
+                    }
+                    this._surface[this._requestFullScreen]();
+                }
+            };
+            /**
+             * End full screen process. If success the optional f callback function will be called.
+             * @method cc.render.ScaleManager#startFullScreen
+             * @param f {cc.render.FullScreenCallback=} callback invoked when successfully exiting from full screen.
+             */
+            ScaleManager.prototype.endFullScreen = function (f) {
+                if (this._fullScreenCapable) {
+                    if (typeof f !== "undefined") {
+                        this.onExitFullScreen(f);
+                    }
+                    document[this._exitFullScreen]();
+                }
+            };
+            /**
+             * Get whether the scale manager is currently in full screen mode.
+             * @method cc.render.ScaleManager#isFullScreen
+             * @returns {boolean}
+             */
+            ScaleManager.prototype.isFullScreen = function () {
+                return this._fullScreen;
+            };
+            ScaleManager.prototype.onWindowResized = function (callback) {
+                this._onWindowResized = callback;
+                return this;
+            };
+            /**
+             * Internal operation when the window resizes and scale content/scale strategies are set.
+             * @method cc.render.ScaleManager#__windowResized
+             * @param e {UIEvent}
+             * @private
+             */
+            ScaleManager.prototype.__windowResized = function (e) {
+                if (this._windowResizeTimer !== null) {
+                    clearTimeout(this._windowResizeTimer);
+                }
+                var me = this;
+                this._windowResizeTimer = setTimeout(function () {
+                    clearTimeout(me._windowResizeTimer);
+                    me._windowResizeTimer = null;
+                    me.checkOrientation();
+                    if (me._contentScaled) {
+                        var w, h;
+                        if (this._referenceParentNode) {
+                            w = this._referenceParentNode.width;
+                            h = this._referenceParentNode.height;
+                        }
+                        else {
+                            w = window.innerWidth;
+                            h = window.innerHeight;
+                        }
+                        //me._renderer.setScaleContent( me._units.width,  me._units.height, w, h );
+                        me._onWindowResized(w, h);
+                    }
+                    if (!this.__wrongOrientation) {
+                        me.__setScaleImpl();
+                    }
+                }, 1000);
+            };
+            /**
+             * Internal operation when the system switches to full screen.
+             * @method cc.render.ScaleManager#__fullScreenChange
+             * @param e {UIEvent}
+             * @private
+             */
+            ScaleManager.prototype.__fullScreenChange = function (e) {
+                if (this._fullScreen) {
+                    if (this._onExitFullScreen) {
+                        this._onExitFullScreen();
+                    }
+                    this._fullScreen = false;
+                }
+                else {
+                    if (this._onEnterFullScreen) {
+                        this._onEnterFullScreen();
+                    }
+                    this._fullScreen = true;
+                }
+                var me = this;
+                setTimeout(function () {
+                    me.__setScaleImpl();
+                }, 500);
+            };
+            /**
+             * Register callback to be notified when the system successfully enters full screen mode.
+             * @method cc.render.ScaleManager#onEnterFullScreen
+             * @param f {cc.render.FullScreenCallback}
+             * @returns {cc.render.ScaleManager}
+             */
+            ScaleManager.prototype.onEnterFullScreen = function (f) {
+                this._onEnterFullScreen = f;
+                return this;
+            };
+            /**
+             * Register callback to be notified when the system successfully exits full screen mode.
+             * @method cc.render.ScaleManager#onExitFullScreen
+             * @param f {cc.render.FullScreenCallback}
+             * @returns {cc.render.ScaleManager}
+             */
+            ScaleManager.prototype.onExitFullScreen = function (f) {
+                this._onExitFullScreen = f;
+                return this;
+            };
+            /**
+             * Register callback to be notified when the system successfully changes orientation.
+             * @method cc.render.ScaleManager#onOrientationOk
+             * @param f {cc.render.OrientationOkCallback}
+             * @returns {cc.render.ScaleManager}
+             */
+            ScaleManager.prototype.onOrientationOk = function (f) {
+                this._onOrientationOk = f;
+                this.checkOrientation();
+                return this;
+            };
+            /**
+             * Register callback to be notified when the system unsuccessfully changes orientation.
+             * @method cc.render.ScaleManager#onOrientationError
+             * @param f {cc.render.OrientationCallback}
+             * @returns {cc.render.ScaleManager}
+             */
+            ScaleManager.prototype.onOrientationError = function (f) {
+                this._onOrientationError = f;
+                this.checkOrientation();
+                return this;
+            };
+            /**
+             * Internal method called at system level when there's no full screen availability.
+             * @method cc.render.ScaleManager#__fullScreenError
+             * @param e {UIEvent}
+             * @private
+             */
+            ScaleManager.prototype.__fullScreenError = function (e) {
+                cc.Debug.warn(cc.locale.WARN_FULLSCREEN_ERROR);
+            };
+            /**
+             * When ScaleStrategy is set, this DOM node will be the reference for position calculations.
+             * @method cc.render.ScaleManager#setReferenceParentNode
+             * @param node {HTMLElement}
+             */
+            ScaleManager.prototype.setReferenceParentNode = function (node) {
+                this._referenceParentNode = node;
+            };
+            /**
+             * Enable canvas scale capabilities. This will scale the canvas object, not its internal drawing operations.
+             * @method cc.render.ScaleManager#setScale
+             * @param scale {cc.render.ScaleManagerStrategy} the scale type.
+             * @param positionOp {cc.render.ScalePosition=} the positioning when the scale is set.
+             * @returns {cc.render.ScaleManager}
+             * @see cc.render.ScaleManager#setScaleContent
+             */
+            ScaleManager.prototype.setScale = function (scale, positionOp) {
+                if (this._scaleStrategy === scale) {
+                    return;
+                }
+                this._scaleStrategy = scale;
+                this._scalePosition = positionOp || 0 /* NONE */;
+                if (this._surface) {
+                    var me = this;
+                    setTimeout(function () {
+                        me.__setScaleImpl();
+                    }, 200);
+                }
+                return this;
+            };
+            /**
+             * Enable content scale. Content scale is necessary for retina display honor mechanisms. This method instruments
+             * CocosJS core that there's no direct mapping between a pixel and a game unit.
+             * @method cc.render.ScaleManager#setScaleContent
+             * @param unitsWidth {number}
+             * @param unitsHeight {number}
+             */
+            ScaleManager.prototype.setScaleContent = function (unitsWidth, unitsHeight) {
+                this._units.width = unitsWidth;
+                this._units.height = unitsHeight;
+                this.__setScaleContentMatrix();
+                this._contentScaled = true;
+                return this._unitsMatrix;
+            };
+            /**
+             * Internal method to calculate the pixel-point mapping operations.
+             * @method cc.render.ScaleManager#__setScaleContentMatrix
+             * @private
+             */
+            ScaleManager.prototype.__setScaleContentMatrix = function () {
+                if (this._surface &amp;&amp; this._units.width > 0 &amp;&amp; this._units.height > 0) {
+                    var scale = Math.min(this._surface.width / this._units.width, this._surface.height / this._units.height);
+                    this._unitsFactor = scale;
+                    cc.math.Matrix3.setScale(this._unitsMatrix, scale, scale);
+                    if (cc.render.RENDER_ORIGIN === "bottom") {
+                        // invert viewport
+                        var um = this.getScaleContentMatrix();
+                        um[1] *= -1;
+                        um[4] *= -1;
+                        um[5] += this._renderer._dimension.height;
+                    }
+                }
+            };
+            ScaleManager.prototype.getScaleContentMatrix = function () {
+                return this._unitsMatrix;
+            };
+            /**
+             * Internal method to scale the canvas object using css styles.
+             * @method cc.render.ScaleManager#__setScaleImpl
+             * @private
+             */
+            ScaleManager.prototype.__setScaleImpl = function () {
+                this._surface.style.width = '';
+                this._surface.style.height = '';
+                var scale = this._scaleStrategy;
+                if (scale === 0 /* NONE */) {
+                    this.__setScaleNone(this._surface);
+                }
+                else if (scale === 1 /* SCALE_FIT */) {
+                    this.__setScaleFit(this._surface);
+                }
+                else if (scale === 2 /* SCALE_ASPECT */) {
+                    this.__setScaleAspect(this._surface);
+                }
+            };
+            /**
+             * When setting the scale strategy, this method calculates the necessary styles to position the canvas relative to
+             * its parent client area. The calculations will be based on the ScalePosition parameter of setScale method call.
+             * @method cc.render.ScaleManager#__setScalePosition
+             * @param scaleW {number} canvas scale factor. when setScale is called, the canvas can be scaled with different
+             *          values. this is the width scale parameter.
+             * @private
+             */
+            ScaleManager.prototype.__setScalePosition = function (scaleW) {
+                if (this.isFullScreen()) {
+                    this._surface.style.margin = "0";
+                    return;
+                }
+                var pw = 0;
+                if (this._referenceParentNode === null) {
+                    pw = window.innerWidth;
+                }
+                else {
+                    pw = this._referenceParentNode.getBoundingClientRect().width;
+                }
+                switch (this._scalePosition) {
+                    case 2 /* LEFT */:
+                        this._surface.style.margin = "0";
+                        break;
+                    case 4 /* RIGHT */:
+                        this._surface.style.marginLeft = ((pw - scaleW * this._surface.width) | 0) + 'px';
+                        break;
+                    case 1 /* CENTER */:
+                        this._surface.style.marginLeft = (((pw - scaleW * this._surface.width) / 2) | 0) + 'px';
+                        break;
+                }
+                this._surface.style.padding = "0";
+            };
+            /**
+             * Set the canvas with no scale.
+             * @method cc.render.ScaleManager#__setScaleNone
+             * @param surface {HTMLCanvasElement}
+             * @private
+             */
+            ScaleManager.prototype.__setScaleNone = function (surface) {
+                surface.style.width = surface.width + 'px';
+                surface.style.height = surface.height + 'px';
+                this.__setScalePosition(1);
+            };
+            /**
+             * Stretch the canvas with css scale attributes to fit exactly in its parent.
+             * This can lead to uneven scaling, because of canvas object stretch operations.
+             * @method cc.render.ScaleManager#__setScaleFit
+             * @param surface {HTMLCanvasElement}
+             * @private
+             */
+            ScaleManager.prototype.__setScaleFit = function (surface) {
+                // remove element so that document reflows and can get actual parent size.
+                surface.style.display = 'none';
+                // scale in parent, but keeping aspect ratio. letterbox  warning!!
+                var pw, ph;
+                var parentBounds;
+                if (this._referenceParentNode === null) {
+                    pw = window.innerWidth;
+                    ph = window.innerHeight;
+                }
+                else {
+                    parentBounds = this._referenceParentNode.getBoundingClientRect();
+                    pw = parentBounds.width;
+                    ph = parentBounds.height;
+                }
+                var sw = surface.width;
+                var sh = surface.height;
+                var factorx = pw / sw;
+                var factory = ph / sh;
+                surface.style.width = (factorx * sw) + 'px';
+                surface.style.height = (factory * sh) + 'px';
+                surface.style.display = 'block';
+                this.__setScalePosition(factorx);
+            };
+            /**
+             * Scale the canvas keeping aspect ratio to fit in its parent node client area.
+             * @param surface {HTMLCanvasElement}
+             * @method cc.render.ScaleManager#__setScaleAspect
+             * @private
+             */
+            ScaleManager.prototype.__setScaleAspect = function (surface) {
+                // remove element so that document reflows and can get actual parent size.
+                surface.style.display = 'none';
+                // scale in parent, but keeping aspect ratio. letterbox  warning!!
+                var pw, ph;
+                var parentBounds;
+                if (this._referenceParentNode === null) {
+                    pw = window.innerWidth;
+                    ph = window.innerHeight;
+                }
+                else {
+                    parentBounds = this._referenceParentNode.getBoundingClientRect();
+                    pw = parentBounds.width;
+                    ph = parentBounds.height;
+                }
+                var sw = surface.width;
+                var sh = surface.height;
+                var factor = Math.min(pw / sw, ph / sh);
+                surface.style.width = (factor * sw) + 'px';
+                surface.style.height = (factor * sh) + 'px';
+                surface.style.display = 'block';
+                this.__setScalePosition(factor);
+            };
+            /**
+             * Get the currently applied canvas scale strategy.
+             * @method cc.render.ScaleManager#getScaleStrategy
+             * @returns {cc.render.ScaleManagerStrategy}
+             */
+            ScaleManager.prototype.getScaleStrategy = function () {
+                return this._scaleStrategy;
+            };
+            return ScaleManager;
+        })();
+        render.ScaleManager = ScaleManager;
+    })(render = cc.render || (cc.render = {}));
+})(cc || (cc = {}));
+</pre>
+	</article>
+</section>
+
+
+
+
+
+				</div>
+
+				<div class="clearfix"></div>
+				<footer>
+					
+					@hyperandroid
+					<br />
+					
+					
+		<span class="copyright">
+		Chukong inc. 2014
+		</span>
+					<br />
+					
+		<span class="jsdoc-message">
+		Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha5</a>
+		on 23/Tu/2015 using the <a
+			href="https://github.com/terryweiss/docstrap">DocStrap template</a>.
+		</span>
+				</footer>
+			</div>
+
+			
+			<br clear="both">
+		</div>
+
+	</div>
+	<!--<script src="scripts/sunlight.js"></script>-->
+	<script src="scripts/docstrap.lib.js"></script>
+	<script src="scripts/bootstrap-dropdown.js"></script>
+	<script src="scripts/toc.js"></script>
+
+	<script>
+		$( function () {
+			$( "[id*='$']" ).each( function () {
+				var $this = $( this );
+
+				$this.attr( "id", $this.attr( "id" ).replace( "$", "__" ) );
+			} );
+
+			$( "#toc" ).toc( {
+				anchorName  : function ( i, heading, prefix ) {
+					return $( heading ).attr( "id" ) || ( prefix + i );
+				},
+				selectors   : "h1,h2,h3,h4",
+				showAndHide : false,
+				scrollTo    : "100px"
+			} );
+
+			$( "#toc>ul" ).addClass( "nav nav-pills nav-stacked" );
+			$( "#main span[id^='toc']" ).addClass( "toc-shim" );
+			$( '.dropdown-toggle' ).dropdown();
+//			$( ".tutorial-section pre, .readme-section pre" ).addClass( "sunlight-highlight-javascript" ).addClass( "linenums" );
+
+			$( ".tutorial-section pre, .readme-section pre" ).each( function () {
+				var $this = $( this );
+
+				var example = $this.find( "code" );
+				exampleText = example.html();
+				var lang = /{@lang (.*?)}/.exec( exampleText );
+				if ( lang && lang[1] ) {
+					exampleText = exampleText.replace( lang[0], "" );
+					example.html( exampleText );
+					lang = lang[1];
+				} else {
+					lang = "javascript";
+				}
+
+				if ( lang ) {
+
+					$this
+						.addClass( "sunlight-highlight-" + lang )
+						.addClass( "linenums" )
+						.html( example.html() );
+
+				}
+			} );
+
+			Sunlight.highlightAll( {
+				lineNumbers : true,
+				showMenu : true,
+				enableDoclinks : true
+			} );
+		} );
+	 </script>
+
+
+
+	<!--Navigation and Symbol Display-->
+	
+
+
+	<!--Google Analytics-->
+	
+
+</body>
+</html>

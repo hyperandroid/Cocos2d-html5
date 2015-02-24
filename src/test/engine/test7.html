@@ -1,0 +1,162 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Cocos2d-html5 Custom Node draw</title>
+
+    <link rel="stylesheet" href="../css/genericons.css">
+    <link rel="stylesheet" href="../css/templatestyles.css">
+    <link rel="stylesheet" href="../stylesheets/pygment_trac.css">
+    <link rel="stylesheet" id="open-sans-css"
+          href="//fonts.googleapis.com/css?family=Open+Sans%3A300italic%2C400italic%2C600italic%2C300%2C400%2C600&amp;subset=latin%2Clatin-ext&amp;ver=4.1.1"
+          type="text/css" media="all">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+</head>
+<body>
+
+<button class="toggle" id="menutoggle">
+</button>
+<div class="wrapper">
+<header>
+
+    <div class="site-title">
+        <div class="site-title-info">
+            <h1>Cocos2d-html5</h1>
+        </div>
+        <div id="menu" class="site-menu">
+            <div id="menuclose" class="close-button"><span class="icon-close"></span></div>
+            <p class="demos-menu-title">Demos list</p>
+            <ul id="site-menu" >
+
+            </ul>
+        </div>
+    </div>
+</header>
+
+    <section>
+        <div><canvas id="c"></canvas></div>
+        <div>
+            <p>
+                This demos shows custom draw method per Node.<br>
+                The draw implementation draws three chunks from a texture object.
+            </p>
+            <p>
+                Nodes are following a cyclic and arbitrary Action.
+            </p>
+        </div>
+    </section>
+    <footer>
+        <p>This project is maintained by <a href="https://github.com/hyperandroid">hyperandroid</a></p>
+    </footer>
+</div>
+<script src="../../../javascripts/scale.fix.js"></script>
+<script src="menu.js"></script>
+<script src="../../../dist/all.js"></script>
+<script>
+    (function () {
+        document.getElementById("menutoggle").addEventListener("click", function(e) {
+            e.preventDefault();
+            document.getElementById("menu").style["display"]="block";
+        }, false );
+        document.getElementById("menuclose").addEventListener("click", function(e) {
+            e.preventDefault();
+            document.getElementById("menu").style["display"]="none";
+        }, false );
+
+        var W = 700;
+        var H = 600;
+
+
+        function init( parent, texture ) {
+
+            var NW = 600;
+            var NH = 500;
+            var R = 6;
+            var C = 7;
+            var INSET= 10;
+            var nodeW= (NW/C);
+            var nodeH= (NH/R);
+
+            for (var i = 0; i < R; i++) {
+                for (var j = 0; j < C; j++) {
+                    var n = new cc.node.Node().
+                            setPosition(j * nodeW + nodeW / 2, i * nodeH + nodeH / 2).
+                            setContentSize(nodeW - INSET, nodeH - INSET).
+                            setColor(Math.random() / 2 + .5, Math.random() / 2 + .5, Math.random() / 2 + .5);
+
+                    n.draw= function( ctx) {
+
+                        ctx.tintColor= this._color;
+                        ctx.drawTexture( texture, 0, 0 );
+                        ctx.translate( 30, 10 );
+                        ctx.rotate( Math.PI/4 );
+                        ctx.drawTexture( texture, 0, 0, 10, 50 );
+                        ctx.translate( 10, 10 );
+                        ctx.scale(.3,.3);
+                        ctx.drawTexture( texture, 10,10,20,20, 60,10,60,60 );
+                    };
+
+                    parent.addChild(n);
+
+                    var r = cc.repeat(cc.rotateBy(2, 180), 1);
+                    var s00 = cc.scaleBy(1.5, 0, 1);
+                    var s01 = cc.scaleBy(1.5, 1, 1);
+                    var seq0 = cc.sequence(r, s00, s01, cc.tintBy(2, -128, -128, -128));
+                    var seq1 = seq0.reverse();
+                    var seq = cc.repeatForever(cc.sequence(seq0, seq1));
+
+                    n.runAction(seq);
+
+                }
+            }
+        }
+
+        function createDirector( name, renderer, img ) {
+
+            var director = new cc.node.Director().
+                    setContentSize(W, H).
+                    setColor(0, 0, 1).
+                    setRenderer( renderer ).
+                    setName(name);
+
+            var scene1 = director.createScene().
+                    setColor(1, 0, 0).
+                    setName("scene1").
+                    onEnter(function (scene) {
+                        console.log(scene._name + " enter.");
+                    }).
+                    onExit(function (scene) {
+                        console.log(scene._name + " exit.");
+                    }).
+                    onEnterTransitionDidFinish(function (scene) {
+                        console.log(scene._name + " enter did finish.");
+                    }).
+                    onExitTransitionDidStart(function (scene) {
+                        console.log(scene._name + " exit did start.");
+                    });
+
+            var texture= new cc.render.Texture2D(img);
+            renderer.prepareTexture( texture )
+            init(scene1, texture);
+
+            director.runScene(scene1);
+
+            return director;
+        }
+
+        var img= new Image();
+        img.onload= function() {
+            var director= createDirector("d2", new cc.render.WebGLRenderer(W, H, document.getElementById("c") ), img).setColor(0,0,1);
+        };
+        img.src="../res/bunny.png";
+
+    }());
+
+</script>
+</body>
+</html>
+

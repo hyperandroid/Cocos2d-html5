@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Basic Director/Scene/Transition demo.</title>
+</head>
+<body style="margin:0; padding:0; background:#fff;">
+
+<script src="../../../dist/all.js"></script>
+<script src="../../../lib/stats/stats.js"></script>
+
+<script>
+    (function () {
+
+        cc.render.RENDER_ORIGIN="bottom";
+        var W = 800;
+        var H = 600;
+
+        function init( parent, texture ) {
+
+
+            var i,j;
+
+            var NW = 700;
+            var NH = 500;
+            var R = 6;
+            var C = 8;
+            var INSET= 10;
+            var nodeW= (NW/C);
+            var nodeH= (NH/R);
+
+            var sf = new cc.node.sprite.SpriteFrame( texture );
+            var sfs= [];
+            for( i=0; i<21; i++ ) {
+                for( j=0; j<7; j++ ) {
+                    var sfi= null;
+                    sfs.push( sfi= sf.createSubSpriteFrame(
+                            texture.width/7*j, texture.height/21*i, texture.width/7, texture.height/21,
+                            j+i*7) );
+                    cc.plugin.asset.AssetManager.addSpriteFrame(sfi);
+//                    sfi.rotated= Math.random()<.5;
+//                    sfi.rotated= true;
+                }
+            }
+
+            var animations = {
+
+                "stand": [123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144],
+                "fall": [0, 1, 2, 3, 4, 5, 6, 7],
+                "wall_ud": [74, 75, 76, 77, 78, 79, 80, 81],
+                "wall_lr": [82, 83, 84, 85, 86, 87, 88, 89],
+                "tidy": [42, 43, 44, 45, 46, 47, 48, 49, 50],
+                "die": [68, 69, 70, 71, 72, 73],
+                "jump": [95, 94, 93, 92, 91, 90],
+                "run_b": [96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122],
+                "run_f": [122, 121, 120, 119, 118, 117, 116, 115, 114, 113, 112, 111, 110, 109, 108, 107, 106, 105, 104, 103, 102, 101, 100, 99, 98, 97, 96],
+                "sad": [26, 27, 28, 29, 30, 31, 32, 33]
+            };
+
+            var animation= new cc.node.sprite.Animation().
+                    setRestoreOriginalFrame(true).
+                    addFrames( cc.plugin.asset.AssetManager.getSpriteFrames(animations["run_f"]) );
+
+            for ( i = 0; i < R; i++) {
+                for ( j = 0; j < C; j++) {
+                    var n = new cc.node.Sprite( sfs[ (Math.random()*sfs.length)|0 ] ).
+                            setPosition(j * nodeW + nodeW / 2, i * nodeH + nodeH / 2 - 30).
+//                            setAnchorPoint(.5,.5).
+                            setColor(Math.random() / 2 + .5, Math.random() / 2 + .5, Math.random() / 2 + .5);
+
+                    if ( i===j && i===0 ) { n.setName("ibon"); }
+
+//                    n.flippedY= Math.random()<.5;
+                    n.flippedX= Math.random()<.5;
+                    parent.addChild(n);
+
+                    var an= cc.animate( animation.clone().setDelayPerUnit( (40 + 30*Math.random() )/1000 ) ).setTag("forward");
+                    var anr= an.reverse().setTag("backward");
+                    var anseq= cc.sequence( an.clone(), anr.clone() );
+                    var anseq2= cc.sequence( anr.clone(), an.clone() );
+                    var animate = cc.repeatForever((j+i*C)%2 ? anseq : anseq2);
+
+                    var r = cc.repeat(cc.rotateBy(1, -45), 1);
+                    var r1 = cc.repeat(cc.rotateBy(2, 90), 1);
+                    var s00 = cc.scaleBy(1.5, 0, 1);
+                    var s01 = cc.scaleBy(1.5, 1, 1);
+                    var seq0 = cc.sequence(r, r1, s00, s01, cc.tintBy(2, -128, -128, -128));
+                    var seq1 = seq0.reverse();
+                    var seq = cc.repeatForever(
+                                cc.sequence(seq0, seq1));
+
+                    n.runAction(seq);
+                    n.runAction(animate);
+                }
+            }
+        }
+
+        function createDirector( name, renderer, texture ) {
+
+            /**
+             * not adding a call to texture preparation, implies that any potentially built SpriteFrame for GL has
+             * not gl rectangle setup.
+             * Calling manually this method is not recommended since the store of the texture must be manually handled.
+             * Preferred way of doing things is to call AssetManager.load. when the renderer is created, it will grab
+             * all texture assets in the assetManager, and, if needed, turn them into gl textures.
+             */
+            renderer.prepareTexture(texture);
+
+            document.body.appendChild(renderer._surface);
+
+            var director = new cc.node.Director().
+                    setRenderer( renderer ).
+                    setName(name);
+
+            var scene1 = director.createScene();
+
+
+            scene1.draw= function( ctx ) {
+                ctx.globalAlpha= this._alpha;
+                ctx.setTintColor( cc.math.Color.WHITE );
+
+                ctx.setFillStyleColorArray([1,0,0,1]);
+                ctx.fillRect(0,0,this._contentSize.width,this._contentSize.height);
+                ctx.setFillStyleColorArray([0,0,1,1]);
+                ctx.fillRect(0,0,20,20);
+            };
+
+            init(scene1, texture);
+
+            director.runScene(scene1);
+
+            return director;
+        }
+
+        var image= new Image();
+        image.onload= function(e) {
+            var rr= new cc.render.CanvasRenderer(W,H);
+            createDirector(
+                    "d1",
+                    rr,
+                    new cc.render.Texture2D(e.target));
+        };
+        image.src="../res/dude.png";
+
+        var image2= new Image();
+        image2.onload= function(e) {
+            var rr= new cc.render.WebGLRenderer(W,H);
+            createDirector(
+                    "d1",
+                    rr,
+                    new cc.render.Texture2D(e.target));
+        };
+        image2.src="../res/dude.png";
+
+    }());
+
+</script>
+</body>
+</html>
+

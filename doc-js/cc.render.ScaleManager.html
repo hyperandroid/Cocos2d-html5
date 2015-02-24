@@ -1,0 +1,5624 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>CocosJS Class: ScaleManager</title>
+
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+	<link type="text/css" rel="stylesheet" href="styles/sunlight.default.css">
+
+	<link type="text/css" rel="stylesheet" href="styles/site.cerulean.css">
+
+</head>
+
+<body>
+<div class="container-fluid">
+	<div class="navbar navbar-fixed-top ">
+		<div class="navbar-inner">
+			<a class="brand" href="index.html">CocosJS</a>
+			<ul class="nav">
+				
+				<li class="dropdown">
+					<a href="namespaces.list.html" class="dropdown-toggle" data-toggle="dropdown">Namespaces<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="global.html#cc">cc</a>
+						</li>
+						
+						<li>
+							<a href="global.html#cc#action">cc.action</a>
+						</li>
+						
+						<li>
+							<a href="cc.Debug.html">cc.Debug</a>
+						</li>
+						
+						<li>
+							<a href="cc.game.html">cc.game</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.html">cc.input</a>
+						</li>
+						
+						<li>
+							<a href="cc.locale.html">cc.locale</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.html">cc.math</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path_.html">cc.math.path</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.html">cc.node</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.sprite.html">cc.node.sprite</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.html">cc.plugin</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.asset.html">cc.plugin.asset</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.audio.html">cc.plugin.audio</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.html">cc.plugin.layout</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.html">cc.plugin.loader</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.texture.html">cc.plugin.texture</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.html">cc.render</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.html">cc.render.shader</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.WebGLState.html">cc.render.WebGLState</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.html">cc.transition</a>
+						</li>
+						
+						<li>
+							<a href="cc.util.html">cc.util</a>
+						</li>
+						
+						<li>
+							<a href="cc.widget.html">cc.widget</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+				<li class="dropdown">
+					<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="cc.action.Action.html">cc.action.Action</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ActionChainContext.html">cc.action.ActionChainContext</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ActionChainContext_constructor.html">cc.action.ActionChainContext#constructor</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ActionInfo.html">cc.action.ActionInfo</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ActionManager.html">cc.action.ActionManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.AlphaAction.html">cc.action.AlphaAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.AnimateAction.html">cc.action.AnimateAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.Interpolator.html">cc.action.Interpolator</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.JumpAction.html">cc.action.JumpAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.MoveAction.html">cc.action.MoveAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ParseInterpolator.html">cc.action.ParseInterpolator</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.PathAction.html">cc.action.PathAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.PropertyAction.html">cc.action.PropertyAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.PropertyInfo.html">cc.action.PropertyInfo</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.RotateAction.html">cc.action.RotateAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ScaleAction.html">cc.action.ScaleAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.SchedulerQueue.html">cc.action.SchedulerQueue</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.SchedulerQueueTask.html">cc.action.SchedulerQueueTask</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.SequenceAction.html">cc.action.SequenceAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.TintAction.html">cc.action.TintAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.game.Game.html">cc.game.Game</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.InputManager.html">cc.input.InputManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.InputManagerEvent.html">cc.input.InputManagerEvent</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.KeyActionInfo.html">cc.input.KeyActionInfo</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.KeyboardCursor.html">cc.input.KeyboardCursor</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.KeyboardInputManager.html">cc.input.KeyboardInputManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.KeyInfo.html">cc.input.KeyInfo</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.MouseInputManager.html">cc.input.MouseInputManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.MouseInputManagerEvent.html">cc.input.MouseInputManagerEvent</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.PriorityInputNode.html">cc.input.PriorityInputNode</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.SceneGraphInputTreeNode.html">cc.input.SceneGraphInputTreeNode</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Color.html">cc.math.Color</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Dimension.html">cc.math.Dimension</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Matrix3.html">cc.math.Matrix3</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Path.html">cc.math.Path</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.ContainerSegment.html">cc.math.path.ContainerSegment</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.SegmentArc.html">cc.math.path.SegmentArc</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.SegmentBezier.html">cc.math.path.SegmentBezier</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.SegmentCardinalSpline.html">cc.math.path.SegmentCardinalSpline</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path_.html#SegmentLine">cc.math.path.SegmentLine</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.SegmentQuadratic.html">cc.math.path.SegmentQuadratic</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.SubPath.html">cc.math.path.SubPath</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Rectangle.html">cc.math.Rectangle</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Vector.html">cc.math.Vector</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.Director.html">cc.node.Director</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.FastSprite.html">cc.node.FastSprite</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.Node.html">cc.node.Node</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.Scene.html">cc.node.Scene</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.Sprite_.html">cc.node.Sprite</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.sprite.Animation.html">cc.node.sprite.Animation</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.sprite.AnimationCache.html">cc.node.sprite.AnimationCache</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.sprite.SpriteFrame.html">cc.node.sprite.SpriteFrame</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.asset.AssetManager.html">cc.plugin.asset.AssetManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.audio.AudioEffect.html">cc.plugin.audio.AudioEffect</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.audio.AudioManager.html">cc.plugin.audio.AudioManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.font.FontMetrics.html">cc.plugin.font.FontMetrics</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.font.SpriteFont.html">cc.plugin.font.SpriteFont</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.font.SpriteFontChar.html">cc.plugin.font.SpriteFontChar</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.BorderLayout.html">cc.plugin.layout.BorderLayout</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.Gap.html">cc.plugin.layout.Gap</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.GridLayout.html">cc.plugin.layout.GridLayout</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.Insets.html">cc.plugin.layout.Insets</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.LayerLayout.html">cc.plugin.layout.LayerLayout</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.Layout.html">cc.plugin.layout.Layout</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.Unit.html">cc.plugin.layout.Unit</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.Loader.html">cc.plugin.loader.Loader</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.ResourceLoaderAudioBuffer.html">cc.plugin.loader.ResourceLoaderAudioBuffer</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.ResourceLoaderImage.html">cc.plugin.loader.ResourceLoaderImage</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.ResourceLoaderJSON.html">cc.plugin.loader.ResourceLoaderJSON</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.ResourceLoaderXML.html">cc.plugin.loader.ResourceLoaderXML</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.texture.TexturePacker.html">cc.plugin.texture.TexturePacker</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.texture.TexturePackerNode.html">cc.plugin.texture.TexturePackerNode</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.texture.TexturePackerPage.html">cc.plugin.texture.TexturePackerPage</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.CanvasRenderer.html">cc.render.CanvasRenderer</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.DecoratedWebGLRenderingContext.html">cc.render.DecoratedWebGLRenderingContext</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.GeometryBatcher.html">cc.render.GeometryBatcher</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.Pattern.html">cc.render.Pattern</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.Renderer.html">cc.render.Renderer</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.RenderingContextSnapshot.html">cc.render.RenderingContextSnapshot</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.ScaleManager.html">cc.render.ScaleManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.AbstractShader.html">cc.render.shader.AbstractShader</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.Attribute.html">cc.render.shader.Attribute</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.MatrixUniform.html">cc.render.shader.MatrixUniform</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.SolidColorShader.html">cc.render.shader.SolidColorShader</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.TextureShader.html">cc.render.shader.TextureShader</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.TextureUniform.html">cc.render.shader.TextureUniform</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.Uniform.html">cc.render.shader.Uniform</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.Texture2D.html">cc.render.Texture2D</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.WebGLRenderer.html">cc.render.WebGLRenderer</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.Transition.html">cc.transition.Transition</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionFade.html">cc.transition.TransitionFade</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionMove.html">cc.transition.TransitionMove</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionSlideInB.html">cc.transition.TransitionSlideInB</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionSlideInL.html">cc.transition.TransitionSlideInL</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionSlideInR.html">cc.transition.TransitionSlideInR</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionSlideInT.html">cc.transition.TransitionSlideInT</a>
+						</li>
+						
+						<li>
+							<a href="cc.util.Resource.html">cc.util.Resource</a>
+						</li>
+						
+						<li>
+							<a href="cc.widget.Button.html">cc.widget.Button</a>
+						</li>
+						
+						<li>
+							<a href="cc.widget.Label.html">cc.widget.Label</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+				<li class="dropdown">
+					<a href="global.html" class="dropdown-toggle" data-toggle="dropdown">Global<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="global.html#__extends">__extends</a>
+						</li>
+						
+						<li>
+							<a href="global.html#test">test</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+			</ul>
+		</div>
+	</div>
+
+	<div class="row-fluid">
+
+		
+		<div class="span8">
+			
+				<div id="main">
+					
+
+
+	<h1 class="page-title">Class: ScaleManager</h1>
+<section>
+
+<header>
+    <h2>
+        <span class="ancestors"><a href="global.html#cc">cc</a><a href="cc.render.html">.render</a>.</span>
+    
+    ScaleManager
+    </h2>
+    
+        <div class="class-description">The ScaleManager object has different responsibilities that affect the final visual of the built Canvas object.
+<p>
+Its main responsibilities are:
+<ul>
+    <li>Up/Down scale the canvas object to fit the screen.
+    <li>Up/Down scale the game content.
+    <li>Fix the orientation and notify when it changes.
+</ul>
+<p>
+There are important differences between the first and second responsibility, as well as important performance/visual
+implications.
+
+<h3>Up/Down scale the canvas object.</h3>
+<p>
+    This feature affects the canvas object, which is scaled using css attributes. This operation affects the final
+    game's visual quality. For example, if your game uses a 400x300 pixels canvas object, and the window is 1200x900
+    pixels, the canvas object could be scaled by 3 in each axe, which will lower the visual quality. There are
+    ways of overcoming this by up/down scaling the game content though.
+<p>
+    These scaling operations are sensitive to the DOM node that contains the canvas object though. Internally, this
+    API call modifies the canvas size with a CSS style.
+<p>
+    There are two different modifiers which will tell how to up/down scale the canvas object:
+
+    <h4>Scale strategy (How to scale the canvas)</h4>
+
+    <ul>NONE</ul>
+    <p>
+        This modifier does not change the canvas in any way. It will be presented on screen with the original size
+    <ul>SCALE_FIT</ul>
+    <p>
+        This modifier will stretch the canvas to fit the DOM parent container object. The stretching can be uneven,
+        breaking the aspect ratio.
+    <ul>SCALE_ASPECT</ul>
+    <p>
+        This modifier will stretch the canvas preserving its aspect ratio. The final scaled Canvas may not take
+        over the whole parent node's screen area, and some letterboxing effect may occur. This effect makes some
+        horizontal or vertical lines appear since the canvas can't cover the whole area. You control how these
+        lines appear with the ScalePosition modifier.
+
+    <h4>Scale position (how to position the canvas relative to the parent's client area.</h4>
+    <ul>NONE</ul>
+    <p>
+        Do nothing special. Follow the natural browser rules to position the canvas in the parent. If the
+        scale strategy is SCALE_ASPECT, the letter-boxing will be on the right/bottom or left/bottom (depending
+        if the browser writes text left-to-right or right-to-left respectively).
+    <ul>LEFT</ul>
+    <p>
+        Force the canvas position to be left in the parent Node's client area.
+    <ul>RIGHT</ul>
+    <p>
+        Force the canvas position to be right in the parent Node's client area.
+    <ul>CENTER</ul>
+    <p>
+        Force the canvas position to be centered in the parent Node's client area. When the ccale strategy is
+        SCALE_ASPECT, this is the best option since the letterbox will be evenly distributed to the sides or
+        top/down of the canvas.
+
+<h3>Up/down scale the canvas content, not the canvas itself.</h3>
+<p>
+    This feature affects the Canvas content which has a direct impact in better visual quality (if higher resolution
+    graphics are used) but has an impact in performance as well (bigger graphics, could mean lower performance).
+<p>
+    When you want to build a retina enabled game, this is the feature you need to focus on.
+<p>
+    Basically, what we want to achieve is to break the bound between pixels and in-game units. This is what happens
+    with retina displays, which for example, report a 480x320 viewport size, while the actual screen resolution
+    is 960x640. The system is breaking the bound between points and pixels.
+<p>
+    For our games, we may to achieve the same effect, and it is achieved by setting the ratio between pixels and
+    game units.
+<p>
+    A call in the ScaleManager of the form: <code>setScaleContent( unitsWidth:number, unitsHeight:number )</code>
+    must be done. This will instrument the CocosJS core to break the bound, and start upscaling content.
+    CocosJS already makes all internal considerations to draw bigger resources in the same screen area resulting
+    in an upgraded visual experience at no cost.
+<p>
+    Internally this API will build a bigger canvas to conform to all the available space, so don't rely on
+    canvas.width or canvas.height values at all in your game.
+
+
+<h3>Orientation</h3>
+<p>
+    This feature affects mobile device or screen orientation. Events for this events can be fired as well if the
+    browser window aspect ratio changes.
+<p>
+    Even though the screen orientation can't yet be locked in HTML5, this API will allow you to manually switch
+    to a wrong-orientation mode. The default orientation mode is BOTH, so any orientation will be considered valid.
+<p>
+    A call to <code>ScaleManager.forceOrientation( orientation:OrientationStrategy, onOk, onError )</code>
+    must be done to enable orientation control.</div>
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+
+    
+        
+<dt>
+    <h4 class="name" id="ScaleManager"><span class="type-signature"></span>new ScaleManager<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="ScaleManager.js.html">render/ScaleManager.js</a>,
+				 <a href="ScaleManager.js.html#sunlight-1-line-58">line 58</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Members</h3>
+
+        <dl>
+            
+<dt class="name" id="_contentScaled">
+    <h4><span class="type-signature">&lt;private> </span>_contentScaled<span class="type-signature"> :boolean</span></h4>
+
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        Has setContentScale been called ?
+    </div>
+    
+
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">boolean</span>
+
+
+            </li>
+        </ul>
+    
+
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="ScaleManager.js.html">render/ScaleManager.js</a>,
+				 <a href="ScaleManager.js.html#sunlight-1-line-294">line 294</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<dt class="name" id="_exitFullScreen">
+    <h4><span class="type-signature">&lt;private> </span>_exitFullScreen<span class="type-signature"> :string</span></h4>
+
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        Cached vendor-dependent exit fullscreen function name.
+    </div>
+    
+
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">string</span>
+
+
+            </li>
+        </ul>
+    
+
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="ScaleManager.js.html">render/ScaleManager.js</a>,
+				 <a href="ScaleManager.js.html#sunlight-1-line-273">line 273</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<dt class="name" id="_forceOrientationStrategy">
+    <h4><span class="type-signature">&lt;private> </span>_forceOrientationStrategy<span class="type-signature"> :number</span></h4>
+
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        The preferred Game orientation. By default, both orientations are suitable. The values are from the enum
+object OrientationStrategy.
+    </div>
+    
+
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">number</span>
+
+
+            </li>
+        </ul>
+    
+
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="ScaleManager.js.html">render/ScaleManager.js</a>,
+				 <a href="ScaleManager.js.html#sunlight-1-line-187">line 187</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<dt class="name" id="_fullScreen">
+    <h4><span class="type-signature">&lt;private> </span>_fullScreen<span class="type-signature"> :boolean</span></h4>
+
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        Is the game in fullscreen ?
+    </div>
+    
+
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">boolean</span>
+
+
+            </li>
+        </ul>
+    
+
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="ScaleManager.js.html">render/ScaleManager.js</a>,
+				 <a href="ScaleManager.js.html#sunlight-1-line-216">line 216</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<dt class="name" id="_fullScreenCapable">
+    <h4><span class="type-signature">&lt;private> </span>_fullScreenCapable<span class="type-signature"> :boolean</span></h4>
+
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        Is current browser/device/wrapper full screen capable ?
+    </div>
+    
+
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">boolean</span>
+
+
+            </li>
+        </ul>
+    
+
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="ScaleManager.js.html">render/ScaleManager.js</a>,
+				 <a href="ScaleManager.js.html#sunlight-1-line-223">line 223</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<dt class="name" id="_onEnterFullScreen">
+    <h4><span class="type-signature">&lt;private> </span>_onEnterFullScreen<span class="type-signature"> :cc.render.FullScreenCallback</span></h4>
+
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        Callback invoked when the system enters full screen.
+    </div>
+    
+
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">cc.render.FullScreenCallback</span>
+
+
+            </li>
+        </ul>
+    
+
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="ScaleManager.js.html">render/ScaleManager.js</a>,
+				 <a href="ScaleManager.js.html#sunlight-1-line-259">line 259</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<dt class="name" id="_onExitFullScreen">
+    <h4><span class="type-signature">&lt;private> </span>_onExitFullScreen<span class="type-signature"> :cc.render.FullScreenCallback</span></h4>
+
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        Callback invoked when the system exits full screen.
+    </div>
+    
+
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">cc.render.FullScreenCallback</span>
+
+
+            </li>
+        </ul>
+    
+
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="ScaleManager.js.html">render/ScaleManager.js</a>,
+				 <a href="ScaleManager.js.html#sunlight-1-line-252">line 252</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<dt class="name" id="_onOrientationError">
+    <h4><span class="type-signature">&lt;private> </span>_onOrientationError<span class="type-signature"> :cc.render.OrientationCallback</span></h4>
+
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        Callback invoked when the device is or enters in a wrong orientation.
+    </div>
+    
+
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">cc.render.OrientationCallback</span>
+
+
+            </li>
+        </ul>
+    
+
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="ScaleManager.js.html">render/ScaleManager.js</a>,
+				 <a href="ScaleManager.js.html#sunlight-1-line-202">line 202</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<dt class="name" id="_onOrientationOk">
+    <h4><span class="type-signature">&lt;private> </span>_onOrientationOk<span class="type-signature"> :cc.render.OrientationCallback</span></h4>
+
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        Callback invoked when the device is or enters in a valid orientation.
+    </div>
+    
+
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">cc.render.OrientationCallback</span>
+
+
+            </li>
+        </ul>
+    
+
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="ScaleManager.js.html">render/ScaleManager.js</a>,
+				 <a href="ScaleManager.js.html#sunlight-1-line-209">line 209</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<dt class="name" id="_prefix">
+    <h4><span class="type-signature">&lt;private> </span>_prefix<span class="type-signature"> :string</span></h4>
+
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        Current browser vendor prefix for orientation and full screen operations.
+    </div>
+    
+
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">string</span>
+
+
+            </li>
+        </ul>
+    
+
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="ScaleManager.js.html">render/ScaleManager.js</a>,
+				 <a href="ScaleManager.js.html#sunlight-1-line-237">line 237</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<dt class="name" id="_referenceParentNode">
+    <h4><span class="type-signature">&lt;private> </span>_referenceParentNode<span class="type-signature"> :HTMLElement</span></h4>
+
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        A DOM Node, and is the reference node to calculate values for ScaleStrategy's canvas
+positioning. Null means to use the window as reference.
+    </div>
+    
+
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">HTMLElement</span>
+
+
+            </li>
+        </ul>
+    
+
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="ScaleManager.js.html">render/ScaleManager.js</a>,
+				 <a href="ScaleManager.js.html#sunlight-1-line-163">line 163</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<dt class="name" id="_requestFullScreen">
+    <h4><span class="type-signature">&lt;private> </span>_requestFullScreen<span class="type-signature"> :string</span></h4>
+
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        Cached vendor-dependent enter fullscreen function name.
+    </div>
+    
+
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">string</span>
+
+
+            </li>
+        </ul>
+    
+
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="ScaleManager.js.html">render/ScaleManager.js</a>,
+				 <a href="ScaleManager.js.html#sunlight-1-line-266">line 266</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<dt class="name" id="_scalePosition">
+    <h4><span class="type-signature">&lt;private> </span>_scalePosition<span class="type-signature"> :number</span></h4>
+
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        The Canvas position after setting a ScaleStrategy value. By default, no Position will be forced since by default,
+there's no scale to apply. Values are from the enum object ScalePosition.
+    </div>
+    
+
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">number</span>
+
+
+            </li>
+        </ul>
+    
+
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="ScaleManager.js.html">render/ScaleManager.js</a>,
+				 <a href="ScaleManager.js.html#sunlight-1-line-179">line 179</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<dt class="name" id="_scaleStrategy">
+    <h4><span class="type-signature">&lt;private> </span>_scaleStrategy<span class="type-signature"> :number</span></h4>
+
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        The Scale strategy for up/down scaling the canvas object. Values are from the enum
+object ScaleManagerStrategy. By default, no scale on the canvas will be applied.
+    </div>
+    
+
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">number</span>
+
+
+            </li>
+        </ul>
+    
+
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="ScaleManager.js.html">render/ScaleManager.js</a>,
+				 <a href="ScaleManager.js.html#sunlight-1-line-171">line 171</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<dt class="name" id="_surface">
+    <h4><span class="type-signature">&lt;private> </span>_surface<span class="type-signature"> :HTMLCanvasElement</span></h4>
+
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        Canvas object to apply the Scale strategies to.
+    </div>
+    
+
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">HTMLCanvasElement</span>
+
+
+            </li>
+        </ul>
+    
+
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="ScaleManager.js.html">render/ScaleManager.js</a>,
+				 <a href="ScaleManager.js.html#sunlight-1-line-230">line 230</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<dt class="name" id="_unitsFactor">
+    <h4><span class="type-signature">&lt;private> </span>_unitsFactor<span class="type-signature"> :number</span></h4>
+
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        If scale content is enabled, this is the scale ratio to convert units to pixels.
+    </div>
+    
+
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">number</span>
+
+
+            </li>
+        </ul>
+    
+
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="ScaleManager.js.html">render/ScaleManager.js</a>,
+				 <a href="ScaleManager.js.html#sunlight-1-line-287">line 287</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<dt class="name" id="_unitsMatrix">
+    <h4><span class="type-signature">&lt;private> </span>_unitsMatrix<span class="type-signature"> :Float32Array</span></h4>
+
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        When scale content is enabled, this is the internal matrix to achieve the expected result.
+    </div>
+    
+
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">Float32Array</span>
+
+
+            </li>
+        </ul>
+    
+
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="ScaleManager.js.html">render/ScaleManager.js</a>,
+				 <a href="ScaleManager.js.html#sunlight-1-line-280">line 280</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<dt class="name" id="_windowResizeTimer">
+    <h4><span class="type-signature">&lt;private> </span>_windowResizeTimer<span class="type-signature"> :number</span></h4>
+
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        When resizing the window object, the ScaleManager must wait a few milliseconds to fire its internal
+orientation, and scale tests. This member is the setTimeout generated id.
+    </div>
+    
+
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">number</span>
+
+
+            </li>
+        </ul>
+    
+
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="ScaleManager.js.html">render/ScaleManager.js</a>,
+				 <a href="ScaleManager.js.html#sunlight-1-line-244">line 244</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<dt class="name" id="_wrongOrientation">
+    <h4><span class="type-signature">&lt;private> </span>_wrongOrientation<span class="type-signature"> :boolean</span></h4>
+
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        Internal boolean that sets current orientation as valid or not depending on the forced orientation strategy.
+    </div>
+    
+
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">boolean</span>
+
+
+            </li>
+        </ul>
+    
+
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="ScaleManager.js.html">render/ScaleManager.js</a>,
+				 <a href="ScaleManager.js.html#sunlight-1-line-195">line 195</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+</dd>
+
+        </dl>
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        <dl>
+            
+<dt>
+    <h4 class="name" id="__fullScreenChange"><span class="type-signature">&lt;private> </span>__fullScreenChange<span class="signature">(e)</span><span class="type-signature"></span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Internal operation when the system switches to full screen.
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>e</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">UIEvent</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+    
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="ScaleManager.js.html">render/ScaleManager.js</a>,
+				 <a href="ScaleManager.js.html#sunlight-1-line-499">line 499</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="__fullScreenError"><span class="type-signature">&lt;private> </span>__fullScreenError<span class="signature">(e)</span><span class="type-signature"></span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Internal method called at system level when there's no full screen availability.
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>e</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">UIEvent</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+    
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="ScaleManager.js.html">render/ScaleManager.js</a>,
+				 <a href="ScaleManager.js.html#sunlight-1-line-565">line 565</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="__initialize"><span class="type-signature">&lt;private> </span>__initialize<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Initialize the ScaleManager, get method cache names, etc.
+    </div>
+    
+
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="ScaleManager.js.html">render/ScaleManager.js</a>,
+				 <a href="ScaleManager.js.html#sunlight-1-line-313">line 313</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="__setScaleAspect"><span class="type-signature">&lt;private> </span>__setScaleAspect<span class="signature">(surface)</span><span class="type-signature"></span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Scale the canvas keeping aspect ratio to fit in its parent node client area.
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>surface</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">HTMLCanvasElement</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+    
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="ScaleManager.js.html">render/ScaleManager.js</a>,
+				 <a href="ScaleManager.js.html#sunlight-1-line-734">line 734</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="__setScaleContentMatrix"><span class="type-signature">&lt;private> </span>__setScaleContentMatrix<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Internal method to calculate the pixel-point mapping operations.
+    </div>
+    
+
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="ScaleManager.js.html">render/ScaleManager.js</a>,
+				 <a href="ScaleManager.js.html#sunlight-1-line-618">line 618</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="__setScaleFit"><span class="type-signature">&lt;private> </span>__setScaleFit<span class="signature">(surface)</span><span class="type-signature"></span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Stretch the canvas with css scale attributes to fit exactly in its parent.
+This can lead to uneven scaling, because of canvas object stretch operations.
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>surface</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">HTMLCanvasElement</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+    
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="ScaleManager.js.html">render/ScaleManager.js</a>,
+				 <a href="ScaleManager.js.html#sunlight-1-line-703">line 703</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="__setScaleImpl"><span class="type-signature">&lt;private> </span>__setScaleImpl<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Internal method to scale the canvas object using css styles.
+    </div>
+    
+
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="ScaleManager.js.html">render/ScaleManager.js</a>,
+				 <a href="ScaleManager.js.html#sunlight-1-line-640">line 640</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="__setScaleNone"><span class="type-signature">&lt;private> </span>__setScaleNone<span class="signature">(surface)</span><span class="type-signature"></span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Set the canvas with no scale.
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>surface</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">HTMLCanvasElement</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+    
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="ScaleManager.js.html">render/ScaleManager.js</a>,
+				 <a href="ScaleManager.js.html#sunlight-1-line-692">line 692</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="__setScalePosition"><span class="type-signature">&lt;private> </span>__setScalePosition<span class="signature">(scaleW)</span><span class="type-signature"></span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        When setting the scale strategy, this method calculates the necessary styles to position the canvas relative to
+its parent client area. The calculations will be based on the ScalePosition parameter of setScale method call.
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>scaleW</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">canvas scale factor. when setScale is called, the canvas can be scaled with different
+         values. this is the width scale parameter.</td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+    
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="ScaleManager.js.html">render/ScaleManager.js</a>,
+				 <a href="ScaleManager.js.html#sunlight-1-line-659">line 659</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="__windowResized"><span class="type-signature">&lt;private> </span>__windowResized<span class="signature">(e)</span><span class="type-signature"></span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Internal operation when the window resizes and scale content/scale strategies are set.
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>e</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">UIEvent</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+    
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="ScaleManager.js.html">render/ScaleManager.js</a>,
+				 <a href="ScaleManager.js.html#sunlight-1-line-466">line 466</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="checkOrientation"><span class="type-signature">&lt;private> </span>checkOrientation<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Check whether the orientation is valid, and invoke callbacks accordingly.
+    </div>
+    
+
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="ScaleManager.js.html">render/ScaleManager.js</a>,
+				 <a href="ScaleManager.js.html#sunlight-1-line-385">line 385</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="constructor"><span class="type-signature"></span>constructor<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Create a new ScaleManager object instance.
+    </div>
+    
+
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="ScaleManager.js.html">render/ScaleManager.js</a>,
+				 <a href="ScaleManager.js.html#sunlight-1-line-158">line 158</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="forceOrientation"><span class="type-signature"></span>forceOrientation<span class="signature">(os, <span class="optional">onOk</span>, <span class="optional">onError</span>)</span><span class="type-signature"> &rarr; {<a href="cc.render.ScaleManager.html">cc.render.ScaleManager</a>}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Enable orientation change detection. If not set, landscape and portrait will be valid orientations.
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+		<th>Argument</th>
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>os</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">cc.render.OrientationStrategy</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">enum orientation value</td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>onOk</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">cc.render.OrientationOkCallback</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">callback invoked when the orientation changes and is valid.</td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>onError</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">cc.render.OrientationErrorCallback</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">callback invoked when the orientation changes and is NOT valid.</td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+    
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="ScaleManager.js.html">render/ScaleManager.js</a>,
+				 <a href="ScaleManager.js.html#sunlight-1-line-365">line 365</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type"><a href="cc.render.ScaleManager.html">cc.render.ScaleManager</a></span>
+
+
+	</dd>
+</dl>
+
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="getScaleStrategy"><span class="type-signature"></span>getScaleStrategy<span class="signature">()</span><span class="type-signature"> &rarr; {cc.render.ScaleManagerStrategy}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Get the currently applied canvas scale strategy.
+    </div>
+    
+
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="ScaleManager.js.html">render/ScaleManager.js</a>,
+				 <a href="ScaleManager.js.html#sunlight-1-line-763">line 763</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type">cc.render.ScaleManagerStrategy</span>
+
+
+	</dd>
+</dl>
+
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="getUnitsFactor"><span class="type-signature"></span>getUnitsFactor<span class="signature">()</span><span class="type-signature"> &rarr; {number}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        After setting scale content, this value is the ratio to transform in-game units to pixels.
+    </div>
+    
+
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="ScaleManager.js.html">render/ScaleManager.js</a>,
+				 <a href="ScaleManager.js.html#sunlight-1-line-357">line 357</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type">number</span>
+
+
+	</dd>
+</dl>
+
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="isFullScreen"><span class="type-signature"></span>isFullScreen<span class="signature">()</span><span class="type-signature"> &rarr; {boolean}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Get whether the scale manager is currently in full screen mode.
+    </div>
+    
+
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="ScaleManager.js.html">render/ScaleManager.js</a>,
+				 <a href="ScaleManager.js.html#sunlight-1-line-454">line 454</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type">boolean</span>
+
+
+	</dd>
+</dl>
+
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="isFullScreenCapable"><span class="type-signature"></span>isFullScreenCapable<span class="signature">()</span><span class="type-signature"> &rarr; {boolean}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Get whether the system is able to switch to full screen mode.
+    </div>
+    
+
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="ScaleManager.js.html">render/ScaleManager.js</a>,
+				 <a href="ScaleManager.js.html#sunlight-1-line-420">line 420</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type">boolean</span>
+
+
+	</dd>
+</dl>
+
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="isWrongOrientation"><span class="type-signature"></span>isWrongOrientation<span class="signature">()</span><span class="type-signature"> &rarr; {boolean}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Get whether the current orientation is valid compared to the expected orientation.
+    </div>
+    
+
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="ScaleManager.js.html">render/ScaleManager.js</a>,
+				 <a href="ScaleManager.js.html#sunlight-1-line-412">line 412</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type">boolean</span>
+
+
+	</dd>
+</dl>
+
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="onEnterFullScreen"><span class="type-signature"></span>onEnterFullScreen<span class="signature">(f)</span><span class="type-signature"> &rarr; {<a href="cc.render.ScaleManager.html">cc.render.ScaleManager</a>}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Register callback to be notified when the system successfully enters full screen mode.
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>f</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">cc.render.FullScreenCallback</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+    
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="ScaleManager.js.html">render/ScaleManager.js</a>,
+				 <a href="ScaleManager.js.html#sunlight-1-line-523">line 523</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type"><a href="cc.render.ScaleManager.html">cc.render.ScaleManager</a></span>
+
+
+	</dd>
+</dl>
+
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="onExitFullScreen"><span class="type-signature"></span>onExitFullScreen<span class="signature">(f)</span><span class="type-signature"> &rarr; {<a href="cc.render.ScaleManager.html">cc.render.ScaleManager</a>}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Register callback to be notified when the system successfully exits full screen mode.
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>f</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">cc.render.FullScreenCallback</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+    
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="ScaleManager.js.html">render/ScaleManager.js</a>,
+				 <a href="ScaleManager.js.html#sunlight-1-line-533">line 533</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type"><a href="cc.render.ScaleManager.html">cc.render.ScaleManager</a></span>
+
+
+	</dd>
+</dl>
+
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="onOrientationError"><span class="type-signature"></span>onOrientationError<span class="signature">(f)</span><span class="type-signature"> &rarr; {<a href="cc.render.ScaleManager.html">cc.render.ScaleManager</a>}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Register callback to be notified when the system unsuccessfully changes orientation.
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>f</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">cc.render.OrientationCallback</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+    
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="ScaleManager.js.html">render/ScaleManager.js</a>,
+				 <a href="ScaleManager.js.html#sunlight-1-line-554">line 554</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type"><a href="cc.render.ScaleManager.html">cc.render.ScaleManager</a></span>
+
+
+	</dd>
+</dl>
+
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="onOrientationOk"><span class="type-signature"></span>onOrientationOk<span class="signature">(f)</span><span class="type-signature"> &rarr; {<a href="cc.render.ScaleManager.html">cc.render.ScaleManager</a>}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Register callback to be notified when the system successfully changes orientation.
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>f</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">cc.render.OrientationOkCallback</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+    
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="ScaleManager.js.html">render/ScaleManager.js</a>,
+				 <a href="ScaleManager.js.html#sunlight-1-line-543">line 543</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type"><a href="cc.render.ScaleManager.html">cc.render.ScaleManager</a></span>
+
+
+	</dd>
+</dl>
+
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="setReferenceParentNode"><span class="type-signature"></span>setReferenceParentNode<span class="signature">(node)</span><span class="type-signature"></span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        When ScaleStrategy is set, this DOM node will be the reference for position calculations.
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>node</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">HTMLElement</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+    
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="ScaleManager.js.html">render/ScaleManager.js</a>,
+				 <a href="ScaleManager.js.html#sunlight-1-line-574">line 574</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="setScale"><span class="type-signature"></span>setScale<span class="signature">(scale, <span class="optional">positionOp</span>)</span><span class="type-signature"> &rarr; {<a href="cc.render.ScaleManager.html">cc.render.ScaleManager</a>}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Enable canvas scale capabilities. This will scale the canvas object, not its internal drawing operations.
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+		<th>Argument</th>
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>scale</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">cc.render.ScaleManagerStrategy</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">the scale type.</td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>positionOp</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">cc.render.ScalePosition</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">the positioning when the scale is set.</td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+    
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="ScaleManager.js.html">render/ScaleManager.js</a>,
+				 <a href="ScaleManager.js.html#sunlight-1-line-582">line 582</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+	<dt class="tag-see">See:</dt>
+	<dd class="tag-see">
+		<ul>
+			<li><a href="cc.render.ScaleManager.html#setScaleContent">cc.render.ScaleManager#setScaleContent</a></li>
+			</ul>
+	</dd>
+	
+
+	
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type"><a href="cc.render.ScaleManager.html">cc.render.ScaleManager</a></span>
+
+
+	</dd>
+</dl>
+
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="setScaleContent"><span class="type-signature"></span>setScaleContent<span class="signature">(unitsWidth, unitsHeight)</span><span class="type-signature"></span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Enable content scale. Content scale is necessary for retina display honor mechanisms. This method instruments
+CocosJS core that there's no direct mapping between a pixel and a game unit.
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>unitsWidth</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>unitsHeight</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+    
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="ScaleManager.js.html">render/ScaleManager.js</a>,
+				 <a href="ScaleManager.js.html#sunlight-1-line-604">line 604</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="setScaleSurface"><span class="type-signature"></span>setScaleSurface<span class="signature">(surface)</span><span class="type-signature"></span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Set the canvas to apply the ScaleStrategy to.
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>surface</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">HTMLCanvasElement</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+    
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="ScaleManager.js.html">render/ScaleManager.js</a>,
+				 <a href="ScaleManager.js.html#sunlight-1-line-342">line 342</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="startFullScreen"><span class="type-signature"></span>startFullScreen<span class="signature">(<span class="optional">f</span>)</span><span class="type-signature"></span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        End full screen process. If success the optional f callback function will be called.
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+		<th>Argument</th>
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>f</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">cc.render.FullScreenCallback</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">callback invoked when successfully exiting from full screen.</td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+    
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="ScaleManager.js.html">render/ScaleManager.js</a>,
+				 <a href="ScaleManager.js.html#sunlight-1-line-441">line 441</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="startFullScreen"><span class="type-signature"></span>startFullScreen<span class="signature">(<span class="optional">f</span>)</span><span class="type-signature"></span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Start full screen process. If success the optional f callback function will be called.
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+		<th>Argument</th>
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>f</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">cc.render.FullScreenCallback</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">callback invoked when successfully switching to full screen.</td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+    
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="ScaleManager.js.html">render/ScaleManager.js</a>,
+				 <a href="ScaleManager.js.html#sunlight-1-line-428">line 428</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        </dl>
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+				</div>
+
+				<div class="clearfix"></div>
+				<footer>
+					
+					@hyperandroid
+					<br />
+					
+					
+		<span class="copyright">
+		Chukong inc. 2014
+		</span>
+					<br />
+					
+		<span class="jsdoc-message">
+		Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha5</a>
+		on 23/Tu/2015 using the <a
+			href="https://github.com/terryweiss/docstrap">DocStrap template</a>.
+		</span>
+				</footer>
+			</div>
+
+			
+			<div class="span3">
+				<div id="toc"></div>
+			</div>
+			
+			<br clear="both">
+		</div>
+
+	</div>
+	<!--<script src="scripts/sunlight.js"></script>-->
+	<script src="scripts/docstrap.lib.js"></script>
+	<script src="scripts/bootstrap-dropdown.js"></script>
+	<script src="scripts/toc.js"></script>
+
+	<script>
+		$( function () {
+			$( "[id*='$']" ).each( function () {
+				var $this = $( this );
+
+				$this.attr( "id", $this.attr( "id" ).replace( "$", "__" ) );
+			} );
+
+			$( "#toc" ).toc( {
+				anchorName  : function ( i, heading, prefix ) {
+					return $( heading ).attr( "id" ) || ( prefix + i );
+				},
+				selectors   : "h1,h2,h3,h4",
+				showAndHide : false,
+				scrollTo    : "100px"
+			} );
+
+			$( "#toc>ul" ).addClass( "nav nav-pills nav-stacked" );
+			$( "#main span[id^='toc']" ).addClass( "toc-shim" );
+			$( '.dropdown-toggle' ).dropdown();
+//			$( ".tutorial-section pre, .readme-section pre" ).addClass( "sunlight-highlight-javascript" ).addClass( "linenums" );
+
+			$( ".tutorial-section pre, .readme-section pre" ).each( function () {
+				var $this = $( this );
+
+				var example = $this.find( "code" );
+				exampleText = example.html();
+				var lang = /{@lang (.*?)}/.exec( exampleText );
+				if ( lang && lang[1] ) {
+					exampleText = exampleText.replace( lang[0], "" );
+					example.html( exampleText );
+					lang = lang[1];
+				} else {
+					lang = "javascript";
+				}
+
+				if ( lang ) {
+
+					$this
+						.addClass( "sunlight-highlight-" + lang )
+						.addClass( "linenums" )
+						.html( example.html() );
+
+				}
+			} );
+
+			Sunlight.highlightAll( {
+				lineNumbers : true,
+				showMenu : true,
+				enableDoclinks : true
+			} );
+		} );
+	 </script>
+
+
+
+	<!--Navigation and Symbol Display-->
+	
+
+
+	<!--Google Analytics-->
+	
+
+</body>
+</html>

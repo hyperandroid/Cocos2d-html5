@@ -1,0 +1,2505 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>CocosJS Source: node/Node.js</title>
+
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+	<link type="text/css" rel="stylesheet" href="styles/sunlight.default.css">
+
+	<link type="text/css" rel="stylesheet" href="styles/site.cerulean.css">
+
+</head>
+
+<body>
+<div class="container-fluid">
+	<div class="navbar navbar-fixed-top ">
+		<div class="navbar-inner">
+			<a class="brand" href="index.html">CocosJS</a>
+			<ul class="nav">
+				
+				<li class="dropdown">
+					<a href="namespaces.list.html" class="dropdown-toggle" data-toggle="dropdown">Namespaces<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="global.html#cc">cc</a>
+						</li>
+						
+						<li>
+							<a href="global.html#cc#action">cc.action</a>
+						</li>
+						
+						<li>
+							<a href="cc.Debug.html">cc.Debug</a>
+						</li>
+						
+						<li>
+							<a href="cc.game.html">cc.game</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.html">cc.input</a>
+						</li>
+						
+						<li>
+							<a href="cc.locale.html">cc.locale</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.html">cc.math</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path_.html">cc.math.path</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.html">cc.node</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.sprite.html">cc.node.sprite</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.html">cc.plugin</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.asset.html">cc.plugin.asset</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.audio.html">cc.plugin.audio</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.html">cc.plugin.layout</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.html">cc.plugin.loader</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.texture.html">cc.plugin.texture</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.html">cc.render</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.html">cc.render.shader</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.WebGLState.html">cc.render.WebGLState</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.html">cc.transition</a>
+						</li>
+						
+						<li>
+							<a href="cc.util.html">cc.util</a>
+						</li>
+						
+						<li>
+							<a href="cc.widget.html">cc.widget</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+				<li class="dropdown">
+					<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="cc.action.Action.html">cc.action.Action</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ActionChainContext.html">cc.action.ActionChainContext</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ActionChainContext_constructor.html">cc.action.ActionChainContext#constructor</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ActionInfo.html">cc.action.ActionInfo</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ActionManager.html">cc.action.ActionManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.AlphaAction.html">cc.action.AlphaAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.AnimateAction.html">cc.action.AnimateAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.Interpolator.html">cc.action.Interpolator</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.JumpAction.html">cc.action.JumpAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.MoveAction.html">cc.action.MoveAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ParseInterpolator.html">cc.action.ParseInterpolator</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.PathAction.html">cc.action.PathAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.PropertyAction.html">cc.action.PropertyAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.PropertyInfo.html">cc.action.PropertyInfo</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.RotateAction.html">cc.action.RotateAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ScaleAction.html">cc.action.ScaleAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.SchedulerQueue.html">cc.action.SchedulerQueue</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.SchedulerQueueTask.html">cc.action.SchedulerQueueTask</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.SequenceAction.html">cc.action.SequenceAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.TintAction.html">cc.action.TintAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.game.Game.html">cc.game.Game</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.InputManager.html">cc.input.InputManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.InputManagerEvent.html">cc.input.InputManagerEvent</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.KeyActionInfo.html">cc.input.KeyActionInfo</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.KeyboardCursor.html">cc.input.KeyboardCursor</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.KeyboardInputManager.html">cc.input.KeyboardInputManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.KeyInfo.html">cc.input.KeyInfo</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.MouseInputManager.html">cc.input.MouseInputManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.MouseInputManagerEvent.html">cc.input.MouseInputManagerEvent</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.PriorityInputNode.html">cc.input.PriorityInputNode</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.SceneGraphInputTreeNode.html">cc.input.SceneGraphInputTreeNode</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Color.html">cc.math.Color</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Dimension.html">cc.math.Dimension</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Matrix3.html">cc.math.Matrix3</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Path.html">cc.math.Path</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.ContainerSegment.html">cc.math.path.ContainerSegment</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.SegmentArc.html">cc.math.path.SegmentArc</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.SegmentBezier.html">cc.math.path.SegmentBezier</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.SegmentCardinalSpline.html">cc.math.path.SegmentCardinalSpline</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path_.html#SegmentLine">cc.math.path.SegmentLine</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.SegmentQuadratic.html">cc.math.path.SegmentQuadratic</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.SubPath.html">cc.math.path.SubPath</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Rectangle.html">cc.math.Rectangle</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Vector.html">cc.math.Vector</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.Director.html">cc.node.Director</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.FastSprite.html">cc.node.FastSprite</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.Node.html">cc.node.Node</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.Scene.html">cc.node.Scene</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.Sprite_.html">cc.node.Sprite</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.sprite.Animation.html">cc.node.sprite.Animation</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.sprite.AnimationCache.html">cc.node.sprite.AnimationCache</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.sprite.SpriteFrame.html">cc.node.sprite.SpriteFrame</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.asset.AssetManager.html">cc.plugin.asset.AssetManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.audio.AudioEffect.html">cc.plugin.audio.AudioEffect</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.audio.AudioManager.html">cc.plugin.audio.AudioManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.font.FontMetrics.html">cc.plugin.font.FontMetrics</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.font.SpriteFont.html">cc.plugin.font.SpriteFont</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.font.SpriteFontChar.html">cc.plugin.font.SpriteFontChar</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.BorderLayout.html">cc.plugin.layout.BorderLayout</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.Gap.html">cc.plugin.layout.Gap</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.GridLayout.html">cc.plugin.layout.GridLayout</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.Insets.html">cc.plugin.layout.Insets</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.LayerLayout.html">cc.plugin.layout.LayerLayout</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.Layout.html">cc.plugin.layout.Layout</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.Unit.html">cc.plugin.layout.Unit</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.Loader.html">cc.plugin.loader.Loader</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.ResourceLoaderAudioBuffer.html">cc.plugin.loader.ResourceLoaderAudioBuffer</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.ResourceLoaderImage.html">cc.plugin.loader.ResourceLoaderImage</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.ResourceLoaderJSON.html">cc.plugin.loader.ResourceLoaderJSON</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.ResourceLoaderXML.html">cc.plugin.loader.ResourceLoaderXML</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.texture.TexturePacker.html">cc.plugin.texture.TexturePacker</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.texture.TexturePackerNode.html">cc.plugin.texture.TexturePackerNode</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.texture.TexturePackerPage.html">cc.plugin.texture.TexturePackerPage</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.CanvasRenderer.html">cc.render.CanvasRenderer</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.DecoratedWebGLRenderingContext.html">cc.render.DecoratedWebGLRenderingContext</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.GeometryBatcher.html">cc.render.GeometryBatcher</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.Pattern.html">cc.render.Pattern</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.Renderer.html">cc.render.Renderer</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.RenderingContextSnapshot.html">cc.render.RenderingContextSnapshot</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.ScaleManager.html">cc.render.ScaleManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.AbstractShader.html">cc.render.shader.AbstractShader</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.Attribute.html">cc.render.shader.Attribute</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.MatrixUniform.html">cc.render.shader.MatrixUniform</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.SolidColorShader.html">cc.render.shader.SolidColorShader</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.TextureShader.html">cc.render.shader.TextureShader</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.TextureUniform.html">cc.render.shader.TextureUniform</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.Uniform.html">cc.render.shader.Uniform</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.Texture2D.html">cc.render.Texture2D</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.WebGLRenderer.html">cc.render.WebGLRenderer</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.Transition.html">cc.transition.Transition</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionFade.html">cc.transition.TransitionFade</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionMove.html">cc.transition.TransitionMove</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionSlideInB.html">cc.transition.TransitionSlideInB</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionSlideInL.html">cc.transition.TransitionSlideInL</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionSlideInR.html">cc.transition.TransitionSlideInR</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionSlideInT.html">cc.transition.TransitionSlideInT</a>
+						</li>
+						
+						<li>
+							<a href="cc.util.Resource.html">cc.util.Resource</a>
+						</li>
+						
+						<li>
+							<a href="cc.widget.Button.html">cc.widget.Button</a>
+						</li>
+						
+						<li>
+							<a href="cc.widget.Label.html">cc.widget.Label</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+				<li class="dropdown">
+					<a href="global.html" class="dropdown-toggle" data-toggle="dropdown">Global<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="global.html#__extends">__extends</a>
+						</li>
+						
+						<li>
+							<a href="global.html#test">test</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+			</ul>
+		</div>
+	</div>
+
+	<div class="row-fluid">
+
+		
+			<div class="span12">
+				
+				<div id="main">
+					
+
+
+		<h1 class="page-title">Source: node/Node.js</h1>
+    
+<section>
+	<article>
+		<pre
+			class="sunlight-highlight-javascript linenums">/**
+ * License: see license.txt file.
+ */
+/// &lt;reference path="../math/Point.ts"/>
+/// &lt;reference path="../math/Rectangle.ts"/>
+/// &lt;reference path="../math/Dimension.ts"/>
+/// &lt;reference path="../math/Matrix3.ts"/>
+/// &lt;reference path="../math/Color.ts"/>
+/// &lt;reference path="../render/RenderingContext.ts"/>
+/// &lt;reference path="../util/util.ts"/>
+/// &lt;reference path="../util/Debug.ts"/>
+/// &lt;reference path="../locale/Locale.ts"/>
+/// &lt;reference path="../action/SchedulerQueue.ts"/>
+/// &lt;reference path="../action/ActionChainContext.ts"/>
+/// &lt;reference path="./Scene.ts"/>
+var cc;
+(function (cc) {
+    var node;
+    (function (_node) {
+        _node.DEFAULT_ANCHOR_POSITION = new cc.math.Vector(0, 0);
+        _node.DEFAULT_ANCHOR_TRANSFORMATION = new cc.math.Vector(0.5, 0.5);
+        "use strict";
+        var Vector = cc.math.Vector;
+        var Rectangle = cc.math.Rectangle;
+        var Dimension = cc.math.Dimension;
+        var Matrix3 = cc.math.Matrix3;
+        var Color = cc.math.Color;
+        var RADIANS = Math.PI / 180;
+        /**
+         * Node flag values.
+         * Instead of managing several boolean properties they are grouped in a number value.
+         * @tsenum cc.node.NodeDirtyFlags
+         */
+        (function (NodeDirtyFlags) {
+            NodeDirtyFlags[NodeDirtyFlags["NONE"] = 0x0000] = "NONE";
+            NodeDirtyFlags[NodeDirtyFlags["CHILDREN_SORT"] = 0x0001] = "CHILDREN_SORT";
+            NodeDirtyFlags[NodeDirtyFlags["TRANSFORMATION_DIRTY"] = 0x0002] = "TRANSFORMATION_DIRTY";
+            NodeDirtyFlags[NodeDirtyFlags["REQUEST_TRANSFORM"] = 0x0004] = "REQUEST_TRANSFORM";
+            NodeDirtyFlags[NodeDirtyFlags["VISIBLE"] = 0x0008] = "VISIBLE";
+            NodeDirtyFlags[NodeDirtyFlags["INVERSE_MATRIX"] = 0x0010] = "INVERSE_MATRIX";
+            NodeDirtyFlags[NodeDirtyFlags["PAUSED"] = 0x0020] = "PAUSED";
+            NodeDirtyFlags[NodeDirtyFlags["EVENTS_ENABLED"] = 0x0040] = "EVENTS_ENABLED";
+            NodeDirtyFlags[NodeDirtyFlags["EVENTS_PRIORITY_ENABLED"] = 0x0080] = "EVENTS_PRIORITY_ENABLED";
+            NodeDirtyFlags[NodeDirtyFlags["COMPOSITE_ON"] = 0x0100] = "COMPOSITE_ON";
+            NodeDirtyFlags[NodeDirtyFlags["GLOBAL_ALPHA"] = 0x0200] = "GLOBAL_ALPHA";
+            NodeDirtyFlags[NodeDirtyFlags["AABB_DIRTY"] = 0x0400] = "AABB_DIRTY";
+        })(_node.NodeDirtyFlags || (_node.NodeDirtyFlags = {}));
+        var NodeDirtyFlags = _node.NodeDirtyFlags;
+        /**
+         * Index sequence variable for node's OrderOfArrival.
+         * @type {number}
+         * @private
+         */
+        var _OrderOfArrival = 0;
+        var DEFAULT_COLOR = new Color(1, 1, 1, 1);
+        var __p0 = new cc.math.Vector();
+        /**
+         * @class cc.node.Node
+         * @classdesc
+         *
+         * Node is the base class for all Cocos2d HTML5 elements that are screen entities.
+         *
+         * A Node is composed by a dimension, and some properties like position, rotation and scale, and a collection of
+         * children.
+         * Children are divided into two groups: children that are behind the node (z-index&lt;0) and children that are
+         * in front of the node (z-index>=0).
+         * These transformation properties are hierarchically applied to its children, meaning that if a node is rotated,
+         * all its children will show rotated as well.
+         * A node can have input routed to it, has drawing capabilities, and can have a collection of actions predefined
+         * to be applied to it.
+         *
+         */
+        var Node = (function () {
+            /**
+             * Create a new Node object.
+             * @method cc.node.Node#constructor
+             */
+            function Node() {
+                /**
+                 * Hierarchy dependent nodes.
+                 * @member cc.node.Node#_children
+                 * @type {Array&lt;cc.node.Node>}
+                 * @private
+                 */
+                this._children = [];
+                /**
+                 * This node's parent node.
+                 * &lt;br>
+                 * Don't set directly.
+                 * @member cc.node.Node#_parent
+                 * @type {cc.node.Node}
+                 * @private
+                 */
+                this._parent = null;
+                /**
+                 * This node's position.
+                 * @member cc.node.Node#_position
+                 * @type {cc.math.Vector}
+                 * @private
+                 */
+                this._position = new Vector();
+                /**
+                 * Node's position anchor.
+                 * The anchor is normalized, meaning 1 to be node's width or height.
+                 * @member cc.node.Node#_positionAnchor
+                 * @type {cc.math.Vector}
+                 * @private
+                 */
+                this._positionAnchor = _node.DEFAULT_ANCHOR_POSITION.clone();
+                /**
+                 * Node's rotation angles for x and y.
+                 * @member cc.node.Node#_rotation
+                 * @type {cc.math.Vector}
+                 * @private
+                 */
+                this._rotation = new Vector(0.0, 0.0);
+                /**
+                 * Node's scale coeficients.
+                 * @member cc.node.Node#_scale
+                 * @type {cc.math.Vector}
+                 * @private
+                 */
+                this._scale = new Vector(0.0, 0.0);
+                /**
+                 * Node's skew values.
+                 * @member cc.node.Node#_skew
+                 * @type {cc.math.Vector}
+                 * @private
+                 */
+                //_skew:Vector = new Vector(0, 0);
+                /**
+                 * Node's transformation anchor. Scale and rotation will be around this anchor value.
+                 * @member cc.node.Node#_transformationAnchor
+                 * @type {cc.math.Vector}
+                 * @private
+                 */
+                this._transformationAnchor = _node.DEFAULT_ANCHOR_TRANSFORMATION.clone();
+                /**
+                 * Node's local transformation matrix.
+                 * @member cc.node.Node#_modelViewMatrix
+                 * @type {Float32Array}
+                 * @private
+                 */
+                this._modelViewMatrix = Matrix3.create();
+                /**
+                 * Node's global transformation matrix.
+                 * @member cc.node.Node#_worldModelViewMatrix
+                 * @type {Float32Array}
+                 * @private
+                 */
+                this._worldModelViewMatrix = Matrix3.create();
+                /**
+                 * Node's inverse global transformation matrix.
+                 * @member cc.node.Node#_worldModelViewMatrixI
+                 * @type {Float32Array}
+                 * @private
+                 */
+                this._worldModelViewMatrixI = Matrix3.create();
+                /**
+                 * Node's color. This color, when drawing images, will be set as tint color.
+                 * Tinting will only be enabled in webgl renderers though.
+                 * @member cc.node.Node#_color
+                 * @type {cc.math.Color}
+                 * @private
+                 */
+                this._color = DEFAULT_COLOR;
+                /**
+                 * opacity value. full opaque by default. opacity values go from 0 full transparent to 1 full opaque.
+                 * @member cc.node.Node#_alpha
+                 * @type {number}
+                 * @private
+                 */
+                this._alpha = 1;
+                /**
+                 * Compound parent cascade alpha value.
+                 * @member cc.node.Node#_frameAlpha
+                 * @type {number}
+                 * @private
+                 */
+                this._frameAlpha = 1;
+                /**
+                 * Node's dimension.
+                 * @member cc.node.Node#_contentSize
+                 * @type {cc.math.Vector}
+                 * @private
+                 */
+                this._contentSize = new Dimension();
+                /**
+                 * Node's z-index values.
+                 * Nodes with a less than zero z-index will be drawn first, then its parent, and then nodes with a greater or
+                 * equal than zero z-index value.
+                 * @member cc.node.Node#_localZOrder
+                 * @type {number}
+                 * @private
+                 */
+                this._localZOrder = 0;
+                /**
+                 * Node's order of arrival to the parent node.
+                 * When sorting a node's children, first, the z-index is taken into account. But nodes with the same z-index
+                 * will then be sorted by the order of arrival.
+                 * The order of arrival is by default set incrementally, but the developer has the option to modify it anytime.
+                 * @member cc.node.Node#_orderOfArrival
+                 * @type {number}
+                 * @private
+                 */
+                this._orderOfArrival = 0;
+                /**
+                 * internal flag that indicates if the node is rotated (false) or not (true).
+                 * @member cc.node.Node#_isAA
+                 * @type {boolean}
+                 * @private
+                 */
+                this._isAA = false;
+                /**
+                 * Axis aligned bounding box.
+                 * @member cc.node.Node#_AABB
+                 * @type {cc.math.Rectangle}
+                 * @private
+                 */
+                this._AABB = new Rectangle();
+                /**
+                 * Bounding Box. May overlap _AABB
+                 * @member cc.node.Node#_BBVertices
+                 * @type {Array&lt;cc.math.Vector>}
+                 * @private
+                 */
+                this._BBVertices = [{ x: 0.0, y: 0.0 }, { x: 0.0, y: 0.0 }, { x: 0.0, y: 0.0 }, { x: 0.0, y: 0.0 }];
+                /**
+                 * Node tag. Only for backwards compatibility.
+                 * @member cc.node.Node#_tag
+                 * @type {any}
+                 * @private
+                 * @deprecated
+                 */
+                this._tag = null;
+                /**
+                 * Node name.
+                 * @member cc.node.Node#_name
+                 * @type {string}
+                 * @private
+                 */
+                this._name = "";
+                /**
+                 * Internal integer value with some flags that affect a node.
+                 * Values for this flags variable are defined in cc.node.NodeDirtyFlags.
+                 * Never set this value manually.
+                 * @member cc.node.Node#_flags
+                 * @type {number}
+                 * @private
+                 */
+                this._flags = 0;
+                /**
+                 * Scene this node is running in.
+                 * @member cc.node.Node#_scene
+                 * @type {cc.node.Scene}
+                 * @private
+                 */
+                this._scene = null;
+                /**
+                 * When no scene is yet set, this array holds Node's actions.
+                 * @member cc.node.Node#_actionsToSchedule
+                 * @type {Array&lt;cc.node.Action>}
+                 * @private
+                 */
+                this._actionsToSchedule = [];
+                /**
+                 * When no scene is yet set, this array holds Node's scheduled tasks.
+                 * @member cc.node.Node#_tasksToSchedule
+                 * @type {Array&lt;cc.node.Action>}
+                 * @private
+                 */
+                this._tasksToSchedule = [];
+                /**
+                 * Node x position.
+                 * @member cc.node.Node#x
+                 * @type {number}
+                 */
+                this.x = 0.0;
+                /**
+                 * Node y position.
+                 * @member cc.node.Node#y
+                 * @type {number}
+                 */
+                this.y = 0.0;
+                /**
+                 * Node scale X.
+                 * @member cc.node.Node#scaleX
+                 * @type {number}
+                 */
+                this.scaleX = 1.0;
+                /**
+                 * Node scale Y.
+                 * @member cc.node.Node#scaleY
+                 * @type {number}
+                 */
+                this.scaleY = 1.0;
+                /**
+                 * Node rotation angle in degrees.
+                 * @member cc.node.Node#rotationAngle
+                 * @type {number}
+                 */
+                this.rotationAngle = 0.0;
+                this._compositeOperation = 0 /* source_over */;
+                this._inputEvents = {};
+                this._flags = 4 /* REQUEST_TRANSFORM */ | 8 /* VISIBLE */ | 1024 /* AABB_DIRTY */;
+                // for backwards compatibility, nodes with zero dimension are shown. Not in v4, where everything must have
+                // dimension.
+                if (cc.__BACKWARDS_COMPATIBILITY__) {
+                    this._contentSize.set(1, 1);
+                }
+            }
+            /**
+             * Internal flag check for sorting children nodes.
+             * @method cc.node.Node#__childrenMustSort
+             * @returns {boolean}
+             * @private
+             */
+            Node.prototype.__childrenMustSort = function () {
+                return this._children.length > 1 &amp;&amp; (this._flags &amp; 1 /* CHILDREN_SORT */) !== 0;
+            };
+            /**
+             * Clear a flag. To avoid managing several different boolean members we pack all of them in a number value.
+             * Flag values are {@link cc.node.NodeDirtyFlags}
+             * @method cc.node.Node#__clearFlag
+             * @param f {number} a flag value.
+             * @private
+             */
+            Node.prototype.__clearFlag = function (f) {
+                this._flags &amp;= ~f;
+            };
+            /**
+             * Set a flag. To avoid managing several different boolean members we pack all of them in a number value.
+             * Flag values are {@link cc.node.NodeDirtyFlags}
+             * @method cc.node.Node#__clearFlag
+             * @param f {number} a flag value.
+             * @private
+             */
+            Node.prototype.__setFlag = function (f) {
+                this._flags |= f;
+            };
+            /**
+             * Return whether a flag is set.
+             * @method cc.node.Node#__isFlagSet
+             * @param f {number}
+             * @returns {boolean}
+             * @private
+             */
+            Node.prototype.__isFlagSet = function (f) {
+                return (this._flags &amp; f) !== 0;
+            };
+            /**
+             * Enable or disable a flag.
+             * @method cc.node.Node#__setFlagValue
+             * @param f {number}
+             * @param enable {boolean} true to enable, false to disable.
+             * @private
+             */
+            Node.prototype.__setFlagValue = function (f, enable) {
+                if (enable) {
+                    this._flags |= f;
+                }
+                else {
+                    this._flags &amp;= ~f;
+                }
+            };
+            Node.prototype.isGlobalAlpha = function () {
+                return this.__isFlagSet(512 /* GLOBAL_ALPHA */);
+            };
+            Node.prototype.setGlobalAlpha = function (b) {
+                this.__setFlagValue(512 /* GLOBAL_ALPHA */, b);
+            };
+            /**
+             * Set the node composite operation (or blending mode).
+             * blending modes available are defined in the cc.render.CompositeOperation enumeration.
+             * Pass null to disable custom blending mode, and apply the currently set one.
+             * @method cc.node.Node.setCompositeOperation
+             * @param o {cc.render.CompositeOperation}
+             */
+            Node.prototype.setCompositeOperation = function (o) {
+                if (o !== null) {
+                    this._compositeOperation = o;
+                    this.__setFlag(256 /* COMPOSITE_ON */);
+                }
+                else {
+                    this.__clearFlag(256 /* COMPOSITE_ON */);
+                }
+            };
+            /**
+             * Set this node position in parent's coordinate space.
+             * @method cc.node.Node#setPosition
+             * @param x {number} x position.
+             * @param y {number} y position.
+             * @returns {cc.node.Node}
+             */
+            Node.prototype.setPosition = function (x, y) {
+                this.x = x;
+                this.y = y;
+                return this;
+            };
+            /**
+             * Set this node's rotation angle
+             * @method cc.node.Node#setRotation
+             * @param x {number} rotation angle in degrees.
+             * @returns {cc.node.Node}
+             */
+            Node.prototype.setRotation = function (x) {
+                this.rotationAngle = x;
+                return this;
+            };
+            /**
+             * Set this node's scale.
+             * If y parameter is not set, the scale will be the same for both axis.
+             * @method cc.node.Node#setScale
+             * @param x {number} scale for x axis
+             * @param y {number=} optional scale for y axis. If not set, x scale will be set for y axis.
+             * @returns {cc.node.Node}
+             */
+            Node.prototype.setScale = function (x, y) {
+                this.scaleX = x;
+                this.scaleY = typeof y === "undefined" ? x : y;
+                return this;
+            };
+            /**
+             * Set the Node X axis scale value.
+             * @param s {number} default scale is 1.
+             * @returns {cc.node.Node}
+             */
+            Node.prototype.setScaleX = function (s) {
+                this.scaleX = s;
+                return this;
+            };
+            /**
+             * Set the Node Y axis scale value.
+             * @param s {number} default scale is 1.
+             * @returns {cc.node.Node}
+             */
+            Node.prototype.setScaleY = function (s) {
+                this.scaleY = s;
+                return this;
+            };
+            /**
+             * Gets node's parent. The parent is another Node. Some specialized node types like &lt;code>Scene&lt;/code> and
+             * &lt;code>Director&lt;/code> don't have a parent.
+             * @method cc.node.Node#getParent
+             * @returns {Node} value will be null if no parent, and a Node instance otherwise.
+             */
+            Node.prototype.getParent = function () {
+                return this._parent;
+            };
+            /**
+             * Sets node's parent.
+             * &lt;br>
+             * Never call directly.
+             * @method cc.node.Node#__setParent
+             * @param node {cc.node.Node}
+             * @returns {cc.node.Node}
+             * @private
+             */
+            Node.prototype.__setParent = function (node) {
+                this._parent = node;
+                this.__setFlag(4 /* REQUEST_TRANSFORM */);
+                return this;
+            };
+            /**
+             * Set node's positional anchor.
+             * &lt;li>By default the node will be position anchored at 0,0.
+             * &lt;li>The position anchor is a normalized value. This means it must be set with values between 0 and 1.
+             * &lt;li>Calling this method with 0,0 will means the node will be positioned relative to top-left corner.
+             * &lt;li>Calling with 0.5, 0.5, means the node will be positioned relative to its center regardless of its size.
+             * @method cc.node.Node#setPositionAnchor
+             * @param x {number}
+             * @param y {number}
+             * @returns {cc.node.Node}
+             */
+            Node.prototype.setPositionAnchor = function (x, y) {
+                this._positionAnchor.set(x, y);
+                this.__setFlag(4 /* REQUEST_TRANSFORM */);
+                return this;
+            };
+            /**
+             * Set node's positional and transformational anchors.
+             * &lt;li>By default the node will be position anchored at 0,0.
+             * &lt;li>The anchor is a normalized value. This means it must be set with values between 0 and 1.
+             * &lt;li>Calling this method with 0,0 will means the node will be positioned relative to top-left corner.
+             * &lt;li>Calling with 0.5, 0.5, means the node will be positioned relative to its center regardless of its size.
+             * &lt;li>This method is deprecated in favor of setTransformationAnchor and setPositionAnchor.
+             * @method cc.node.Node#setAnchorPoint
+             * @param x {number}
+             * @param y {number}
+             * @returns {cc.node.Node}
+             * @deprecated
+             */
+            Node.prototype.setAnchorPoint = function (x, y) {
+                this.__setFlag(4 /* REQUEST_TRANSFORM */);
+                this.setTransformationAnchor(x, y);
+                return this.setPositionAnchor(x, y);
+            };
+            /**
+             * Set node's transformation anchor.
+             * By default the node will be transformed (scale/rotate) by the node's center.
+             * @method cc.node.Node#setTransformationAnchor
+             * @param x {number}
+             * @param y {number}
+             * @returns {cc.node.Node}
+             */
+            Node.prototype.setTransformationAnchor = function (x, y) {
+                this._transformationAnchor.set(x, y);
+                this.__setFlag(4 /* REQUEST_TRANSFORM */);
+                return this;
+            };
+            /**
+             * Set this node's tag.
+             * @method cc.node.Node#setTag
+             * @param t {object}
+             * @returns {cc.node.Node}
+             */
+            Node.prototype.setTag = function (t) {
+                this._tag = t;
+                return this;
+            };
+            /**
+             * Set Node opacity. Opacity is alpha value.
+             * backwards compatible method. use setAlpha or alpha get/set.
+             * @param v {number} value in the range 0..255
+             * @deprecated
+             * @returns {cc.node.Node}
+             */
+            Node.prototype.setOpacity = function (v) {
+                this.setAlpha(v / 255.0);
+                return this;
+            };
+            Object.defineProperty(Node.prototype, "alpha", {
+                /**
+                 * Get node's transparency value.
+                 * Transparency values are from 0 to 1.
+                 * @name cc.node.Node#get:alpha
+                 * @returns {number}
+                 */
+                get: function () {
+                    return this.getAlpha();
+                },
+                /**
+                 * Setter for node's alpha (transparency) value.
+                 * Alpha values are from 0 to 1.
+                 * @name cc.node.Node#set:alpha
+                 * @param a {number}
+                 */
+                set: function (a) {
+                    this.setAlpha(a);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(Node.prototype, "opacity", {
+                /**
+                 * Get node's transparency value.
+                 * Transparency values are from 0 to 1.
+                 * @name cc.node.Node#get:opacity
+                 * @returns {number}
+                 */
+                get: function () {
+                    return (this.getAlpha() * 255.0) | 0;
+                },
+                /**
+                 * Setter for node's alpha (transparency) value.
+                 * Alpha values are from 0 to 1.
+                 * @name cc.node.Node#set:opacity
+                 * @param a {number}
+                 */
+                set: function (a) {
+                    this.setOpacity(a);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            /**
+             * Set node's transparency  value.
+             * @method cc.node.Node#setAlpha
+             * @param a {number} value from 0 to 1.
+             * @returns {cc.node.Node}
+             */
+            Node.prototype.setAlpha = function (a) {
+                this._alpha = a;
+                return this;
+            };
+            /**
+             * Get node's transparency value.
+             * Transparency values are from 0 to 1.
+             * @method cc.node.Node#getAlpha
+             * @returns {number}
+             */
+            Node.prototype.getAlpha = function () {
+                return this._alpha;
+            };
+            /**
+             * Set node's color.
+             * &lt;br>
+             * Color components are values between 0 and 1.
+             * 0 means no color, 1 means full color component.
+             *
+             *
+             * The color, will be Node's color, but for a Sprite, it will be the image's tint color.
+             * Tint colors modify visual appearance of the node paint pixels.
+             * The tint result is the pixel color multiplied by the tint color.
+             * The final tint color will be: [color.red, color.green, color.blue, node.alpha]
+             * The default color is solid white, which leaves pixel values unmodified.
+             *
+             * Alpha color modification comes by calling the opacity/alpha methods.
+             *
+             * @method cc.node.Node#setColor
+             * @param r {number} value between 0 and 1 or a Color object instance.
+             * @param g {number} between 0 and 1
+             * @param b {number} between 0 and 1
+             * @returns {cc.node.Node}
+             */
+            Node.prototype.setColor = function (r, g, b) {
+                if (this._color === DEFAULT_COLOR) {
+                    this._color = new Color(r, g, b);
+                }
+                else {
+                    this._color._color[0] = r;
+                    this._color._color[1] = g;
+                    this._color._color[2] = b;
+                }
+                return this;
+            };
+            /**
+             * Set this node's content size.
+             * @method cc.node.Node#setContentSize
+             * @param w {number} node width
+             * @param h {number} node height
+             * @returns {cc.node.Node}
+             */
+            Node.prototype.setContentSize = function (w, h) {
+                this._contentSize.width = w;
+                this._contentSize.height = h;
+                this.__setFlag(4 /* REQUEST_TRANSFORM */);
+                return this;
+            };
+            /**
+             * Set node's local and global transformation matrices.
+             * The matrices may not change.
+             * &lt;br>
+             * Do not call directly
+             * @method cc.node.Node#__setTransform
+             * @returns {cc.node.Node}
+             * @private
+             */
+            Node.prototype.__setTransform = function () {
+                this.__setLocalTransform();
+                this.__setWorldTransform();
+                if (this.__isFlagSet(2 /* TRANSFORMATION_DIRTY */)) {
+                    this.__setFlag(16 /* INVERSE_MATRIX */);
+                    this.__setFlag(1024 /* AABB_DIRTY */);
+                }
+                return this;
+            };
+            /**
+             * Set the Node local transformation matrix as rotation. Slowest method.
+             * @method cc.node.Node#__setLocalTransformRotate
+             * @private
+             */
+            Node.prototype.__setLocalTransformRotate = function () {
+                Matrix3.setTransformAll(this._modelViewMatrix, this);
+                this.__setFlag(2 /* TRANSFORMATION_DIRTY */);
+                this._position.x = this.x;
+                this._position.y = this.y;
+                this._scale.x = this.scaleX;
+                this._scale.y = this.scaleY;
+                this._rotation.x = this.rotationAngle;
+            };
+            /**
+             * Set the Node local transformation matrix as scale.
+             * @method cc.node.Node#__setLocalTransformScale
+             * @private
+             */
+            Node.prototype.__setLocalTransformScale = function () {
+                Matrix3.setTransformScale(this._modelViewMatrix, this);
+                this.__setFlag(2 /* TRANSFORMATION_DIRTY */);
+                this._position.x = this.x;
+                this._position.y = this.y;
+                this._scale.x = this.scaleX;
+                this._scale.y = this.scaleY;
+            };
+            /**
+             * Set node's local transformation matrix.
+             * This method is very specific and calls different code based on the transformation type that has
+             * been detected.
+             * @method cc.node.Node#__setLocalTransform
+             * @private
+             */
+            Node.prototype.__setLocalTransform = function () {
+                if (this._rotation.x !== this.rotationAngle || (this.rotationAngle % 360) !== 0 || this.__isFlagSet(4 /* REQUEST_TRANSFORM */)) {
+                    this.__setLocalTransformRotate();
+                }
+                else if (this.scaleX !== this._scale.x || this._scale.y !== this.scaleY || this._scale.x !== 1 || this._scale.y !== 1) {
+                    this.__setLocalTransformScale();
+                }
+                else if (this.x !== this._position.x || this.y !== this._position.y) {
+                    var mm = this._modelViewMatrix;
+                    var pa = this._positionAnchor;
+                    var cs = this._contentSize;
+                    var x = this.x - pa.x * cs.width;
+                    var y = this.y - pa.y * cs.height;
+                    mm[2] = x;
+                    mm[5] = y;
+                    mm[0] = 1.0;
+                    mm[1] = 0.0;
+                    mm[3] = 0.0;
+                    mm[4] = 1.0;
+                    mm[6] = 0.0;
+                    mm[7] = 0.0;
+                    mm[8] = 1.0;
+                    this._position.x = this.x;
+                    this._position.y = this.y;
+                    this.__setFlag(2 /* TRANSFORMATION_DIRTY */);
+                }
+            };
+            /**
+             * Set node's global transformation when the node is not axis aligned.
+             * @method cc.node.Node#__setWorldTransformNotAA
+             * @private
+             */
+            Node.prototype.__setWorldTransformNotAA = function () {
+                var mm;
+                var mmm = this._worldModelViewMatrix;
+                var pmm = this._parent._worldModelViewMatrix;
+                mmm[0] = pmm[0];
+                mmm[1] = pmm[1];
+                mmm[2] = pmm[2];
+                mmm[3] = pmm[3];
+                mmm[4] = pmm[4];
+                mmm[5] = pmm[5];
+                if (this._isAA) {
+                    mm = this._modelViewMatrix;
+                    mmm[2] += (mm[2] * mmm[0]);
+                    mmm[5] += (mm[5] * mmm[4]);
+                }
+                else {
+                    Matrix3.multiply(this._worldModelViewMatrix, this._modelViewMatrix);
+                }
+            };
+            /**
+             * Set node's world transformation when the node is Axis Aligned.
+             * An axis aligned Node means that the node, and all its ancestors are axis aligned.
+             * @method cc.node.Node#__setWorldTransformAA
+             * @private
+             */
+            Node.prototype.__setWorldTransformAA = function (px, py) {
+                var wmm = this._worldModelViewMatrix;
+                var mmm = this._modelViewMatrix;
+                wmm[0] = mmm[0];
+                wmm[1] = mmm[1];
+                wmm[2] = mmm[2] + px;
+                wmm[3] = mmm[3];
+                wmm[4] = mmm[4];
+                wmm[5] = mmm[5] + py;
+                this._isAA = (this._rotation.x % 360.0) === 0.0;
+            };
+            /**
+             * Calculate node's global transformation matrix.
+             * @method cc.node.Node#__setWorldTransform
+             * @private
+             */
+            Node.prototype.__setWorldTransform = function () {
+                var condition = this.__isFlagSet(2 /* TRANSFORMATION_DIRTY */);
+                var isAA = (this._rotation.x % 360.0) === 0.0;
+                var px = 0;
+                var py = 0;
+                if (this._parent) {
+                    condition = condition || this._parent.__isFlagSet(2 /* TRANSFORMATION_DIRTY */);
+                    isAA = isAA &amp;&amp; this._parent._isAA;
+                }
+                if (condition) {
+                    this._isAA = isAA;
+                    if (this._parent) {
+                        px = this._parent._worldModelViewMatrix[2];
+                        py = this._parent._worldModelViewMatrix[5];
+                    }
+                    if (isAA) {
+                        this.__setWorldTransformAA(px, py);
+                    }
+                    else {
+                        this.__setWorldTransformNotAA();
+                    }
+                    this.__setFlagValue(2 /* TRANSFORMATION_DIRTY */, condition);
+                }
+            };
+            Node.prototype.getInverseWorldModelViewMatrix = function () {
+                if (this.__isFlagSet(16 /* INVERSE_MATRIX */)) {
+                    Matrix3.inverse(this._worldModelViewMatrix, this._worldModelViewMatrixI);
+                    this.__clearFlag(16 /* INVERSE_MATRIX */);
+                }
+                return this._worldModelViewMatrixI;
+            };
+            /**
+             * Visit a node.
+             * The process of visiting implies several different steps and is only performed for visible nodes:
+             *
+             * &lt;li>Calculate (if needed) local and global transformation matrices
+             * &lt;li>Prune the node if not showing on screen.
+             * &lt;li>Perform children sort.
+             * &lt;li>Visit children with z-index &lt; 0
+             * &lt;li>Draw this node
+             * &lt;li>Visit children with z-index >= 0
+             * &lt;li>Reset transformation dirtiness
+             *
+             * @method cc.node.Node#visit
+             * @param ctx {cc.render.RenderingContext}
+             */
+            Node.prototype.visit = function (ctx) {
+                if (!this.isVisible()) {
+                    return;
+                }
+                this.__clearFlag(2 /* TRANSFORMATION_DIRTY */);
+                this.__setTransform();
+                //if (this.__AABBIntersectsScreen(ctx) || true) {
+                if (this.__childrenMustSort()) {
+                    this.__sortChildren();
+                }
+                this.__setAlphaImpl();
+                var index = 0;
+                for (index = 0; index &lt; this._children.length; index++) {
+                    var child = this._children[index];
+                    if (child._localZOrder &lt; 0) {
+                        child.visit(ctx);
+                    }
+                    else {
+                        break;
+                    }
+                }
+                this.__draw(ctx);
+                for (; index &lt; this._children.length; index++) {
+                    var child = this._children[index];
+                    child.visit(ctx);
+                }
+                //}
+                this.__clearFlag(4 /* REQUEST_TRANSFORM */);
+            };
+            Node.prototype.__setAlphaImpl = function () {
+                if (!this._parent) {
+                    this._frameAlpha = this._alpha;
+                }
+                else {
+                    this._frameAlpha = this._parent._frameAlpha * this._alpha;
+                }
+            };
+            /**
+             * Calculate if a node is in screen bounds.
+             * @param ctx {cc.render.RenderingContext}
+             * @method cc.node.Node#__AABBIntersectsScreen
+             * @returns {boolean} the node is in screen or not.
+             * @private
+             */
+            Node.prototype.__AABBIntersectsScreen = function (ctx) {
+                this.calculateBoundingBox();
+                return this._AABB.intersects(0, 0, ctx.getWidth(), ctx.getHeight());
+            };
+            /**
+             * Calculate a node's Bounding box when the node is not axis aligned.
+             * @method cc.node.Node#__calculateNAABBVertices
+             * @private
+             */
+            Node.prototype.__calculateNAABBVertices = function () {
+                var vv = this._BBVertices;
+                var _w = this._contentSize.width;
+                var _h = this._contentSize.height;
+                // way chepaer to work on properties than vv[0].set
+                var v = vv[0];
+                v.x = 0;
+                v.y = 0;
+                this.convertToWorldSpace(v);
+                v = vv[1];
+                v.x = _w;
+                v.y = 0;
+                this.convertToWorldSpace(v);
+                v = vv[2];
+                v.x = _w;
+                v.y = _h;
+                this.convertToWorldSpace(v);
+                v = vv[3];
+                v.x = 0;
+                v.y = _h;
+                this.convertToWorldSpace(v);
+            };
+            /**
+             * Calculate a node's bounding box when the node is axis aligned.
+             * @method cc.node.Node#__calculateAABBVertices
+             * @private
+             */
+            Node.prototype.__calculateAABBVertices = function () {
+                var vv = this._BBVertices;
+                var x, y, w, h;
+                var mm = this._worldModelViewMatrix;
+                x = mm[2];
+                y = mm[5];
+                w = this._contentSize.width * mm[0];
+                h = this._contentSize.height * mm[4];
+                // cheaper than calling set on vectors.
+                var v;
+                v = vv[0];
+                v.x = x;
+                v.y = y;
+                v = vv[1];
+                v.x = x + w;
+                v.y = y;
+                v = vv[2];
+                v.x = x + w;
+                v.y = y + h;
+                v = vv[3];
+                v.x = x;
+                v.y = y + h;
+            };
+            /**
+             * Calculate a node's bounding box.
+             * @method cc.node.Node#__calculateBoundingBox
+             * @returns {cc.node.Node}
+             * @private
+             */
+            Node.prototype.calculateBoundingBox = function () {
+                if (!this.__isFlagSet(1024 /* AABB_DIRTY */)) {
+                    return this._AABB;
+                }
+                var verts = this._BBVertices;
+                if (this._isAA) {
+                    this.__calculateAABBVertices();
+                }
+                else {
+                    this.__calculateNAABBVertices();
+                }
+                var xmin = Number.MAX_VALUE;
+                var ymin = Number.MAX_VALUE;
+                var xmax = -Number.MAX_VALUE;
+                var ymax = -Number.MAX_VALUE;
+                // way faster to do comparison chain than Math.min chain
+                var v = verts[0];
+                if (v.x &lt; xmin) {
+                    xmin = v.x;
+                }
+                if (v.x > xmax) {
+                    xmax = v.x;
+                }
+                if (v.y &lt; ymin) {
+                    ymin = v.y;
+                }
+                if (v.y > ymax) {
+                    ymax = v.y;
+                }
+                var v = verts[1];
+                if (v.x &lt; xmin) {
+                    xmin = v.x;
+                }
+                if (v.x > xmax) {
+                    xmax = v.x;
+                }
+                if (v.y &lt; ymin) {
+                    ymin = v.y;
+                }
+                if (v.y > ymax) {
+                    ymax = v.y;
+                }
+                var v = verts[2];
+                if (v.x &lt; xmin) {
+                    xmin = v.x;
+                }
+                if (v.x > xmax) {
+                    xmax = v.x;
+                }
+                if (v.y &lt; ymin) {
+                    ymin = v.y;
+                }
+                if (v.y > ymax) {
+                    ymax = v.y;
+                }
+                var v = verts[3];
+                if (v.x &lt; xmin) {
+                    xmin = v.x;
+                }
+                if (v.x > xmax) {
+                    xmax = v.x;
+                }
+                if (v.y &lt; ymin) {
+                    ymin = v.y;
+                }
+                if (v.y > ymax) {
+                    ymax = v.y;
+                }
+                // faster set properties than call.
+                var aa = this._AABB;
+                aa.x = xmin;
+                aa.y = ymin;
+                aa.w = xmax - xmin;
+                aa.h = ymax - ymin;
+                this.__clearFlag(1024 /* AABB_DIRTY */);
+                return this._AABB;
+            };
+            /**
+             * Convert a coordinate to world (screen) space.
+             * @method cc.node.Node#convertToWorldSpace
+             * @param p {Vector}
+             */
+            Node.prototype.convertToWorldSpace = function (p) {
+                Matrix3.transformPoint(this._worldModelViewMatrix, p);
+            };
+            /**
+             * Draw a node.
+             * @method cc.node.Node#__draw
+             * @param ctx {cc.render.RenderingContext}
+             * @private
+             */
+            Node.prototype.__draw = function (ctx) {
+                Matrix3.setRenderingContextTransform(this._worldModelViewMatrix, ctx);
+                var compositeSet = this.__isFlagSet(256 /* COMPOSITE_ON */);
+                var prevComposite = ctx.getCompositeOperation();
+                compositeSet = compositeSet &amp;&amp; this._compositeOperation !== prevComposite;
+                if (compositeSet) {
+                    ctx.setCompositeOperation(this._compositeOperation);
+                }
+                this.draw(ctx);
+                if (compositeSet) {
+                    ctx.setCompositeOperation(prevComposite);
+                }
+            };
+            /**
+             * Get the node scene reference.
+             * Each node belongs to an scene, which is held in this variable. Scenes have scheduling capabilities
+             * and director references.
+             * @method cc.node.Node#getScene
+             * @returns {cc.node.Scene}
+             */
+            Node.prototype.getScene = function () {
+                return this._scene;
+            };
+            Node.prototype.getPathToRoot = function () {
+                var node = this;
+                var ret = [];
+                do {
+                    ret.push(node);
+                    node = node.getParent();
+                } while (node);
+                return ret;
+            };
+            /**
+             * Register a callback for an event type.
+             * @method cc.node.Node#addEventListener
+             * @param event {string} event name: mouseup, mousedown, mousemove, mousedrag, mouseover, mouseout, doubleclick
+             * @param callback {function} a callback function that will receive an InputManager.Event object.
+             */
+            Node.prototype.addEventListener = function (event, callback) {
+                this._inputEvents[event] = callback;
+                return this;
+            };
+            Node.prototype.notifyEvent = function (e) {
+                var callback = this._inputEvents[e.type];
+                if (e.type === "touchstart") {
+                    if (!callback) {
+                        callback = this._inputEvents["mousedown"];
+                    }
+                }
+                else if (e.type === "touchend") {
+                    if (!callback) {
+                        callback = this._inputEvents["mouseup"];
+                    }
+                }
+                else if (e.type === "touchmove") {
+                    if (!callback) {
+                        callback = this._inputEvents["mousedrag"];
+                    }
+                }
+                else if (e.type === "touchover") {
+                    if (!callback) {
+                        callback = this._inputEvents["mouseover"];
+                    }
+                }
+                else if (e.type === "touchout") {
+                    if (!callback) {
+                        callback = this._inputEvents["mouseout"];
+                    }
+                }
+                if (callback) {
+                    return callback(e);
+                }
+                return false;
+            };
+            Node.prototype.getScreenPointInLocalSpace = function (p) {
+                var matrix = this.getInverseWorldModelViewMatrix();
+                cc.math.Matrix3.transformPoint(matrix, p);
+            };
+            Node.prototype.isScreenPointInNode = function (p) {
+                if (!this.isVisible()) {
+                    return false;
+                }
+                this.getScreenPointInLocalSpace(p);
+                return p.x >= 0 &amp;&amp; p.y >= 0 &amp;&amp; p.x &lt; this._contentSize.width &amp;&amp; p.y &lt; this._contentSize.height;
+            };
+            /**
+             * Add a child node to this node.
+             * The Node is added immediately and the array of children nodes is flagged for sort at the next call to
+             * the &lt;code>visit&lt;/code> method.
+             *
+             * @method cc.node.Node#addChild
+             * @param node {cc.node.Node} a Node to add as child.
+             * @param localZOrder {number=} an optional zIndex for the Node. If set, this value will overwrite the Node's
+             *   previous localZOrder value.
+             *
+             * @returns {cc.node.Node}
+             *
+             * @see {cc.node.Node#visit}
+             */
+            Node.prototype.addChild = function (node, localZOrder) {
+                if (arguments.length > 2) {
+                    this.__legacyAddChild.apply(this, Array.prototype.slice.call(arguments));
+                    return this;
+                }
+                if (node._parent) {
+                    cc.Debug.error(cc.locale.MSG_ERROR_NODE_WITH_PARENT);
+                }
+                node._orderOfArrival = _OrderOfArrival++;
+                node._parent = this;
+                if (typeof localZOrder !== "undefined") {
+                    node._localZOrder = localZOrder;
+                }
+                // there are some nodes to compare index with
+                if (this._children.length > 0) {
+                    // node with smaller zindex than the first child.
+                    if (node._localZOrder &lt; this._children[0]._localZOrder) {
+                        // add node from the head.
+                        this._children.unshift(node);
+                    }
+                    else if (node._localZOrder >= this._children[this._children.length - 1]._localZOrder) {
+                        // node with same localzorder than the last one. add and no sort since orderofarrival is bigger.
+                        this._children.push(node);
+                    }
+                    else {
+                        // just add the children and mark for sort
+                        this.__setFlag(1 /* CHILDREN_SORT */);
+                        this._children.push(node);
+                    }
+                }
+                else {
+                    // first child, just add.
+                    this._children.push(node);
+                }
+                // add scheduled actions and tasks
+                if (this.getScene() !== null) {
+                    node.setScene(this.getScene());
+                }
+                // PENDING: running behavior, onEnter and onEnterTransitionDidFinish
+                return this;
+            };
+            Node.prototype.__legacyAddChild = function (child, localZOrder, tag) {
+                localZOrder = localZOrder === undefined ? child._localZOrder : localZOrder;
+                var name, setTag = false;
+                if (typeof tag === "undefined") {
+                    tag = undefined;
+                    name = child._name;
+                }
+                else if (typeof tag === 'string') {
+                    name = tag;
+                    tag = undefined;
+                }
+                else if (typeof tag === "number") {
+                    setTag = true;
+                    name = "";
+                }
+                if (!this._children)
+                    this._children = [];
+                this._children.push(child);
+                child._localZOrder = localZOrder;
+                if (setTag)
+                    child.setTag(tag);
+                else
+                    child.setName(name);
+                child._parent = this;
+                child._orderOfArrival = _OrderOfArrival++;
+                // add scheduled actions and tasks
+                if (this.getScene() !== null) {
+                    child.setScene(this.getScene());
+                }
+                this.__setFlag(1 /* CHILDREN_SORT */);
+            };
+            /**
+             * Change a node's z-index.
+             * &lt;br>
+             * This will schedule a children sort on next visit call.
+             * A call to this method with set orderOfArrival no a new value.
+             * @method cc.node.Node#reorderChild
+             * @param node {cc.node.Node}
+             * @param localZOrder
+             */
+            Node.prototype.reorderChild = function (node, localZOrder) {
+                this.__setFlag(1 /* CHILDREN_SORT */);
+                node._orderOfArrival = _OrderOfArrival++;
+                node._localZOrder = localZOrder;
+            };
+            /**
+             * Sort a node's children.
+             * Children are sorted based on zOrder and orderOfArrival.
+             * @method cc.node.Node#__sortChildren
+             * @private
+             */
+            Node.prototype.__sortChildren = function () {
+                this._children.sort(function (n0, n1) {
+                    if (n0._localZOrder &lt; n1._localZOrder) {
+                        return -1;
+                    }
+                    else if (n0._localZOrder > n1._localZOrder) {
+                        return 1;
+                    }
+                    return n0._orderOfArrival &lt; n1._orderOfArrival ? -1 : 1;
+                });
+                this.__clearFlag(1 /* CHILDREN_SORT */);
+            };
+            /**
+             * Remove a child from a node.
+             * @method cc.node.Node#removeChild
+             * @param node {cc.node.Node} node to remove
+             * @param cleanup {boolean=} should clean up ?
+             */
+            Node.prototype.removeChild = function (node, cleanup) {
+                var index = this._children.indexOf(node);
+                if (index >= 0) {
+                    // PENDING: call onExit() if node is running
+                    if (cleanup) {
+                        // do cleanup of actions and/or scheduled callbacks
+                        this.stopAllActions();
+                        this.unscheduleAllCallbacks();
+                    }
+                    this._children.splice(index, 1);
+                    node._parent = null;
+                    node._scene = this._scene;
+                }
+                return this;
+            };
+            /**
+             * Remove the node from its parent.
+             * @method cc.node.Node#removeFromParent
+             * @param cleanup {boolean} if true, all node's scheduled callbacks will be removed too.
+             * @returns {cc.node.Node}
+             */
+            Node.prototype.removeFromParent = function (cleanup) {
+                if (!this._parent) {
+                    cc.Debug.warn(cc.locale.NODE_WARN_REMOVEFROMPARENT_WITH_NO_PARENT);
+                    return;
+                }
+                this._parent.removeChild(this, cleanup);
+                if (cleanup) {
+                    this.cleanup();
+                }
+                return this;
+            };
+            /**
+             * Remove all Node's child nodes.
+             * @method cc.node.Node#removeAllChildren
+             * @returns {cc.node.Node}
+             */
+            Node.prototype.removeAllChildren = function (cleanup) {
+                for (var i = 0; i &lt; this._children.length; i++) {
+                    this._children[i]._parent = null;
+                }
+                this._children = [];
+                // PENDING unschedule actions.
+                return this;
+            };
+            /**
+             * Get the node's children list.
+             * @method cc.node.Node#getChildren
+             * @returns {Array&lt;cc.node.Node>}
+             */
+            Node.prototype.getChildren = function () {
+                return this._children;
+            };
+            /**
+             * Get a node's root node.
+             * A node's root node normally will be a Scene type node.
+             * @method cc.node.Node#getRootNode
+             * @returns {cc.node.Node}
+             */
+            Node.prototype.getRootNode = function () {
+                var node = this;
+                while (node._parent) {
+                    node = node._parent;
+                }
+                return node;
+            };
+            /**
+             * Enumerate al children of a node that matches a pattern.
+             * If a pattern starts with // the search will be recursively performed from the root node. It is only legal
+             *  to define // at the beginning of the pattern.
+             * If a pattern starts with / the search will be performed from the root node.
+             *
+             * The pattern accepts the wildcard symbol '*' meaning any value will match.
+             * The pattern accepts the symbol '..' meaning it references a node's parent.
+             *
+             * Example patterns:
+             *
+             * &lt;li>&lt;b>//*&lt;/b> . This pattern will get all descendant nodes from a node.
+             * &lt;li>&lt;b>/child0/grandchild1&lt;/b> . This pattern will get all grandchildren of a node with name grandchild1 that have
+             * a parent node with name child0.
+             * &lt;li>&lt;b>/*\/grandchild0&lt;/b> . This pattern will get all grandchildren of a node which have the name grandchild0.
+             *
+             * @method cc.node.Node#enumerateChildren
+             * @param patternName {string} a search pattern. Patterns are composed of regular expressions separated by slash / characters.
+             * @param callback {EnumerateCallback} a callback function invoked for each node that matches the pattern.
+             */
+            Node.prototype.enumerateChildren = function (patternName, callback) {
+                // no string patternName, nothing to check for.
+                if (typeof patternName !== "string") {
+                    return;
+                }
+                var node = this;
+                var recursive = false;
+                if (patternName.indexOf("//") === 0) {
+                    recursive = true;
+                    patternName = patternName.substr(2);
+                    node = this.getRootNode();
+                }
+                if (patternName.indexOf("//") !== -1) {
+                    cc.Debug.error(cc.locale.MSG_WRONG_ENUMERATE_PATTERN);
+                }
+                patternName = cc.util.fromPosixRegularExpression(patternName);
+                while (patternName.indexOf("/") === 0) {
+                    node = this.getRootNode();
+                    patternName = patternName.substr(1);
+                }
+                var orgPatternData = [];
+                var patterns = patternName.split("/");
+                for (var i = 0; i &lt; patterns.length; i++) {
+                    var pattern = patterns[i];
+                    if (pattern === "*") {
+                        pattern = ".*";
+                    }
+                    orgPatternData.push(new RegExp(pattern));
+                }
+                node.__enumerateChildrenImpl(orgPatternData, orgPatternData, callback, recursive);
+            };
+            /**
+             * Do the actual enumeration.
+             * @method cc.node.Node#__enumerateChildrenImpl
+             * @param orgPatternData {Array&lt;RegExp>}
+             * @param patternData {Array&lt;RegExp>
+             * @param callback {EnumerateCallback} callback function executed for each node that matches the pattern.
+             * @param recursive {boolean} is this a recursive enumeration ?
+             * @private
+             */
+            Node.prototype.__enumerateChildrenImpl = function (orgPatternData, patternData, callback, recursive) {
+                // reached the end of a path
+                if (!patternData.length) {
+                    callback(this);
+                    if (recursive) {
+                        this.__enumerateChildrenImpl(orgPatternData, orgPatternData, callback, recursive);
+                    }
+                    return;
+                }
+                else if (patternData[0].toString() === "/../") {
+                    if (!this._parent) {
+                        cc.Debug.error(cc.locale.MSG_ENUMERATE_UNDERFLOW);
+                    }
+                    else {
+                        this._parent.__enumerateChildrenImpl(orgPatternData, patternData.slice(1, patternData.length), callback, recursive);
+                    }
+                    return;
+                }
+                for (var i = 0; i &lt; this._children.length; i++) {
+                    var child = this._children[i];
+                    // the current pattern path is ok.
+                    if (patternData[0].test(child._name)) {
+                        child.__enumerateChildrenImpl(orgPatternData, patternData.slice(1, patternData.length), callback, recursive);
+                    }
+                    else {
+                        // current path is not ok, but if recursive, apply whole pattern path from this node.
+                        if (recursive) {
+                            child.__enumerateChildrenImpl(orgPatternData, orgPatternData, callback, recursive);
+                        }
+                    }
+                }
+            };
+            /**
+             * Draw a node.
+             * Override this method to draw.
+             * Draw like a boss w/o worrying of current affine transformation matrix.
+             * @method cc.node.Node#draw
+             * @param ctx {cc.render.RenderingContext} a rendering context, either canvas or webgl.
+             */
+            Node.prototype.draw = function (ctx) {
+                if (this._color !== DEFAULT_COLOR) {
+                    ctx.globalAlpha = this._frameAlpha;
+                    ctx.setTintColor(cc.math.Color.WHITE);
+                    ctx.setFillStyleColor(this._color);
+                    ctx.fillRect(0, 0, this._contentSize.width, this._contentSize.height);
+                }
+            };
+            /**
+             * Set this node's name. Suitable for identifying and enumerateChildren.
+             * @method cc.node.Node#setName
+             * @param name {string} must be composed of [A-Za-z0-9_]+ characters.
+             * @returns {cc.node.Node}
+             */
+            Node.prototype.setName = function (name) {
+                if (!/[A-Za-z0-9_]+/.test(name)) {
+                    cc.Debug.error(cc.locale.ERR_NODE_NAME_INVALID);
+                }
+                this._name = name;
+                return this;
+            };
+            Node.prototype.startActionChain = function () {
+                return new cc.action.ActionChainContext(this);
+            };
+            /**
+             * Schedule an action to run.
+             * By the time an action is meant to be scheduled for running in a Node, there may not yet be a
+             * &lt;code>Director&lt;/code> or &lt;code>Scene&lt;/code>. This method saves locally the actions which will be
+             * scheduled in a scene's &lt;code>ActionManager&lt;/code> later.
+             * @method cc.node.Node#runAction
+             * @param action {cc.action.Action}
+             * @returns {cc.node.Node}
+             */
+            Node.prototype.runAction = function (action) {
+                if (this._scene) {
+                    this._scene.scheduleActionForNode(this, action);
+                }
+                else {
+                    this._actionsToSchedule.push(action);
+                }
+                return this;
+            };
+            /**
+             * Stop a Node action with the given tag.
+             * @method cc.node.Node#stopActionByTag
+             * @param tag {string} action tag.
+             * @returns {cc.node.Node}
+             */
+            Node.prototype.stopActionByTag = function (tag) {
+                if (this._scene) {
+                    this._scene.stopNodeActionByTag(this, tag);
+                }
+                return this;
+            };
+            Node.prototype.stopAllActions = function () {
+                if (this._scene) {
+                    this._scene.stopActionsForNode(this);
+                }
+                else {
+                    this._actionsToSchedule = [];
+                }
+                return this;
+            };
+            /**
+             * Set Node's Scene and allow for buffered Actions to be scheduled.
+             * This method is called when &lt;code>scene.onEnter&lt;/code> is called.
+             * @method cc.node.Node#setScene
+             * @param scene {cc.node.Scene}
+             */
+            Node.prototype.setScene = function (scene) {
+                if (!scene) {
+                    return;
+                }
+                this._scene = scene;
+                for (var i = 0; i &lt; this._actionsToSchedule.length; i++) {
+                    scene.scheduleActionForNode(this, this._actionsToSchedule[i]);
+                }
+                this._actionsToSchedule = [];
+                for (var i = 0; i &lt; this._tasksToSchedule.length; i++) {
+                    scene.scheduleTask(this._tasksToSchedule[i]);
+                }
+                this._tasksToSchedule = [];
+                if (this.__isFlagSet(64 /* EVENTS_ENABLED */)) {
+                    this.__clearFlag(64 /* EVENTS_ENABLED */);
+                    this._scene.enableEventsForNode(this);
+                }
+                if (this.__isFlagSet(128 /* EVENTS_PRIORITY_ENABLED */)) {
+                    this.__clearFlag(128 /* EVENTS_PRIORITY_ENABLED */);
+                    this._scene.enablePriorityEventsForNode(this);
+                }
+                for (var i = 0; i &lt; this._children.length; i++) {
+                    this._children[i].setScene(scene);
+                }
+            };
+            Node.prototype.enableEvents = function (enable) {
+                if (this._scene) {
+                    this._scene.enableEventsForNode(this);
+                }
+                else {
+                    this.__setFlag(64 /* EVENTS_ENABLED */);
+                }
+                return this;
+            };
+            Node.prototype.enablePriorityEvents = function (enable, priority) {
+                this._inputEvents.priorityEventValue = priority;
+                if (this._scene) {
+                    this._scene.enablePriorityEventsForNode(this);
+                }
+                else {
+                    this.__setFlag(128 /* EVENTS_PRIORITY_ENABLED */);
+                }
+                return this;
+            };
+            Node.prototype.getInputPriority = function () {
+                return this._inputEvents.priorityEventValue;
+            };
+            /**
+             * Set the node's visibility.
+             * @method cc.node.Node#setVisible
+             * @param v {boolean}
+             */
+            Node.prototype.setVisible = function (v) {
+                if (v !== this.__isFlagSet(8 /* VISIBLE */)) {
+                    if (v) {
+                        this.__setFlag(8 /* VISIBLE */);
+                    }
+                    else {
+                        this.__clearFlag(8 /* VISIBLE */);
+                    }
+                    this.__setFlag(2 /* TRANSFORMATION_DIRTY */);
+                }
+            };
+            Node.prototype.isVisible = function () {
+                return this.__isFlagSet(8 /* VISIBLE */);
+            };
+            Node.prototype.cleanup = function () {
+                this.stopAllActions();
+                this.unscheduleAllCallbacks();
+                for (var i = 0; i &lt; this._children.length; i++) {
+                    this._children[i].cleanup();
+                }
+            };
+            /////////////// SCHEDULER METHODS START ////////////////
+            /**
+             * This method is here for only for backwards compatibility purposes.
+             * it exists for historical reasons. Comes from Cocos2d iphone v2.
+             * It is called when a call to scheduleUpdate is made.
+             * @method cc.node.Node#update
+             * @param delta {number}
+             * @deprecated
+             */
+            Node.prototype.update = function (delta) {
+            };
+            /**
+             * Schedule a update call with the given priority. &lt;code>scheduleUpdate&lt;/code>,
+             * &lt;code>scheduleUpdateWithPriority&lt;/code> and &lt;code>unscheduleUpdate&lt;/code>
+             * methods are just for backwards compatibility.
+             * @deprecated
+             * @method cc.node.Node#scheduleUpdateWithPriority.
+             * @param priority {number}
+             */
+            Node.prototype.scheduleUpdateWithPriority = function (priority) {
+                var task = cc.action.SchedulerQueue.createSchedulerTask(this, this.update, 0, Number.MAX_VALUE, 0);
+                task._priority = priority;
+                this.__scheduleImpl(task);
+            };
+            /**
+             * Schedule a task to per frame call update for this node.
+             * &lt;code>scheduleUpdate&lt;/code>,
+             * &lt;code>scheduleUpdateWithPriority&lt;/code> and &lt;code>unscheduleUpdate&lt;/code>
+             * methods are just for backwards compatibility.
+             * @method cc.node.Node#scheduleUpdate
+             * @deprecated
+             */
+            Node.prototype.scheduleUpdate = function () {
+                var task = cc.action.SchedulerQueue.createSchedulerTask(this, this.update, 0, Number.MAX_VALUE, 0);
+                this.__scheduleImpl(task);
+            };
+            Node.prototype.__scheduleImpl = function (task) {
+                if (this._scene) {
+                    this._scene.scheduleTask(task);
+                }
+                else {
+                    this._tasksToSchedule.push(task);
+                }
+            };
+            /**
+             * Unschedule all update callbacks for this node.
+             * &lt;code>scheduleUpdate&lt;/code>,
+             * &lt;code>scheduleUpdateWithPriority&lt;/code> and &lt;code>unscheduleUpdate&lt;/code>
+             * methods are just for backwards compatibility.
+             * @method cc.node.Node#unscheduleUpate
+             */
+            Node.prototype.unscheduleUpate = function () {
+                if (this._scene) {
+                    this._scene.unscheduleCallbackForTarget(this, this.update);
+                }
+            };
+            /**
+             * Schedule a task for the node.
+             * This node will be passed as target to the specified callback function.
+             * If already exist a task in the scheduler for the same pair of node and callback, the task will be updated
+             * with the new data.
+             * @method cc.node.Node#schedule
+             * @param callback_fn {cc.action.SchedulerTaskCallback} callback to invoke
+             * @param interval {number} repeat interval time. the task will be fired every this amount of milliseconds.
+             * @param repeat {number=} number of repetitions. if not set, infinite will be used.
+             * @param delay {number=} wait this millis before firing the task.
+             */
+            Node.prototype.schedule = function (callback_fn, interval, repeat, delay) {
+                var task = cc.action.SchedulerQueue.createSchedulerTask(this, callback_fn, interval, repeat, delay);
+                if (this._scene) {
+                    this._scene.scheduleTask(task);
+                }
+                else {
+                    this._tasksToSchedule.push(task);
+                }
+            };
+            /**
+             * Schedule a single shot task. Will fired only once.
+             * @method cc.node.Node#scheduleOnce
+             * @param callback_fn {cc.action.SchedulerTaskCallback} scheduler callback.
+             * @param delay {number} milliseconds to wait before firing the task.
+             * @returns {cc.node.Node}
+             */
+            Node.prototype.scheduleOnce = function (callback_fn, delay) {
+                this.schedule(callback_fn, 0.0, 0, delay);
+            };
+            /**
+             * Unschedule a task for the node.
+             * @method cc.node.Node#unschedule
+             * @param callback_fn {cc.action.SchedulerTaskCallback} callback to unschedule.
+             */
+            Node.prototype.unschedule = function (callback_fn) {
+                if (!callback_fn)
+                    return;
+                if (this._scene) {
+                    this._scene.unscheduleCallbackForTarget(this, callback_fn);
+                }
+            };
+            /**
+             * Unschedule all tasks for the node.
+             * @method cc.node.Node#unscheduleAllCallbacks
+             */
+            Node.prototype.unscheduleAllCallbacks = function () {
+                if (this._scene) {
+                    this._scene.unscheduleAllCallbacks(this);
+                }
+                else {
+                    this._tasksToSchedule = [];
+                }
+            };
+            /**
+             * Resumes all scheduled tasks and actions.
+             * This method is called internally by onEnter
+             * @method cc.node.Node#resume
+             */
+            Node.prototype.resume = function () {
+                if (this._scene) {
+                    this._scene.resumeTarget(this);
+                }
+                // PENDING: implement
+                //cc.eventManager.resumeTarget(this);
+            };
+            /**
+             * Pauses all scheduled selectors and actions.
+             * This method is called internally by onExit.
+             * @method cc.node.Node#pause
+             *
+             */
+            Node.prototype.pause = function () {
+                if (this._scene) {
+                    this._scene.pauseTarget(this);
+                }
+                // PENDING: implement
+                //cc.eventManager.pauseTarget(this);
+            };
+            /**
+             * V3 compatible method call.
+             * The preferred and more powerful way of setting a node's composite operation will be
+             * &lt;code>setCompositeOperation&lt;/code>.
+             *
+             * @deprecated
+             * @param src_o { number|{src:number, dst:number} } webgl blending source operation or an object with
+             *   webgl blending source and destination operations.
+             * @param dst {number} webgl blending destination operation.
+             *
+             * @returns {number} a cc.render.CompositeOperation enumeration value.
+             */
+            Node.prototype.setBlendFunc = function (src_o, dst) {
+                cc.Debug.warn(cc.locale.WARN_DEPRECATED_SETBLENDFUNC);
+                var src;
+                if (typeof dst === "undefined") {
+                    dst = src_o.dst;
+                    src = src_o.src;
+                }
+                else {
+                    src = src_o;
+                }
+                if ((src === cc.SRC_ALPHA &amp;&amp; dst === cc.ONE)) {
+                    this.setCompositeOperation(11 /* lighter */);
+                }
+                else if ((src === cc.ONE &amp;&amp; dst === cc.ONE)) {
+                    this.setCompositeOperation(14 /* add */);
+                }
+                else if (src === cc.ZERO &amp;&amp; dst === cc.SRC_ALPHA) {
+                    this.setCompositeOperation(5 /* destination_in */);
+                }
+                else if (src === cc.ZERO &amp;&amp; dst === cc.ONE_MINUS_SRC_ALPHA) {
+                    this.setCompositeOperation(6 /* destination_out */);
+                }
+                else {
+                    this.setCompositeOperation(0 /* source_over */);
+                }
+            };
+            /////////////// SCHEDULER METHODS END ////////////////
+            /**
+             * Set a bunch of properties for the node.
+             * If a property does exists in Node, a warning is emitted and nothing will happen.
+             * Only for backwards compatibility.
+             * @deprecated
+             * @method cc.node.Node#attr
+             * @param properties {any} Collection of key/value pairs.
+             * @returns {cc.node.Node}
+             */
+            Node.prototype.attr = function (properties) {
+                for (var property in properties) {
+                    if (properties.hasOwnProperty(property)) {
+                        var value = properties[property];
+                        this[property] = value;
+                    }
+                }
+                return this;
+            };
+            Object.defineProperty(Node.prototype, "width", {
+                get: function () {
+                    return this._contentSize.width;
+                },
+                /**
+                 * @deprecated
+                 * @method cc.node.Node#set:width
+                 * @param v {number}
+                 */
+                set: function (v) {
+                    this._contentSize.width = v;
+                    this.__setFlag(4 /* REQUEST_TRANSFORM */);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(Node.prototype, "height", {
+                get: function () {
+                    return this._contentSize.height;
+                },
+                /**
+                 * @deprecated
+                 * @method cc.node.Node#set:height
+                 * @param v {number}
+                 */
+                set: function (v) {
+                    this._contentSize.height = v;
+                    this.__setFlag(4 /* REQUEST_TRANSFORM */);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(Node.prototype, "color", {
+                /**
+                 * @deprecated
+                 * @method cc.node.Node#set:color
+                 * @param v {cc.math.Color}
+                 */
+                set: function (v) {
+                    this.setColor(v._color[0], v._color[1], v._color[2]);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(Node.prototype, "rotation", {
+                get: function () {
+                    return this.rotationAngle;
+                },
+                /**
+                 * @deprecated
+                 * @method cc.node.Node#set:rotation
+                 * @param angle_in_deg {number}
+                 */
+                set: function (angle_in_deg) {
+                    this.rotationAngle = angle_in_deg;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(Node.prototype, "visible", {
+                get: function () {
+                    return this.isVisible();
+                },
+                /**
+                 * @deprecated
+                 * @method cc.node.Node#set:visible
+                 * @param v {boolean}
+                 */
+                set: function (v) {
+                    this.setVisible(v);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(Node.prototype, "anchorX", {
+                set: function (a) {
+                    this._positionAnchor.x = a;
+                    this._transformationAnchor.x = a;
+                    this.__setFlag(4 /* REQUEST_TRANSFORM */);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(Node.prototype, "anchorY", {
+                set: function (a) {
+                    this._positionAnchor.y = a;
+                    this._transformationAnchor.y = a;
+                    this.__setFlag(4 /* REQUEST_TRANSFORM */);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(Node.prototype, "scale", {
+                set: function (s) {
+                    this.scaleX = s;
+                    this.scaleY = s;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(Node.prototype, "parent", {
+                get: function () {
+                    return this._parent;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(Node.prototype, "children", {
+                get: function () {
+                    return this._children;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            return Node;
+        })();
+        _node.Node = Node;
+    })(node = cc.node || (cc.node = {}));
+})(cc || (cc = {}));
+</pre>
+	</article>
+</section>
+
+
+
+
+
+				</div>
+
+				<div class="clearfix"></div>
+				<footer>
+					
+					@hyperandroid
+					<br />
+					
+					
+		<span class="copyright">
+		Chukong inc. 2014
+		</span>
+					<br />
+					
+		<span class="jsdoc-message">
+		Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha5</a>
+		on 23/Tu/2015 using the <a
+			href="https://github.com/terryweiss/docstrap">DocStrap template</a>.
+		</span>
+				</footer>
+			</div>
+
+			
+			<br clear="both">
+		</div>
+
+	</div>
+	<!--<script src="scripts/sunlight.js"></script>-->
+	<script src="scripts/docstrap.lib.js"></script>
+	<script src="scripts/bootstrap-dropdown.js"></script>
+	<script src="scripts/toc.js"></script>
+
+	<script>
+		$( function () {
+			$( "[id*='$']" ).each( function () {
+				var $this = $( this );
+
+				$this.attr( "id", $this.attr( "id" ).replace( "$", "__" ) );
+			} );
+
+			$( "#toc" ).toc( {
+				anchorName  : function ( i, heading, prefix ) {
+					return $( heading ).attr( "id" ) || ( prefix + i );
+				},
+				selectors   : "h1,h2,h3,h4",
+				showAndHide : false,
+				scrollTo    : "100px"
+			} );
+
+			$( "#toc>ul" ).addClass( "nav nav-pills nav-stacked" );
+			$( "#main span[id^='toc']" ).addClass( "toc-shim" );
+			$( '.dropdown-toggle' ).dropdown();
+//			$( ".tutorial-section pre, .readme-section pre" ).addClass( "sunlight-highlight-javascript" ).addClass( "linenums" );
+
+			$( ".tutorial-section pre, .readme-section pre" ).each( function () {
+				var $this = $( this );
+
+				var example = $this.find( "code" );
+				exampleText = example.html();
+				var lang = /{@lang (.*?)}/.exec( exampleText );
+				if ( lang && lang[1] ) {
+					exampleText = exampleText.replace( lang[0], "" );
+					example.html( exampleText );
+					lang = lang[1];
+				} else {
+					lang = "javascript";
+				}
+
+				if ( lang ) {
+
+					$this
+						.addClass( "sunlight-highlight-" + lang )
+						.addClass( "linenums" )
+						.html( example.html() );
+
+				}
+			} );
+
+			Sunlight.highlightAll( {
+				lineNumbers : true,
+				showMenu : true,
+				enableDoclinks : true
+			} );
+		} );
+	 </script>
+
+
+
+	<!--Navigation and Symbol Display-->
+	
+
+
+	<!--Google Analytics-->
+	
+
+</body>
+</html>

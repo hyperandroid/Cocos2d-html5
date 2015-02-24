@@ -1,0 +1,229 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Cocos2d-html5 Atlas with texture packer</title>
+
+    <link rel="stylesheet" href="../css/genericons.css">
+    <link rel="stylesheet" href="../css/templatestyles.css">
+    <link rel="stylesheet" href="../stylesheets/pygment_trac.css">
+    <link rel="stylesheet" id="open-sans-css"
+          href="//fonts.googleapis.com/css?family=Open+Sans%3A300italic%2C400italic%2C600italic%2C300%2C400%2C600&amp;subset=latin%2Clatin-ext&amp;ver=4.1.1"
+          type="text/css" media="all">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+</head>
+<body>
+
+    <button class="toggle">
+    </button>
+<div class="wrapper">
+    <header>
+
+        <div class="site-title">
+            <div class="site-title-info">
+                <h1>Cocos2d-html5</h1>
+                <p>Demo list</p>
+            </div>
+
+            <ul id="site-menu" class="site-menu">
+
+            </ul>
+        </div>
+    </header>
+
+    <section>
+        <div><canvas id="c"></canvas></div>
+        <div><input type="checkbox" id="showatlas">Show atlas.</div>
+        <div>
+            <p>
+                This demos shows image atlas in action. Although looks exactly as the atlas.html demo, this demo uses
+                an on-the-fly texture packer. You can see the result of texture packing on the top-right corner.
+            </p>
+            <p>
+                <li>The font is an Atlas embedded in a bigger atlas.</li>
+                <li>The other elements are manually crafted SpriteFrames.</li>
+            </p>
+        </div>
+    </section>
+    <footer>
+        <p>This project is maintained by <a href="https://github.com/hyperandroid">hyperandroid</a></p>
+    </footer>
+</div>
+    <script src="../../../javascripts/scale.fix.js"></script>
+    <script src="menu.js"></script>
+    <script src="../../../dist/all.js"></script>
+<script>
+    (function() {
+
+        var W=800;
+        var H=600;
+        var AssetManager= cc.plugin.asset.AssetManager;
+
+        function loadResources() {
+            AssetManager.load(
+                    {
+                        prefix : "../res/",
+                        resources: [
+                            "map.png@map",
+                            "map.json@map-atlas",
+                            "grossini_family.png@grossini",
+                            "grossini_family.plist@g-atlas",
+                            "font.txt@font.txt",
+                            "arial-14.png@arial",
+                            "arial-14.fnt@arial.fnt"
+                        ]
+                    },
+                    function onEnd(resources) {
+                        initialize(resources);
+                    }
+            );
+        }
+
+        /**
+         *
+         * @param resources {object}
+         */
+        function initialize( resources ) {
+            cc.render.RENDER_ORIGIN="bottom";
+
+            var tp= new cc.plugin.texture.TexturePacker();
+            tp.addImage( resources['map'], 'map' );
+            tp.addImage( resources['grossini'], 'grossini' );
+            tp.addImage( resources['arial'], 'arial' );
+            tp.pack({
+                'width': 2048,
+                'height': 1024,
+                'sortBy': "perimeter",
+                'margin':         2,
+                'debug': true   // uncomment code for sprite 0 to see the texture packed atlas image with used and empty space.
+
+            });
+            tp.createAssets();
+
+            // the renderer will setup pre-loaded textures for the renderer type.
+            // it will also create necessary SpriteFrames for each texture, in this case a frame for the image dude.png
+            var renderer= new cc.render.WebGLRenderer(W,H,document.getElementById("c"));
+
+            // director is the main Cocos Node, and must exist.
+            var director= new cc.node.Director().
+                    setRenderer( renderer );
+
+            // scenes run in directors, and are the main displayable element.
+            var scene= director.createScene().setColor(.5,.5,1);
+
+            // create sprite frames (image regions) from grossini_family image. definition from a plist file (texture packer Cocos2d export)
+            AssetManager.addSpriteFramesFromFrameWithPLIST( "grossini", resources['g-atlas'] );
+
+            // create sprite frames (image regions) from map.png image. definition from map.json file (texture packer JSON export)
+            AssetManager.addSpriteFramesFromFrameWithJSON( "map", resources['map-atlas'] );
+
+            // create sub sprite frames from a sub sprite frame. Slice the madewith sub image into 1 row by 3 columns
+            AssetManager.addGridSpriteFramesFromFrame( "madewith.png", 1, 3 );
+
+            // further shatter more another frame for fun. slice the first previously created slice into anothe 1 row by 3 columns
+            AssetManager.addGridSpriteFramesFromFrame( "madewith.png0", 1, 3 );
+
+            // even more.
+            AssetManager.addGridSpriteFramesFromFrame( "madewith.png01", 3, 1 );
+
+            // uncomment this block to see the result of the packer.
+
+            var sprite0= new cc.node.Node().
+                    setPosition(0,0);
+            sprite0.setVisible(false);
+            sprite0.draw= function(ctx) {
+                var s= Math.min(W,H);
+                ctx.drawTexture( cc.plugin.asset.AssetManager.getTexture("texturepage0"),
+                    0,0,s,s/2);
+            };
+            scene.addChild(sprite0);
+
+            document.getElementById("showatlas").addEventListener("click", function(e) {
+
+                sprite0.visible= !sprite0.visible;
+
+            }, false );
+
+            var sprite1= new cc.node.Sprite( { frameName: 'level.png' }).
+                    setPosition(100,300);
+            var sprite2= new cc.node.Sprite( { frameName: 'madewith.png0' }).
+                    setPosition(300,300);
+            var sprite3= new cc.node.Sprite( { frameName: 'madewith.png02' }).
+                    setPosition(400,300);
+            var sprite4= new cc.node.Sprite( { frameName: 'madewith.png011' }).
+                    setPosition(500,300);
+            var sprite5= new cc.node.Sprite( { frameName: 'grossinis_sister1.png' }).
+                    setPosition(100,400);
+            var sprite6= new cc.node.Sprite( { frameName: 'grossinis_sister2.png' }).
+                    setPosition(200,400);
+            var sprite7= new cc.node.Sprite( { frameName: 'grossini.png' }).
+                    setPosition(300,400);
+
+            scene.addChild(sprite1);
+            scene.addChild(sprite2);
+            scene.addChild(sprite3);
+            scene.addChild(sprite4);
+            scene.addChild(sprite5);
+            scene.addChild(sprite6);
+            scene.addChild(sprite7);
+
+            // create a font from the moonwarrior game.
+            AssetManager.createSpriteFontFromGlypthDesigner( "arial14", "arial", resources['arial.fnt'] );
+
+            // create a SpriteFont defined by a glypth designer file.
+            // font.png is an identifier defined in map.json, and references a spriteframe.
+            AssetManager.createSpriteFontFromGlypthDesigner( "font1", "font.png", resources['font.txt'] );
+
+            // sprite a sytem font
+            AssetManager.createSystemSpriteFont( "font2", {
+                size: 50,
+                fontface: "verdana",
+                style : "",         // bold, italic
+                fill: true,
+                stroke: true,
+                strokeSize: 3,
+                fillStyle: "#f0f",
+                strokeStyle: "#000",
+                characters: "0123456789qwertyuiopasdfghjklñzxcvbnmQWERTYUIOPLKJÑHGFDSAZXCVBNM !",
+                padding:5
+            } );
+
+            // create a node...
+            var node= new cc.node.Node().setContentSize(200,200).setPosition(10,10).setPositionAnchor(0,0);
+
+            var text= "Welcome to\n" +
+                    "Cocos2d-html5 V4";
+
+            // with a custom draw method that uses the font.
+            node.draw= function( ctx ) {
+                AssetManager.getSpriteFont("font1").drawText(ctx,text,0,0);
+                AssetManager.getSpriteFont("arial14").drawText(ctx,text,0,0);
+                AssetManager.getSpriteFont("font2").drawText(ctx,"This is a system font.",0,125);
+            };
+
+            // make the node with text rotate.
+            node.startActionChain().
+                    actionRotate().
+                        from(0).
+                        to(360).
+                        setDuration(60).
+                        setRepeatForever();
+
+            scene.addChild(node);
+
+            // run the scene.
+            director.runScene( scene );
+        }
+
+        window.addEventListener("DOMContentLoaded", loadResources, false);
+
+    })();
+</script>
+
+
+</body>
+</html>

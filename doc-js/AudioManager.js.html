@@ -1,0 +1,1683 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>CocosJS Source: plugin/audio/AudioManager.js</title>
+
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+	<link type="text/css" rel="stylesheet" href="styles/sunlight.default.css">
+
+	<link type="text/css" rel="stylesheet" href="styles/site.cerulean.css">
+
+</head>
+
+<body>
+<div class="container-fluid">
+	<div class="navbar navbar-fixed-top ">
+		<div class="navbar-inner">
+			<a class="brand" href="index.html">CocosJS</a>
+			<ul class="nav">
+				
+				<li class="dropdown">
+					<a href="namespaces.list.html" class="dropdown-toggle" data-toggle="dropdown">Namespaces<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="global.html#cc">cc</a>
+						</li>
+						
+						<li>
+							<a href="global.html#cc#action">cc.action</a>
+						</li>
+						
+						<li>
+							<a href="cc.Debug.html">cc.Debug</a>
+						</li>
+						
+						<li>
+							<a href="cc.game.html">cc.game</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.html">cc.input</a>
+						</li>
+						
+						<li>
+							<a href="cc.locale.html">cc.locale</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.html">cc.math</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path_.html">cc.math.path</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.html">cc.node</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.sprite.html">cc.node.sprite</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.html">cc.plugin</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.asset.html">cc.plugin.asset</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.audio.html">cc.plugin.audio</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.html">cc.plugin.layout</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.html">cc.plugin.loader</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.texture.html">cc.plugin.texture</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.html">cc.render</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.html">cc.render.shader</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.WebGLState.html">cc.render.WebGLState</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.html">cc.transition</a>
+						</li>
+						
+						<li>
+							<a href="cc.util.html">cc.util</a>
+						</li>
+						
+						<li>
+							<a href="cc.widget.html">cc.widget</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+				<li class="dropdown">
+					<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="cc.action.Action.html">cc.action.Action</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ActionChainContext.html">cc.action.ActionChainContext</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ActionChainContext_constructor.html">cc.action.ActionChainContext#constructor</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ActionInfo.html">cc.action.ActionInfo</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ActionManager.html">cc.action.ActionManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.AlphaAction.html">cc.action.AlphaAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.AnimateAction.html">cc.action.AnimateAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.Interpolator.html">cc.action.Interpolator</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.JumpAction.html">cc.action.JumpAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.MoveAction.html">cc.action.MoveAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ParseInterpolator.html">cc.action.ParseInterpolator</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.PathAction.html">cc.action.PathAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.PropertyAction.html">cc.action.PropertyAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.PropertyInfo.html">cc.action.PropertyInfo</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.RotateAction.html">cc.action.RotateAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ScaleAction.html">cc.action.ScaleAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.SchedulerQueue.html">cc.action.SchedulerQueue</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.SchedulerQueueTask.html">cc.action.SchedulerQueueTask</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.SequenceAction.html">cc.action.SequenceAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.TintAction.html">cc.action.TintAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.game.Game.html">cc.game.Game</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.InputManager.html">cc.input.InputManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.InputManagerEvent.html">cc.input.InputManagerEvent</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.KeyActionInfo.html">cc.input.KeyActionInfo</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.KeyboardCursor.html">cc.input.KeyboardCursor</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.KeyboardInputManager.html">cc.input.KeyboardInputManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.KeyInfo.html">cc.input.KeyInfo</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.MouseInputManager.html">cc.input.MouseInputManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.MouseInputManagerEvent.html">cc.input.MouseInputManagerEvent</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.PriorityInputNode.html">cc.input.PriorityInputNode</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.SceneGraphInputTreeNode.html">cc.input.SceneGraphInputTreeNode</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Color.html">cc.math.Color</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Dimension.html">cc.math.Dimension</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Matrix3.html">cc.math.Matrix3</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Path.html">cc.math.Path</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.ContainerSegment.html">cc.math.path.ContainerSegment</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.SegmentArc.html">cc.math.path.SegmentArc</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.SegmentBezier.html">cc.math.path.SegmentBezier</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.SegmentCardinalSpline.html">cc.math.path.SegmentCardinalSpline</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path_.html#SegmentLine">cc.math.path.SegmentLine</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.SegmentQuadratic.html">cc.math.path.SegmentQuadratic</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.SubPath.html">cc.math.path.SubPath</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Rectangle.html">cc.math.Rectangle</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Vector.html">cc.math.Vector</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.Director.html">cc.node.Director</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.FastSprite.html">cc.node.FastSprite</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.Node.html">cc.node.Node</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.Scene.html">cc.node.Scene</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.Sprite_.html">cc.node.Sprite</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.sprite.Animation.html">cc.node.sprite.Animation</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.sprite.AnimationCache.html">cc.node.sprite.AnimationCache</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.sprite.SpriteFrame.html">cc.node.sprite.SpriteFrame</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.asset.AssetManager.html">cc.plugin.asset.AssetManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.audio.AudioEffect.html">cc.plugin.audio.AudioEffect</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.audio.AudioManager.html">cc.plugin.audio.AudioManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.font.FontMetrics.html">cc.plugin.font.FontMetrics</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.font.SpriteFont.html">cc.plugin.font.SpriteFont</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.font.SpriteFontChar.html">cc.plugin.font.SpriteFontChar</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.BorderLayout.html">cc.plugin.layout.BorderLayout</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.Gap.html">cc.plugin.layout.Gap</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.GridLayout.html">cc.plugin.layout.GridLayout</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.Insets.html">cc.plugin.layout.Insets</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.LayerLayout.html">cc.plugin.layout.LayerLayout</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.Layout.html">cc.plugin.layout.Layout</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.Unit.html">cc.plugin.layout.Unit</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.Loader.html">cc.plugin.loader.Loader</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.ResourceLoaderAudioBuffer.html">cc.plugin.loader.ResourceLoaderAudioBuffer</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.ResourceLoaderImage.html">cc.plugin.loader.ResourceLoaderImage</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.ResourceLoaderJSON.html">cc.plugin.loader.ResourceLoaderJSON</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.ResourceLoaderXML.html">cc.plugin.loader.ResourceLoaderXML</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.texture.TexturePacker.html">cc.plugin.texture.TexturePacker</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.texture.TexturePackerNode.html">cc.plugin.texture.TexturePackerNode</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.texture.TexturePackerPage.html">cc.plugin.texture.TexturePackerPage</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.CanvasRenderer.html">cc.render.CanvasRenderer</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.DecoratedWebGLRenderingContext.html">cc.render.DecoratedWebGLRenderingContext</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.GeometryBatcher.html">cc.render.GeometryBatcher</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.Pattern.html">cc.render.Pattern</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.Renderer.html">cc.render.Renderer</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.RenderingContextSnapshot.html">cc.render.RenderingContextSnapshot</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.ScaleManager.html">cc.render.ScaleManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.AbstractShader.html">cc.render.shader.AbstractShader</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.Attribute.html">cc.render.shader.Attribute</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.MatrixUniform.html">cc.render.shader.MatrixUniform</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.SolidColorShader.html">cc.render.shader.SolidColorShader</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.TextureShader.html">cc.render.shader.TextureShader</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.TextureUniform.html">cc.render.shader.TextureUniform</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.Uniform.html">cc.render.shader.Uniform</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.Texture2D.html">cc.render.Texture2D</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.WebGLRenderer.html">cc.render.WebGLRenderer</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.Transition.html">cc.transition.Transition</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionFade.html">cc.transition.TransitionFade</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionMove.html">cc.transition.TransitionMove</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionSlideInB.html">cc.transition.TransitionSlideInB</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionSlideInL.html">cc.transition.TransitionSlideInL</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionSlideInR.html">cc.transition.TransitionSlideInR</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionSlideInT.html">cc.transition.TransitionSlideInT</a>
+						</li>
+						
+						<li>
+							<a href="cc.util.Resource.html">cc.util.Resource</a>
+						</li>
+						
+						<li>
+							<a href="cc.widget.Button.html">cc.widget.Button</a>
+						</li>
+						
+						<li>
+							<a href="cc.widget.Label.html">cc.widget.Label</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+				<li class="dropdown">
+					<a href="global.html" class="dropdown-toggle" data-toggle="dropdown">Global<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="global.html#__extends">__extends</a>
+						</li>
+						
+						<li>
+							<a href="global.html#test">test</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+			</ul>
+		</div>
+	</div>
+
+	<div class="row-fluid">
+
+		
+			<div class="span12">
+				
+				<div id="main">
+					
+
+
+		<h1 class="page-title">Source: plugin/audio/AudioManager.js</h1>
+    
+<section>
+	<article>
+		<pre
+			class="sunlight-highlight-javascript linenums">/**
+ *
+ */
+/// &lt;reference path="../../../lib/webaudio/webaudio.d.ts"/>
+var cc;
+(function (cc) {
+    var plugin;
+    (function (plugin) {
+        var audio;
+        (function (_audio) {
+            var audioContext = (function () {
+                var ctx = typeof AudioContext !== "undefined" ? AudioContext : (typeof webkitAudioContext !== "undefined" ? webkitAudioContext : null);
+                return ctx &amp;&amp; new ctx();
+            })();
+            var codecs = null;
+            (function () {
+                function check(str) {
+                    return str !== '' &amp;&amp; str !== "no";
+                }
+                var audio = new Audio();
+                codecs = {
+                    mp3: check(audio.canPlayType('audio/mpeg;')),
+                    ogg: check(audio.canPlayType('audio/ogg; codecs="vorbis"')),
+                    wav: check(audio.canPlayType('audio/wav; codecs="1"')),
+                    aac: check(audio.canPlayType('audio/aac;')),
+                    m4a: check(audio.canPlayType('audio/x-m4a;')) || check(audio.canPlayType('audio/m4a;')) || check(audio.canPlayType('audio/aac;')),
+                    mp4: check(audio.canPlayType('audio/x-mp4;')) || check(audio.canPlayType('audio/mp4;')) || check(audio.canPlayType('audio/aac;')),
+                    weba: check(audio.canPlayType('audio/webm; codecs="vorbis"'))
+                };
+            })();
+            /**
+             * @tsenum cc.plugin.audio.AudioEffectStatus
+             */
+            (function (AudioEffectStatus) {
+                AudioEffectStatus[AudioEffectStatus["NONE"] = 0] = "NONE";
+                AudioEffectStatus[AudioEffectStatus["PLAY"] = 1] = "PLAY";
+                AudioEffectStatus[AudioEffectStatus["PAUSE"] = 2] = "PAUSE";
+                AudioEffectStatus[AudioEffectStatus["STOP"] = 3] = "STOP";
+                AudioEffectStatus[AudioEffectStatus["END"] = 4] = "END";
+                AudioEffectStatus[AudioEffectStatus["LOADED"] = 5] = "LOADED";
+            })(_audio.AudioEffectStatus || (_audio.AudioEffectStatus = {}));
+            var AudioEffectStatus = _audio.AudioEffectStatus;
+            /**
+             * @class cc.plugin.audio.AudioEffect
+             * @classdesc
+             *
+             * This object represents a WebAudio enabled Object. It can:
+             *
+             * &lt;ul>
+             *  &lt;li>play, pause, resume, stop and loop.
+             *  &lt;li>define an AudioSprite (a region over a given audio).
+             *  &lt;li>Apply BiquadFilters to output.
+             *  &lt;li>Apply Convolution (needs external audio buffers).
+             *  &lt;li>Expose full lifecycle: start, stop, repeat, pause and resume.
+             *  &lt;li>Manage volume.
+             *  &lt;li>Be independently muted.
+             *  &lt;li>Play with delay time, so that you can schedule sounds on the future.
+             *  &lt;li>Seek audio.
+             *  &lt;li>On-the-fly change of properties such as volume, filter, convolver, loop, etc.
+             * &lt;/ul>
+             *
+             * This audio object is connected to a master volume.
+             */
+            var AudioEffect = (function () {
+                /**
+                 * @method cc.plugin.audio.AudioEffect#constructor
+                 * @param buffer {object} Audio buffer object.
+                 * @param masterGain {object} a GainNode which will act as system volume.
+                 */
+                function AudioEffect(masterGain, buffer) {
+                    /**
+                     * An string id.
+                     * @member cc.plugin.audio.AudioEffect#_id
+                     * @type {string}
+                     * @private
+                     */
+                    this._id = null;
+                    /**
+                     *
+                     * @member cc.plugin.audio.AudioEffect#_isWebAudio
+                     * @type {boolean}
+                     * @private
+                     */
+                    this._isWebAudio = false;
+                    /**
+                     * Internal audio object status.
+                     * @member cc.plugin.audio.AudioEffect#_status
+                     * @type {cc.plugin.audio.AudioEffectStatus}
+                     * @private
+                     */
+                    this._status = 0 /* NONE */;
+                    /**
+                     * Is this object muted ?
+                     * @member cc.plugin.audio.AudioEffect#_muted
+                     * @type {boolean}
+                     * @private
+                     */
+                    this._muted = false;
+                    /**
+                     * The audio volume. Volume ranges from 0 to 1.
+                     * @member cc.plugin.audio.AudioEffect#_volume
+                     * @type {boolean}
+                     * @private
+                     */
+                    this._volume = 1;
+                    /**
+                     * The original audio buffer duration.
+                     * this value opposes to _duration which is the current Audio object duration.
+                     * @member cc.plugin.audio.AudioEffect#_bufferDuration
+                     * @type {number}
+                     * @private
+                     */
+                    this._bufferDuration = 0;
+                    /**
+                     * Current Audio object duration. If the audio is a sprite, the value will be different from _bufferDuration
+                     * @member cc.plugin.audio.AudioEffect#_bufferDuration
+                     * @type {number}
+                     * @private
+                     */
+                    this._duration = 0;
+                    /**
+                     * The audio source node.
+                     * @member cc.plugin.audio.AudioEffect#_source
+                     * @type {AudioBufferSourceNode}
+                     * @private
+                     */
+                    this._source = null;
+                    /**
+                     * The audio contents.
+                     * @member cc.plugin.audio.AudioEffect#_buffer
+                     * @type {AudioBuffer}
+                     * @private
+                     */
+                    this._buffer = null;
+                    /**
+                     * Relative to duration time when the audio was paused. Never use directly
+                     * @member cc.plugin.audio.AudioEffect#_pauseTime
+                     * @type {number}
+                     * @private
+                     */
+                    this._pauseTime = 0;
+                    /**
+                     * The audioContext time when play was called.
+                     * @member cc.plugin.audio.AudioEffect#_startPlaybackTime
+                     * @type {number}
+                     * @private
+                     */
+                    this._startPlaybackTime = 0;
+                    /**
+                     * If play is called with delay, this is the delay time before play the sound.
+                     * @member cc.plugin.audio.AudioEffect#_delayTime
+                     * @type {number}
+                     * @private
+                     */
+                    this._delayTime = 0;
+                    /**
+                     * Master volume node to which the audio volume will be connected.
+                     * @member cc.plugin.audio.AudioEffect#_masterGain
+                     * @type {number}
+                     * @private
+                     */
+                    this._masterGain = null;
+                    /**
+                     * The audio volume node.
+                     * @member cc.plugin.audio.AudioEffect#_gain
+                     * @type {number}
+                     * @private
+                     */
+                    this._gain = null;
+                    /**
+                     * Whether the audio is a sprite audio. A sprite audio is just a region from another audio object.
+                     * @member cc.plugin.audio.AudioEffect#_isSprite
+                     * @type {boolean}
+                     * @private
+                     */
+                    this._isSprite = false;
+                    /**
+                     * If the audio is a Sprite audio, relative time offset where the sprite starts.
+                     * @member cc.plugin.audio.AudioEffect#_spriteStartTime
+                     * @type {boolean}
+                     * @private
+                     */
+                    this._spriteStartTime = 0;
+                    /**
+                     * Loop the audio ?.
+                     * @member cc.plugin.audio.AudioEffect#_loop
+                     * @type {boolean}
+                     * @private
+                     */
+                    this._loop = false;
+                    /**
+                     * Internal loop timer.
+                     * @member cc.plugin.audio.AudioEffect#_endTimerId
+                     * @type {number}
+                     * @private
+                     */
+                    this._endTimerId = null;
+                    /**
+                     * Audio end callback.
+                     * @member cc.plugin.audio.AudioEffect#_onEnd
+                     * @type {cc.plugin.audio.AudioCallback}
+                     * @private
+                     */
+                    this._onEnd = null;
+                    /**
+                     * Audio resume callback.
+                     * @member cc.plugin.audio.AudioEffect#_onResume
+                     * @type {cc.plugin.audio.AudioCallback}
+                     * @private
+                     */
+                    this._onResume = null;
+                    /**
+                     * Audio pause callback.
+                     * @member cc.plugin.audio.AudioEffect#_onPause
+                     * @type {cc.plugin.audio.AudioCallback}
+                     * @private
+                     */
+                    this._onPause = null;
+                    /**
+                     * Audio stop callback.
+                     * @member cc.plugin.audio.AudioEffect#_onStop
+                     * @type {cc.plugin.audio.AudioCallback}
+                     * @private
+                     */
+                    this._onStop = null;
+                    /**
+                     * Audio start callback.
+                     * @member cc.plugin.audio.AudioEffect#_onStart
+                     * @type {cc.plugin.audio.AudioCallback}
+                     * @private
+                     */
+                    this._onStart = null;
+                    /**
+                     * Audio repeat callback.
+                     * @member cc.plugin.audio.AudioEffect#_onRepeat
+                     * @type {cc.plugin.audio.AudioCallback}
+                     * @private
+                     */
+                    this._onRepeat = null;
+                    /**
+                     * Internal BiquadFilter node for sound filtering.
+                     * @member cc.plugin.audio.AudioEffect#_filter
+                     * @type {object}
+                     * @private
+                     */
+                    this._filter = null;
+                    /**
+                     * Is filtering enabled ?
+                     * @member cc.plugin.audio.AudioEffect#_filterEnabled
+                     * @type {boolean}
+                     * @private
+                     */
+                    this._filterEnabled = false;
+                    /**
+                     * Internal convolver node for sound convolution.
+                     * @member cc.plugin.audio.AudioEffect#_convolver
+                     * @type {object}
+                     * @private
+                     */
+                    this._convolver = null;
+                    /**
+                     * Is convolution enabled ?
+                     * @member cc.plugin.audio.AudioEffect#_convolverEnabled
+                     * @type {boolean}
+                     * @private
+                     */
+                    this._convolverEnabled = false;
+                    this._playbackRate = 1;
+                    this._isWebAudio = true;
+                    if (buffer) {
+                        this.setBuffer(buffer);
+                    }
+                    this._gain = (typeof audioContext.createGain === "undefined") ? audioContext.createGainNode() : audioContext.createGain();
+                    this._gain.connect(masterGain);
+                    this._masterGain = masterGain;
+                    this._filter = cc.plugin.audio.AudioManager.getContext().createBiquadFilter();
+                    this._convolver = cc.plugin.audio.AudioManager.getContext().createConvolver();
+                }
+                AudioEffect.prototype.setId = function (s) {
+                    this._id = s;
+                    return this;
+                };
+                AudioEffect.prototype.getId = function () {
+                    return this._id;
+                };
+                AudioEffect.prototype.setBuffer = function (buffer) {
+                    this._bufferDuration = buffer.duration;
+                    this._duration = buffer.duration;
+                    this._buffer = buffer;
+                };
+                /**
+                 * Make the audio loop or not. This can be changed at any given time.
+                 * @method cc.plugin.audio.AudioEffect#loop
+                 * @param enable {boolean} enable loop or not.
+                 * @returns {cc.plugin.audio.AudioEffect}
+                 */
+                AudioEffect.prototype.loop = function (enable) {
+                    this._loop = enable;
+                    return this;
+                };
+                /**
+                 * Get whether the sound is looping.
+                 * @method cc.plugin.audio.AudioEffect#isLoop
+                 * @returns {boolean}
+                 */
+                AudioEffect.prototype.isLoop = function () {
+                    return this._loop;
+                };
+                /**
+                 * Get the audio volume
+                 * @method cc.plugin.audio.AudioEffect#getVolume
+                 * @returns {number}
+                 */
+                AudioEffect.prototype.getVolume = function () {
+                    return this._gain.gain.value;
+                };
+                /**
+                 * Set the audio volume.
+                 * @method cc.plugin.audio.AudioEffect#setVolume
+                 * @param v {number} a number ranging from 0 (no sound) to 1 (full sound)
+                 */
+                AudioEffect.prototype.setVolume = function (v) {
+                    this._volume = v;
+                    if (!this._muted) {
+                        this._gain.gain.value = v;
+                    }
+                };
+                /**
+                 * Set this audio as sprite.
+                 * Sprites must not be changed while playing. Should be set before.
+                 * The default sprite will be from starting of sound to its length;
+                 * If setSprite is called with enable=false, it will set the audio as non sprite, but the information of
+                 * sprite's start and duration can still be set. If not specified, these values will be kept 'as is'.
+                 * @method cc.plugin.audio.AudioEffect#setSprite
+                 * @param enable {boolean} enable this audio as sprite.
+                 * @param start {number} time offset to play the sound
+                 * @param duration {number} the audio will play from start to start+duration
+                 */
+                AudioEffect.prototype.setSprite = function (enable, start, duration) {
+                    this._isSprite = enable;
+                    if (typeof start !== "undefined") {
+                        this._spriteStartTime = start;
+                        this._duration = duration;
+                    }
+                    if (this._source) {
+                        this.__setSpriteData();
+                    }
+                    return this;
+                };
+                /**
+                 * Configure internal audio sprite data.
+                 * @method cc.plugin.audio.AudioEffect#__setSpriteData
+                 * @private
+                 */
+                AudioEffect.prototype.__setSpriteData = function () {
+                    if (this._isSprite) {
+                        if (this._isWebAudio) {
+                            this._source.loopStart = this._spriteStartTime;
+                            this._source.loopEnd = Math.min(this._duration, this._spriteStartTime + this._duration);
+                        }
+                    }
+                    else {
+                        if (this._isWebAudio) {
+                            this._duration = this._bufferDuration;
+                            this._source.loopStart = 0;
+                            this._source.loopEnd = this._duration;
+                        }
+                    }
+                };
+                AudioEffect.prototype.setPlaybackRate = function (rate) {
+                    this._playbackRate = rate;
+                    if (this._source) {
+                        var wasPlaying = this.isPlaying();
+                        if (wasPlaying) {
+                            this.pause();
+                        }
+                        this._source.playbackRate.value = rate;
+                        if (wasPlaying) {
+                            this.resume();
+                        }
+                    }
+                };
+                /**
+                 * Get audio duration. If the audio loops, getDuration will be Number.MAX_VALUE, and the buffer or sprite duration
+                 * otherwise plus the delay otherwise.
+                 * @method cc.plugin.audio.AudioEffect#getDuration
+                 * @returns {number}
+                 */
+                AudioEffect.prototype.getDuration = function () {
+                    return this._loop ? Number.MAX_VALUE : this._delayTime + this._duration;
+                };
+                /**
+                 * Create the audio source and some internal piping.
+                 * @method cc.plugin.audio.AudioEffect#__createSource
+                 * @private
+                 */
+                AudioEffect.prototype.__createSource = function () {
+                    this._source = audioContext.createBufferSource();
+                    this._source.buffer = this._buffer;
+                    this.__connectNodes();
+                    this.loop(this._loop);
+                    this.__setSpriteData();
+                    this._delayTime = 0;
+                    this._startPlaybackTime = 0;
+                    if (!this._muted) {
+                        this._gain.gain.value = this._volume;
+                    }
+                    this._status = 0 /* NONE */;
+                };
+                /**
+                 * Do the internal volume, source, filter, convolver wiring.
+                 * @method cc.plugin.audio.AudioEffect#__connectNodes
+                 * @private
+                 */
+                AudioEffect.prototype.__connectNodes = function () {
+                    var chain = [];
+                    chain.push(this._source);
+                    if (this._filterEnabled) {
+                        chain.push(this._filter);
+                    }
+                    if (this._convolverEnabled) {
+                        chain.push(this._convolver);
+                    }
+                    chain.push(this._gain);
+                    for (var i = 0; i &lt; chain.length - 1; i++) {
+                        chain[i].connect(chain[i + 1]);
+                    }
+                };
+                /**
+                 * Set a filter for the effect.
+                 * @method cc.plugin.audio.AudioEffect#setFilter
+                 * @param f {cc.plugin.audio.AudioFilterInitializer} filter info.
+                 */
+                AudioEffect.prototype.setFilter = function (f) {
+                    var wasFilterEnabled = this._filterEnabled;
+                    this._filterEnabled = f !== null;
+                    if (f) {
+                        var type = f.type.toLowerCase();
+                        this._filter.type = type;
+                        for (var pr in f) {
+                            if (pr !== "type" &amp;&amp; f.hasOwnProperty(pr)) {
+                                this._filter[pr].value = f[pr];
+                            }
+                        }
+                    }
+                    if (this._status === 1 /* PLAY */) {
+                        // only if there's no filter now or was not before, do the audio filter wiring.
+                        if (!wasFilterEnabled || !this._filterEnabled) {
+                            this.__pausePlay();
+                        }
+                    }
+                };
+                /**
+                 * Internal method to pause and play the audio. Between pause and play, will do some wiring of the internal nodes.
+                 * @method cc.plugin.audio.AudioEffect#__pausePlay
+                 * @private
+                 */
+                AudioEffect.prototype.__pausePlay = function () {
+                    var ct = this.getCurrentTime();
+                    this.stop();
+                    this.setCurrentTime(ct);
+                    this.__connectNodes();
+                    this.play();
+                };
+                /**
+                 * Play the audio. Alternatively, the play can be deferred by passing a delay parameter.
+                 * @method cc.plugin.audio.AudioEffect#play
+                 * @param delay {number} milliseconds to defer audio play.
+                 * @returns {cc.plugin.audio.AudioEffect}
+                 */
+                AudioEffect.prototype.play = function (delay) {
+                    delay = delay || 0;
+                    var startTime = 0;
+                    var waspaused = false;
+                    if (this._status === 1 /* PLAY */) {
+                        this.stop();
+                    }
+                    else if (this._status === 2 /* PAUSE */) {
+                        startTime = this._pauseTime;
+                        waspaused = true;
+                    }
+                    this.__createSource();
+                    this._status = 1 /* PLAY */;
+                    this._startPlaybackTime = audioContext.currentTime;
+                    this._delayTime = delay;
+                    this._source.playbackRate.value = this._playbackRate;
+                    if (this._isSprite) {
+                        if (this._isWebAudio) {
+                            if (typeof this._source.start === 'undefined') {
+                                this._source.noteGrainOn(delay, this._spriteStartTime + startTime, this.getRemainingTime());
+                            }
+                            else {
+                                this._source.start(delay, this._spriteStartTime + startTime, this.getRemainingTime());
+                            }
+                        }
+                    }
+                    else {
+                        if (this._isWebAudio) {
+                            this._source.start(delay, startTime);
+                        }
+                    }
+                    //if ( !this._loop ) {
+                    this.__cancelEndTimer();
+                    this.__startEndTimer();
+                    //}
+                    if (waspaused) {
+                        if (this._onResume) {
+                            this._onResume(this);
+                        }
+                    }
+                    else {
+                        if (this._onStart) {
+                            this._onStart(this);
+                        }
+                    }
+                    return this;
+                };
+                /**
+                 * Is the audio playing ?
+                 * @method cc.plugin.audio.AudioEffect#isPlaying
+                 * @returns {boolean}
+                 */
+                AudioEffect.prototype.isPlaying = function () {
+                    return this._status === 1 /* PLAY */;
+                };
+                /**
+                 * Convolve the audio.
+                 * @method cc.plugin.audio.AudioEffect#convolve
+                 * @param _buffer {string|object} if string, it will look up an AudioObject in the AssetManager as convolution
+                 *    parameter. If not, a convolution audio buffer is expected.
+                 */
+                AudioEffect.prototype.convolve = function (_buffer) {
+                    var buffer = null;
+                    if (typeof _buffer !== "undefined") {
+                        if (typeof _buffer === 'string') {
+                            buffer = cc.plugin.asset.AssetManager.getAudioBuffer(_buffer);
+                        }
+                    }
+                    if (null === buffer) {
+                        this._convolver.buffer = null;
+                        this._convolverEnabled = false;
+                    }
+                    else {
+                        this._convolverEnabled = true;
+                        this._convolver.buffer = buffer;
+                    }
+                    if (this.isPlaying()) {
+                        this.__pausePlay();
+                    }
+                };
+                /**
+                 * Get current audio time. If playing or paused, will give the actual audio time and zero otherwise.
+                 * @method cc.plugin.audio.AudioEffect#getCurrentTime
+                 */
+                AudioEffect.prototype.getCurrentTime = function () {
+                    return this._status === 1 /* PLAY */ || this._status === 2 /* PAUSE */ ? ((audioContext.currentTime - this._startPlaybackTime + this._spriteStartTime) % this._duration) - this._delayTime + this._pauseTime : 0;
+                };
+                /**
+                 * Set current audio time. The time will be modulo the duration.
+                 * @method cc.plugin.audio.AudioEffect#setCurrentTime
+                 * @param time {number} expected audio seek position.
+                 */
+                AudioEffect.prototype.setCurrentTime = function (time) {
+                    var wasPlaying = this._status === 1 /* PLAY */;
+                    this.stop();
+                    this._pauseTime = time % this._duration + this._spriteStartTime;
+                    // hack to restart from pause position.
+                    this._status = 2 /* PAUSE */;
+                    if (wasPlaying) {
+                        this.play();
+                    }
+                };
+                /**
+                 * If the audio is playing or paused get remaining play time, zero otherwise.
+                 * @method cc.plugin.audio.AudioEffect#getRemainingTime
+                 */
+                AudioEffect.prototype.getRemainingTime = function () {
+                    // sometimes, an few milliseconds negative time could happen when you mess around a lot with pause/resume
+                    return this._status === 1 /* PLAY */ || this._status === 2 /* PAUSE */ ? Math.max(0, this._duration - this.getCurrentTime()) : 0;
+                };
+                /**
+                 * Internal method that cancels the end play timer.
+                 * @method cc.plugin.audio.AudioEffect#__cancelEndTimer
+                 */
+                AudioEffect.prototype.__cancelEndTimer = function () {
+                    if (this._endTimerId) {
+                        clearTimeout(this._endTimerId);
+                        this._endTimerId = null;
+                    }
+                };
+                /**
+                 * Internal method that starts the end play timer.
+                 * @method cc.plugin.audio.AudioEffect#__startEndTimer
+                 */
+                AudioEffect.prototype.__startEndTimer = function () {
+                    if (this._endTimerId) {
+                        return;
+                    }
+                    var timeleft = this.getRemainingTime() / this._playbackRate;
+                    var me = this;
+                    this._endTimerId = setTimeout(function () {
+                        me._endTimerId = null;
+                        me._pauseTime = 0;
+                        me._status = 4 /* END */;
+                        if (me._loop) {
+                            if (me._onRepeat) {
+                                me._onRepeat(me);
+                            }
+                            me.play(0);
+                        }
+                        else {
+                            if (me._onEnd) {
+                                me._onEnd(me);
+                            }
+                        }
+                    }, timeleft * 1000);
+                };
+                /**
+                 * Internal method that performs the common stop audio part.
+                 * @method cc.plugin.audio.AudioEffect#__pause_stop_common
+                 */
+                AudioEffect.prototype.__pause_stop_common = function () {
+                    if (typeof this._source.stop === 'undefined') {
+                        this._source.noteOff(0);
+                    }
+                    else {
+                        this._source.stop(0);
+                    }
+                    this.__cancelEndTimer();
+                };
+                /**
+                 * Stop the audio
+                 * @method cc.plugin.audio.AudioEffect#stop
+                 */
+                AudioEffect.prototype.stop = function () {
+                    if (this._source) {
+                        this.__pause_stop_common();
+                    }
+                    this._pauseTime = 0;
+                    this._status = 3 /* STOP */;
+                    if (this._onStop) {
+                        this._onStop(this);
+                    }
+                    return this;
+                };
+                /**
+                 * Pause the audio
+                 * @method cc.plugin.audio.AudioEffect#pause
+                 */
+                AudioEffect.prototype.pause = function () {
+                    if (this._status !== 1 /* PLAY */) {
+                        return;
+                    }
+                    var pt = this.getCurrentTime();
+                    this.__pause_stop_common();
+                    var ct = audioContext.currentTime;
+                    this._pauseTime = pt;
+                    //console.log("pause at "+this._pauseTime);
+                    this._startPlaybackTime = ct;
+                    this._status = 2 /* PAUSE */;
+                    if (this._onPause) {
+                        this._onPause(this);
+                    }
+                    return this;
+                };
+                /**
+                 * Resume the audio
+                 * @method cc.plugin.audio.AudioEffect#resume
+                 */
+                AudioEffect.prototype.resume = function () {
+                    if (this._status !== 2 /* PAUSE */) {
+                        return;
+                    }
+                    return this.play();
+                };
+                /**
+                 * Set audio on end callback
+                 * @method cc.plugin.audio.AudioEffect#onEnd
+                 * @param c {cc.plugin.audio.AudioCallback}
+                 */
+                AudioEffect.prototype.onEnd = function (c) {
+                    this._onEnd = c;
+                    return this;
+                };
+                /**
+                 * Set audio on repeat callback.
+                 * Effects repeat when looping.
+                 * @method cc.plugin.audio.AudioEffect#onRepeat
+                 * @param c {cc.plugin.audio.AudioCallback}
+                 */
+                AudioEffect.prototype.onRepeat = function (c) {
+                    this._onRepeat = c;
+                    return this;
+                };
+                /**
+                 * Set audio on pause callback
+                 * @method cc.plugin.audio.AudioEffect#onPause
+                 * @param c {cc.plugin.audio.AudioCallback}
+                 */
+                AudioEffect.prototype.onPause = function (c) {
+                    this._onPause = c;
+                    return this;
+                };
+                /**
+                 * Set audio on resume callback
+                 * @method cc.plugin.audio.AudioEffect#onResume
+                 * @param c {cc.plugin.audio.AudioCallback}
+                 */
+                AudioEffect.prototype.onResume = function (c) {
+                    this._onResume = c;
+                    return this;
+                };
+                /**
+                 * Set audio on stop callback
+                 * @method cc.plugin.audio.AudioEffect#onStop
+                 * @param c {cc.plugin.audio.AudioCallback}
+                 */
+                AudioEffect.prototype.onStop = function (c) {
+                    this._onStop = c;
+                    return this;
+                };
+                /**
+                 * Set audio on start callback
+                 * @method cc.plugin.audio.AudioEffect#onStart
+                 * @param c {cc.plugin.audio.AudioCallback}
+                 */
+                AudioEffect.prototype.onStart = function (c) {
+                    this._onStart = c;
+                    return this;
+                };
+                /**
+                 * Mute the audio.
+                 * @method cc.plugin.audio.AudioEffect#mute
+                 */
+                AudioEffect.prototype.mute = function () {
+                    if (this._isWebAudio) {
+                        this._gain.gain.value = 0;
+                    }
+                    this._muted = true;
+                    return this;
+                };
+                /**
+                 * Unmute the audio.
+                 * @method cc.plugin.audio.AudioEffect#unmute
+                 */
+                AudioEffect.prototype.unmute = function () {
+                    if (this._isWebAudio) {
+                        this._gain.gain.value = this._volume;
+                    }
+                    this._muted = false;
+                    return this;
+                };
+                return AudioEffect;
+            })();
+            _audio.AudioEffect = AudioEffect;
+            var SimpleAudioEffect = (function () {
+                function SimpleAudioEffect() {
+                    this._audio = null;
+                    this._loaded = false;
+                    this._status = 0 /* NONE */;
+                    this._url = null;
+                    this._pauseTime = 0;
+                    this._volume = 1;
+                    this._masterVolume = 1;
+                    this._audio = document.createElement('audio');
+                    this._audio.preload = "auto";
+                    this._audio.autoplay = false;
+                }
+                SimpleAudioEffect.prototype.setUrl = function (url, autoplay) {
+                    if (url === this._url) {
+                        return;
+                    }
+                    var me = this;
+                    this._url = url;
+                    this._loaded = false;
+                    this._audio.addEventListener("canplaythrough", function (e) {
+                        e.srcElement.removeEventListener("canplaythrough", this);
+                        me._loaded = true;
+                        me._status = 5 /* LOADED */;
+                        if (autoplay) {
+                            me.play();
+                        }
+                    }, false);
+                    this._audio.src = url;
+                };
+                SimpleAudioEffect.prototype.setMasterVolume = function (v) {
+                    this._masterVolume = v;
+                };
+                SimpleAudioEffect.prototype.setVolume = function (v) {
+                    this._volume = v;
+                    this._audio.volume = v * this._masterVolume;
+                };
+                SimpleAudioEffect.prototype.loop = function (v) {
+                    this._loop = true;
+                    this.play();
+                };
+                SimpleAudioEffect.prototype.play = function () {
+                    if (this._status !== 0 /* NONE */) {
+                        this._status = 1 /* PLAY */;
+                        this._audio.currentTime = 0;
+                        this._audio.loop = this._loop;
+                        this._audio.play();
+                    }
+                };
+                SimpleAudioEffect.prototype.pause = function () {
+                    if (this._status !== 0 /* NONE */) {
+                        this._status = 2 /* PAUSE */;
+                        this._pauseTime = this._audio.currentTime;
+                        this._audio.pause();
+                    }
+                };
+                SimpleAudioEffect.prototype.resume = function () {
+                    if (this._status !== 0 /* NONE */) {
+                        this._status = 1 /* PLAY */;
+                        this._audio.currentTime = this._pauseTime;
+                        this._audio.play();
+                        this._pauseTime = 0;
+                    }
+                };
+                SimpleAudioEffect.prototype.stop = function () {
+                    this._status = 3 /* STOP */;
+                    this._pauseTime = 0;
+                    this._audio.pause();
+                };
+                return SimpleAudioEffect;
+            })();
+            _audio.SimpleAudioEffect = SimpleAudioEffect;
+            /**
+             * @class cc.plugin.audio.AudioManager
+             * @classdesc
+             *
+             * This object represents a sound manager.
+             * The sound manager does several things:
+             *
+             * &lt;li>keep an internal AudioEffect object pool. These elements are AudioBuffer decoded objects or Audio tags,
+             *     depending on the AudioManager implementation.
+             * &lt;li>Has 3 gain nodes: music, effects, and a general one connected to the two previous ones.
+             * &lt;li>Plays background music using an Audio tag. You definitely don't want to have a 10 minutes song decoded
+             *     into memory.
+             *
+             * There's only one music node and up to MAX_AUDIO_EFFECTS (16) for a total of 17 concurrent sounds.
+             * The AudioManager objects manages lifecycle of the sounds. That means that an effect can be requested for play,
+             * but not stop pause or resume. For such fine control, call &lt;code>createAudio&lt;/code> method to get an
+             * &lt;code>AudioEffect&lt;/code> object which has much more advanced capabilities.
+             */
+            var AudioManager = (function () {
+                function AudioManager(ami) {
+                    var _this = this;
+                    this._context = null;
+                    /**
+                     * Master volume.
+                     * @type {number}
+                     * @private
+                     */
+                    this._volume = 1;
+                    this._masterGain = null;
+                    this._soundPool = [];
+                    this._playingPool = [];
+                    this._music = null;
+                    if (audioContext) {
+                        this._masterGain = audioContext.createGain();
+                        this._masterGain.connect(audioContext.destination);
+                    }
+                    this._music = new SimpleAudioEffect();
+                    ami = ami || {};
+                    ami.numChannels = ami.numChannels || 16;
+                    for (var i = 0; i &lt; ami.numChannels; i++) {
+                        var ae = new AudioEffect(this._masterGain);
+                        this._soundPool.push(ae);
+                        ae.onEnd(function (ae) {
+                            _this.__recycle(ae);
+                        });
+                        ae.onStop(function (ae) {
+                            _this.__recycle(ae);
+                        });
+                    }
+                }
+                AudioManager.prototype.__recycle = function (ae) {
+                    var index = this._playingPool.indexOf(ae);
+                    if (-1 !== index) {
+                        this._playingPool.splice(index, 1);
+                        this._soundPool.push(ae);
+                    }
+                    else {
+                        console.log("recycle sound for not found element.");
+                    }
+                };
+                AudioManager.prototype.createAudio = function (id) {
+                    return new AudioEffect(this._masterGain, cc.plugin.asset.AssetManager.getAudioBuffer(id));
+                };
+                AudioManager.prototype.setVolume = function (v) {
+                    this._volume = v;
+                    this._masterGain.gain.value = v;
+                    this._music.setMasterVolume(v);
+                };
+                AudioManager.prototype.setMusicVolume = function (v) {
+                    this._music.setVolume(v);
+                };
+                /**
+                 * Play a loaded AudioBuffer.
+                 * This method plays a fully system-controlled sound. There's no user-side control.
+                 * To have a client side controlled audio effect object, call &lt;code>createAudio&lt;/code>.
+                 * @param id {string|AudioBuffer} a string id in the asset manager.
+                 */
+                AudioManager.prototype.playEffect = function (id) {
+                    if (this._soundPool.length === 0) {
+                        cc.Debug.warn(cc.locale.ERR_SOUND_POOL_EMPTY);
+                    }
+                    var ab = null;
+                    if (typeof id === 'string') {
+                        ab = cc.plugin.asset.AssetManager.getAudioBuffer(id);
+                    }
+                    else {
+                        ab = id;
+                    }
+                    if (null !== ab) {
+                        var ae = this._soundPool.pop();
+                        ae.setBuffer(ab);
+                        ae.play();
+                        this._playingPool.push(ae);
+                    }
+                };
+                AudioManager.prototype.pauseEffects = function () {
+                    for (var i = 0; i &lt; this._playingPool.length; i++) {
+                        this._playingPool[i].pause();
+                    }
+                };
+                AudioManager.prototype.resumeEffects = function () {
+                    for (var i = 0; i &lt; this._playingPool.length; i++) {
+                        this._playingPool[i].resume();
+                    }
+                };
+                AudioManager.prototype.stopEffects = function () {
+                    for (var i = 0; i &lt; this._playingPool.length; i++) {
+                        this._playingPool[i].stop();
+                    }
+                };
+                AudioManager.prototype.setMusic = function (url, autoplay) {
+                    this._music.loop(true);
+                    this._music.setUrl(url, autoplay);
+                };
+                AudioManager.prototype.playMusic = function () {
+                    this._music.loop(true);
+                    this._music.play();
+                };
+                AudioManager.prototype.pauseMusic = function () {
+                    this._music.pause();
+                };
+                AudioManager.prototype.resumeMusic = function () {
+                    this._music.resume();
+                };
+                AudioManager.prototype.stopMusic = function () {
+                    this._music.stop();
+                };
+                //
+                //  enableiOSAudio() {
+                //    var me = this;
+                //
+                //    if (audioContext &amp;&amp; (me._iOSEnabled || !/iPhone|iPad|iPod/i.test(navigator.userAgent))) {
+                //      return;
+                //    }
+                //
+                //    me._iOSEnabled = false;
+                //
+                //    // call this method on touch start to create and play a buffer,
+                //    // then check if the audio actually played to determine if
+                //    // audio has now been unlocked on iOS
+                //    var unlock = function() {
+                //      // create an empty buffer
+                //      var buffer = ctx.createBuffer(1, 1, 22050);
+                //      var source = ctx.createBufferSource();
+                //      source.buffer = buffer;
+                //      source.connect(ctx.destination);
+                //
+                //      // play the empty buffer
+                //      if (typeof source.start === 'undefined') {
+                //        source.noteOn(0);
+                //      } else {
+                //        source.start(0);
+                //      }
+                //
+                //      // setup a timeout to check that we are unlocked on the next event loop
+                //      setTimeout(function() {
+                //        if ((source.playbackState === source.PLAYING_STATE || source.playbackState === source.FINISHED_STATE)) {
+                //          // update the unlocked state and prevent this check from happening again
+                //          me._iOSEnabled = true;
+                //          me.iOSAutoEnable = false;
+                //
+                //          // remove the touch start listener
+                //          window.removeEventListener('touchstart', unlock, false);
+                //        }
+                //      }, 0);
+                //    };
+                //
+                //    // setup a touch start listener to attempt an unlock in
+                //    window.addEventListener('touchstart', unlock, false);
+                //
+                //    return me;
+                //  }
+                //}
+                AudioManager.canPlay = function (codec) {
+                    return codecs[codec];
+                };
+                AudioManager.getContext = function () {
+                    return audioContext;
+                };
+                AudioManager.isWebAudioEnabled = function () {
+                    return audioContext !== null;
+                };
+                return AudioManager;
+            })();
+            _audio.AudioManager = AudioManager;
+        })(audio = plugin.audio || (plugin.audio = {}));
+    })(plugin = cc.plugin || (cc.plugin = {}));
+})(cc || (cc = {}));
+</pre>
+	</article>
+</section>
+
+
+
+
+
+				</div>
+
+				<div class="clearfix"></div>
+				<footer>
+					
+					@hyperandroid
+					<br />
+					
+					
+		<span class="copyright">
+		Chukong inc. 2014
+		</span>
+					<br />
+					
+		<span class="jsdoc-message">
+		Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha5</a>
+		on 23/Tu/2015 using the <a
+			href="https://github.com/terryweiss/docstrap">DocStrap template</a>.
+		</span>
+				</footer>
+			</div>
+
+			
+			<br clear="both">
+		</div>
+
+	</div>
+	<!--<script src="scripts/sunlight.js"></script>-->
+	<script src="scripts/docstrap.lib.js"></script>
+	<script src="scripts/bootstrap-dropdown.js"></script>
+	<script src="scripts/toc.js"></script>
+
+	<script>
+		$( function () {
+			$( "[id*='$']" ).each( function () {
+				var $this = $( this );
+
+				$this.attr( "id", $this.attr( "id" ).replace( "$", "__" ) );
+			} );
+
+			$( "#toc" ).toc( {
+				anchorName  : function ( i, heading, prefix ) {
+					return $( heading ).attr( "id" ) || ( prefix + i );
+				},
+				selectors   : "h1,h2,h3,h4",
+				showAndHide : false,
+				scrollTo    : "100px"
+			} );
+
+			$( "#toc>ul" ).addClass( "nav nav-pills nav-stacked" );
+			$( "#main span[id^='toc']" ).addClass( "toc-shim" );
+			$( '.dropdown-toggle' ).dropdown();
+//			$( ".tutorial-section pre, .readme-section pre" ).addClass( "sunlight-highlight-javascript" ).addClass( "linenums" );
+
+			$( ".tutorial-section pre, .readme-section pre" ).each( function () {
+				var $this = $( this );
+
+				var example = $this.find( "code" );
+				exampleText = example.html();
+				var lang = /{@lang (.*?)}/.exec( exampleText );
+				if ( lang && lang[1] ) {
+					exampleText = exampleText.replace( lang[0], "" );
+					example.html( exampleText );
+					lang = lang[1];
+				} else {
+					lang = "javascript";
+				}
+
+				if ( lang ) {
+
+					$this
+						.addClass( "sunlight-highlight-" + lang )
+						.addClass( "linenums" )
+						.html( example.html() );
+
+				}
+			} );
+
+			Sunlight.highlightAll( {
+				lineNumbers : true,
+				showMenu : true,
+				enableDoclinks : true
+			} );
+		} );
+	 </script>
+
+
+
+	<!--Navigation and Symbol Display-->
+	
+
+
+	<!--Google Analytics-->
+	
+
+</body>
+</html>

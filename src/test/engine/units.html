@@ -1,0 +1,328 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Cocos2d-html5 Units vs pixels</title>
+
+    <link rel="stylesheet" href="demos.css">
+    <link rel="stylesheet" href="../css/genericons.css">
+    <link rel="stylesheet" href="../css/templatestylesfull.css">
+    <link rel="stylesheet" href="../stylesheets/pygment_trac.css">
+    <link rel="stylesheet" id="open-sans-css"
+          href="//fonts.googleapis.com/css?family=Open+Sans%3A300italic%2C400italic%2C600italic%2C300%2C400%2C600&amp;subset=latin%2Clatin-ext&amp;ver=4.1.1"
+          type="text/css" media="all">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+</head>
+<body>
+
+<canvas id="c"></canvas>
+
+<div>
+    <button class="toggle" id="menutoggle">
+    </button>
+</div>
+<div>
+    <button class="toggle-info" id="infotoggle" >
+    </button>
+</div>
+
+<div id="info" class="info">
+    <div id="infoclose" class="close-button"><span class="icon-close"></span></div>
+    <header>
+        <div class="site-title">
+            <div class="site-title-info">
+                <h1>Cocos2d-html5</h1>
+            </div>
+        </div>
+    </header>
+    <section>
+        <p>
+            This demos shows animated sprites traversing a path.<br>
+            The difference with 'Sprites on path' demo is that this demo sets a virtual viewport of 2048 units
+            and the system takes care of all the magic regarding down/up scaling the content and keeping aspect ratio.
+        </p>
+        <p>
+            Drag on the screen to add a new Sprite.<br>
+            Press on the button (9patch) to go fullscreen.
+        </p>
+    </section>
+    <footer>
+        <p>This project is maintained by <a href="https://github.com/hyperandroid">hyperandroid</a></p>
+    </footer>
+
+</div>
+
+<div id="menu" class="demos-menu">
+    <div>
+        <div id="menuclose" class="close-button"><span class="icon-close"></span></div>
+        <div class="demos-menu-title">Demos list</div>
+    </div>
+    <header>
+        <ul id="site-menu" class="site-menu">
+
+        </ul>
+    </header>
+</div>
+
+    <script src="../../../javascripts/scale.fix.js"></script>
+    <script src="menu.js"></script>
+    <script src="../../../dist/all.js"></script>
+<script>
+    (function() {
+
+        document.getElementById("menutoggle").addEventListener("click", function(e) {
+            e.preventDefault();
+            document.getElementById("menu").style["display"]="block";
+        }, false );
+        document.getElementById("menuclose").addEventListener("click", function(e) {
+            e.preventDefault();
+            document.getElementById("menu").style["display"]="none";
+        }, false );
+        document.getElementById("infotoggle").addEventListener("click", function(e) {
+            e.preventDefault();
+            document.getElementById("info").style["display"]="block";
+        }, false );
+        document.getElementById("infoclose").addEventListener("click", function(e) {
+            e.preventDefault();
+            document.getElementById("info").style["display"]="none";
+        }, false );
+
+
+        var AssetManager = cc.plugin.asset.AssetManager;
+        var W=window.innerWidth;
+        var H=window.innerHeight;
+
+        var UW=8;
+        var UH=6;
+        var BW=1;
+        var BH=1;
+        var BX=.5;
+        var BY=0;
+        var FW=.5;
+        var FH=.5;
+        var DW=8*(409/2048);
+        var DH=6;
+//        var UW=2048;
+//        var UH=1536;
+//        var BW=256;
+//        var BH=256;
+//        var FW=128;
+//        var FH=128;
+//        var DW=409;
+//        var DH=1536;
+//        var BX= UW*.5/8;
+//        var BY= 0;
+
+        function loadResources() {
+            AssetManager.load(
+                    {
+                        prefix: "../res/",
+                        resources: [
+                            "anim1.png@anim1",
+                            "anim2.png@anim2",
+                            "anim3.png@anim3",
+                            "anim4.png@anim4",
+                            "anim5.png@anim5",
+                            "anim6.png@anim6",
+                            "9patch2.png@9patch",
+                            "dude.png@dude"
+                        ]},
+                    function onEnd(resources) {
+                        initialize(resources);
+                    }
+            );
+        }
+
+        /**
+         *
+         * @param resources {Array<cc.plugin.loader.Resource}
+         */
+        function initialize(resources) {
+
+            cc.render.RENDER_ORIGIN="bottom";
+
+            // texture pack fish FTW. A draw call per fish type, not anymore dude !!!
+            // start tp
+            var tp= new cc.plugin.texture.TexturePacker();
+            tp.addImage( resources['anim1'], 'anim1' );
+            tp.addImage( resources['anim2'], 'anim2' );
+            tp.addImage( resources['anim3'], 'anim3' );
+            tp.addImage( resources['anim4'], 'anim4' );
+            tp.addImage( resources['anim5'], 'anim5' );
+            tp.addImage( resources['anim6'], 'anim6' );
+//            tp.addImage( resources['dude'], 'dude' );
+            tp.addImage( resources['9patch'], '9patch' );
+            tp.pack({
+                width: 2048,
+                height: 2048,
+                sortBy: "perimeter",
+                margin: 2
+            });
+            tp.createAssets();
+            // end tp
+
+            // the renderer will setup pre-loaded textures for the renderer type.
+            // it will also create necessary SpriteFrames for each texture, in this case a frame for the image dude.png
+            var renderer = new cc.render.WebGLRenderer(W,H, document.getElementById("c"));
+
+            // enable resize manager
+//            renderer.setScaleStrategy( cc.render.ScaleManagerStrategy.SCALE_ASPECT, cc.render.ScalePosition.CENTER);
+            renderer.setScaleContent( UW, UH, W, H );
+            // when the canvas is resized, make the canvas take over the whole screen, or just the needed size to honor
+            // the aspect ratio.
+            renderer.adjustContentToFullScreen( cc.render.ScaleContentSceneHint.STRETCH );
+            renderer.forceOrientation(
+                    cc.render.OrientationStrategy.BOTH,
+                    function( orientation ) {
+
+                        if ( orientation===cc.render.OrientationStrategy.LANDSCAPE ) {
+                            renderer.setScaleContent(UW, UH, W, H);
+                        } else {
+                            renderer.setScaleContent(UH, UW, H, W);
+                        }
+                    },
+                    function() {
+
+                    });
+
+            // director is the main Cocos Node, and must exist.
+            var director = new cc.node.Director().
+                    setRenderer(renderer);
+
+            // scenes run in directors, and are the main displayable element.
+            var scene = director.createScene().setColor(.5,.8,.8).setContentSize(UW,UH);
+
+            AssetManager.addGridSpriteFramesFromFrame("anim1",1, 3);
+            AssetManager.addGridSpriteFramesFromFrame("anim2",1, 3);
+            AssetManager.addGridSpriteFramesFromFrame("anim3",1, 3);
+            AssetManager.addGridSpriteFramesFromFrame("anim4",1, 3);
+            AssetManager.addGridSpriteFramesFromFrame("anim5",1, 3);
+            AssetManager.addGridSpriteFramesFromFrame("anim6",1, 3);
+
+            // create a shareable animation.
+            AssetManager.addAnimationForFrames( "swim1", [ 0,1,2,1 ], "anim1" );
+            AssetManager.addAnimationForFrames( "swim2", [ 0,1,2,1 ], "anim2" );
+            AssetManager.addAnimationForFrames( "swim3", [ 0,1,2,1 ], "anim3" );
+            AssetManager.addAnimationForFrames( "swim4", [ 0,1,2,1 ], "anim4" );
+            AssetManager.addAnimationForFrames( "swim5", [ 0,1,2,1 ], "anim5" );
+            AssetManager.addAnimationForFrames( "swim6", [ 0,1,2,1 ], "anim6" );
+
+            scene.enableEvents(true);
+            scene.addEventListener("touchmove", function(e) {
+                createFish(e.target, e.localPoint.x, e.localPoint.y );
+            });
+            scene.addEventListener("mousedrag", function(e) {
+                createFish(e.target, e.localPoint.x, e.localPoint.y );
+            });
+
+            scene.addChild(createFullScreen(director));
+
+//            scene.addChild(
+//                    new cc.node.Sprite( { frameName:"dude" }).setContentSize(DW,DH)
+//            );
+
+            // run the scene.
+            director.runScene(scene);
+        }
+
+        function createFullScreen(director) {
+
+            var renderer= director.getRenderer();
+            var boton= new cc.node.Node().
+                    setContentSize(BW,BH).
+                    setPosition(BX,BY).
+                    setColor(0,1,0);
+            boton.draw= function( ctx ) {
+
+                            ctx.setFillStyleColorArray([0,1,0,1]);
+                            ctx.fillRect(0,0,this.width,this.height);
+
+                            cc.render.RendererUtil.draw9Patch( ctx,
+                                    "9patch", 0, 0, this.width, this.height, {
+                                        top:33,
+                                        bottom:72,
+                                        left:48,
+                                        right:48
+                                    } );
+                        };
+            boton.addEventListener("mouseup", function(e) {
+                if ( renderer.isFullScreenCapable() ) {
+                    if (renderer.isFullScreen()) {
+                        renderer.endFullScreen();
+                    } else {
+                        renderer.startFullScreen();
+                    }
+                }
+            });
+
+            boton.enablePriorityEvents(true,-10);
+
+            return boton;
+
+        }
+
+        function createFish( scene, x, y) {
+
+            function createPath(x,y, px, py ) {
+                var path= new cc.math.Path().
+                        moveTo( x, y).
+                        bezierTo(
+                            typeof px==="undefined" ? Math.random()*scene.width : px,
+                            typeof py==="undefined" ? Math.random()*scene.height : py,
+                            Math.random()*scene.width,
+                            Math.random()*scene.height,
+                            Math.random()*scene.width,
+                            Math.random()*scene.height
+                        );
+
+                return path;
+            }
+
+            var index= ((Math.random()*6)|0)+1;
+
+            var sprite= new cc.node.Sprite( { frameName: "anim"+index+"0" }).
+                    resizeOnSpriteFrameSet(false);
+//            sprite.setContentSize(1,.6);
+            sprite.setContentSize(FW,FH);
+            sprite.setPosition(x,y);
+            sprite.setAnchorPoint(.5,.5);
+            var scale= .7+Math.random()/2;
+            sprite.setScale(scale,scale);
+
+            sprite.runAction(
+                    new cc.action.AnimateAction().
+                            setAnimation( AssetManager.getAnimationById("swim"+index).setDelayPerUnit( (60+Math.random()*40)/1000 )).
+                            setRepeatForever()
+            );
+
+            sprite.runAction(
+                    new cc.action.PathAction().
+                            adjustRotation(true).
+                            from( createPath(x,y) ).
+                            setDelay(2).
+                            setDuration(5+2*Math.random()).
+                            setInterpolator( cc.action.Interpolator.EaseInOut(2) ).
+                            onEnd( function(action, targetNode) {
+
+                                var ep0= action._segment.getEndingPoint();
+                                var ep1= action._segment.getValueAt(0.999);
+                                ep0.sub(ep1).normalize().mult( UW/8*Math.random() );
+
+                                action.restart().from( createPath( targetNode.x, targetNode.y, targetNode.x+ep0.x, targetNode.y+ep0.y ) );
+                            })
+            );
+
+            scene.addChild( sprite );
+        }
+
+        window.addEventListener("DOMContentLoaded", loadResources, false);
+
+    })();
+</script>
+
+</body>
+</html>

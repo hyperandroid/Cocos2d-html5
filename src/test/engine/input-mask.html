@@ -1,0 +1,256 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Cocos2d-html5 Input alpha-mask filter</title>
+
+    <link rel="stylesheet" href="../css/genericons.css">
+    <link rel="stylesheet" href="demos.css">
+    <link rel="stylesheet" href="../css/templatestyles.css">
+    <link rel="stylesheet" href="../stylesheets/pygment_trac.css">
+    <link rel="stylesheet" id="open-sans-css"
+          href="//fonts.googleapis.com/css?family=Open+Sans%3A300italic%2C400italic%2C600italic%2C300%2C400%2C600&amp;subset=latin%2Clatin-ext&amp;ver=4.1.1"
+          type="text/css" media="all">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <style>
+
+        .pressed {
+            background: rgba(128,128,255,.5);
+            border: 1px dotted #000;
+        }
+
+        .notpressed {
+            background: rgba(255,255,255,.7);
+            border: 1px solid #000;
+        }
+
+        .cursor {
+            position:absolute;
+            width:50px;
+            height:50px;
+            display:block;
+        }
+
+        .cursorup {
+            left:70px;
+            top:10px;
+        }
+
+        .cursordown {
+            left:70px;
+            top:70px;
+        }
+
+        .cursorleft {
+            left: 10px;
+            top:37px;
+        }
+
+        .cursorright {
+            left: 130px;
+            top:37px;
+        }
+    </style>
+</head>
+<body>
+
+<button class="toggle" id="menutoggle">
+</button>
+<div class="wrapper">
+<header>
+
+    <div class="site-title">
+        <div class="site-title-info">
+            <h1>Cocos2d-html5</h1>
+        </div>
+        <div id="menu" class="site-menu">
+            <div id="menuclose" class="close-button"><span class="icon-close"></span></div>
+            <p class="demos-menu-title">Demos list</p>
+            <ul id="site-menu" >
+
+            </ul>
+        </div>
+    </div>
+</header>
+
+    <section>
+        <div style="position:relative">
+            <canvas id="c"></canvas>
+
+        </div>
+        <div>
+            <p>
+                This demo showcases event bubbling for Nodes.
+            </p>
+            <p>
+                As a practical use, this demo shows some input events filtered by an Alpha mask.
+                In Cocos2d html5 V4, down/move callback events return a boolean indicating whether to continue
+                event bubble (true) or take the event as consumed (false, or nothing) which is the default.
+            </p>
+        </div>
+    </section>
+    <footer>
+        <p>This project is maintained by <a href="https://github.com/hyperandroid">hyperandroid</a></p>
+    </footer>
+</div>
+    <script src="../../../javascripts/scale.fix.js"></script>
+    <script src="menu.js"></script>
+    <script src="../../../dist/all.js"></script>
+
+<script>
+    (function() {
+        document.getElementById("menutoggle").addEventListener("click", function(e) {
+            e.preventDefault();
+            document.getElementById("menu").style["display"]="block";
+        }, false );
+        document.getElementById("menuclose").addEventListener("click", function(e) {
+            e.preventDefault();
+            document.getElementById("menu").style["display"]="none";
+        }, false );
+
+        var W= 700;
+        var H= 600;
+        var AssetManager= cc.plugin.asset.AssetManager;
+
+        function loadResources() {
+            AssetManager.load(
+                    {
+                        prefix : "../res/",
+                        resources: ["dude.png@dude"] },
+                    function onEnd(resources) {
+                        initialize(resources);
+                    }
+            );
+        }
+
+        function eventInTransparentMask( mask, threshold, e ) {
+
+            var lx= e.localPoint.x>>0;
+            var ly= e.localPoint.y>>0;
+
+            var sprite= e.target;
+            var spriteFrame= sprite._spriteFrame;
+
+            if ( cc.render.RENDER_ORIGIN==="bottom" ) {
+                ly= spriteFrame.height-ly-1;
+            }
+
+            lx+= spriteFrame._rect.x;
+            ly+= spriteFrame._rect.y;
+
+            var transparentIndex= lx + ly* spriteFrame._texture._imageWidth;
+
+            return mask[ transparentIndex ]<=threshold;
+        }
+
+        /**
+         *
+         * @param resources {Array<cc.plugin.loader.Resource}
+         */
+        function initialize( resources ) {
+
+            AssetManager.addImage( resources['dude'], 'dude' );
+
+            var res= resources['dude'];
+            var mask= cc.render.util.getAlphaChannel( res );
+
+            // the renderer will setup pre-loaded textures for the renderer type.
+            // it will also create necessary SpriteFrames for each texture, in this case a frame for the image dude.png
+            var renderer= new cc.render.WebGLRenderer(W,H,document.getElementById("c"));
+
+
+            // director is the main Cocos Node, and must exist.
+            var director= new cc.node.Director().
+                    setRenderer( renderer );
+
+            // scenes run in directors, and are the main displayable element.
+            var scene= director.createScene().setColor(.8,.8,.8);
+
+            // create sprite frames (image regions) from the dude.png image. (it is a 21x7 images array).
+            AssetManager.addSpriteFrames( AssetManager.getSpriteFrame("dude").createSubSpriteFrames(21,7) );
+
+            for( var i=0; i<50; i++ ) {
+                var s= Math.random() + 1;
+                var dude= new cc.node.Sprite({frameName:'dude'+((Math.random()*21*7)>>0) }).
+                                setPosition( Math.random()*W, Math.random()*H).
+                                setRotation( Math.random()*360).
+                                setScale( s, s).
+                                setName( "dude"+i );
+
+                dude.enableEvents( true );
+
+                dude.addEventListener( "mousedown", function(e) {
+
+                    if ( eventInTransparentMask(mask, 32, e) ) {
+                        e.target.setColor( 1,1,1 );
+                        return true;    // bubble to the next
+                    }
+
+                    e.target.setColor( 0,1,0 );
+                });
+
+                dude.addEventListener( "mousemove", function(e) {
+
+                    if ( eventInTransparentMask(mask, 32, e) ) {
+                        e.target.setColor( 1,1,1 );
+                        return true; // bubble to the next
+                    }
+
+                    e.target.setColor( 0,1,0 );
+
+                });
+
+                dude.addEventListener( "mousedrag", function(e) {
+
+                    if (!eventInTransparentMask(mask, 32, e)) {
+                        e.target.setColor(0, 1, 0);
+                    }
+
+                    var node= e.target;
+                    var parent= e.target._parent;
+
+                    // get local in-node coordinate.
+                    var p0= new cc.math.Vector();
+                    p0.set(e.localPoint.x, e.localPoint.y);
+                    // transform it to screen space
+                    var matrix= node._worldModelViewMatrix;
+                    cc.math.Matrix3.transformPoint( matrix, p0 );
+
+                    // get previous screen space coordinate
+                    var p1= new cc.math.Vector();
+                    p1.set(e.prevScreenPoint.x, e.prevScreenPoint.y);
+
+                    // transform both screen coordinates to local space.
+                    var matrixp= parent.getInverseWorldModelViewMatrix();
+                    cc.math.Matrix3.transformPoint( matrixp, p0 );
+                    cc.math.Matrix3.transformPoint( matrixp, p1 );
+
+                    // add the difference to current node position.
+                    node.x+= p0.x - p1.x;
+                    node.y+= p0.y - p1.y;
+
+                });
+
+                dude.addEventListener( "mouseout", function(e) {
+                    e.target.setColor( 1,1,1 );
+                });
+
+                scene.addChild( dude );
+            }
+
+            // run the scene.
+            director.runScene( scene );
+        }
+
+        window.addEventListener("DOMContentLoaded", loadResources, false);
+
+    })();
+</script>
+
+</body>
+</html>

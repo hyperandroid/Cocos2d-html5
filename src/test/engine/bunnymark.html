@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <style>
+        .counter {
+            background: #f00;
+            color: #fff;
+            padding:3px;
+            position:absolute;
+            left: 10px;
+            top: 10px;
+            width: 100px;
+            font-size: 9pt;
+            font-family: verdana;
+        }
+    </style>
+</head>
+<body style="margin:0; padding:0;">
+<canvas style="position:absolute; left:0; top:0;"></canvas>
+<div class="counter">asdlfkjasldfkjasdlkf</div>
+
+<script src="../../../lib/stats/stats.js"></script>
+<script src="../../../dist/all.js"></script>
+
+<script>
+
+    (function() {
+
+
+        var texture= null;
+        var scene= null;
+
+        var gravity = 0.75;
+        var W = window.innerWidth > 800 ? 800 : window.innerWidth;
+        var H = window.innerHeight > 600 ? 600 : window.innerHeight;
+        var amount = 50;
+        var adding = false;
+        var initial = 50;
+        var renderer;
+
+        var actors = [];
+        var velsx = [];
+        var velsy = [];
+
+
+        if (document.getElementsByClassName) {
+            document.getElementsByClassName("counter")[0].innerHTML = "Count: " + initial;
+        }
+
+        var img = new Image();
+        img.onload = function () {
+
+            cc.render.RENDER_ORIGIN="bottom";
+
+            var stats = new Stats();
+            document.body.appendChild(stats.domElement);
+            stats.domElement.style.position = "absolute";
+            stats.domElement.style.top = "0px";
+            stats.domElement.style.right = "0px";
+
+
+//            var renderer = new cc.render.CanvasRenderer(W, H);
+            renderer = new cc.render.WebGLRenderer(W, H);
+
+            var director = new cc.node.Director().
+                    setRenderer(renderer).
+                    setName("webgl");
+
+            scene = director.createScene().setName("scene1");
+
+            scene.addChild( new cc.node.Node().setContentSize(10,10).setColor(0,1,0) );
+
+//            texture = new cc.render.Texture2D(img);
+            texture = new cc.render.Texture2D(img).__setAsGLTexture(renderer.getCanvasContext());
+
+            for (var i = 0; i < initial; i++) {
+                createBunny();
+            }
+
+            document.body.appendChild(renderer._surface);
+
+            renderer._surface.addEventListener("mousedown", function () {
+                adding = true;
+            }, false);
+            renderer._surface.addEventListener("touchstart", function () {
+                adding = true;
+            }, false);
+            renderer._surface.addEventListener("mouseup", function () {
+                adding = false;
+            }, false);
+            renderer._surface.addEventListener("touchend", function () {
+                adding = false;
+            }, false);
+
+//            scene._scheduler.scheduleTask(null, f.bind(null, stats, actors, velsx, velsy, gravity ), 0);
+            var ff= f.bind(null, stats, actors, velsx, velsy, gravity );
+            function fff() {
+                ff();
+                window.requestAnimationFrame(fff);
+            }
+            window.requestAnimationFrame(fff);
+
+            director.runScene(scene);
+            stats.begin();
+        };
+
+        img.src = '../res/bunny.png';
+
+
+        function f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1(actors, velsx, velsy, gravity) {
+
+
+            var ctx= renderer.getRenderingContext();
+            ctx.clear();
+
+            for (var i = 0; i < actors.length; i++) {
+                var bunny = actors[i];
+
+                var x = bunny.x;
+                var y = bunny.y;
+
+                x += velsx[i];
+                y += velsy[i];
+
+                velsy[i] -= 0.55;
+
+                if (x > W / 1.0) {
+                    velsx[i] *= -1.0;
+                    x = W * 1.0;
+
+                } else if (x < 0.0) {
+                    velsx[i] *= -1.0;
+                    x = 0.0;
+                }
+                if (y > H / 1.0) {
+                    velsy[i] = 0.0;
+                    y = H * 1.0;
+                } else if (y < 0.0) {
+                    velsy[i] *= -0.85;
+                    y = 0.0;
+                    if (Math.random() > 0.5) {
+                        velsy[i] += Math.random() * 6.0;
+                    }
+                }
+
+
+                bunny.x = x;
+                bunny.y = y;
+            }
+
+            ctx.flush();
+        }
+
+        function createBunny() {
+            var actor = new cc.node.Sprite({texture: texture});
+            actor.y= H;
+            actor.x= 0;
+//                actor.y= Math.random()*H;
+//                actor.x= Math.random()*W;
+            actor.setColor(Math.random() * .5 + .5, Math.random() * .5 + .5, Math.random() * .5 + .5);
+            scene.addChild(actor);
+            actors.push(actor);
+
+            velsx.push(Math.random() * 10.0);
+            velsy.push(Math.random() * 10.0 - 5.0);
+        }
+
+        function f(stats, actors, velsx, velsy, gravity, elapsedTime) {
+
+            if (adding) {
+                for (var i = 0; i < amount; i++) {
+                    createBunny();
+                }
+
+                if (document.getElementsByClassName) {
+                    document.getElementsByClassName("counter")[0].innerHTML = "Count: " + actors.length;
+                }
+            }
+
+            f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1(actors, velsx, velsy, gravity);
+
+            stats.end();
+            stats.begin();
+        }
+
+
+    })();
+
+</script>
+</body>
+</html>

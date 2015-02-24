@@ -1,0 +1,1776 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>CocosJS Source: action/Action.js</title>
+
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+	<link type="text/css" rel="stylesheet" href="styles/sunlight.default.css">
+
+	<link type="text/css" rel="stylesheet" href="styles/site.cerulean.css">
+
+</head>
+
+<body>
+<div class="container-fluid">
+	<div class="navbar navbar-fixed-top ">
+		<div class="navbar-inner">
+			<a class="brand" href="index.html">CocosJS</a>
+			<ul class="nav">
+				
+				<li class="dropdown">
+					<a href="namespaces.list.html" class="dropdown-toggle" data-toggle="dropdown">Namespaces<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="global.html#cc">cc</a>
+						</li>
+						
+						<li>
+							<a href="global.html#cc#action">cc.action</a>
+						</li>
+						
+						<li>
+							<a href="cc.Debug.html">cc.Debug</a>
+						</li>
+						
+						<li>
+							<a href="cc.game.html">cc.game</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.html">cc.input</a>
+						</li>
+						
+						<li>
+							<a href="cc.locale.html">cc.locale</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.html">cc.math</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path_.html">cc.math.path</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.html">cc.node</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.sprite.html">cc.node.sprite</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.html">cc.plugin</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.asset.html">cc.plugin.asset</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.audio.html">cc.plugin.audio</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.html">cc.plugin.layout</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.html">cc.plugin.loader</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.texture.html">cc.plugin.texture</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.html">cc.render</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.html">cc.render.shader</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.WebGLState.html">cc.render.WebGLState</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.html">cc.transition</a>
+						</li>
+						
+						<li>
+							<a href="cc.util.html">cc.util</a>
+						</li>
+						
+						<li>
+							<a href="cc.widget.html">cc.widget</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+				<li class="dropdown">
+					<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="cc.action.Action.html">cc.action.Action</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ActionChainContext.html">cc.action.ActionChainContext</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ActionChainContext_constructor.html">cc.action.ActionChainContext#constructor</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ActionInfo.html">cc.action.ActionInfo</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ActionManager.html">cc.action.ActionManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.AlphaAction.html">cc.action.AlphaAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.AnimateAction.html">cc.action.AnimateAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.Interpolator.html">cc.action.Interpolator</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.JumpAction.html">cc.action.JumpAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.MoveAction.html">cc.action.MoveAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ParseInterpolator.html">cc.action.ParseInterpolator</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.PathAction.html">cc.action.PathAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.PropertyAction.html">cc.action.PropertyAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.PropertyInfo.html">cc.action.PropertyInfo</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.RotateAction.html">cc.action.RotateAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ScaleAction.html">cc.action.ScaleAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.SchedulerQueue.html">cc.action.SchedulerQueue</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.SchedulerQueueTask.html">cc.action.SchedulerQueueTask</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.SequenceAction.html">cc.action.SequenceAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.TintAction.html">cc.action.TintAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.game.Game.html">cc.game.Game</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.InputManager.html">cc.input.InputManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.InputManagerEvent.html">cc.input.InputManagerEvent</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.KeyActionInfo.html">cc.input.KeyActionInfo</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.KeyboardCursor.html">cc.input.KeyboardCursor</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.KeyboardInputManager.html">cc.input.KeyboardInputManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.KeyInfo.html">cc.input.KeyInfo</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.MouseInputManager.html">cc.input.MouseInputManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.MouseInputManagerEvent.html">cc.input.MouseInputManagerEvent</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.PriorityInputNode.html">cc.input.PriorityInputNode</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.SceneGraphInputTreeNode.html">cc.input.SceneGraphInputTreeNode</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Color.html">cc.math.Color</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Dimension.html">cc.math.Dimension</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Matrix3.html">cc.math.Matrix3</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Path.html">cc.math.Path</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.ContainerSegment.html">cc.math.path.ContainerSegment</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.SegmentArc.html">cc.math.path.SegmentArc</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.SegmentBezier.html">cc.math.path.SegmentBezier</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.SegmentCardinalSpline.html">cc.math.path.SegmentCardinalSpline</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path_.html#SegmentLine">cc.math.path.SegmentLine</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.SegmentQuadratic.html">cc.math.path.SegmentQuadratic</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.SubPath.html">cc.math.path.SubPath</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Rectangle.html">cc.math.Rectangle</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Vector.html">cc.math.Vector</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.Director.html">cc.node.Director</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.FastSprite.html">cc.node.FastSprite</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.Node.html">cc.node.Node</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.Scene.html">cc.node.Scene</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.Sprite_.html">cc.node.Sprite</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.sprite.Animation.html">cc.node.sprite.Animation</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.sprite.AnimationCache.html">cc.node.sprite.AnimationCache</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.sprite.SpriteFrame.html">cc.node.sprite.SpriteFrame</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.asset.AssetManager.html">cc.plugin.asset.AssetManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.audio.AudioEffect.html">cc.plugin.audio.AudioEffect</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.audio.AudioManager.html">cc.plugin.audio.AudioManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.font.FontMetrics.html">cc.plugin.font.FontMetrics</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.font.SpriteFont.html">cc.plugin.font.SpriteFont</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.font.SpriteFontChar.html">cc.plugin.font.SpriteFontChar</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.BorderLayout.html">cc.plugin.layout.BorderLayout</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.Gap.html">cc.plugin.layout.Gap</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.GridLayout.html">cc.plugin.layout.GridLayout</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.Insets.html">cc.plugin.layout.Insets</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.LayerLayout.html">cc.plugin.layout.LayerLayout</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.Layout.html">cc.plugin.layout.Layout</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.Unit.html">cc.plugin.layout.Unit</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.Loader.html">cc.plugin.loader.Loader</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.ResourceLoaderAudioBuffer.html">cc.plugin.loader.ResourceLoaderAudioBuffer</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.ResourceLoaderImage.html">cc.plugin.loader.ResourceLoaderImage</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.ResourceLoaderJSON.html">cc.plugin.loader.ResourceLoaderJSON</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.ResourceLoaderXML.html">cc.plugin.loader.ResourceLoaderXML</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.texture.TexturePacker.html">cc.plugin.texture.TexturePacker</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.texture.TexturePackerNode.html">cc.plugin.texture.TexturePackerNode</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.texture.TexturePackerPage.html">cc.plugin.texture.TexturePackerPage</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.CanvasRenderer.html">cc.render.CanvasRenderer</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.DecoratedWebGLRenderingContext.html">cc.render.DecoratedWebGLRenderingContext</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.GeometryBatcher.html">cc.render.GeometryBatcher</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.Pattern.html">cc.render.Pattern</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.Renderer.html">cc.render.Renderer</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.RenderingContextSnapshot.html">cc.render.RenderingContextSnapshot</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.ScaleManager.html">cc.render.ScaleManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.AbstractShader.html">cc.render.shader.AbstractShader</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.Attribute.html">cc.render.shader.Attribute</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.MatrixUniform.html">cc.render.shader.MatrixUniform</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.SolidColorShader.html">cc.render.shader.SolidColorShader</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.TextureShader.html">cc.render.shader.TextureShader</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.TextureUniform.html">cc.render.shader.TextureUniform</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.Uniform.html">cc.render.shader.Uniform</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.Texture2D.html">cc.render.Texture2D</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.WebGLRenderer.html">cc.render.WebGLRenderer</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.Transition.html">cc.transition.Transition</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionFade.html">cc.transition.TransitionFade</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionMove.html">cc.transition.TransitionMove</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionSlideInB.html">cc.transition.TransitionSlideInB</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionSlideInL.html">cc.transition.TransitionSlideInL</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionSlideInR.html">cc.transition.TransitionSlideInR</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionSlideInT.html">cc.transition.TransitionSlideInT</a>
+						</li>
+						
+						<li>
+							<a href="cc.util.Resource.html">cc.util.Resource</a>
+						</li>
+						
+						<li>
+							<a href="cc.widget.Button.html">cc.widget.Button</a>
+						</li>
+						
+						<li>
+							<a href="cc.widget.Label.html">cc.widget.Label</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+				<li class="dropdown">
+					<a href="global.html" class="dropdown-toggle" data-toggle="dropdown">Global<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="global.html#__extends">__extends</a>
+						</li>
+						
+						<li>
+							<a href="global.html#test">test</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+			</ul>
+		</div>
+	</div>
+
+	<div class="row-fluid">
+
+		
+			<div class="span12">
+				
+				<div id="main">
+					
+
+
+		<h1 class="page-title">Source: action/Action.js</h1>
+    
+<section>
+	<article>
+		<pre
+			class="sunlight-highlight-javascript linenums">/**
+ * License: see license.txt file.
+ */
+/// &lt;reference path="./TimeInterpolator.ts"/>
+/// &lt;reference path="./ActionManager.ts"/>
+/// &lt;reference path="./ActionChainContext.ts"/>
+var cc;
+(function (cc) {
+    var action;
+    (function (_action) {
+        /**
+         * This value is a time unit divisor constant.
+         * CocosJS expects all time units to be in seconds, hence the default value of 1000.
+         * But you could easily change time unit values to milliseconds, changing this value to 1, and setting all
+         * actions/scheduler time units in millis.
+         *
+         * @member cc.action.TIMEUNITS
+         * @type {number}
+         */
+        _action.TIMEUNITS = 1000;
+        var SECONDS = 1000;
+        var MILLISECONDS = 1;
+        /**
+         * Change time units on actions, schedulers, etc to seconds.
+         * This is the default type.
+         * @name setTimeReferenceInSeconds
+         * @memberof cc.action
+         */
+        function setTimeReferenceInSeconds() {
+            cc.action.TIMEUNITS = SECONDS;
+        }
+        _action.setTimeReferenceInSeconds = setTimeReferenceInSeconds;
+        /**
+         * Change time units on actions, schedulers, etc to milliseconds.
+         * @name setTimeReferenceInMillis
+         * @memberof cc.action
+         */
+        function setTimeReferenceInMillis() {
+            cc.action.TIMEUNITS = MILLISECONDS;
+        }
+        _action.setTimeReferenceInMillis = setTimeReferenceInMillis;
+        "use strict";
+        /**
+         * Callback definition for Action Apply event.
+         * @memberOf cc.action
+         * @callback ActionCallbackApplicationCallback
+         * @param action {cc.action.Action} Executed Action.
+         * @param target: {object} target the Action applied to.
+         * @param value: {Object} Current target property value set.
+         */
+        /**
+         * Callback definition for Action Start, End, Pause and Resume events.
+         * @memberOf cc.action
+         * @callback ActionCallbackStartOrEndOrPauseOrResumeCallback
+         * @param action {cc.action.Action} Executed Action.
+         * @param target: {object} target the Action applied to.
+         */
+        /**
+         * Callback definition for Action Repeat event.
+         * @memberOf cc.action
+         * @callback ActionCallbackRepeatCallback
+         * @param action {cc.action.Action} Executed Action.
+         * @param target: {object} target the Action applied to.
+         * @param repetitionCount {number} Current repetition count.
+         */
+        /**
+         * Action internal states.
+         * &lt;br>
+         * Status diagram is:
+         *
+         * &lt;pre>
+         *
+         * CREATED ---> RUNNING ---> PAUSED &lt;---> RESUMED
+         *    ^          |  ^                           |
+         *    |          |  |                           |
+         *    |          |  +---------------------------+
+         *    |          v
+         *    +------> ENDED
+         *
+         * &lt;/pre>
+         *
+         * @tsenum cc.action.ActionStates
+         */
+        (function (ActionStates) {
+            ActionStates[ActionStates["PAUSED"] = 1] = "PAUSED";
+            ActionStates[ActionStates["RUNNING"] = 2] = "RUNNING";
+            ActionStates[ActionStates["CREATED"] = 3] = "CREATED";
+            ActionStates[ActionStates["ENDED"] = 4] = "ENDED";
+            ActionStates[ActionStates["RESUMED"] = 5] = "RESUMED";
+        })(_action.ActionStates || (_action.ActionStates = {}));
+        var ActionStates = _action.ActionStates;
+        /**
+         *
+         *  @class cc.action.Action
+         *  @classdesc
+         *
+         * Actions are scheduled objects that modify an arbitray object's internal state. It could be a node, or any other
+         * object type.
+         * For example, schedule a rotation from 0 to 360 degrees, scale from to twice a node's size, or a combination of
+         * both.
+         * &lt;br>
+         * cc.action.Action is an abstract class, and won't affect any target. This Class type must be subclassed.
+         * &lt;br>
+         *
+         * Actions are defined by the following elements:
+         *
+         *  &lt;li>duration. How long the action will take to end.
+         *  &lt;li>delay before application. How long the action will take to start applying.
+         *  &lt;li>delay after application. How long the action will take to end after it ended modifying node's properties.
+         *  &lt;li>lifecycle. An action has callback functions for: start, pause, resume, end and repeat.
+         *  &lt;li>speed. An action has speed modifiers. if an action has speed 2, will take twice the time to execute.
+         *  &lt;li>interpolators. An action can have modifiers for time application, like easing functions or curve segments.
+         *  &lt;li>relativity. An action can be applied relative to a value, instead of absolutely. For example, rotate by an
+         *     angle instead of rotate to.
+         *  &lt;li>From. Start values for action application.
+         *  &lt;li>To. End values for action application.
+         *  &lt;li>Reversability: an action can be set to be played backwards. This is accomplished not by modifying the action
+         *      but by modifiying the Interpolator that transforms time into property values.
+         *
+         * Predefined actions exist for the following node's properties:
+         *
+         *  &lt;li>AlphaAction. Modifies transparency values.
+         *  &lt;li>MoveAction. Modifies position by traversing a straight line.
+         *  &lt;li>PathAction. Modifies position by traversing a complex path.
+         *  &lt;li>RotateAction. Modifies rotation angle.
+         *  &lt;li>ScaleAction. Modifies scale.
+         *  &lt;li>TintAction. Modifies s color. This action will only have a visible result when the node is rendered
+         *      using WebGL.
+         *  &lt;li>SequenceAction. Allows for action sequencing and parallelization.
+         *  &lt;li>PropertyAction. Allows for modification of an object's arbitrary property. Either deeply nested or not.
+         *
+         * There are other type of actions that affect or create a mix of different node properties modification like:
+         *
+         *  &lt;li>BlinkAction
+         *  &lt;li>JumpAction
+         *
+         *  The current V4 action subsystem is a complete rebuild from the ground up. Although backwards compatible with
+         *  Cocos2d HTML5's V2 and V3 action system, this new implementation offers the following features:
+         *
+         *  &lt;li>Consistent Action naming: easeExponentialIn vs easeQuinticActionIn .
+         *  &lt;li>Simplification of cc namespace. From 150+ action objects to a few.
+         *  &lt;li>Reduced code complexity.
+         *  &lt;li>Offer a new more js-ish code convention via chaining of method calls.
+         *  &lt;li>Change concept of easing action. Easing is a property of an Action's time.
+         *  &lt;li>Reduce overly class-extension hierarchy from version 2 and 3
+         *  &lt;li>Full action lifecycle: START, END, PAUSE, RESUME, REPEAT.
+         *
+         */
+        var Action = (function () {
+            /**
+             * Build an Action instance.
+             * This type of objects must augmented.
+             * @constructor
+             * @method cc.action.Action#constructor
+             * @param initilizer {cc.action.ActionInitializer=} a JSON object describing a base Action info.
+             */
+            function Action(initializer) {
+                /**
+                 * Delay to start applying the Action.
+                 * @member cc.action.Action#_startTime
+                 * @type {number}
+                 * @private
+                 */
+                this._startTime = 0;
+                /**
+                 * Action duration (in seconds). For how long the Action takes to get to the final application result.
+                 * @member cc.action.Action#_duration
+                 * @type {number}
+                 * @private
+                 */
+                this._duration = 0;
+                /**
+                 * Currently elapsed time.
+                 * @member cc.action.Action#_currentTime
+                 * @type {number}
+                 * @private
+                 */
+                this._currentTime = 0;
+                /**
+                 * Number of repeat times. 1 by default.
+                 * @member cc.action.Action#_repeatTimes
+                 * @type {number}
+                 * @private
+                 */
+                this._repeatTimes = 1;
+                /**
+                 * Current repetition count.
+                 * @member cc.action.Action#_currentRepeatCount
+                 * @type {number}
+                 * @private
+                 */
+                this._currentRepeatCount = 0;
+                /**
+                 * Action speed. Actual Action duration is: ( (_duration + _delayAfterApplication) * _times) / _speed
+                 * @type {number}
+                 * @private
+                 */
+                this._speed = 1;
+                /**
+                 * An action identifier. Defaults to @see(Action.DEFAULT_TAG).
+                 * @member cc.action.Action#_tag
+                 * @type {number}
+                 * @private
+                 */
+                this._tag = Action.DEFAULT_TAG;
+                /**
+                 * Action status.
+                 *
+                 * Status diagram:
+                 *
+                 * &lt;pre>
+                 *
+                 * CREATED ---> RUNNING ---> PAUSED &lt;---> RESUMED
+                 *    ^          |  ^                           |
+                 *    |          |  |                           |
+                 *    |          |  +---------------------------+
+                 *    |          v
+                 *    +------> ENDED
+                 *
+                 * &lt;/pre>
+                 *
+                 * @member cc.action.Action#_status
+                 * @type {cc.action.ActionStates}
+                 * @private
+                 */
+                this._status = 3 /* CREATED */;
+                /**
+                 * On start application callback. Called when the Action is first executed.
+                 * @member cc.action.Action#_onStart
+                 * @type {cc.action.ActionCallbackStartOrEndOrPauseOrResumeCallback}
+                 * @private
+                 */
+                this._onStart = null;
+                /**
+                 * On end application callback. Fired each time the Action ends applying.
+                 * This callback may not be called if _repeatTimes is set too high or is playing forever.
+                 * @member cc.action.Action#_onEnd
+                 * @type {cc.action.ActionCallbackStartOrEndOrPauseOrResumeCallback}
+                 * @private
+                 */
+                this._onEnd = null;
+                /**
+                 * On repeat application callback. Fired each time the action is repeated.
+                 * @member cc.action.Action#_onRepeat
+                 * @type {cc.action.ActionCallbackRepeatCallback}
+                 * @private
+                 */
+                this._onRepeat = null;
+                /**
+                 * On application callback. Fired each time the action is applied. this callback can be called many times
+                 * during the action life cycle.
+                 * @member cc.action.Action#_onApply
+                 * @type {cc.action.ActionCallbackApplicationCallback}
+                 * @private
+                 */
+                this._onApply = null;
+                /**
+                 * On pause callback. Fired each time the action is paused. this callback can be called many times
+                 * during the action life cycle.
+                 * @member cc.action.Action#_onPause
+                 * @type {cc.action.ActionCallbackStartOrEndOrPauseOrResumeCallback}
+                 * @private
+                 */
+                this._onPause = null;
+                /**
+                 * On resume callback. Fired each time the action is resumed. this callback can be called many times
+                 * during the action life cycle.
+                 * @member cc.action.Action#_onResume
+                 * @type { cc.action.ActionCallbackStartOrEndOrPauseOrResumeCallback }
+                 * @private
+                 */
+                this._onResume = null;
+                /**
+                 * Interpolation/Ease function application
+                 * @member cc.action.Action#_interpolator
+                 * @type {cc.action.TimeInterpolator}
+                 * @private
+                 */
+                this._interpolator = null;
+                /**
+                 * if the from values for an Action have not been set, a call to __setInitialValues with
+                 * the target as parameter to have them set.
+                 * @member cc.action.Action#_fromValuesSet
+                 * @type {boolean}
+                 * @private
+                 */
+                this._fromValuesSet = false;
+                /**
+                 * Flag for executing onStart callback. Do not use or modify.
+                 * @member cc.action.Action#_firstExecution
+                 * @type {boolean}
+                 * @private
+                 */
+                this._firstExecution = true;
+                /**
+                 * This delay will be applied after each application.
+                 * @member cc.action.Action#_delayAfterApplication
+                 * @type {number}
+                 * @private
+                 */
+                this._delayAfterApplication = 0;
+                /**
+                 * This delay will be applied before each application.
+                 * @member cc.action.Action#_delayBeforeApplication
+                 * @type {number}
+                 * @private
+                 */
+                this._delayBeforeApplication = 0;
+                /**
+                 * Action owner ie the ActionManager this Action executes in.
+                 * @member cc.action.Action#_owner
+                 * @type {cc.action.ActionManager}
+                 * @private
+                 */
+                //_owner:ActionManager = null;
+                /**
+                 * Reference for a chained action. Do not use or modify.
+                 * @member cc.action.Action#_chainAction
+                 * @type {cc.action.Action}
+                 * @private
+                 */
+                this._chainAction = null;
+                /**
+                 * If true, the actions must be ActionBy variations.
+                 * @member cc.action.Action#_relativeAction
+                 * @type {boolean}
+                 * @private
+                 */
+                this._relativeAction = false;
+                /**
+                 * Is the action reversed ?
+                 * A reversed action will be applied from end to begin.
+                 * @member cc.action.Action#_reversedTime
+                 * @type {boolean}
+                 * @private
+                 */
+                this._reversedTime = false;
+                /**
+                 * If this Action belongs to a SequenceAction this variable will be its parent sequence.
+                 * @member cc.action.Action#_parentSequence
+                 * @type {cc.action.SequenceAction}
+                 * @private
+                 */
+                this._parentSequence = null;
+                /**
+                 * Is the action reversed ?
+                 * This happens by a call to reverse() or setReversed()
+                 * @member cc.action.Action#_reversed
+                 * @type {boolean}
+                 * @private
+                 */
+                this._reversed = false;
+                /**
+                 * When a call to node.startActionChain() is made, an ActionChainContext object is created. It is a fachade
+                 * for chainable api. apart from that, does nothing to the Action.
+                 * @member cc.action.Action#_chainContext
+                 * @type {cc.action.ActionChainContext}
+                 * @private
+                 */
+                this._chainContext = null;
+                if (initializer) {
+                    this.__createFromInitializer(initializer);
+                }
+            }
+            /**
+             * Initialize the action with an initializer object.
+             * @method cc.action.Action#__createFromInitializer
+             * @param initializer {cc.action.ActionInitializer}
+             * @private
+             */
+            Action.prototype.__createFromInitializer = function (initializer) {
+                if (typeof initializer !== "undefined") {
+                    if (typeof initializer.relative !== 'undefined') {
+                        this.setRelative(initializer.relative);
+                    }
+                    if (typeof initializer.duration !== 'undefined') {
+                        this.setDuration(initializer.duration);
+                    }
+                    if (typeof initializer.delayBefore !== 'undefined') {
+                        this.setDelay(initializer.delayBefore);
+                    }
+                    if (typeof initializer.delayAfter !== 'undefined') {
+                        this.setDelayAfterApplication(initializer.delayAfter);
+                    }
+                    if (typeof initializer.interpolator !== "undefined") {
+                        this.setInterpolator(cc.action.ParseInterpolator(initializer.interpolator));
+                    }
+                    if (typeof initializer.from !== "undefined") {
+                        if (this.from) {
+                            this.from(initializer.from);
+                        }
+                    }
+                    if (typeof initializer.to !== "undefined") {
+                        if (this.to) {
+                            this.to(initializer.to);
+                        }
+                    }
+                    if (typeof initializer.repeatTimes !== "undefined") {
+                        this.setRepeatTimes(initializer.repeatTimes);
+                    }
+                    if (typeof initializer.reversed !== "undefined") {
+                        this._reversed = initializer.reversed;
+                    }
+                }
+            };
+            /**
+             * Set an arbitrary tag for an Action.
+             * @method cc.action.Action#setTag
+             * @param tag {string} a string composed only of [A-Za-z0-9_-]
+             * @returns {cc.action.Action}
+             */
+            Action.prototype.setTag = function (tag) {
+                this._tag = tag;
+                return this;
+            };
+            /**
+             * Update an Action's target object.
+             * This function must be overriden by Action subclass Objects.
+             * @method cc.action.Action#update
+             * @param normalizedTime {number} value between 0 and 1.
+             * @param target {any} object instance the action will be applied for.
+             *
+             * @returns {Object} a value descriptive for the action type. For example, ScaleAction will return an object with
+             * the scale applied, and MoveAction a &lt;code>cc.math.Vector&lt;/code> with object's set position.
+             */
+            Action.prototype.update = function (normalizedTime, target) {
+            };
+            /**
+             * Set an Action's duration. Duration is in milliseconds.
+             * @method cc.action.Action#setDuration
+             * @param duration {number}
+             */
+            Action.prototype.setDuration = function (duration) {
+                this._duration = duration * _action.TIMEUNITS;
+                this.__updateDuration();
+                return this;
+            };
+            /**
+             * Set an action's pre application delay.
+             * An action will take this milliseconds to start applying values in a target.
+             * @method cc.action.Action#setDelay
+             * @param d {number} milliseconds.
+             * @returns {cc.action.Action}
+             */
+            Action.prototype.setDelay = function (d) {
+                this._delayBeforeApplication = d * _action.TIMEUNITS;
+                this.__updateDuration();
+                return this;
+            };
+            /**
+             * Update this Action's duration.
+             * This must be done when a sub Action is updated or when delay times or duration itself have changed.
+             * @method cc.action.Action#__updateDuration
+             * @private
+             */
+            Action.prototype.__updateDuration = function () {
+                this._startTime = this._delayBeforeApplication + (this._chainAction ? this._chainAction._startTime + this._chainAction.getDuration() : 0);
+                if (this._parentSequence) {
+                    this._parentSequence.__updateDuration();
+                }
+            };
+            /**
+             * Restart an action's application.
+             * Status gets back to CREATED.
+             * First execution set to true.
+             * Application times count set to 0.
+             * @method cc.action.Action#restart
+             * @returns {cc.action.Action}
+             */
+            Action.prototype.restart = function () {
+                this._firstExecution = true;
+                this._currentRepeatCount = 0;
+                this._status = 3 /* CREATED */;
+                this._currentTime = 0;
+                return this;
+            };
+            /**
+             * Get an action's current State.
+             * @method cc.action.Action#getStatus
+             * @returns {cc.action.ActionStates}
+             */
+            Action.prototype.getStatus = function () {
+                return this._status;
+            };
+            /**
+             * Get an action's application speed.
+             * Speed values modify an action duration.
+             * A speed value of 2 will make the action to take twice the time to execute.
+             * @method cc.action.Action#getSpeed
+             * @returns {number}
+             */
+            Action.prototype.getSpeed = function () {
+                return this._speed;
+            };
+            /**
+             * Set an action's application speed.
+             * @method cc.action.Action#setSpeed
+             * @param speed {number}
+             * @returns {cc.action.Action}
+             */
+            Action.prototype.setSpeed = function (speed) {
+                this._speed = speed;
+                return this;
+            };
+            /**
+             * Make this action repeat a finite number of timer.
+             * 0 repeatTimes means repeat forerver.
+             * @method cc.action.Action#setRepeatTimes
+             * @param repeatTimes {number}
+             * @param obj {RepeatTimesOptions}
+             * @return Action
+             */
+            Action.prototype.setRepeatTimes = function (repeatTimes, obj) {
+                this._repeatTimes = repeatTimes;
+                this._delayAfterApplication = (obj &amp;&amp; obj.withDelay * _action.TIMEUNITS) || 0;
+                return this;
+            };
+            /**
+             * Set this action to apply forever.
+             * @method cc.action.Action#setRepeatForever
+             * @param obj {RepeatTimesOptions}
+             * @returns {cc.action.Action}
+             */
+            Action.prototype.setRepeatForever = function (obj) {
+                return this.setRepeatTimes(Number.MAX_VALUE, obj);
+            };
+            /**
+             *
+             * @method cc.action.Action#repeatForever
+             * @deprecated
+             * @returns {Action}
+             */
+            Action.prototype.repeatForever = function () {
+                return this.setRepeatForever();
+            };
+            /**
+             * Register a callback notification function fired whenever the Action starts applying.
+             * @method cc.action.Action#onStart
+             * @param callback { cc.action.ActionCallbackStartOrEndOrPauseOrResumeCallback }
+             * @returns {cc.action.Action}
+             */
+            Action.prototype.onStart = function (callback) {
+                this._onStart = callback;
+                return this;
+            };
+            /**
+             * Register a callback notification function fired whenever the action expires applying.
+             * If repeats forever, will never be called.
+             * @method cc.action.Action#onEnd
+             * @param callback { cc.action.ActionCallbackStartOrEndOrPauseOrResumeCallback }
+             * @return Action
+             */
+            Action.prototype.onEnd = function (callback) {
+                this._onEnd = callback;
+                return this;
+            };
+            /**
+             * Register a callback notification function fired whenever the action repeats.
+             * BUGBUG if setRepeatForever is not fired.
+             * @method cc.action.Action#onRepeat
+             * @param callback { cc.action.ActionCallbackRepeatCallback }
+             * @return Action
+             */
+            Action.prototype.onRepeat = function (callback) {
+                this._onRepeat = callback;
+                return this;
+            };
+            /**
+             * Register a callback notification function fired whenever the action applies.
+             * The action applies once per frame, and allows for getting values that have been set on the target.
+             * @method cc.action.Action#onApply
+             * @param callback { cc.action.ActionCallbackApplicationCallback }
+             * @return Action
+             */
+            Action.prototype.onApply = function (callback) {
+                this._onApply = callback;
+                return this;
+            };
+            /**
+             * Register a callback notification function fired whenever the action is paused.
+             * @method cc.action.Action#onPause
+             * @param callback { cc.action.ActionCallbackStartOrEndOrPauseOrResumeCallback }
+             * @return Action
+             */
+            Action.prototype.onPause = function (callback) {
+                this._onPause = callback;
+                return this;
+            };
+            /**
+             * Register a callback notification function fired whenever the action is resumed, that it, exits the
+             * paused state.
+             * @method cc.action.Action#onResume
+             * @param callback { cc.action.ActionCallbackStartOrEndOrPauseOrResumeCallback }
+             * @return Action
+             */
+            Action.prototype.onResume = function (callback) {
+                this._onResume = callback;
+                return this;
+            };
+            /**
+             * Pause this action.
+             * @method cc.action.Action#pause
+             * @param target {object=}
+             * @returns Action
+             */
+            Action.prototype.pause = function (target) {
+                this._status = 1 /* PAUSED */;
+                if (this._onPause) {
+                    this._onPause(this, target);
+                }
+                return this;
+            };
+            /**
+             * Resume this action.
+             * @method cc.action.Action#resume
+             * @returns Action
+             */
+            Action.prototype.resume = function () {
+                if (this._status === 1 /* PAUSED */) {
+                    this._status = 5 /* RESUMED */;
+                }
+                return this;
+            };
+            /**
+             * Get time to wait after action application to repeat.
+             * This time will be spent even if repeat count is 1.
+             * @method cc.action.Action#getDelayAfterApplication
+             * @returns {number}
+             */
+            Action.prototype.getDelayAfterApplication = function () {
+                return this._delayAfterApplication;
+            };
+            /**
+             * Set time to wait after action application to repeat.
+             * This time will be spent even if repeat count is 1.
+             * @method cc.action.Action#setDelayAfterApplication
+             * @param d {number} milliseconds to wait after application.
+             * @returns {cc.action.Action}
+             */
+            Action.prototype.setDelayAfterApplication = function (d) {
+                this._delayAfterApplication = d * _action.TIMEUNITS;
+                return this;
+            };
+            /**
+             * Get this action's delay time to start applying.
+             * @method cc.action.Action#getDelay
+             * @returns {number}
+             */
+            Action.prototype.getDelay = function () {
+                return this._startTime;
+            };
+            /**
+             * Changes default interpolator to another instance of @link{cc.action.TimeInterpolator}.
+             * @method cc.action.Action#setInterpolator
+             * @param interpolator {cc.action.TimeInterpolator}
+             * @returns Action
+             */
+            Action.prototype.setInterpolator = function (interpolator) {
+                this._interpolator = interpolator;
+                return this;
+            };
+            /**
+             * Convert time into a normalized value in the range of the application duration.
+             * The values will converted, so that 0 will be just after starting each repetition,
+             * and 1 will be just the end of the Action, or the end of each repetition.
+             * @method cc.action.Action#__normalizeTime
+             * @param time {number}
+             * @private
+             */
+            Action.prototype.__normalizeTime = function (time) {
+                // still, initial delay time has not elapsed.
+                if (time &lt; this._startTime) {
+                    time = 0;
+                }
+                else {
+                    time = time - this._startTime;
+                    if (time >= this.getDuration()) {
+                        time = 1;
+                    }
+                    else {
+                        time %= this.getOneRepetitionDuration();
+                        // time is in duration range
+                        if (time &lt; this._duration) {
+                            time /= this._duration;
+                        }
+                        else {
+                            // time is in _delayAfterApplicationRange
+                            time = 1;
+                        }
+                    }
+                }
+                if (this._reversedTime) {
+                    time = 1 - time;
+                }
+                if (!this._interpolator) {
+                    return time;
+                }
+                return this._interpolator(time);
+            };
+            /**
+             * Get whole action duration. Takes into account action speed, duration, delayAfterApplication and repetition times.
+             * @method cc.action.Action#getDuration
+             * @returns {number}
+             */
+            Action.prototype.getDuration = function () {
+                return this.getOneRepetitionDuration() * this._repeatTimes;
+            };
+            /**
+             * Calculate one repetition duration.
+             * @method cc.action.Action#getOneRepetitionDuration
+             * @returns {number}
+             */
+            Action.prototype.getOneRepetitionDuration = function () {
+                return (this._duration + this._delayAfterApplication);
+            };
+            /**
+             * Chekcs whether the action is applicable.
+             * In case it gets out of scene time, and has not been tagged as expired, the action is expired and observers
+             * are notified about that fact.
+             * @method cc.action.Action#__isActionApplicable
+             * @param time {number} the scene time to check the action against.
+             * @return {boolean} whether the action is applicable.
+             */
+            Action.prototype.__isActionApplicable = function (time) {
+                // not correct status
+                if (this._status === 1 /* PAUSED */ || this._status === 4 /* ENDED */) {
+                    return false;
+                }
+                // still not in time
+                return this._repeatTimes === Number.MAX_VALUE || (time >= this._startTime &amp;&amp; time &lt; this._startTime + this.getDuration());
+            };
+            /**
+             * This method must no be called directly.
+             * The director loop will call this method in order to apply target actions.
+             * @method cc.action.Action#step
+             * @param delta {number} elapsed time since last application.
+             * @param target {object}  target object the action is being applied to.
+             */
+            Action.prototype.step = function (delta, target) {
+                delta *= cc.action.TIMEUNITS;
+                this._currentTime += delta * this._speed;
+                this.__stepImpl(delta, this._currentTime, target);
+            };
+            /**
+             * Actual step implementation.
+             * @method cc.action.Action#__stepImpl
+             * @param delta {number} elapsed time since last application.
+             * @param time {number} Action accumulated time.
+             * @param target {object} target to apply action to.
+             * @private
+             */
+            Action.prototype.__stepImpl = function (delta, time, target) {
+                // if an action is not ended, it has the chance of updating value
+                if (this._status !== 4 /* ENDED */) {
+                    // actions can be paused w/o even been started.
+                    if (this._status === 5 /* RESUMED */) {
+                        if (this._onResume) {
+                            this._onResume(this, target);
+                        }
+                    }
+                    // if the action is not ended, but can be executed due to time
+                    if (this.__isActionApplicable(time)) {
+                        this.__actionApply(time, target);
+                    }
+                    else {
+                        // if the action is expired, ie, current time is beyong the start and duration
+                        if (time >= this._startTime + this.getDuration()) {
+                            // apply for final state anyway
+                            this.__actionApply(time, target);
+                            // set the action as ENDED
+                            this.stop(target);
+                        }
+                    }
+                }
+            };
+            /**
+             * When an action is in time, and able to be applied to a target, this method does all the necessary steps.
+             * Do not call directly.
+             * @method cc.action.Action#__actionApply
+             * @param time {number} current action's application time.
+             * @param target {object} target node.
+             * @private
+             */
+            Action.prototype.__actionApply = function (time, target) {
+                // manage first execution. it gives the chance to the Action of initializing with the target node
+                if (this._firstExecution) {
+                    // callback for onStart. only once. from now on, the action is not first_execution
+                    if (this._onStart) {
+                        this._onStart(this, target);
+                    }
+                    this._firstExecution = false;
+                    // initialize with the target before updating its values.
+                    this.initWithTarget(target);
+                }
+                // current status RUNNING
+                this._status = 2 /* RUNNING */;
+                // normalize the time, transform current time to a value in the range 0..1 proportionally to the
+                // action length, start time, etc. it also applies the easing (if any).
+                var ntime = this.__normalizeTime(time);
+                // update target
+                var v = this.update(ntime, target);
+                // application callback. called each time the node has changed properties.
+                if (this._onApply) {
+                    this._onApply(this, target, v);
+                }
+                this.__checkRepetition(time, target);
+            };
+            /**
+             * Do code specific for checking action repetition and callback invocation when it makes sense.
+             * @method cc.action.Action#__checkRepetition
+             * @param time {number} current action application time .
+             * @param target {object} target object the action is being applied to.
+             * @private
+             */
+            Action.prototype.__checkRepetition = function (time, target) {
+                // if this is a repeating action
+                if (this._repeatTimes !== 1) {
+                    // calculate current repetition value
+                    var repeatIndex = ((time - this._startTime) / this.getOneRepetitionDuration()) >> 0;
+                    // if changed
+                    if (repeatIndex !== this._currentRepeatCount) {
+                        if (repeatIndex > this._repeatTimes) {
+                            repeatIndex = this._repeatTimes;
+                        }
+                        this._currentRepeatCount = repeatIndex;
+                        // callback about repetition
+                        if (this._onRepeat) {
+                            this._onRepeat(this, target, repeatIndex);
+                        }
+                    }
+                }
+            };
+            /**
+             * Pass in the target node this action will act on.
+             * This method must be overriden by each action type.
+             * @method cc.action.Action#initWithTarget
+             * @param target {object}
+             */
+            Action.prototype.initWithTarget = function (target) {
+            };
+            /**
+             * Solve Action first application values.
+             * Must be overriden.
+             * @method cc.action.Action#solveInitialValues
+             * @param target {object}
+             */
+            Action.prototype.solveInitialValues = function (target) {
+            };
+            /**
+             * End this action immediately. Will call onEnd callback if set.
+             * @method cc.action.Action#stop
+             * @param target {object=}
+             */
+            Action.prototype.stop = function (target) {
+                this._status = 4 /* ENDED */;
+                if (this._onEnd) {
+                    this._onEnd(this, target);
+                }
+            };
+            /**
+             * Is this action finished ?
+             * @method cc.action.Action#isFinished
+             * @returns {boolean}
+             */
+            Action.prototype.isFinished = function () {
+                return this._status === 4 /* ENDED */;
+            };
+            /**
+             * Is this action paused ?
+             * @method cc.action.Action#isPaused
+             * @returns {boolean}
+             */
+            Action.prototype.isPaused = function () {
+                return this._status === 1 /* PAUSED */;
+            };
+            /**
+             * Set origin values for the action.
+             * This method MUST be overriden and called from the override function.
+             * @method cc.action.Action#from
+             * @param obj {Object} any object necessary for the action initialization.
+             * @returns {cc.action.Action}
+             */
+            Action.prototype.from = function (obj) {
+                this._fromValuesSet = true;
+                return this;
+            };
+            /**
+             * Set destination values for the action.
+             * @method cc.action.Action#to
+             * @param obj {Object} any object necessary for the action initialization.
+             * @returns {cc.action.Action}
+             */
+            Action.prototype.to = function (obj) {
+                return this;
+            };
+            /**
+             * Shortcut method for setting an action's duration, delay and easing function.
+             * @method cc.action.Action#timeInfo
+             * @param delay {number} milliseconds to wait for action start.
+             * @param duration {number} milliseconds of this action application.
+             * @param interpolator {cc.action.TimeInterpolator} a time interpolator interface object.
+             * @returns {cc.action.Action}
+             */
+            Action.prototype.timeInfo = function (delay, duration, interpolator) {
+                this._duration = duration * _action.TIMEUNITS;
+                this.setDelay(delay);
+                if (typeof interpolator !== "undefined") {
+                    this._interpolator = interpolator;
+                }
+                return this;
+            };
+            /**
+             * This method will make actions to be applied relatively instead of absolutely.
+             * For example, moveBy will add the position to the current node's position instead of traversing through the
+             * path.
+             * @method cc.action.Action#setRelative
+             * @param relative {boolean} make this action to behave as moveBy
+             * @returns {cc.action.MoveAction}
+             */
+            Action.prototype.setRelative = function (relative) {
+                this._relativeAction = relative;
+                return this;
+            };
+            /**
+             * @deprecated This method is deprecated because of its semantics. Use createReversed() instead.
+             * @method cc.action.Action#reverse
+             * @see {cc.action.Action#createReversed}
+             */
+            Action.prototype.reverse = function () {
+                return this.createReversed();
+            };
+            /**
+             * Create a new Action which is the reverse of this one.
+             * A reverse Action is expected to be the inverse of what it was. In example, getting back from a path,
+             * or rotating in the other direction.
+             * In this new implementation, a reverse action is just inverting the TimeInterpolation value.
+             * @method cc.action.Action#createReversed
+             * @returns {cc.action.Action}
+             */
+            Action.prototype.createReversed = function () {
+                var action = this.clone();
+                return action.setReversed();
+            };
+            /**
+             * Set an action to be its reversed action.
+             * This method does not create any new action.
+             * @method cc.action.Action#setReversed
+             * @returns {cc.action.Action}
+             */
+            Action.prototype.setReversed = function () {
+                this._reversed = !this._reversed;
+                if (this._interpolator) {
+                    this._interpolator = this._interpolator.reverse();
+                }
+                else {
+                    this._interpolator = _action.Interpolator.Linear(true, false);
+                }
+                return this;
+            };
+            /**
+             * Make the actual cloning implementation.
+             * This method must be overriden by each action type.
+             * @method cc.action.Action#__cloneImpl
+             * @returns {cc.action.Action}
+             * @private
+             */
+            Action.prototype.__cloneImpl = function () {
+                var copy = new Action();
+                this.__genericCloneProperties(copy);
+                return copy;
+            };
+            /**
+             * Create a copy of an action.
+             * @method cc.action.Action#clone
+             * @returns {cc.action.Action}
+             */
+            Action.prototype.clone = function () {
+                return this.__cloneImpl();
+            };
+            /**
+             * Is action relative.
+             * In V2 and V3 language, a relative action corresponds to ActionBy types.
+             * Non relative actions are ActionTo types.
+             * @method cc.action.Action#isRelative
+             * @returns {boolean}
+             */
+            Action.prototype.isRelative = function () {
+                return this._relativeAction;
+            };
+            /**
+             * Copy generic properties when cloning an Action.
+             * Action event Callbacks are copied as well.
+             * @method cc.action.Action#__genericCloneProperties
+             * @param copy {cc.action.Action}
+             * @private
+             */
+            Action.prototype.__genericCloneProperties = function (copy) {
+                copy.setInterpolator(this._interpolator).setReversedTime(this._reversedTime).setSpeed(this.getSpeed()).setRepeatTimes(this._repeatTimes).setRelative(this._relativeAction);
+                copy._startTime = this._startTime;
+                copy._duration = this._duration;
+                copy._delayAfterApplication = this._delayAfterApplication;
+                // explictly copy callbacks this way. Sequence overwrites onRepeat.
+                copy._onStart = this._onStart;
+                copy._onEnd = this._onEnd;
+                copy._onApply = this._onApply;
+                copy._onRepeat = this._onRepeat;
+                copy._onPause = this._onPause;
+                copy._onResume = this._onResume;
+                copy._reversed = this._reversed;
+            };
+            /**
+             * Backward compatible call.
+             * @method cc.action.Action#easing
+             * @param i {cc.action.Interpolator} an interpolator/easing function.
+             * @returns {cc.action.Action}
+             */
+            Action.prototype.easing = function (i) {
+                this.setInterpolator(i);
+                return this;
+            };
+            /**
+             * Backward compatible call.
+             * @method cc.action.Action#speed
+             * @param speed
+             * @returns {cc.action.Action}
+             * @deprecated Use setSpeed(speed)
+             */
+            Action.prototype.speed = function (speed) {
+                this._speed *= speed;
+                return this;
+            };
+            /**
+             * Is time applied in inverse order ?
+             * @method cc.action.Action#isReversedTime
+             * @returns {boolean}
+             */
+            Action.prototype.isReversedTime = function () {
+                return this._reversedTime;
+            };
+            /**
+             * Set this action's time to be applied inversely.
+             * @method cc.action.Action#setReversedTime
+             * @param b {boolean} reverse time ?
+             * @returns {cc.action.Action}
+             */
+            Action.prototype.setReversedTime = function (b) {
+                this._reversedTime = b;
+                return this;
+            };
+            /**
+             * This method is called from a SequenceAction object. It clears current action status info so that it can
+             * be restarted.
+             * @method cc.action.Action#__recursivelySetCreatedStatus
+             * @param target {any}
+             * @private
+             */
+            Action.prototype.__recursivelySetCreatedStatus = function (target) {
+                if (this._status !== 4 /* ENDED */) {
+                    this.update(this._reversed ? 0 : 1, target);
+                }
+                this._currentTime = 0;
+                this._status = 3 /* CREATED */;
+                this._firstExecution = true;
+            };
+            /**
+             * Apply this action in a pingpong way.
+             * @method cc.action.Action#pingpong
+             */
+            Action.prototype.pingpong = function () {
+                this.setInterpolator(cc.action.Interpolator.Linear(this._reversed, true));
+            };
+            /**
+             * Build an initializer object out of the Action current state and info.
+             * Every Action type must override and super.call this method.
+             * @method cc.action.Action#getInitializer
+             * @returns {cc.action.ActionInitializer}
+             */
+            Action.prototype.getInitializer = function () {
+                var obj = {};
+                if (this._delayBeforeApplication) {
+                    obj.delayBefore = this._delayBeforeApplication / cc.action.TIMEUNITS;
+                }
+                if (this._delayAfterApplication) {
+                    obj.delayAfter = this._delayAfterApplication / cc.action.TIMEUNITS;
+                }
+                obj.duration = this._duration / cc.action.TIMEUNITS;
+                obj.relative = this._relativeAction;
+                if (this._repeatTimes !== 1) {
+                    obj.repeatTimes = this._repeatTimes;
+                }
+                if (this._interpolator) {
+                    obj.interpolator = this._interpolator.getInitializer();
+                }
+                obj.reversed = this._reversed;
+                return obj;
+            };
+            /**
+             * Default tag value.
+             * @member cc.action.Action#DEFAULT_TAG
+             * @type {string}
+             * @static
+             */
+            Action.DEFAULT_TAG = "";
+            return Action;
+        })();
+        _action.Action = Action;
+    })(action = cc.action || (cc.action = {}));
+})(cc || (cc = {}));
+</pre>
+	</article>
+</section>
+
+
+
+
+
+				</div>
+
+				<div class="clearfix"></div>
+				<footer>
+					
+					@hyperandroid
+					<br />
+					
+					
+		<span class="copyright">
+		Chukong inc. 2014
+		</span>
+					<br />
+					
+		<span class="jsdoc-message">
+		Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha5</a>
+		on 23/Tu/2015 using the <a
+			href="https://github.com/terryweiss/docstrap">DocStrap template</a>.
+		</span>
+				</footer>
+			</div>
+
+			
+			<br clear="both">
+		</div>
+
+	</div>
+	<!--<script src="scripts/sunlight.js"></script>-->
+	<script src="scripts/docstrap.lib.js"></script>
+	<script src="scripts/bootstrap-dropdown.js"></script>
+	<script src="scripts/toc.js"></script>
+
+	<script>
+		$( function () {
+			$( "[id*='$']" ).each( function () {
+				var $this = $( this );
+
+				$this.attr( "id", $this.attr( "id" ).replace( "$", "__" ) );
+			} );
+
+			$( "#toc" ).toc( {
+				anchorName  : function ( i, heading, prefix ) {
+					return $( heading ).attr( "id" ) || ( prefix + i );
+				},
+				selectors   : "h1,h2,h3,h4",
+				showAndHide : false,
+				scrollTo    : "100px"
+			} );
+
+			$( "#toc>ul" ).addClass( "nav nav-pills nav-stacked" );
+			$( "#main span[id^='toc']" ).addClass( "toc-shim" );
+			$( '.dropdown-toggle' ).dropdown();
+//			$( ".tutorial-section pre, .readme-section pre" ).addClass( "sunlight-highlight-javascript" ).addClass( "linenums" );
+
+			$( ".tutorial-section pre, .readme-section pre" ).each( function () {
+				var $this = $( this );
+
+				var example = $this.find( "code" );
+				exampleText = example.html();
+				var lang = /{@lang (.*?)}/.exec( exampleText );
+				if ( lang && lang[1] ) {
+					exampleText = exampleText.replace( lang[0], "" );
+					example.html( exampleText );
+					lang = lang[1];
+				} else {
+					lang = "javascript";
+				}
+
+				if ( lang ) {
+
+					$this
+						.addClass( "sunlight-highlight-" + lang )
+						.addClass( "linenums" )
+						.html( example.html() );
+
+				}
+			} );
+
+			Sunlight.highlightAll( {
+				lineNumbers : true,
+				showMenu : true,
+				enableDoclinks : true
+			} );
+		} );
+	 </script>
+
+
+
+	<!--Navigation and Symbol Display-->
+	
+
+
+	<!--Google Analytics-->
+	
+
+</body>
+</html>

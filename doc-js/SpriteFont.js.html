@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>CocosJS Source: plugin/font/SpriteFont.js</title>
+
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+	<link type="text/css" rel="stylesheet" href="styles/sunlight.default.css">
+
+	<link type="text/css" rel="stylesheet" href="styles/site.cerulean.css">
+
+</head>
+
+<body>
+<div class="container-fluid">
+	<div class="navbar navbar-fixed-top ">
+		<div class="navbar-inner">
+			<a class="brand" href="index.html">CocosJS</a>
+			<ul class="nav">
+				
+				<li class="dropdown">
+					<a href="namespaces.list.html" class="dropdown-toggle" data-toggle="dropdown">Namespaces<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="global.html#cc">cc</a>
+						</li>
+						
+						<li>
+							<a href="global.html#cc#action">cc.action</a>
+						</li>
+						
+						<li>
+							<a href="cc.Debug.html">cc.Debug</a>
+						</li>
+						
+						<li>
+							<a href="cc.game.html">cc.game</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.html">cc.input</a>
+						</li>
+						
+						<li>
+							<a href="cc.locale.html">cc.locale</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.html">cc.math</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path_.html">cc.math.path</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.html">cc.node</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.sprite.html">cc.node.sprite</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.html">cc.plugin</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.asset.html">cc.plugin.asset</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.audio.html">cc.plugin.audio</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.html">cc.plugin.layout</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.html">cc.plugin.loader</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.texture.html">cc.plugin.texture</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.html">cc.render</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.html">cc.render.shader</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.WebGLState.html">cc.render.WebGLState</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.html">cc.transition</a>
+						</li>
+						
+						<li>
+							<a href="cc.util.html">cc.util</a>
+						</li>
+						
+						<li>
+							<a href="cc.widget.html">cc.widget</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+				<li class="dropdown">
+					<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="cc.action.Action.html">cc.action.Action</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ActionChainContext.html">cc.action.ActionChainContext</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ActionChainContext_constructor.html">cc.action.ActionChainContext#constructor</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ActionInfo.html">cc.action.ActionInfo</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ActionManager.html">cc.action.ActionManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.AlphaAction.html">cc.action.AlphaAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.AnimateAction.html">cc.action.AnimateAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.Interpolator.html">cc.action.Interpolator</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.JumpAction.html">cc.action.JumpAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.MoveAction.html">cc.action.MoveAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ParseInterpolator.html">cc.action.ParseInterpolator</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.PathAction.html">cc.action.PathAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.PropertyAction.html">cc.action.PropertyAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.PropertyInfo.html">cc.action.PropertyInfo</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.RotateAction.html">cc.action.RotateAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ScaleAction.html">cc.action.ScaleAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.SchedulerQueue.html">cc.action.SchedulerQueue</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.SchedulerQueueTask.html">cc.action.SchedulerQueueTask</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.SequenceAction.html">cc.action.SequenceAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.TintAction.html">cc.action.TintAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.game.Game.html">cc.game.Game</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.InputManager.html">cc.input.InputManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.InputManagerEvent.html">cc.input.InputManagerEvent</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.KeyActionInfo.html">cc.input.KeyActionInfo</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.KeyboardCursor.html">cc.input.KeyboardCursor</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.KeyboardInputManager.html">cc.input.KeyboardInputManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.KeyInfo.html">cc.input.KeyInfo</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.MouseInputManager.html">cc.input.MouseInputManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.MouseInputManagerEvent.html">cc.input.MouseInputManagerEvent</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.PriorityInputNode.html">cc.input.PriorityInputNode</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.SceneGraphInputTreeNode.html">cc.input.SceneGraphInputTreeNode</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Color.html">cc.math.Color</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Dimension.html">cc.math.Dimension</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Matrix3.html">cc.math.Matrix3</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Path.html">cc.math.Path</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.ContainerSegment.html">cc.math.path.ContainerSegment</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.SegmentArc.html">cc.math.path.SegmentArc</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.SegmentBezier.html">cc.math.path.SegmentBezier</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.SegmentCardinalSpline.html">cc.math.path.SegmentCardinalSpline</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path_.html#SegmentLine">cc.math.path.SegmentLine</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.SegmentQuadratic.html">cc.math.path.SegmentQuadratic</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.SubPath.html">cc.math.path.SubPath</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Rectangle.html">cc.math.Rectangle</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Vector.html">cc.math.Vector</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.Director.html">cc.node.Director</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.FastSprite.html">cc.node.FastSprite</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.Node.html">cc.node.Node</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.Scene.html">cc.node.Scene</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.Sprite_.html">cc.node.Sprite</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.sprite.Animation.html">cc.node.sprite.Animation</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.sprite.AnimationCache.html">cc.node.sprite.AnimationCache</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.sprite.SpriteFrame.html">cc.node.sprite.SpriteFrame</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.asset.AssetManager.html">cc.plugin.asset.AssetManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.audio.AudioEffect.html">cc.plugin.audio.AudioEffect</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.audio.AudioManager.html">cc.plugin.audio.AudioManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.font.FontMetrics.html">cc.plugin.font.FontMetrics</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.font.SpriteFont.html">cc.plugin.font.SpriteFont</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.font.SpriteFontChar.html">cc.plugin.font.SpriteFontChar</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.BorderLayout.html">cc.plugin.layout.BorderLayout</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.Gap.html">cc.plugin.layout.Gap</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.GridLayout.html">cc.plugin.layout.GridLayout</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.Insets.html">cc.plugin.layout.Insets</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.LayerLayout.html">cc.plugin.layout.LayerLayout</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.Layout.html">cc.plugin.layout.Layout</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.Unit.html">cc.plugin.layout.Unit</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.Loader.html">cc.plugin.loader.Loader</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.ResourceLoaderAudioBuffer.html">cc.plugin.loader.ResourceLoaderAudioBuffer</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.ResourceLoaderImage.html">cc.plugin.loader.ResourceLoaderImage</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.ResourceLoaderJSON.html">cc.plugin.loader.ResourceLoaderJSON</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.ResourceLoaderXML.html">cc.plugin.loader.ResourceLoaderXML</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.texture.TexturePacker.html">cc.plugin.texture.TexturePacker</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.texture.TexturePackerNode.html">cc.plugin.texture.TexturePackerNode</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.texture.TexturePackerPage.html">cc.plugin.texture.TexturePackerPage</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.CanvasRenderer.html">cc.render.CanvasRenderer</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.DecoratedWebGLRenderingContext.html">cc.render.DecoratedWebGLRenderingContext</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.GeometryBatcher.html">cc.render.GeometryBatcher</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.Pattern.html">cc.render.Pattern</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.Renderer.html">cc.render.Renderer</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.RenderingContextSnapshot.html">cc.render.RenderingContextSnapshot</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.ScaleManager.html">cc.render.ScaleManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.AbstractShader.html">cc.render.shader.AbstractShader</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.Attribute.html">cc.render.shader.Attribute</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.MatrixUniform.html">cc.render.shader.MatrixUniform</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.SolidColorShader.html">cc.render.shader.SolidColorShader</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.TextureShader.html">cc.render.shader.TextureShader</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.TextureUniform.html">cc.render.shader.TextureUniform</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.Uniform.html">cc.render.shader.Uniform</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.Texture2D.html">cc.render.Texture2D</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.WebGLRenderer.html">cc.render.WebGLRenderer</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.Transition.html">cc.transition.Transition</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionFade.html">cc.transition.TransitionFade</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionMove.html">cc.transition.TransitionMove</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionSlideInB.html">cc.transition.TransitionSlideInB</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionSlideInL.html">cc.transition.TransitionSlideInL</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionSlideInR.html">cc.transition.TransitionSlideInR</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionSlideInT.html">cc.transition.TransitionSlideInT</a>
+						</li>
+						
+						<li>
+							<a href="cc.util.Resource.html">cc.util.Resource</a>
+						</li>
+						
+						<li>
+							<a href="cc.widget.Button.html">cc.widget.Button</a>
+						</li>
+						
+						<li>
+							<a href="cc.widget.Label.html">cc.widget.Label</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+				<li class="dropdown">
+					<a href="global.html" class="dropdown-toggle" data-toggle="dropdown">Global<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="global.html#__extends">__extends</a>
+						</li>
+						
+						<li>
+							<a href="global.html#test">test</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+			</ul>
+		</div>
+	</div>
+
+	<div class="row-fluid">
+
+		
+			<div class="span12">
+				
+				<div id="main">
+					
+
+
+		<h1 class="page-title">Source: plugin/font/SpriteFont.js</h1>
+    
+<section>
+	<article>
+		<pre
+			class="sunlight-highlight-javascript linenums">/**
+ * License: see license.txt file.
+ */
+/// &lt;reference path="../asset/AssetManager.ts"/>
+/// &lt;reference path="../../node/sprite/SpriteFrame.ts"/>
+/// &lt;reference path="../../render/RenderingContext.ts"/>
+/// &lt;reference path="../../render/Texture2D.ts"/>
+/// &lt;reference path="../../widget/Label.ts"/>
+/// &lt;reference path="./SpriteFontHelper.ts"/>
+var cc;
+(function (cc) {
+    var plugin;
+    (function (plugin) {
+        var font;
+        (function (_font) {
+            /**
+             * @class cc.plugin.font.SpriteFontChar
+             * @classdesc
+             *
+             * For a SpriteFont, this class represents a TextureFont character.
+             * It contains information about its size and kerning.
+             *
+             */
+            var SpriteFontChar = (function () {
+                /**
+                 * Create a new SpritFontChar object instance.
+                 * @method cc.plugin.font.SpriteFontChar#constructor
+                 */
+                function SpriteFontChar() {
+                    /**
+                     * This numerical id is the charCode of a font character.
+                     * @member cc.plugin.font.SpriteFontChar#_id
+                     * @type {number}
+                     * @private
+                     */
+                    this._id = null;
+                    /**
+                     * A SpriteFrame representing character texture information.
+                     * @member cc.plugin.font.SpriteFontChar#_frame
+                     * @type {cc.node.sprite.SpriteFrame}
+                     * @private
+                     */
+                    this._frame = null;
+                    /**
+                     * Pixels to advance the cursor after typing this character.
+                     * @member cc.plugin.font.SpriteFontChar#_xadvance
+                     * @type {number}
+                     * @private
+                     */
+                    this._xadvance = 0;
+                    /**
+                     * Horizontal offset to draw the character.
+                     * @member cc.plugin.font.SpriteFontChar#_xoffset
+                     * @type {number}
+                     * @private
+                     */
+                    this._xoffset = 0;
+                    /**
+                     * Vertical offset to draw the character. this offset will make the character lie on the baseline.
+                     * @member cc.plugin.font.SpriteFontChar#_yoffset
+                     * @type {number}
+                     * @private
+                     */
+                    this._yoffset = 0;
+                    /**
+                     * Kerning info.
+                     * @member cc.plugin.font.SpriteFontChar#_kerningInfo
+                     * @type {Map&lt;string,number>}
+                     * @private
+                     */
+                    this._kerningInfo = {};
+                    /**
+                     * Reference to the SpriteFont object this char belongs to.
+                     * @member cc.plugin.font.SpriteFontChar#_font
+                     * @type {cc.node.sprite.SpriteFont}
+                     * @private
+                     */
+                    this._font = null;
+                }
+                Object.defineProperty(SpriteFontChar.prototype, "width", {
+                    /**
+                     * Get the char width.
+                     * @member cc.plugin.font.SpriteFontChar#get:width
+                     * @returns {number}
+                     */
+                    get: function () {
+                        return this._frame._rect.w;
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+                /**
+                 * Set the char SpriteFont reference.
+                 * @member cc.plugin.font.SpriteFontChar#setFont
+                 * @param f {cc.plugin.font.SpriteFont}
+                 */
+                SpriteFontChar.prototype.setFont = function (f) {
+                    this._font = f;
+                };
+                /**
+                 * Set the char SpriteFrame.
+                 * @member cc.plugin.font.SpriteFontChar#setFrame
+                 * @param spriteFrame {cc.node.sprite.SpriteFrame}
+                 */
+                SpriteFontChar.prototype.setFrame = function (spriteFrame) {
+                    this._frame = spriteFrame;
+                };
+                /**
+                 * Add kerning info for a given char.
+                 * @member cc.plugin.font.SpriteFontChar#addKerning
+                 * @param char {string} a single character string.
+                 * @param v {number} kerning value for the char parameter
+                 */
+                SpriteFontChar.prototype.addKerning = function (char, v) {
+                    this._kerningInfo[char] = v;
+                };
+                /**
+                 * Draw a SpritFont character.
+                 * @member cc.plugin.font.SpriteFontChar#draw
+                 * @param ctx {cc.render.RenderingContext}
+                 * @param x {number}
+                 * @param y {number}
+                 * @param nextChar {string} next drawing character. needed for kerning adjustment.
+                 */
+                SpriteFontChar.prototype.draw = function (ctx, x, y, nextChar) {
+                    if (null === this._frame || this._frame._rect.isEmpty()) {
+                        return;
+                    }
+                    if (nextChar) {
+                        var _kerning = this._kerningInfo[nextChar];
+                        if (_kerning) {
+                            x += _kerning;
+                        }
+                    }
+                    var rect = this._frame._rect;
+                    var _y;
+                    if (cc.render.RENDER_ORIGIN === "top") {
+                        _y = y + this._yoffset;
+                    }
+                    else {
+                        _y = y + this._font._height - (rect.h + this._yoffset);
+                    }
+                    ctx.drawTexture(this._frame.getTexture(), rect.x, rect.y, rect.w, rect.h, x + this._xoffset, _y, rect.w, rect.h);
+                };
+                /**
+                 * Create a SpriteFontChar from a SpriteFrame and some data definition.
+                 * @member cc.plugin.font.SpriteFontChar.createFrom
+                 * @param frame {cc.node.sprite.SpriteFrame} a sprite frame the character will be mapped to.
+                 * @param data {object} SpriteFontChar definition.
+                 * @returns {cc.plugin.font.SpriteFontChar}
+                 */
+                SpriteFontChar.createFrom = function (frame, data) {
+                    var sfc = new SpriteFontChar();
+                    sfc._frame = frame.createSubSpriteFrame(data.x - 2, data.y, data.width, data.height, data.id);
+                    if (null === sfc._frame) {
+                        cc.Debug.info(cc.locale.ERR_FONT_GLYPTH_NOT_IN_FRAME, data.id);
+                    }
+                    sfc._xadvance = data.xadvance || 0;
+                    sfc._xoffset = data.xoffset || 0;
+                    sfc._yoffset = data.yoffset || 0;
+                    sfc._id = data.id;
+                    return sfc;
+                };
+                return SpriteFontChar;
+            })();
+            _font.SpriteFontChar = SpriteFontChar;
+            /**
+             * @class cc.plugin.font.SpriteFont
+             * @classdesc
+             *
+             * A sprite font is a fast drawing type of font that for webgl autobatches with very good performance results.
+             * This kind of fonts are backed by a texture, where the characters are already drawn. The font basically blits
+             * characters to the screen.
+             *
+             * Currently, a SpriteFont can be created:
+             * &lt;li>From a glyph designer output file
+             * &lt;li>A FNT output file, like the ones coming from https://www.glyphite.com
+             * &lt;li>From Texture packer JSON output
+             *
+             * Fonts can be cached in the AssetManager.
+             *
+             */
+            var SpriteFont = (function () {
+                /**
+                 * Create a new SpriteFont object instance.
+                 * @method cc.plugin.font.SpriteFont#constructor
+                 * @param name
+                 */
+                function SpriteFont(name) {
+                    /**
+                     * A font name of choice. This name will be used as the key for the SpriteFont cache.
+                     * @member cc.plugin.font.SpriteFont#_fontName
+                     * @type {string}
+                     * @private
+                     */
+                    this._fontName = null;
+                    /**
+                     * Whether the font is valid for draw.
+                     * @member cc.plugin.font.SpriteFont#_valid
+                     * @type {boolean}
+                     * @private
+                     */
+                    this._valid = false;
+                    /**
+                     * Collection of objects representing font characters.
+                     * @member cc.plugin.font.SpriteFont#_chars
+                     * @type {Map&lt;string,SpriteFontChar>}
+                     * @private
+                     */
+                    this._chars = {};
+                    /**
+                     * Font height. The height is the height of every font character. Height is the result of ascent+descent.
+                     * @member cc.plugin.font.SpriteFont#_height
+                     * @type {number}
+                     * @private
+                     */
+                    this._height = 0;
+                    /**
+                     * Font baseline, corresponding to the alphabetic baseline.
+                     * @member cc.plugin.font.SpriteFont#_baseline
+                     * @type {number}
+                     * @private
+                     */
+                    this._baseline = 0;
+                    /**
+                     * Font ascent. Height of char area corresponding to the content above the baseline.
+                     * @member cc.plugin.font.SpriteFont#_descent
+                     * @type {number}
+                     * @private
+                     */
+                    this._descent = 0;
+                    /**
+                     * Font descent. Height of the char area correspoingind to the content below the baseline.
+                     * @member cc.plugin.font.SpriteFont#_ascent
+                     * @type {number}
+                     * @private
+                     */
+                    this._ascent = 0;
+                    this._fontName = name;
+                }
+                /**
+                 * Whether the font is valid.
+                 * @method cc.plugin.font.SpriteFont#isValid
+                 * @returns {boolean}
+                 */
+                SpriteFont.prototype.isValid = function () {
+                    return this._valid;
+                };
+                /**
+                 * Insert a SpriteFontChar in the font definition.
+                 * @method cc.plugin.font.SpriteFont#__addChar
+                 * @param obj {cc.plugin.font.SpriteFontChar}
+                 * @private
+                 */
+                SpriteFont.prototype.__addChar = function (obj) {
+                    obj.setFont(this);
+                    this._chars[String.fromCharCode(obj._id)] = obj;
+                };
+                /**
+                 * Create a font font a FNT file.
+                 * @method cc.plugin.font.SpriteFont#setAsGlypthDesigner
+                 * @param spriteFrameId {string} The name of a SpriteFrame in the AssetManager cache. The font characters
+                 *  will be mapped on the SpriteFrame represented by the id.
+                 * @param fontDef {string} a .fnt file contents.
+                 * @returns {cc.plugin.font.SpriteFont}
+                 */
+                SpriteFont.prototype.setAsFnt = function (spriteFrameId, fontDef) {
+                    return this.setAsGlypthDesigner(spriteFrameId, fontDef);
+                };
+                /**
+                 * Build the font from a glyph designer output file.
+                 * @method cc.plugin.font.SpriteFont#setAsGlypthDesigner
+                 * @param spriteFrameId {string} The name of a SpriteFrame in the AssetManager cache. The font characters
+                 *  will be mapped on the SpriteFrame represented by the id.
+                 * @param fontDef {string} a glyph designed file contents.
+                 * @returns {cc.plugin.font.SpriteFont}
+                 */
+                SpriteFont.prototype.setAsGlypthDesigner = function (spriteFrameId, fontDef) {
+                    var f = cc.plugin.asset.AssetManager.getSpriteFrame(spriteFrameId);
+                    // remove tabs for spaces.
+                    var text = fontDef.split("\n");
+                    for (var i = 0; i &lt; text.length; i++) {
+                        text[i] = text[i].replace(/\t/gi, " ");
+                        // parse a char
+                        if (0 === text[i].indexOf("char ")) {
+                            var str = text[i].substring(5);
+                            var pairs = str.split(' ');
+                            var props = {};
+                            for (var j = 0; j &lt; pairs.length; j++) {
+                                var pair = pairs[j];
+                                // skip empty split pairs which are just ""
+                                if (pair !== "") {
+                                    var pairData = pair.trim().split("=");
+                                    if (pairData[0] !== "page" &amp;&amp; pairData[0] !== "chnl" &amp;&amp; pairData[0] !== "letter") {
+                                        var property = pairData[0];
+                                        var value = pairData[1];
+                                        props[property] = parseFloat(value);
+                                    }
+                                }
+                            }
+                            this.__addChar(SpriteFontChar.createFrom(f, props));
+                        }
+                        else if (0 === text[i].indexOf("kerning ")) {
+                            // parse kerning info.
+                            var str = text[i].substring(8);
+                            var pairs = str.trim().split(' ');
+                            for (var j = 0; j &lt; pairs.length; j++) {
+                                var first = pairs[0].split('=')[1];
+                                var second = pairs[1].split('=')[1];
+                                var amount = pairs[2].split('=')[1];
+                                var char = this._chars[String.fromCharCode(parseInt(first))];
+                                if (char) {
+                                    char.addKerning(String.fromCharCode(parseInt(second)), parseInt(amount));
+                                }
+                            }
+                        }
+                        else if (0 === text[i].indexOf("common")) {
+                            // parse font definition info
+                            var str = text[i].substring(7);
+                            var pairs = str.trim().split(' ');
+                            for (var j = 0; j &lt; pairs.length; j++) {
+                                var vv = pairs[j].split("=");
+                                var key = vv[0];
+                                value = vv[1];
+                                if (key === "lineHeight") {
+                                    this._height = parseFloat(value);
+                                }
+                                else if (key === "base") {
+                                    this._baseline = parseFloat(value);
+                                    this._descent = this._height - this._baseline;
+                                }
+                            }
+                        }
+                        else if (0 === text[i].indexOf("info")) {
+                        }
+                    }
+                    this._valid = true;
+                    return this;
+                };
+                /**
+                 * Build the font from a systm font object initializer.
+                 * @method cc.plugin.font.SpriteFont#setAsSystemFont
+                 * @param fontDef {cc.plugin.font.SystemFontInitializer} font definition
+                 * @returns {cc.plugin.font.SpriteFont}
+                 */
+                SpriteFont.prototype.setAsSystemFont = function (fontDef) {
+                    if (typeof fontDef.fontface === "undefined") {
+                        fontDef.fontface = "arial";
+                    }
+                    if (typeof fontDef.size === "undefined") {
+                        fontDef.size = 20;
+                    }
+                    fontDef.padding = fontDef.padding || 2;
+                    fontDef.strokeSize = fontDef.strokeSize || 1;
+                    fontDef.strokeStyle = fontDef.strokeStyle || "#000";
+                    fontDef.fillStyle = fontDef.fillStyle || "#000";
+                    // create a canvas object
+                    var canvas = document.createElement("canvas");
+                    var ctx = canvas.getContext("2d");
+                    var font = "" + fontDef.size + "px " + fontDef.fontface + (fontDef.style ? " " + fontDef.style : "");
+                    ctx.font = font;
+                    ctx.strokeStyle = fontDef.strokeStyle;
+                    ctx.fillStyle = fontDef.fillStyle;
+                    ctx.lineWidth = fontDef.strokeSize;
+                    var mt = cc.plugin.font.getFontMetrics(ctx, font);
+                    this._height = mt.height + fontDef.padding;
+                    this._baseline = this._height;
+                    var mwidth = ctx.measureText(fontDef.characters).width; //  measured width
+                    var w = (Math.min(mwidth, 1024) | 0) + 1;
+                    var h = (2 + ((mwidth / 1024) | 0)) * this._height;
+                    canvas.width = w;
+                    canvas.height = h;
+                    ctx = canvas.getContext("2d");
+                    ctx.font = font;
+                    ctx.textBaseline = "alphabetic";
+                    ctx.textAlign = "center";
+                    ctx.strokeStyle = fontDef.strokeStyle;
+                    ctx.fillStyle = fontDef.fillStyle;
+                    ctx.lineWidth = fontDef.strokeSize;
+                    var x = 0;
+                    var y = mt.ascent;
+                    var chars = {};
+                    for (var i = 0; i &lt; fontDef.characters.length; i++) {
+                        var str = fontDef.characters.substr(i, 1);
+                        var strw = 1 + (ctx.measureText(str).width | 0);
+                        if (x + strw + fontDef.padding >= w) {
+                            x = 0;
+                            y += this._height;
+                        }
+                        if (fontDef.stroke) {
+                            ctx.strokeText(str, x + strw / 2, y);
+                        }
+                        if (fontDef.fill) {
+                            ctx.fillText(str, x + strw / 2, y);
+                        }
+                        chars[str] = {
+                            x: x + fontDef.padding / 2,
+                            y: y - mt.ascent,
+                            width: strw + fontDef.strokeSize / 2,
+                            height: this._height,
+                            id: str.charCodeAt(0),
+                            xadvance: strw
+                        };
+                        x += strw + fontDef.padding;
+                    }
+                    cc.plugin.asset.AssetManager.addImage(canvas, this._fontName);
+                    for (var char in chars) {
+                        this.__addChar(SpriteFontChar.createFrom(cc.plugin.asset.AssetManager.getSpriteFrame(this._fontName), chars[char]));
+                    }
+                    this._valid = true;
+                    return this;
+                };
+                /**
+                 * Draw text with the font.
+                 * Characters not present in the font will be skipped, as if they were not in the string.
+                 * The string can be multiline, by splitting it with \n character.
+                 * @method cc.plugin.font.SpriteFont#drawText
+                 * @param ctx {cc.render.RenderingContext}
+                 * @param text {string}
+                 * @param x {number}
+                 * @param y {number}
+                 */
+                SpriteFont.prototype.drawText = function (ctx, text, x, y) {
+                    var xx = x;
+                    var lines = text.split('\n');
+                    if (cc.render.RENDER_ORIGIN === "bottom") {
+                        y += (lines.length - 1) * this._height;
+                    }
+                    for (var n = 0; n &lt; lines.length; n++) {
+                        for (var i = 0; i &lt; lines[n].length; i++) {
+                            var char = this._chars[lines[n].charAt(i)];
+                            if (char) {
+                                // draw char
+                                char.draw(ctx, x, y, lines[n].charAt(i + 1));
+                                x += char._xadvance;
+                            }
+                        }
+                        y += this._height * (cc.render.RENDER_ORIGIN === "bottom" ? -1 : 1);
+                        x = xx;
+                    }
+                };
+                /**
+                 * Draw a text with the current font that will fit in a given rectangle.
+                 * The text will flow with the given rectangle width.
+                 * The text will be horizontal and vertically aligned in the rect based on the valign/halign hints.
+                 * The text can have multiple lines separated by \n characters.
+                 * @param ctx {cc.render.RenderingContext} multi renderer rendering context.
+                 * @param text {string} text to fit in the rectangle.
+                 * @param x {number} x position of the rect to fit the text in.
+                 * @param y {number} y position of the rect to fit the text in.
+                 * @param width {number} width of the rect to fit the text in.
+                 * @param height {number} height of the rect to fit the text in.
+                 * @param valign {cc.widget.VALIGN} vertical alignment hint
+                 * @param halign {cc.widget.HALIGN} horizontal alignment hint
+                 */
+                SpriteFont.prototype.drawTextInRect = function (ctx, text, x, y, width, height, halign, valign) {
+                    var textSize = this.getTextSize(text, width);
+                    var lines = text.split('\n');
+                    var textHeight = textSize.height;
+                    var yoffset = 0;
+                    // make top be always up regardless how y-axis grows.
+                    if (cc.render.RENDER_ORIGIN === "bottom") {
+                        if (valign === 2 /* BOTTOM */) {
+                            valign = 0 /* TOP */;
+                        }
+                        else if (valign === 0 /* TOP */) {
+                            valign = 2 /* BOTTOM */;
+                        }
+                    }
+                    switch (valign) {
+                        case 1 /* MIDDLE */:
+                            yoffset = (height - textHeight) / 2;
+                            break;
+                        case 2 /* BOTTOM */:
+                            yoffset = height - textHeight - 1;
+                    }
+                    if (cc.render.RENDER_ORIGIN === "bottom") {
+                        yoffset += (lines.length - 1) * this._height;
+                    }
+                    var xx = x;
+                    for (var n = 0; n &lt; lines.length; n++) {
+                        var xoffset = 0;
+                        var lineWidth = this.getStringWidth(lines[n]);
+                        switch (halign) {
+                            case 1 /* CENTER */:
+                                break;
+                            case 2 /* RIGHT */:
+                        }
+                        var words = lines[n].split(" ");
+                        for (var i = 0; i &lt; words.length; i++) {
+                            var word = words[i];
+                            if (i &lt; words.length - 1) {
+                                word += " ";
+                            }
+                            var wordWidth = this.getStringWidth(word);
+                            if (x + wordWidth > width) {
+                                y += this._height * (cc.render.RENDER_ORIGIN === "bottom" ? -1 : 1);
+                                x = 0;
+                            }
+                            for (var j = 0; j &lt; word.length; j++) {
+                                var char = this._chars[word[j]];
+                                if (char) {
+                                    // draw char
+                                    char.draw(ctx, x + xoffset, y + yoffset, lines[n].charAt(i + 1));
+                                    x += char._xadvance;
+                                }
+                            }
+                        }
+                        y += this._height * (cc.render.RENDER_ORIGIN === "bottom" ? -1 : 1);
+                        x = xx;
+                    }
+                };
+                /**
+                 * Get a text dimension by this font.
+                 * @method cc.plugin.font.SpriteFont#textSize
+                 * @param text {string}
+                 * @param flowWidth {number=}
+                 * @returns {cc.math.Dimension}
+                 */
+                SpriteFont.prototype.getTextSize = function (text, flowWidth) {
+                    var width = 0;
+                    var height = 0;
+                    if (!flowWidth) {
+                        var lines = text.split('\n');
+                        for (var n = 0; n &lt; lines.length; n++) {
+                            var w = this.getStringWidth(lines[n]);
+                            if (w > width) {
+                                width = w;
+                            }
+                            height += this._height;
+                        }
+                        return new cc.math.Dimension(width, height);
+                    }
+                    else {
+                        return this.getTextSizeFlow(text, flowWidth);
+                    }
+                };
+                SpriteFont.prototype.getTextSizeFlow = function (text, flowWidth) {
+                    var lines = text.split("\n");
+                    var ret = new cc.math.Dimension();
+                    for (var i = 0; i &lt; lines.length; i++) {
+                        var d = this.getLineSizeFlow(lines[i], flowWidth);
+                        if (d.width > ret.width) {
+                            ret.width = d.width;
+                        }
+                        ret.height += d.height;
+                    }
+                    return ret;
+                };
+                SpriteFont.prototype.getLineSizeFlow = function (text, flowWidth) {
+                    var maxWidth = 0;
+                    var w = 0;
+                    var h = this._height;
+                    var words = text.split(" ");
+                    for (var i = 0; i &lt; words.length; i++) {
+                        var word = words[i];
+                        if (i &lt; words.length - 1) {
+                            word += " ";
+                        }
+                        var wordWidth = this.getStringWidth(word);
+                        // wrap line
+                        if (w + wordWidth > flowWidth) {
+                            h += this._height;
+                            if (w > maxWidth) {
+                                maxWidth = w;
+                            }
+                            w = wordWidth;
+                        }
+                        else {
+                            w += wordWidth;
+                        }
+                    }
+                    if (w > maxWidth) {
+                        maxWidth = w;
+                    }
+                    return new cc.math.Dimension(maxWidth, h);
+                };
+                /**
+                 * Get a string width based on the font char definition.
+                 * If the string contains an unknown character to the font, that character will be skipped and add 0 to the
+                 * string width.
+                 * @param text {string}
+                 * @returns {number} string width based on the current font.
+                 */
+                SpriteFont.prototype.getStringWidth = function (text) {
+                    var w = 0;
+                    for (var i = 0; i &lt; text.length; i++) {
+                        var char = this._chars[text.charAt(i)];
+                        if (char) {
+                            w += char._xadvance;
+                        }
+                    }
+                    return w;
+                };
+                return SpriteFont;
+            })();
+            _font.SpriteFont = SpriteFont;
+        })(font = plugin.font || (plugin.font = {}));
+    })(plugin = cc.plugin || (cc.plugin = {}));
+})(cc || (cc = {}));
+</pre>
+	</article>
+</section>
+
+
+
+
+
+				</div>
+
+				<div class="clearfix"></div>
+				<footer>
+					
+					@hyperandroid
+					<br />
+					
+					
+		<span class="copyright">
+		Chukong inc. 2014
+		</span>
+					<br />
+					
+		<span class="jsdoc-message">
+		Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha5</a>
+		on 23/Tu/2015 using the <a
+			href="https://github.com/terryweiss/docstrap">DocStrap template</a>.
+		</span>
+				</footer>
+			</div>
+
+			
+			<br clear="both">
+		</div>
+
+	</div>
+	<!--<script src="scripts/sunlight.js"></script>-->
+	<script src="scripts/docstrap.lib.js"></script>
+	<script src="scripts/bootstrap-dropdown.js"></script>
+	<script src="scripts/toc.js"></script>
+
+	<script>
+		$( function () {
+			$( "[id*='$']" ).each( function () {
+				var $this = $( this );
+
+				$this.attr( "id", $this.attr( "id" ).replace( "$", "__" ) );
+			} );
+
+			$( "#toc" ).toc( {
+				anchorName  : function ( i, heading, prefix ) {
+					return $( heading ).attr( "id" ) || ( prefix + i );
+				},
+				selectors   : "h1,h2,h3,h4",
+				showAndHide : false,
+				scrollTo    : "100px"
+			} );
+
+			$( "#toc>ul" ).addClass( "nav nav-pills nav-stacked" );
+			$( "#main span[id^='toc']" ).addClass( "toc-shim" );
+			$( '.dropdown-toggle' ).dropdown();
+//			$( ".tutorial-section pre, .readme-section pre" ).addClass( "sunlight-highlight-javascript" ).addClass( "linenums" );
+
+			$( ".tutorial-section pre, .readme-section pre" ).each( function () {
+				var $this = $( this );
+
+				var example = $this.find( "code" );
+				exampleText = example.html();
+				var lang = /{@lang (.*?)}/.exec( exampleText );
+				if ( lang && lang[1] ) {
+					exampleText = exampleText.replace( lang[0], "" );
+					example.html( exampleText );
+					lang = lang[1];
+				} else {
+					lang = "javascript";
+				}
+
+				if ( lang ) {
+
+					$this
+						.addClass( "sunlight-highlight-" + lang )
+						.addClass( "linenums" )
+						.html( example.html() );
+
+				}
+			} );
+
+			Sunlight.highlightAll( {
+				lineNumbers : true,
+				showMenu : true,
+				enableDoclinks : true
+			} );
+		} );
+	 </script>
+
+
+
+	<!--Navigation and Symbol Display-->
+	
+
+
+	<!--Google Analytics-->
+	
+
+</body>
+</html>

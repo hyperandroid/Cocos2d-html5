@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>CocosJS Source: test/tests/action_spec.js</title>
+
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+	<link type="text/css" rel="stylesheet" href="styles/sunlight.default.css">
+
+	<link type="text/css" rel="stylesheet" href="styles/site.cerulean.css">
+
+</head>
+
+<body>
+<div class="container-fluid">
+	<div class="navbar navbar-fixed-top ">
+		<div class="navbar-inner">
+			<a class="brand" href="index.html">CocosJS</a>
+			<ul class="nav">
+				
+				<li class="dropdown">
+					<a href="namespaces.list.html" class="dropdown-toggle" data-toggle="dropdown">Namespaces<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="global.html#cc">cc</a>
+						</li>
+						
+						<li>
+							<a href="global.html#cc#action">cc.action</a>
+						</li>
+						
+						<li>
+							<a href="cc.Debug.html">cc.Debug</a>
+						</li>
+						
+						<li>
+							<a href="cc.game.html">cc.game</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.html">cc.input</a>
+						</li>
+						
+						<li>
+							<a href="cc.locale.html">cc.locale</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.html">cc.math</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path_.html">cc.math.path</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.html">cc.node</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.sprite.html">cc.node.sprite</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.html">cc.plugin</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.asset.html">cc.plugin.asset</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.audio.html">cc.plugin.audio</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.html">cc.plugin.layout</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.html">cc.plugin.loader</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.texture.html">cc.plugin.texture</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.html">cc.render</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.html">cc.render.shader</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.WebGLState.html">cc.render.WebGLState</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.html">cc.transition</a>
+						</li>
+						
+						<li>
+							<a href="cc.util.html">cc.util</a>
+						</li>
+						
+						<li>
+							<a href="cc.widget.html">cc.widget</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+				<li class="dropdown">
+					<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="cc.action.Action.html">cc.action.Action</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ActionChainContext.html">cc.action.ActionChainContext</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ActionChainContext_constructor.html">cc.action.ActionChainContext#constructor</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ActionInfo.html">cc.action.ActionInfo</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ActionManager.html">cc.action.ActionManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.AlphaAction.html">cc.action.AlphaAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.AnimateAction.html">cc.action.AnimateAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.Interpolator.html">cc.action.Interpolator</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.JumpAction.html">cc.action.JumpAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.MoveAction.html">cc.action.MoveAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ParseInterpolator.html">cc.action.ParseInterpolator</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.PathAction.html">cc.action.PathAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.PropertyAction.html">cc.action.PropertyAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.PropertyInfo.html">cc.action.PropertyInfo</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.RotateAction.html">cc.action.RotateAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ScaleAction.html">cc.action.ScaleAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.SchedulerQueue.html">cc.action.SchedulerQueue</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.SchedulerQueueTask.html">cc.action.SchedulerQueueTask</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.SequenceAction.html">cc.action.SequenceAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.TintAction.html">cc.action.TintAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.game.Game.html">cc.game.Game</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.InputManager.html">cc.input.InputManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.InputManagerEvent.html">cc.input.InputManagerEvent</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.KeyActionInfo.html">cc.input.KeyActionInfo</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.KeyboardCursor.html">cc.input.KeyboardCursor</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.KeyboardInputManager.html">cc.input.KeyboardInputManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.KeyInfo.html">cc.input.KeyInfo</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.MouseInputManager.html">cc.input.MouseInputManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.MouseInputManagerEvent.html">cc.input.MouseInputManagerEvent</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.PriorityInputNode.html">cc.input.PriorityInputNode</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.SceneGraphInputTreeNode.html">cc.input.SceneGraphInputTreeNode</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Color.html">cc.math.Color</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Dimension.html">cc.math.Dimension</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Matrix3.html">cc.math.Matrix3</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Path.html">cc.math.Path</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.ContainerSegment.html">cc.math.path.ContainerSegment</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.SegmentArc.html">cc.math.path.SegmentArc</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.SegmentBezier.html">cc.math.path.SegmentBezier</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.SegmentCardinalSpline.html">cc.math.path.SegmentCardinalSpline</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path_.html#SegmentLine">cc.math.path.SegmentLine</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.SegmentQuadratic.html">cc.math.path.SegmentQuadratic</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.SubPath.html">cc.math.path.SubPath</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Rectangle.html">cc.math.Rectangle</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Vector.html">cc.math.Vector</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.Director.html">cc.node.Director</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.FastSprite.html">cc.node.FastSprite</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.Node.html">cc.node.Node</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.Scene.html">cc.node.Scene</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.Sprite_.html">cc.node.Sprite</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.sprite.Animation.html">cc.node.sprite.Animation</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.sprite.AnimationCache.html">cc.node.sprite.AnimationCache</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.sprite.SpriteFrame.html">cc.node.sprite.SpriteFrame</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.asset.AssetManager.html">cc.plugin.asset.AssetManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.audio.AudioEffect.html">cc.plugin.audio.AudioEffect</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.audio.AudioManager.html">cc.plugin.audio.AudioManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.font.FontMetrics.html">cc.plugin.font.FontMetrics</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.font.SpriteFont.html">cc.plugin.font.SpriteFont</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.font.SpriteFontChar.html">cc.plugin.font.SpriteFontChar</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.BorderLayout.html">cc.plugin.layout.BorderLayout</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.Gap.html">cc.plugin.layout.Gap</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.GridLayout.html">cc.plugin.layout.GridLayout</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.Insets.html">cc.plugin.layout.Insets</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.LayerLayout.html">cc.plugin.layout.LayerLayout</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.Layout.html">cc.plugin.layout.Layout</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.Unit.html">cc.plugin.layout.Unit</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.Loader.html">cc.plugin.loader.Loader</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.ResourceLoaderAudioBuffer.html">cc.plugin.loader.ResourceLoaderAudioBuffer</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.ResourceLoaderImage.html">cc.plugin.loader.ResourceLoaderImage</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.ResourceLoaderJSON.html">cc.plugin.loader.ResourceLoaderJSON</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.ResourceLoaderXML.html">cc.plugin.loader.ResourceLoaderXML</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.texture.TexturePacker.html">cc.plugin.texture.TexturePacker</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.texture.TexturePackerNode.html">cc.plugin.texture.TexturePackerNode</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.texture.TexturePackerPage.html">cc.plugin.texture.TexturePackerPage</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.CanvasRenderer.html">cc.render.CanvasRenderer</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.DecoratedWebGLRenderingContext.html">cc.render.DecoratedWebGLRenderingContext</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.GeometryBatcher.html">cc.render.GeometryBatcher</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.Pattern.html">cc.render.Pattern</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.Renderer.html">cc.render.Renderer</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.RenderingContextSnapshot.html">cc.render.RenderingContextSnapshot</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.ScaleManager.html">cc.render.ScaleManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.AbstractShader.html">cc.render.shader.AbstractShader</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.Attribute.html">cc.render.shader.Attribute</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.MatrixUniform.html">cc.render.shader.MatrixUniform</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.SolidColorShader.html">cc.render.shader.SolidColorShader</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.TextureShader.html">cc.render.shader.TextureShader</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.TextureUniform.html">cc.render.shader.TextureUniform</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.Uniform.html">cc.render.shader.Uniform</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.Texture2D.html">cc.render.Texture2D</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.WebGLRenderer.html">cc.render.WebGLRenderer</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.Transition.html">cc.transition.Transition</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionFade.html">cc.transition.TransitionFade</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionMove.html">cc.transition.TransitionMove</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionSlideInB.html">cc.transition.TransitionSlideInB</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionSlideInL.html">cc.transition.TransitionSlideInL</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionSlideInR.html">cc.transition.TransitionSlideInR</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionSlideInT.html">cc.transition.TransitionSlideInT</a>
+						</li>
+						
+						<li>
+							<a href="cc.util.Resource.html">cc.util.Resource</a>
+						</li>
+						
+						<li>
+							<a href="cc.widget.Button.html">cc.widget.Button</a>
+						</li>
+						
+						<li>
+							<a href="cc.widget.Label.html">cc.widget.Label</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+				<li class="dropdown">
+					<a href="global.html" class="dropdown-toggle" data-toggle="dropdown">Global<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="global.html#__extends">__extends</a>
+						</li>
+						
+						<li>
+							<a href="global.html#test">test</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+			</ul>
+		</div>
+	</div>
+
+	<div class="row-fluid">
+
+		
+			<div class="span12">
+				
+				<div id="main">
+					
+
+
+		<h1 class="page-title">Source: test/tests/action_spec.js</h1>
+    
+<section>
+	<article>
+		<pre
+			class="sunlight-highlight-javascript linenums">/**
+ * License: see license.txt file.
+ */
+/// &lt;reference path="../../../lib/jasmine/jasmine.d.ts" />
+/// &lt;reference path="../../math/Point.ts" />
+/// &lt;reference path="../../node/Node.ts" />
+/// &lt;reference path="../../node/NodeV3.ts" />
+/// &lt;reference path="../../action/Action.ts" />
+/// &lt;reference path="../../action/MoveAction.ts" />
+/// &lt;reference path="../../action/RotateAction.ts" />
+/// &lt;reference path="../../action/ScaleAction.ts" />
+/// &lt;reference path="../../action/PropertyAction.ts" />
+/// &lt;reference path="../../action/SequenceAction.ts" />
+/// &lt;reference path="../../action/TimeInterpolator.ts" />
+/// &lt;reference path="../../action_bc/Action.ts" />
+/// &lt;reference path="../../action_bc/ActionV2.ts" />
+/// &lt;reference path="../../render/RenderingContext.ts" />
+var test;
+(function (test) {
+    var math;
+    (function (_math) {
+        "use strict";
+        var node = cc.node;
+        var math = cc.math;
+        var action = cc.action;
+        var Node = node.Node;
+        var Vector = math.Vector;
+        var Action = action.Action;
+        var MoveAction = action.MoveAction;
+        var RotateAction = action.RotateAction;
+        var PropertyAction = action.PropertyAction;
+        var ActionManager = action.ActionManager;
+        describe("cc.action", function () {
+            beforeEach(function () {
+                jasmine.addMatchers({
+                    toEqual: function (util, customEqualityTesters) {
+                        return {
+                            compare: function (actual, expected) {
+                                var result = {
+                                    pass: false,
+                                    message: ""
+                                };
+                                if (actual instanceof Vector || (typeof actual.x !== "undefined" &amp;&amp; typeof actual.y !== "undefined")) {
+                                    result.pass = actual.x === expected.x &amp;&amp; actual.y === expected.y;
+                                }
+                                else {
+                                    result.pass = util.equals(actual, expected, customEqualityTesters);
+                                }
+                                if (result.pass) {
+                                    result.message = "ok.";
+                                }
+                                else {
+                                    result.message = "error. " + jasmine.pp(actual) + " expected " + jasmine.pp(expected);
+                                }
+                                return result;
+                            }
+                        };
+                    }
+                });
+            });
+            it("test basic action capabilities: time 0, action positions node at 'from' position", function () {
+                var node = new Node();
+                var ma = new MoveAction().from({ x: 20, y: 30 }).to({ x: 100, y: 120 }).timeInfo(0, 1000).setInterpolator(cc.action.Interpolator.Linear());
+                ma.initWithTarget(node);
+                // initial time
+                ma.step(0, node);
+                expect(node.x).toEqual(20);
+                expect(node.y).toEqual(30);
+            });
+            it("test basic action capabilities: action over time and so is on Ended status", function () {
+                var node = new Node();
+                var ma = new MoveAction().from({ x: 20, y: 30 }).to({ x: 100, y: 120 }).timeInfo(0, 1000).setInterpolator(cc.action.Interpolator.Linear());
+                ma.initWithTarget(node);
+                // the actions is supposed to last for 1 sec. Firing the action 2 secs later.
+                ma.step(2000, node);
+                expect(node.x).toEqual(100);
+                expect(node.y).toEqual(120);
+                // now the action is ENDED
+                //expect(ma.getStatus()).toEqual(cc.action.ActionStates.ENDED);
+            });
+            it("test basic action capabilities: action over time and won't be reapplied bc is ended.", function () {
+                var node = new Node();
+                var ma = new MoveAction().from({ x: 20, y: 30 }).to({ x: 100, y: 120 }).timeInfo(0, 1000).setInterpolator(cc.action.Interpolator.Linear());
+                ma.initWithTarget(node);
+                // the actions is supposed to last for 1 sec. Firing the action 2 secs later.
+                ma.step(2000, node);
+                // won't apply any new values, it is ENDED.
+                ma.step(200, node);
+                expect(node.x).toEqual(100);
+                expect(node.y).toEqual(120);
+            });
+            it("test basic ActionManager chaining.", function () {
+                var scene = new cc.node.Scene();
+                var node = new cc.node.Node();
+                scene.addChild(node);
+                node.startActionChain().actionMove().from({ x: 10, y: 30 }).to({ x: 110, y: 130 }).timeInfo(0, 2).setRepeatTimes(2).then().actionMove().to({ x: 220, y: 200 }).timeInfo(0, 2);
+                expect(scene._actionManager._actionInfos.length).toBe(3);
+                scene._actionManager.step(1);
+                expect(node.x === 60 &amp;&amp; node.y === 80).toBe(true);
+                scene._actionManager.step(1);
+                scene._actionManager.step(1.999);
+                scene._actionManager.step(6);
+                expect(node.x === 220 &amp;&amp; node.y === 200).toBe(true);
+            });
+            it("test basic ActionManager complex chaining.", function () {
+                var scene = new cc.node.Scene();
+                var node = new cc.node.Node();
+                scene.addChild(node);
+                node.startActionChain().actionMove().from({ x: 10, y: 30 }).to({ x: 110, y: 130 }).timeInfo(0, 2000).setRepeatTimes(2).then().actionRotate().to(180).timeInfo(0, 2000).then().actionMove().to({ x: 50, y: 430 }).timeInfo(0, 2000);
+                scene._actionManager.step(1000);
+                expect(node.x === 60 &amp;&amp; node.y === 80).toBe(true);
+                scene._actionManager.step(3000);
+                expect(node.x === 110 &amp;&amp; node.y === 130).toBe(true);
+            });
+            it("test lifecycle.", function () {
+                var scene = new cc.node.Scene();
+                var node = new cc.node.Node();
+                scene.addChild(node);
+                var reps = 4;
+                var duration = 1;
+                var start = false;
+                var repeat = false;
+                var repeatCount = 0;
+                var end = false;
+                var application = false;
+                var applicationCount = 0;
+                node.startActionChain().actionMove().from({ x: 10, y: 30 }).to({ x: 110, y: 50 }).timeInfo(0, duration).setRepeatTimes(4).onStart(function () {
+                    start = true;
+                }).onEnd(function () {
+                    end = true;
+                }).onRepeat(function (action, node, times) {
+                    repeat = true;
+                    repeatCount = times;
+                }).actionRotate().from(0).to(180).timeInfo(0, 1).onApply(function (action, target, value) {
+                    application = true;
+                    applicationCount++;
+                }).then().actionMove().to({ x: 220, y: 200 }).timeInfo(0, 2);
+                scene._actionManager.step(.5);
+                expect(start).toEqual(true);
+                scene._actionManager.step(1.500);
+                expect(repeat).toEqual(true);
+                expect(application).toEqual(true);
+                // an action that ends, also calls apply callback on end. So the value must be 2: 1 from the application at
+                // 500 ms, and another one on end.
+                expect(applicationCount).toEqual(2);
+                expect(node.rotationAngle).toEqual(180);
+                scene._actionManager.step(6);
+                expect(end).toEqual(true);
+                expect(repeatCount).toEqual(reps);
+            });
+            it("test relative action (ActionBy)", function () {
+                var node = new Node();
+                node.setPosition(200, 200);
+                var ma = new MoveAction().from({ x: 20, y: 30 }).to({ x: 100, y: 120 }).setRelative(true).timeInfo(0, 1000).setInterpolator(cc.action.Interpolator.Linear());
+                ma.initWithTarget(node);
+                ma.step(0, node);
+                expect(node.x === 220 &amp;&amp; node.y === 230).toBe(true);
+                node.setRotation(20);
+                var ra = new RotateAction().from(10).to(180).timeInfo(0, 1000).setRelative(true).setInterpolator(cc.action.Interpolator.Linear());
+                ra.initWithTarget(node);
+                // an Action that steps above its action time, will execute all callbacks in a row:
+                // START -> APPLY -> REPEAT -> END
+                ra.step(1000, node);
+                expect(node.rotationAngle).toEqual(200);
+            });
+            it("test backward action compatibility", function () {
+                var actionTo = cc.moveTo(2, cc.p(400, 400));
+                var actionBy = cc.moveBy(1, cc.p(80, 80));
+                var actionByReverse = actionBy.reverse();
+                var node = new Node();
+                node.setPosition(200, 200);
+                var am = new ActionManager();
+                am.scheduleActionForNode(node, actionTo.clone());
+                am.step(0);
+                expect(node.x === 200 &amp;&amp; node.y === 200).toBe(true);
+                am.step(1);
+                expect(node.x === 300 &amp;&amp; node.y === 300).toBe(true);
+                node.setPosition(300, 300);
+                am = new ActionManager();
+                am.scheduleActionForNode(node, actionBy.clone());
+                am.step(1);
+                expect(node.x === 380 &amp;&amp; node.y === 380).toBe(true);
+                // create a 3 sec. action composed of 2 actions.
+                var seq = cc.sequence(actionBy.clone(), actionByReverse.clone());
+                expect(seq.getNumActions()).toEqual(2);
+                expect(seq.getDuration()).toEqual(2000);
+                node.setPosition(300, 300);
+                // remove preivous action manager
+                am = new ActionManager();
+                am.scheduleActionForNode(node, seq.clone());
+                am.step(0.500);
+                am.step(0.500);
+                expect(node.x === 380 &amp;&amp; node.y === 380).toBe(true);
+                am.step(1);
+                expect(node.x === 300 &amp;&amp; node.y === 300).toBe(true);
+                // nothing will happen
+                var noMoreApplication = true;
+                seq.onApply(function () {
+                    noMoreApplication = false;
+                });
+                am.step(1);
+                expect(noMoreApplication).toEqual(true);
+            });
+            it("test backward action compatibility 2", function () {
+                var actionTo = cc.scaleTo(2, 0.5);
+                var actionBy = cc.scaleBy(2, 2);
+                var actionBy2 = cc.scaleBy(2, 0.25, 4.5);
+                var seq = cc.sequence(actionBy2, cc.delayTime(1), actionBy2.reverse());
+                var am = new ActionManager();
+                var node = new Node();
+                am.scheduleActionForNode(node, seq);
+                //            seq.step( 500, node );
+                //            seq.step( 500, node );
+                //            seq.step( 500, node );
+                //            seq.step( 500, node );
+                am.step(2.500);
+                expect(node.scaleX === 1.25 &amp;&amp; node.scaleY === 5.5).toBe(true);
+                am.step(5.000);
+                expect(node.scaleX === 1 &amp;&amp; node.scaleY === 1).toBe(true);
+            });
+            it("test backward action compatibility 3", function () {
+                var actionTo = cc.scaleTo(2, 0.5);
+                var actionBy = cc.scaleBy(2, 2);
+                var actionBy2 = cc.scaleBy(2, 0.25, 4.5);
+                var seq = cc.sequence(actionBy2, cc.delayTime(1), actionBy2.reverse());
+                var scene = new cc.node.Scene();
+                var node = new Node();
+                scene.addChild(node);
+                // schedule a sequence
+                node.runAction(seq);
+                scene._actionManager.step(2.500);
+                expect(node.scaleX === 1.25 &amp;&amp; node.scaleY === 5.5).toBe(true);
+                scene._actionManager.step(5.000);
+                expect(node.scaleX === 1 &amp;&amp; node.scaleY === 1).toBe(true);
+                // manually build a sequence. This is what the system does internally with cc.sequence objects.
+                var node2 = new Node();
+                scene.addChild(node2);
+                node2.startActionChain().action(actionBy2.clone()).then().action(cc.delayTime(1)).then().action(actionBy2.clone().reverse());
+                scene._actionManager.step(2.500);
+                expect(node2.scaleX === 1.25 &amp;&amp; node2.scaleY === 5.5).toBe(true);
+                scene._actionManager.step(5.000);
+                expect(node2.scaleX === 1 &amp;&amp; node2.scaleY === 1).toBe(true);
+            });
+            it("Sequencing times V4", function () {
+                var node = new Node();
+                var scene = new cc.node.Scene();
+                scene.addChild(node);
+                node.startActionChain().actionSequence().actionRotate().from(0).to(360).setRelative(true).setDuration(1).actionSequence().actionScale().to({ x: .5, y: .5 }).setRelative(true).setDuration(1.500).actionRotate().to(0).setDuration(1.500).setRelative(true).endSequence().actionMove().to({ x: 300, y: 300 }).setDuration(2).setRelative(true).endSequence();
+                var seq = scene._actionManager._actionInfos[1]._action;
+                expect(seq._actions[0]._startTime).toBe(0);
+                expect(seq._actions[1]._startTime).toBe(1000);
+                expect(seq._actions[1]._duration).toBe(3000);
+                expect(seq._actions[2]._startTime).toBe(4000);
+                expect(seq._duration).toBe(6000);
+            });
+            it("Sequencing times V3", function () {
+                var seq = cc.sequence(cc.rotateBy(1, 360), cc.sequence(cc.scaleBy(1.5, .5, .5), cc.rotateBy(1.5, 0)), cc.moveBy(2, new cc.math.Vector(100, 100)));
+                var node = new Node();
+                var am = new cc.action.ActionManager();
+                am.scheduleActionForNode(node, seq);
+                // _actionInfos[0] is the scheduler always.
+                var seq = am._actionInfos[1]._action;
+                expect(seq._actions[0]._startTime).toBe(0);
+                expect(seq._actions[1]._startTime).toBe(1000);
+                expect(seq._actions[1]._duration).toBe(3000);
+                expect(seq._actions[2]._startTime).toBe(4000);
+                expect(am._actionInfos[1]._action._duration).toBe(6000);
+            });
+            describe("Instant actions", function () {
+                var fired = [false, false, false, false, false];
+                var order = [];
+                var cf0;
+                var cf1;
+                var cf2;
+                beforeEach(function () {
+                    fired = [false, false, false, false, false];
+                    order = [];
+                    cf0 = cc.CallFunc.create(function (target) {
+                        fired[0] = true;
+                        order.push(1);
+                    });
+                    cf1 = cc.callFunc(function (target) {
+                        fired[1] = true;
+                        order.push(2);
+                    });
+                    cf2 = cc.callFunc(function (target) {
+                        fired[2] = true;
+                        order.push(3);
+                    });
+                });
+                it("fires callbacks", function () {
+                    var action = new Action().timeInfo(0, 1);
+                    var seq = cc.sequence(cf0, action, cf1, action.reverse(), cf2);
+                    seq.step(4, null);
+                    expect(fired[0] &amp;&amp; fired[1] &amp;&amp; fired[2]).toBe(true);
+                    expect(order[0] === 1 &amp;&amp; order[1] === 2 &amp;&amp; order[2] === 3).toBe(true);
+                });
+                it("fires callbacks reverse", function () {
+                    var action = new Action().timeInfo(0, 1);
+                    var seq = cc.sequence(cf0, action, cf1, action.reverse(), cf2).reverse();
+                    seq.step(4, null);
+                    expect(fired[0] &amp;&amp; fired[1] &amp;&amp; fired[2]).toBe(true);
+                    // callbacks have been called inversely too !!
+                    expect(order[0] === 3 &amp;&amp; order[1] === 2 &amp;&amp; order[2] === 1).toBe(true);
+                });
+            });
+            describe("sequence bug", function () {
+                it("sequence repeat and reverse is original values", function () {
+                    var node = new Node();
+                    var r = cc.repeat(cc.rotateBy(2, 180), 1);
+                    var s00 = cc.scaleBy(1.5, 0, 1);
+                    var s01 = cc.scaleBy(1.5, 1, 1);
+                    var seq0 = cc.sequence(r, s00, s01, cc.tintBy(2, -128, -128, -128));
+                    var seq1 = seq0.reverse();
+                    var seq = cc.repeatForever(cc.sequence(seq0, seq1));
+                    var time = 0;
+                    while (time &lt; 13952) {
+                        seq.step(0.016, node);
+                        time += 16;
+                    }
+                    seq.step(0.060, node);
+                    expect(node.rotationAngle).toEqual(0);
+                    expect(node.scaleX === 1 &amp;&amp; node.scaleY === 1).toBe(true);
+                });
+                it("sequence repeat and reverse is original values (2)", function () {
+                    var node = new Node();
+                    node.setPosition(50, 100);
+                    var jump1 = cc.JumpBy.create(4, cc.p(-800 + 80, 0), 100, 4);
+                    var jump2 = jump1.reverse();
+                    var rot1 = cc.RotateBy.create(4, 360 * 2);
+                    var rot2 = rot1.reverse();
+                    var seq3_1 = cc.Sequence.create(jump2, jump1);
+                    var seq3_2 = cc.Sequence.create(rot1, rot2);
+                    var spawn = cc.Spawn.create(seq3_1, seq3_2);
+                    var seq = cc.Speed.create(cc.RepeatForever.create(spawn), 1.0);
+                    var time = 0;
+                    while (time &lt; 7990) {
+                        seq.step(0.017, node);
+                        time += 17;
+                    }
+                    seq.step(0.010, node);
+                    expect(node.x).toEqual(50);
+                    expect(node.y).toEqual(100);
+                });
+            });
+            describe("Property Action", function () {
+                it("Basic usage, 1 property", function () {
+                    var pa0 = new PropertyAction({
+                        duration: 2,
+                        from: {
+                            x: 5
+                        },
+                        to: {
+                            x: 10
+                        }
+                    });
+                    var obj = {
+                        x: 0
+                    };
+                    pa0.step(2, obj);
+                    expect(obj.x).toEqual(10);
+                });
+                it("Usage 2, 'from' value inferred from target object", function () {
+                    var pa0 = new PropertyAction({
+                        duration: 2,
+                        to: {
+                            x: 10
+                        }
+                    });
+                    var obj = {
+                        x: 1
+                    };
+                    pa0.initWithTarget(obj);
+                    pa0.step(0, obj);
+                    expect(obj.x).toEqual(1);
+                    pa0.step(2, obj);
+                    expect(obj.x).toEqual(10);
+                });
+                it("Usage 3, lazy 'to' value inferred from target", function () {
+                    var pa0 = new PropertyAction({
+                        duration: 2,
+                        from: {
+                            x: 3
+                        }
+                    });
+                    var obj = {
+                        x: 10
+                    };
+                    pa0.initWithTarget(obj);
+                    pa0.step(0, obj);
+                    expect(obj.x).toEqual(3);
+                    pa0.step(2, obj);
+                    expect(obj.x).toEqual(10);
+                });
+                it("Usage 4, multiproperties with lazy values", function () {
+                    var pa0 = new PropertyAction({
+                        duration: 2,
+                        from: {
+                            y: 7
+                        },
+                        to: {
+                            x: 10
+                        }
+                    });
+                    var obj = {
+                        x: 100,
+                        y: 200
+                    };
+                    pa0.initWithTarget(obj);
+                    pa0.step(2, obj);
+                    expect(obj.x).toEqual(10);
+                    expect(obj.y).toEqual(200);
+                });
+                it("Usage 5, nested props", function () {
+                    var pa0 = new PropertyAction({
+                        duration: 2,
+                        from: {
+                            "p0.y": 7
+                        },
+                        to: {
+                            "p1.x": 10
+                        }
+                    });
+                    var obj = {
+                        p0: {
+                            x: 100,
+                            y: 0
+                        },
+                        p1: {
+                            x: 0,
+                            y: 200
+                        }
+                    };
+                    pa0.initWithTarget(obj);
+                    pa0.step(2, obj);
+                    expect(obj.p1.x).toEqual(10);
+                    expect(obj.p0.y).toEqual(0);
+                });
+            });
+        });
+    })(math = test.math || (test.math = {}));
+})(test || (test = {}));
+</pre>
+	</article>
+</section>
+
+
+
+
+
+				</div>
+
+				<div class="clearfix"></div>
+				<footer>
+					
+					@hyperandroid
+					<br />
+					
+					
+		<span class="copyright">
+		Chukong inc. 2014
+		</span>
+					<br />
+					
+		<span class="jsdoc-message">
+		Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha5</a>
+		on 23/Tu/2015 using the <a
+			href="https://github.com/terryweiss/docstrap">DocStrap template</a>.
+		</span>
+				</footer>
+			</div>
+
+			
+			<br clear="both">
+		</div>
+
+	</div>
+	<!--<script src="scripts/sunlight.js"></script>-->
+	<script src="scripts/docstrap.lib.js"></script>
+	<script src="scripts/bootstrap-dropdown.js"></script>
+	<script src="scripts/toc.js"></script>
+
+	<script>
+		$( function () {
+			$( "[id*='$']" ).each( function () {
+				var $this = $( this );
+
+				$this.attr( "id", $this.attr( "id" ).replace( "$", "__" ) );
+			} );
+
+			$( "#toc" ).toc( {
+				anchorName  : function ( i, heading, prefix ) {
+					return $( heading ).attr( "id" ) || ( prefix + i );
+				},
+				selectors   : "h1,h2,h3,h4",
+				showAndHide : false,
+				scrollTo    : "100px"
+			} );
+
+			$( "#toc>ul" ).addClass( "nav nav-pills nav-stacked" );
+			$( "#main span[id^='toc']" ).addClass( "toc-shim" );
+			$( '.dropdown-toggle' ).dropdown();
+//			$( ".tutorial-section pre, .readme-section pre" ).addClass( "sunlight-highlight-javascript" ).addClass( "linenums" );
+
+			$( ".tutorial-section pre, .readme-section pre" ).each( function () {
+				var $this = $( this );
+
+				var example = $this.find( "code" );
+				exampleText = example.html();
+				var lang = /{@lang (.*?)}/.exec( exampleText );
+				if ( lang && lang[1] ) {
+					exampleText = exampleText.replace( lang[0], "" );
+					example.html( exampleText );
+					lang = lang[1];
+				} else {
+					lang = "javascript";
+				}
+
+				if ( lang ) {
+
+					$this
+						.addClass( "sunlight-highlight-" + lang )
+						.addClass( "linenums" )
+						.html( example.html() );
+
+				}
+			} );
+
+			Sunlight.highlightAll( {
+				lineNumbers : true,
+				showMenu : true,
+				enableDoclinks : true
+			} );
+		} );
+	 </script>
+
+
+
+	<!--Navigation and Symbol Display-->
+	
+
+
+	<!--Google Analytics-->
+	
+
+</body>
+</html>

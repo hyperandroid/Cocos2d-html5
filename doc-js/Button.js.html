@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>CocosJS Source: widget/Button.js</title>
+
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+	<link type="text/css" rel="stylesheet" href="styles/sunlight.default.css">
+
+	<link type="text/css" rel="stylesheet" href="styles/site.cerulean.css">
+
+</head>
+
+<body>
+<div class="container-fluid">
+	<div class="navbar navbar-fixed-top ">
+		<div class="navbar-inner">
+			<a class="brand" href="index.html">CocosJS</a>
+			<ul class="nav">
+				
+				<li class="dropdown">
+					<a href="namespaces.list.html" class="dropdown-toggle" data-toggle="dropdown">Namespaces<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="global.html#cc">cc</a>
+						</li>
+						
+						<li>
+							<a href="global.html#cc#action">cc.action</a>
+						</li>
+						
+						<li>
+							<a href="cc.Debug.html">cc.Debug</a>
+						</li>
+						
+						<li>
+							<a href="cc.game.html">cc.game</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.html">cc.input</a>
+						</li>
+						
+						<li>
+							<a href="cc.locale.html">cc.locale</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.html">cc.math</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path_.html">cc.math.path</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.html">cc.node</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.sprite.html">cc.node.sprite</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.html">cc.plugin</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.asset.html">cc.plugin.asset</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.audio.html">cc.plugin.audio</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.html">cc.plugin.layout</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.html">cc.plugin.loader</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.texture.html">cc.plugin.texture</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.html">cc.render</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.html">cc.render.shader</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.WebGLState.html">cc.render.WebGLState</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.html">cc.transition</a>
+						</li>
+						
+						<li>
+							<a href="cc.util.html">cc.util</a>
+						</li>
+						
+						<li>
+							<a href="cc.widget.html">cc.widget</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+				<li class="dropdown">
+					<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="cc.action.Action.html">cc.action.Action</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ActionChainContext.html">cc.action.ActionChainContext</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ActionChainContext_constructor.html">cc.action.ActionChainContext#constructor</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ActionInfo.html">cc.action.ActionInfo</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ActionManager.html">cc.action.ActionManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.AlphaAction.html">cc.action.AlphaAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.AnimateAction.html">cc.action.AnimateAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.Interpolator.html">cc.action.Interpolator</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.JumpAction.html">cc.action.JumpAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.MoveAction.html">cc.action.MoveAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ParseInterpolator.html">cc.action.ParseInterpolator</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.PathAction.html">cc.action.PathAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.PropertyAction.html">cc.action.PropertyAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.PropertyInfo.html">cc.action.PropertyInfo</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.RotateAction.html">cc.action.RotateAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ScaleAction.html">cc.action.ScaleAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.SchedulerQueue.html">cc.action.SchedulerQueue</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.SchedulerQueueTask.html">cc.action.SchedulerQueueTask</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.SequenceAction.html">cc.action.SequenceAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.TintAction.html">cc.action.TintAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.game.Game.html">cc.game.Game</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.InputManager.html">cc.input.InputManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.InputManagerEvent.html">cc.input.InputManagerEvent</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.KeyActionInfo.html">cc.input.KeyActionInfo</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.KeyboardCursor.html">cc.input.KeyboardCursor</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.KeyboardInputManager.html">cc.input.KeyboardInputManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.KeyInfo.html">cc.input.KeyInfo</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.MouseInputManager.html">cc.input.MouseInputManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.MouseInputManagerEvent.html">cc.input.MouseInputManagerEvent</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.PriorityInputNode.html">cc.input.PriorityInputNode</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.SceneGraphInputTreeNode.html">cc.input.SceneGraphInputTreeNode</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Color.html">cc.math.Color</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Dimension.html">cc.math.Dimension</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Matrix3.html">cc.math.Matrix3</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Path.html">cc.math.Path</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.ContainerSegment.html">cc.math.path.ContainerSegment</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.SegmentArc.html">cc.math.path.SegmentArc</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.SegmentBezier.html">cc.math.path.SegmentBezier</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.SegmentCardinalSpline.html">cc.math.path.SegmentCardinalSpline</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path_.html#SegmentLine">cc.math.path.SegmentLine</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.SegmentQuadratic.html">cc.math.path.SegmentQuadratic</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.SubPath.html">cc.math.path.SubPath</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Rectangle.html">cc.math.Rectangle</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Vector.html">cc.math.Vector</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.Director.html">cc.node.Director</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.FastSprite.html">cc.node.FastSprite</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.Node.html">cc.node.Node</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.Scene.html">cc.node.Scene</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.Sprite_.html">cc.node.Sprite</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.sprite.Animation.html">cc.node.sprite.Animation</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.sprite.AnimationCache.html">cc.node.sprite.AnimationCache</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.sprite.SpriteFrame.html">cc.node.sprite.SpriteFrame</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.asset.AssetManager.html">cc.plugin.asset.AssetManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.audio.AudioEffect.html">cc.plugin.audio.AudioEffect</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.audio.AudioManager.html">cc.plugin.audio.AudioManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.font.FontMetrics.html">cc.plugin.font.FontMetrics</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.font.SpriteFont.html">cc.plugin.font.SpriteFont</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.font.SpriteFontChar.html">cc.plugin.font.SpriteFontChar</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.BorderLayout.html">cc.plugin.layout.BorderLayout</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.Gap.html">cc.plugin.layout.Gap</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.GridLayout.html">cc.plugin.layout.GridLayout</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.Insets.html">cc.plugin.layout.Insets</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.LayerLayout.html">cc.plugin.layout.LayerLayout</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.Layout.html">cc.plugin.layout.Layout</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.Unit.html">cc.plugin.layout.Unit</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.Loader.html">cc.plugin.loader.Loader</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.ResourceLoaderAudioBuffer.html">cc.plugin.loader.ResourceLoaderAudioBuffer</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.ResourceLoaderImage.html">cc.plugin.loader.ResourceLoaderImage</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.ResourceLoaderJSON.html">cc.plugin.loader.ResourceLoaderJSON</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.ResourceLoaderXML.html">cc.plugin.loader.ResourceLoaderXML</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.texture.TexturePacker.html">cc.plugin.texture.TexturePacker</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.texture.TexturePackerNode.html">cc.plugin.texture.TexturePackerNode</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.texture.TexturePackerPage.html">cc.plugin.texture.TexturePackerPage</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.CanvasRenderer.html">cc.render.CanvasRenderer</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.DecoratedWebGLRenderingContext.html">cc.render.DecoratedWebGLRenderingContext</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.GeometryBatcher.html">cc.render.GeometryBatcher</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.Pattern.html">cc.render.Pattern</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.Renderer.html">cc.render.Renderer</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.RenderingContextSnapshot.html">cc.render.RenderingContextSnapshot</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.ScaleManager.html">cc.render.ScaleManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.AbstractShader.html">cc.render.shader.AbstractShader</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.Attribute.html">cc.render.shader.Attribute</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.MatrixUniform.html">cc.render.shader.MatrixUniform</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.SolidColorShader.html">cc.render.shader.SolidColorShader</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.TextureShader.html">cc.render.shader.TextureShader</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.TextureUniform.html">cc.render.shader.TextureUniform</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.Uniform.html">cc.render.shader.Uniform</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.Texture2D.html">cc.render.Texture2D</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.WebGLRenderer.html">cc.render.WebGLRenderer</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.Transition.html">cc.transition.Transition</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionFade.html">cc.transition.TransitionFade</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionMove.html">cc.transition.TransitionMove</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionSlideInB.html">cc.transition.TransitionSlideInB</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionSlideInL.html">cc.transition.TransitionSlideInL</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionSlideInR.html">cc.transition.TransitionSlideInR</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionSlideInT.html">cc.transition.TransitionSlideInT</a>
+						</li>
+						
+						<li>
+							<a href="cc.util.Resource.html">cc.util.Resource</a>
+						</li>
+						
+						<li>
+							<a href="cc.widget.Button.html">cc.widget.Button</a>
+						</li>
+						
+						<li>
+							<a href="cc.widget.Label.html">cc.widget.Label</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+				<li class="dropdown">
+					<a href="global.html" class="dropdown-toggle" data-toggle="dropdown">Global<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="global.html#__extends">__extends</a>
+						</li>
+						
+						<li>
+							<a href="global.html#test">test</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+			</ul>
+		</div>
+	</div>
+
+	<div class="row-fluid">
+
+		
+			<div class="span12">
+				
+				<div id="main">
+					
+
+
+		<h1 class="page-title">Source: widget/Button.js</h1>
+    
+<section>
+	<article>
+		<pre
+			class="sunlight-highlight-javascript linenums">/**
+ * License: see license.txt file.
+ */
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
+/// &lt;reference path="../node/Node.ts"/>
+/// &lt;reference path="../node/sprite/SpriteFrame.ts"/>
+/// &lt;reference path="../input/InputManager.ts"/>
+/// &lt;reference path="../input/MouseInputManager.ts"/>
+/// &lt;reference path="../render/RenderingContext.ts"/>
+var cc;
+(function (cc) {
+    var widget;
+    (function (widget) {
+        (function (ButtonStatus) {
+            ButtonStatus[ButtonStatus["NORMAL"] = 0] = "NORMAL";
+            ButtonStatus[ButtonStatus["PRESSED"] = 1] = "PRESSED";
+            ButtonStatus[ButtonStatus["OVER"] = 2] = "OVER";
+            ButtonStatus[ButtonStatus["DISABLED"] = 3] = "DISABLED";
+        })(widget.ButtonStatus || (widget.ButtonStatus = {}));
+        var ButtonStatus = widget.ButtonStatus;
+        /**
+         * @class cc.widget.Button
+         * @classdesc
+         *
+         * @extends cc.node.Node
+         *
+         * A button is a special Node type that reacts to touch/mouse events.
+         * It is described by 4 SpriteFrame objects of which only one is mandatory to set.
+         * This are associated with the button states: normal, over, down and disabled. If any of the images is not defined,
+         * they will fallback to use the normal-state image.
+         */
+        var Button = (function (_super) {
+            __extends(Button, _super);
+            function Button() {
+                _super.call(this);
+                /**
+                 * Button images in this order: normal, pressed, over, disabled
+                 * @type {Array&lt;cc.node.sprite.SpriteFrame>}
+                 * @private
+                 */
+                this._frames = [null, null, null, null];
+                this._status = 0 /* NORMAL */;
+                this._callback = null;
+                this.enableEvents(true);
+                var down = function (e) {
+                    if (e.target._status === 3 /* DISABLED */) {
+                        return;
+                    }
+                    e.target.setStatus(1 /* PRESSED */);
+                };
+                var click = function (e) {
+                    if (e.target._status === 3 /* DISABLED */) {
+                        return;
+                    }
+                    e.target.setStatus(0 /* NORMAL */);
+                    if (e.target._callback) {
+                        e.target._callback();
+                    }
+                };
+                var over = function (e) {
+                    if (e.target._status === 3 /* DISABLED */) {
+                        return;
+                    }
+                    e.target.setStatus(2 /* OVER */);
+                };
+                var out = function (e) {
+                    if (e.target._status === 3 /* DISABLED */) {
+                        return;
+                    }
+                    e.target.setStatus(0 /* NORMAL */);
+                };
+                this.addEventListener("mousedown", down);
+                this.addEventListener("touchstart", down);
+                this.addEventListener("touchend", click);
+                this.addEventListener("mouseclick", click);
+                this.addEventListener("mouseover", over);
+                this.addEventListener("touchover", over);
+                this.addEventListener("mouseout", out);
+                this.addEventListener("touchout", out);
+            }
+            Button.prototype.disable = function () {
+                this._status = 3 /* DISABLED */;
+                this.enableEvents(false);
+            };
+            Button.prototype.enable = function () {
+                this._status = 0 /* NORMAL */;
+                this.enableEvents(true);
+            };
+            Button.prototype.setEnabled = function (b) {
+                if (b) {
+                    this.enable();
+                }
+                else {
+                    this.disable();
+                }
+            };
+            Button.prototype.draw = function (ctx) {
+                var sf = this.__getCurrentFrame();
+                if (sf) {
+                    ctx.globalAlpha = this._frameAlpha;
+                    ctx.setTintColor(this._color);
+                    sf.draw(ctx, this.width, this.height);
+                }
+            };
+            Button.prototype.init = function (obj) {
+                if (obj.normal) {
+                    this._frames[0 /* NORMAL */] = obj.normal;
+                }
+                if (obj.pressed) {
+                    this._frames[1 /* PRESSED */] = obj.pressed;
+                }
+                if (obj.over) {
+                    this._frames[2 /* OVER */] = obj.over;
+                }
+                if (obj.disabled) {
+                    this._frames[3 /* DISABLED */] = obj.disabled;
+                }
+                this._status = 0 /* NORMAL */;
+                if (obj.callback) {
+                    this._callback = obj.callback;
+                }
+                this.width = obj.normal.getWidth();
+                this.height = obj.normal.getHeight();
+            };
+            Button.prototype.__getCurrentFrame = function () {
+                return this._frames[this._status] || this._frames[0 /* NORMAL */];
+            };
+            Button.prototype.setStatus = function (st) {
+                this._status = st;
+                var frame = this.__getCurrentFrame();
+                this.setContentSize(frame.getWidth(), frame.getHeight());
+            };
+            return Button;
+        })(cc.node.Node);
+        widget.Button = Button;
+    })(widget = cc.widget || (cc.widget = {}));
+    function MenuItemSprite(normal, selected, disabled, callback, context) {
+        var button = new cc.widget.Button();
+        button.setAnchorPoint(.5, .5);
+        var obj = {
+            normal: normal._spriteFrame
+        };
+        if (selected) {
+            obj.pressed = selected._spriteFrame;
+        }
+        if (disabled) {
+            obj.disabled = disabled._spriteFrame;
+        }
+        if (callback) {
+            obj.callback = context ? callback.bind(context) : callback;
+        }
+        button.init(obj);
+        return button;
+    }
+    cc.MenuItemSprite = MenuItemSprite;
+    function MenuItemLabel(label, callback) {
+        if (callback) {
+            label.enableEvents(true);
+            label.addEventListener("mouseclick", function (e) {
+                if (e.target._enabled) {
+                    callback();
+                }
+            });
+            label.addEventListener("touchend", function (e) {
+                if (e.target._enabled) {
+                    callback();
+                }
+            });
+        }
+        return label;
+    }
+    cc.MenuItemLabel = MenuItemLabel;
+    var MenuItemFont = (function (_super) {
+        __extends(MenuItemFont, _super);
+        function MenuItemFont(_initializer, callback, target) {
+            var _this = this;
+            _super.call(this);
+            this._label = null;
+            this._callback = null;
+            this._enabled = true;
+            var label;
+            if (typeof _initializer === "string") {
+                label = new cc.widget.LabelTTF(_initializer, cc.MenuItemFont.DEFAULT_FONT, cc.MenuItemFont.DEFAULT_SIZE);
+            }
+            else {
+                label = new cc.widget.LabelTTF();
+                label.initialize(_initializer);
+            }
+            this._label = label;
+            if (callback) {
+                this._callback = target ? callback.bind(target) : callback;
+                this._label.enableEvents(true);
+                this._label.addEventListener("mouseup", function (e) {
+                    if (_this._enabled) {
+                        _this._callback();
+                    }
+                });
+                this._label.addEventListener("touchend", function (e) {
+                    if (_this._enabled) {
+                        _this._callback();
+                    }
+                });
+            }
+            this.addChild(this._label);
+            this._label.setPositionAnchor(0, 0);
+            this.setContentSize(this._label.width, this._label.height);
+        }
+        MenuItemFont.prototype.setFontSize = function (s) {
+            this._label.setFontSize(s);
+        };
+        MenuItemFont.prototype.getFontSize = function () {
+            return this._label.getFontSize();
+        };
+        MenuItemFont.prototype.setFontName = function (name) {
+            this._label.setFont(name);
+        };
+        MenuItemFont.prototype.getFontName = function () {
+            return this._label.getFont();
+        };
+        MenuItemFont.prototype.setEnabled = function (b) {
+            this._label.setEnabled(b);
+        };
+        Object.defineProperty(MenuItemFont.prototype, "fontSize", {
+            get: function () {
+                return this._label._size;
+            },
+            set: function (v) {
+                this._label._size = v;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(MenuItemFont.prototype, "fontName", {
+            get: function () {
+                return this._label._font;
+            },
+            set: function (v) {
+                this._label._font = v;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        MenuItemFont.setFontSize = function (fontSize) {
+            cc.MenuItemFont.DEFAULT_SIZE = fontSize;
+        };
+        MenuItemFont.fontSize = function () {
+            return cc.MenuItemFont.DEFAULT_SIZE;
+        };
+        MenuItemFont.setFontName = function (name) {
+            cc.MenuItemFont.DEFAULT_FONT = name;
+        };
+        MenuItemFont.DEFAULT_SIZE = 16;
+        MenuItemFont.DEFAULT_FONT = "Arial";
+        return MenuItemFont;
+    })(cc.node.Node);
+    cc.MenuItemFont = MenuItemFont;
+    var Menu = (function (_super) {
+        __extends(Menu, _super);
+        function Menu() {
+            var buttons = [];
+            for (var _i = 0; _i &lt; arguments.length; _i++) {
+                buttons[_i - 0] = arguments[_i];
+            }
+            _super.call(this);
+            for (var i = 0; i &lt; buttons.length; i++) {
+                this.addChild(buttons[i]);
+            }
+            this.setPositionAnchor(0, 0);
+            var winSize = cc.director.getWinSize();
+            this.setPosition(winSize.width / 2, winSize.height / 2);
+            this.setContentSize(winSize.width, winSize.height);
+        }
+        Menu.prototype.alignItemsVerticallyWithPadding = function (padding) {
+            this._padding = padding + this.y;
+            var height = -padding, locChildren = this._children, len, i, locScaleY, locHeight, locChild;
+            if (locChildren &amp;&amp; locChildren.length > 0) {
+                for (i = 0, len = locChildren.length; i &lt; len; i++)
+                    height += locChildren[i].height * locChildren[i].scaleY + padding;
+                var y = height / 2.0;
+                for (i = 0, len = locChildren.length; i &lt; len; i++) {
+                    locChild = locChildren[i];
+                    locHeight = locChild.height;
+                    locScaleY = locChild.scaleY;
+                    locChild.setPosition(0, y - locHeight * locScaleY / 2);
+                    y -= locHeight * locScaleY + padding;
+                }
+            }
+        };
+        Menu.prototype.alignItemsInColumns = function () {
+            var rows = [];
+            for (var i = 0; i &lt; arguments.length; i++) {
+                rows.push(arguments[i]);
+            }
+            var height = -5;
+            var row = 0;
+            var rowHeight = 0;
+            var columnsOccupied = 0;
+            var rowColumns, tmp, len;
+            var locChildren = this._children;
+            if (locChildren &amp;&amp; locChildren.length > 0) {
+                for (i = 0, len = locChildren.length; i &lt; len; i++) {
+                    if (row >= rows.length)
+                        continue;
+                    rowColumns = rows[row];
+                    // can not have zero columns on a row
+                    if (!rowColumns)
+                        continue;
+                    tmp = locChildren[i].height;
+                    rowHeight = ((rowHeight >= tmp || isNaN(tmp)) ? rowHeight : tmp);
+                    ++columnsOccupied;
+                    if (columnsOccupied >= rowColumns) {
+                        height += rowHeight + 5;
+                        columnsOccupied = 0;
+                        rowHeight = 0;
+                        ++row;
+                    }
+                }
+            }
+            // check if too many rows/columns for available menu items
+            //cc.assert(!columnsOccupied, "");    //?
+            var winSize = cc.director.getWinSize();
+            row = 0;
+            rowHeight = 0;
+            rowColumns = 0;
+            var w = 0.0;
+            var x = 0.0;
+            var y = (height / 2);
+            if (locChildren &amp;&amp; locChildren.length > 0) {
+                for (i = 0, len = locChildren.length; i &lt; len; i++) {
+                    var child = locChildren[i];
+                    if (rowColumns == 0) {
+                        rowColumns = rows[row];
+                        w = winSize.width / (1 + rowColumns);
+                        x = w;
+                    }
+                    tmp = child.height;
+                    rowHeight = ((rowHeight >= tmp || isNaN(tmp)) ? rowHeight : tmp);
+                    child.setPosition(x - winSize.width / 2, y - tmp / 2);
+                    x += w;
+                    ++columnsOccupied;
+                    if (columnsOccupied >= rowColumns) {
+                        y -= rowHeight + 5;
+                        columnsOccupied = 0;
+                        rowColumns = 0;
+                        rowHeight = 0;
+                        ++row;
+                    }
+                }
+            }
+        };
+        return Menu;
+    })(cc.node.Node);
+    cc.Menu = Menu;
+    var MenuItemToggle = (function (_super) {
+        __extends(MenuItemToggle, _super);
+        function MenuItemToggle() {
+            var _this = this;
+            _super.call(this);
+            this._currentOptionIndex = -1;
+            this._options = [];
+            this._callback = null;
+            this._enabled = true;
+            this.setAnchorPoint(.5, .5);
+            this.enableEvents(true);
+            this.addEventListener("mouseup", function (e) {
+                if (_this._enabled) {
+                    _this.__nextOption();
+                }
+            });
+            this.addEventListener("touchup", function (e) {
+                if (_this._enabled) {
+                    _this.__nextOption();
+                }
+            });
+            this.__init.call(this, Array.prototype.slice.call(arguments));
+        }
+        MenuItemToggle.prototype.setEnabled = function (b) {
+            this._enabled = b;
+            for (var i = 0; i &lt; this._options.length; i++) {
+                var node = this._options[i];
+                if (typeof node.setEnabled !== "undefined") {
+                    node.setEnabled(b);
+                }
+            }
+        };
+        MenuItemToggle.prototype.initWithItems = function () {
+            this.__init.call(this, Array.prototype.slice.call(arguments));
+        };
+        MenuItemToggle.prototype.__init = function (args) {
+            var len = args.length;
+            if (typeof args[args.length - 2] === 'function') {
+                len -= 2;
+                this._callback = args[args.length - 2].bind(args[args.length - 1]);
+            }
+            else if (typeof args[args.length - 1] === 'function') {
+                len -= 1;
+                this._callback = args[args.length - 1];
+            }
+            for (var i = 0; i &lt; len; i++) {
+                this.addItem(args[i]);
+            }
+            this.setSelectedIndex(0);
+        };
+        MenuItemToggle.prototype.addItem = function (node) {
+            node.setAnchorPoint(0.5, 0.5);
+            node.visible = false;
+            this._options.push(node);
+            this.addChild(node);
+            if (this._children.length === 1) {
+                this.setSelectedIndex(0);
+            }
+        };
+        MenuItemToggle.prototype.setCallback = function (callback) {
+            this.onClick(callback);
+        };
+        MenuItemToggle.prototype.onClick = function (callback) {
+            this._callback = callback;
+        };
+        MenuItemToggle.prototype.setSelectedIndex = function (index) {
+            if (this._options.length === 0) {
+                return;
+            }
+            index %= this._children.length;
+            if (index !== this._currentOptionIndex) {
+                if (this._currentOptionIndex !== -1) {
+                    this._options[this._currentOptionIndex].visible = false;
+                }
+                this._currentOptionIndex = index;
+                var co = this._options[this._currentOptionIndex];
+                co.setPosition(co.width / 2, co.height / 2);
+                co.visible = true;
+                this.setContentSize(co.width, co.height);
+            }
+        };
+        MenuItemToggle.prototype.__emit = function () {
+            if (this._callback) {
+                this._callback(this._currentOptionIndex !== -1 ? this._options[this._currentOptionIndex] : null);
+            }
+        };
+        MenuItemToggle.prototype.__nextOption = function () {
+            if (this._children.length === 0) {
+                return;
+            }
+            this.setSelectedIndex(this._currentOptionIndex === -1 ? 0 : this._currentOptionIndex + 1);
+            this.__emit();
+        };
+        return MenuItemToggle;
+    })(cc.node.Node);
+    cc.MenuItemToggle = MenuItemToggle;
+})(cc || (cc = {}));
+</pre>
+	</article>
+</section>
+
+
+
+
+
+				</div>
+
+				<div class="clearfix"></div>
+				<footer>
+					
+					@hyperandroid
+					<br />
+					
+					
+		<span class="copyright">
+		Chukong inc. 2014
+		</span>
+					<br />
+					
+		<span class="jsdoc-message">
+		Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha5</a>
+		on 23/Tu/2015 using the <a
+			href="https://github.com/terryweiss/docstrap">DocStrap template</a>.
+		</span>
+				</footer>
+			</div>
+
+			
+			<br clear="both">
+		</div>
+
+	</div>
+	<!--<script src="scripts/sunlight.js"></script>-->
+	<script src="scripts/docstrap.lib.js"></script>
+	<script src="scripts/bootstrap-dropdown.js"></script>
+	<script src="scripts/toc.js"></script>
+
+	<script>
+		$( function () {
+			$( "[id*='$']" ).each( function () {
+				var $this = $( this );
+
+				$this.attr( "id", $this.attr( "id" ).replace( "$", "__" ) );
+			} );
+
+			$( "#toc" ).toc( {
+				anchorName  : function ( i, heading, prefix ) {
+					return $( heading ).attr( "id" ) || ( prefix + i );
+				},
+				selectors   : "h1,h2,h3,h4",
+				showAndHide : false,
+				scrollTo    : "100px"
+			} );
+
+			$( "#toc>ul" ).addClass( "nav nav-pills nav-stacked" );
+			$( "#main span[id^='toc']" ).addClass( "toc-shim" );
+			$( '.dropdown-toggle' ).dropdown();
+//			$( ".tutorial-section pre, .readme-section pre" ).addClass( "sunlight-highlight-javascript" ).addClass( "linenums" );
+
+			$( ".tutorial-section pre, .readme-section pre" ).each( function () {
+				var $this = $( this );
+
+				var example = $this.find( "code" );
+				exampleText = example.html();
+				var lang = /{@lang (.*?)}/.exec( exampleText );
+				if ( lang && lang[1] ) {
+					exampleText = exampleText.replace( lang[0], "" );
+					example.html( exampleText );
+					lang = lang[1];
+				} else {
+					lang = "javascript";
+				}
+
+				if ( lang ) {
+
+					$this
+						.addClass( "sunlight-highlight-" + lang )
+						.addClass( "linenums" )
+						.html( example.html() );
+
+				}
+			} );
+
+			Sunlight.highlightAll( {
+				lineNumbers : true,
+				showMenu : true,
+				enableDoclinks : true
+			} );
+		} );
+	 </script>
+
+
+
+	<!--Navigation and Symbol Display-->
+	
+
+
+	<!--Google Analytics-->
+	
+
+</body>
+</html>

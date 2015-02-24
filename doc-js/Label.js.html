@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>CocosJS Source: widget/Label.js</title>
+
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+	<link type="text/css" rel="stylesheet" href="styles/sunlight.default.css">
+
+	<link type="text/css" rel="stylesheet" href="styles/site.cerulean.css">
+
+</head>
+
+<body>
+<div class="container-fluid">
+	<div class="navbar navbar-fixed-top ">
+		<div class="navbar-inner">
+			<a class="brand" href="index.html">CocosJS</a>
+			<ul class="nav">
+				
+				<li class="dropdown">
+					<a href="namespaces.list.html" class="dropdown-toggle" data-toggle="dropdown">Namespaces<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="global.html#cc">cc</a>
+						</li>
+						
+						<li>
+							<a href="global.html#cc#action">cc.action</a>
+						</li>
+						
+						<li>
+							<a href="cc.Debug.html">cc.Debug</a>
+						</li>
+						
+						<li>
+							<a href="cc.game.html">cc.game</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.html">cc.input</a>
+						</li>
+						
+						<li>
+							<a href="cc.locale.html">cc.locale</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.html">cc.math</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path_.html">cc.math.path</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.html">cc.node</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.sprite.html">cc.node.sprite</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.html">cc.plugin</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.asset.html">cc.plugin.asset</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.audio.html">cc.plugin.audio</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.html">cc.plugin.layout</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.html">cc.plugin.loader</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.texture.html">cc.plugin.texture</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.html">cc.render</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.html">cc.render.shader</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.WebGLState.html">cc.render.WebGLState</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.html">cc.transition</a>
+						</li>
+						
+						<li>
+							<a href="cc.util.html">cc.util</a>
+						</li>
+						
+						<li>
+							<a href="cc.widget.html">cc.widget</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+				<li class="dropdown">
+					<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="cc.action.Action.html">cc.action.Action</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ActionChainContext.html">cc.action.ActionChainContext</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ActionChainContext_constructor.html">cc.action.ActionChainContext#constructor</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ActionInfo.html">cc.action.ActionInfo</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ActionManager.html">cc.action.ActionManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.AlphaAction.html">cc.action.AlphaAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.AnimateAction.html">cc.action.AnimateAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.Interpolator.html">cc.action.Interpolator</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.JumpAction.html">cc.action.JumpAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.MoveAction.html">cc.action.MoveAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ParseInterpolator.html">cc.action.ParseInterpolator</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.PathAction.html">cc.action.PathAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.PropertyAction.html">cc.action.PropertyAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.PropertyInfo.html">cc.action.PropertyInfo</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.RotateAction.html">cc.action.RotateAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ScaleAction.html">cc.action.ScaleAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.SchedulerQueue.html">cc.action.SchedulerQueue</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.SchedulerQueueTask.html">cc.action.SchedulerQueueTask</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.SequenceAction.html">cc.action.SequenceAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.TintAction.html">cc.action.TintAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.game.Game.html">cc.game.Game</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.InputManager.html">cc.input.InputManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.InputManagerEvent.html">cc.input.InputManagerEvent</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.KeyActionInfo.html">cc.input.KeyActionInfo</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.KeyboardCursor.html">cc.input.KeyboardCursor</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.KeyboardInputManager.html">cc.input.KeyboardInputManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.KeyInfo.html">cc.input.KeyInfo</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.MouseInputManager.html">cc.input.MouseInputManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.MouseInputManagerEvent.html">cc.input.MouseInputManagerEvent</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.PriorityInputNode.html">cc.input.PriorityInputNode</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.SceneGraphInputTreeNode.html">cc.input.SceneGraphInputTreeNode</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Color.html">cc.math.Color</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Dimension.html">cc.math.Dimension</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Matrix3.html">cc.math.Matrix3</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Path.html">cc.math.Path</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.ContainerSegment.html">cc.math.path.ContainerSegment</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.SegmentArc.html">cc.math.path.SegmentArc</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.SegmentBezier.html">cc.math.path.SegmentBezier</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.SegmentCardinalSpline.html">cc.math.path.SegmentCardinalSpline</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path_.html#SegmentLine">cc.math.path.SegmentLine</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.SegmentQuadratic.html">cc.math.path.SegmentQuadratic</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.SubPath.html">cc.math.path.SubPath</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Rectangle.html">cc.math.Rectangle</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Vector.html">cc.math.Vector</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.Director.html">cc.node.Director</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.FastSprite.html">cc.node.FastSprite</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.Node.html">cc.node.Node</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.Scene.html">cc.node.Scene</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.Sprite_.html">cc.node.Sprite</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.sprite.Animation.html">cc.node.sprite.Animation</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.sprite.AnimationCache.html">cc.node.sprite.AnimationCache</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.sprite.SpriteFrame.html">cc.node.sprite.SpriteFrame</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.asset.AssetManager.html">cc.plugin.asset.AssetManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.audio.AudioEffect.html">cc.plugin.audio.AudioEffect</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.audio.AudioManager.html">cc.plugin.audio.AudioManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.font.FontMetrics.html">cc.plugin.font.FontMetrics</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.font.SpriteFont.html">cc.plugin.font.SpriteFont</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.font.SpriteFontChar.html">cc.plugin.font.SpriteFontChar</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.BorderLayout.html">cc.plugin.layout.BorderLayout</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.Gap.html">cc.plugin.layout.Gap</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.GridLayout.html">cc.plugin.layout.GridLayout</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.Insets.html">cc.plugin.layout.Insets</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.LayerLayout.html">cc.plugin.layout.LayerLayout</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.Layout.html">cc.plugin.layout.Layout</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.Unit.html">cc.plugin.layout.Unit</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.Loader.html">cc.plugin.loader.Loader</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.ResourceLoaderAudioBuffer.html">cc.plugin.loader.ResourceLoaderAudioBuffer</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.ResourceLoaderImage.html">cc.plugin.loader.ResourceLoaderImage</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.ResourceLoaderJSON.html">cc.plugin.loader.ResourceLoaderJSON</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.ResourceLoaderXML.html">cc.plugin.loader.ResourceLoaderXML</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.texture.TexturePacker.html">cc.plugin.texture.TexturePacker</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.texture.TexturePackerNode.html">cc.plugin.texture.TexturePackerNode</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.texture.TexturePackerPage.html">cc.plugin.texture.TexturePackerPage</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.CanvasRenderer.html">cc.render.CanvasRenderer</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.DecoratedWebGLRenderingContext.html">cc.render.DecoratedWebGLRenderingContext</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.GeometryBatcher.html">cc.render.GeometryBatcher</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.Pattern.html">cc.render.Pattern</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.Renderer.html">cc.render.Renderer</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.RenderingContextSnapshot.html">cc.render.RenderingContextSnapshot</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.ScaleManager.html">cc.render.ScaleManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.AbstractShader.html">cc.render.shader.AbstractShader</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.Attribute.html">cc.render.shader.Attribute</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.MatrixUniform.html">cc.render.shader.MatrixUniform</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.SolidColorShader.html">cc.render.shader.SolidColorShader</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.TextureShader.html">cc.render.shader.TextureShader</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.TextureUniform.html">cc.render.shader.TextureUniform</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.Uniform.html">cc.render.shader.Uniform</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.Texture2D.html">cc.render.Texture2D</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.WebGLRenderer.html">cc.render.WebGLRenderer</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.Transition.html">cc.transition.Transition</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionFade.html">cc.transition.TransitionFade</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionMove.html">cc.transition.TransitionMove</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionSlideInB.html">cc.transition.TransitionSlideInB</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionSlideInL.html">cc.transition.TransitionSlideInL</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionSlideInR.html">cc.transition.TransitionSlideInR</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionSlideInT.html">cc.transition.TransitionSlideInT</a>
+						</li>
+						
+						<li>
+							<a href="cc.util.Resource.html">cc.util.Resource</a>
+						</li>
+						
+						<li>
+							<a href="cc.widget.Button.html">cc.widget.Button</a>
+						</li>
+						
+						<li>
+							<a href="cc.widget.Label.html">cc.widget.Label</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+				<li class="dropdown">
+					<a href="global.html" class="dropdown-toggle" data-toggle="dropdown">Global<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="global.html#__extends">__extends</a>
+						</li>
+						
+						<li>
+							<a href="global.html#test">test</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+			</ul>
+		</div>
+	</div>
+
+	<div class="row-fluid">
+
+		
+			<div class="span12">
+				
+				<div id="main">
+					
+
+
+		<h1 class="page-title">Source: widget/Label.js</h1>
+    
+<section>
+	<article>
+		<pre
+			class="sunlight-highlight-javascript linenums">/**
+ * License: see license.txt file
+ */
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
+/// &lt;reference path="../math/Dimension.ts"/>
+/// &lt;reference path="../node/Node.ts"/>
+/// &lt;reference path="../node/Sprite.ts"/>
+/// &lt;reference path="../node/sprite/SpriteFrame.ts"/>
+/// &lt;reference path="../render/RenderingContext.ts"/>
+/// &lt;reference path="../render/Texture2D.ts"/>
+/// &lt;reference path="../plugin/font/SpriteFont.ts"/>
+var cc;
+(function (cc) {
+    var widget;
+    (function (widget) {
+        (function (VALIGN) {
+            VALIGN[VALIGN["TOP"] = 0] = "TOP";
+            VALIGN[VALIGN["MIDDLE"] = 1] = "MIDDLE";
+            VALIGN[VALIGN["BOTTOM"] = 2] = "BOTTOM";
+        })(widget.VALIGN || (widget.VALIGN = {}));
+        var VALIGN = widget.VALIGN;
+        (function (HALIGN) {
+            HALIGN[HALIGN["LEFT"] = 0] = "LEFT";
+            HALIGN[HALIGN["CENTER"] = 1] = "CENTER";
+            HALIGN[HALIGN["RIGHT"] = 2] = "RIGHT";
+        })(widget.HALIGN || (widget.HALIGN = {}));
+        var HALIGN = widget.HALIGN;
+        /**
+         * @class cc.widget.Label
+         * @extends cc.node.Node
+         * @classdesc
+         *
+         * This object represents a label widget which simply writes text.
+         * The text is written using a SpriteFont object which must be in the AssetManager cache.
+         *
+         * The label text can be drawn freely, that is each text line will span as much width as needed (method
+         * or flow constrained by calling &lt;code>setFlowWidth&lt;/code where the text will be drawn to a fixed width.
+         *
+         * For both methods, the label will calculate its bounds upon text or font change. You can override this behavior
+         * by calling &lt;code>setResizeContentSize(bool)&lt;/code>
+         *
+         * The text can be multiline text separated by \n characters.
+         *
+         *
+         *
+         */
+        var Label = (function (_super) {
+            __extends(Label, _super);
+            /**
+             * Build a new LabelBM object instance.
+             * @param text {string} label text.
+             * @param fontName {string} a cc.plugin.font.SpriteFont in the AssetManager cache object name.
+             */
+            function Label(text, fontName) {
+                _super.call(this);
+                this._text = '';
+                this._textSize = null;
+                this._font = null;
+                this._resizeContentSize = true;
+                this._valign = 1 /* MIDDLE */;
+                this._halign = 1 /* CENTER */;
+                this._enabled = true;
+                this._flowWidth = 0;
+                this._text = text;
+                this._font = cc.plugin.asset.AssetManager.getSpriteFont(fontName);
+                this.__measureText();
+            }
+            Label.prototype.setResizeContentSize = function (b) {
+                this._resizeContentSize = b;
+                return this;
+            };
+            Label.prototype.__measureText = function () {
+                if (this._font) {
+                    var d = this._font.getTextSize(this._text, this._flowWidth);
+                    this._contentSize.width = this._flowWidth ? this._flowWidth : d.width;
+                    this._contentSize.height = d.height;
+                    this._textSize = d;
+                }
+            };
+            Label.prototype.setFont = function (fontName) {
+                var fn = cc.plugin.asset.AssetManager.getSpriteFont(fontName);
+                if (null !== fn) {
+                    this._font = fn;
+                    if (this._resizeContentSize) {
+                        this.__measureText();
+                    }
+                }
+            };
+            Label.prototype.setText = function (text) {
+                this._text = text;
+                if (this._resizeContentSize) {
+                    this.__measureText();
+                }
+            };
+            Label.prototype.setHAlign = function (a) {
+                this._halign = a;
+                return this;
+            };
+            Label.prototype.setVAlign = function (a) {
+                this._valign = a;
+                return this;
+            };
+            Label.prototype.draw = function (ctx) {
+                _super.prototype.draw.call(this, ctx);
+                if (this._font) {
+                    this._font.drawTextInRect(ctx, this._text, 0, 0, this._contentSize.width, this._contentSize.height, this._halign, this._valign);
+                }
+            };
+            Object.defineProperty(Label.prototype, "textAlign", {
+                get: function () {
+                    return this._halign;
+                },
+                set: function (v) {
+                    this._halign = v;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(Label.prototype, "textVerticalAlign", {
+                get: function () {
+                    return this._valign;
+                },
+                set: function (v) {
+                    this._valign = v;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            /**
+             *
+             * @param text
+             * @deprecated
+             */
+            Label.prototype.setString = function (text) {
+                this.setText(text);
+            };
+            Label.prototype.setEnabled = function (e) {
+                this._enabled = e;
+            };
+            Label.prototype.flowWidth = function (f) {
+                this._flowWidth = f;
+                this.__measureText();
+                return this;
+            };
+            return Label;
+        })(cc.node.Node);
+        widget.Label = Label;
+        var __index = 0;
+        var LabelTTF = (function (_super) {
+            __extends(LabelTTF, _super);
+            function LabelTTF(_initializer, font, fontSize, dimensions, halign, valign) {
+                _super.call(this, null);
+                this._text = null;
+                this._font = "Arial";
+                this._size = 16;
+                this._flow = false;
+                this._flowWidth = 1024;
+                this._fillColor = "#fff";
+                this._strokeColor = "#ccc";
+                this._strokeSize = 1;
+                this._fill = true;
+                this._stroke = false;
+                this._shadowBlur = 0;
+                this._shadowColor = "#ff0";
+                this._shadowOffsetX = 0;
+                this._shadowOffsetY = 0;
+                this._texture = null;
+                this._horizontalAlignment = 0 /* LEFT */;
+                this._verticalAlignment = 1 /* MIDDLE */;
+                this._enabled = true;
+                var initializer;
+                if (typeof _initializer === "string") {
+                    // old calls
+                    initializer = {
+                        text: _initializer,
+                        font: typeof font !== "undefined" ? font : this._font,
+                        size: typeof fontSize !== "undefined" ? fontSize : this._size
+                    };
+                    if (typeof dimensions !== "undefined") {
+                        initializer.flowWidth = dimensions.width;
+                    }
+                    initializer.horizontalAlignment = typeof halign !== "undefined" ? halign : this._horizontalAlignment;
+                    initializer.verticalAlignment = typeof valign !== "undefined" ? valign : this._verticalAlignment;
+                }
+                else {
+                    initializer = _initializer;
+                }
+                if (initializer) {
+                    this.initialize(initializer);
+                    if (initializer.text) {
+                        this.__initLabel();
+                    }
+                }
+            }
+            LabelTTF.prototype.initialize = function (init) {
+                this._text = init.text;
+                if (typeof init.font !== "undefined") {
+                    this._font = init.font;
+                }
+                ;
+                if (typeof init.size !== "undefined") {
+                    this._size = init.size;
+                }
+                ;
+                this._flow = typeof init.flowWidth !== 'undefined';
+                if (typeof init.flowWidth !== 'undefined') {
+                    this._flowWidth = init.flowWidth;
+                }
+                if (typeof init.fillColor !== 'undefined') {
+                    this._fillColor = init.fillColor;
+                }
+                if (typeof init.strokeColor !== 'undefined') {
+                    this._strokeColor = init.strokeColor;
+                }
+                if (typeof init.strokeSize !== 'undefined') {
+                    this._strokeSize = init.strokeSize;
+                }
+                if (typeof init.fill !== 'undefined') {
+                    this._fill = init.fill;
+                }
+                if (typeof init.stroke !== 'undefined') {
+                    this._stroke = init.stroke;
+                }
+                if (typeof init.shadowBlur !== 'undefined') {
+                    this._shadowBlur = init.shadowBlur;
+                }
+                if (typeof init.shadowColor !== 'undefined') {
+                    this._shadowColor = init.shadowColor;
+                }
+                if (typeof init.shadowOffsetX === 'undefined') {
+                    this._shadowOffsetX = init.shadowOffsetX;
+                }
+                if (typeof init.shadowOffsetY === 'undefined') {
+                    this._shadowOffsetY = init.shadowOffsetY;
+                }
+                if (typeof init.horizontalAlignment !== "undefined") {
+                    this._horizontalAlignment = init.horizontalAlignment;
+                }
+                if (typeof init.verticalAlignment !== "undefined") {
+                    this._verticalAlignment = init.verticalAlignment;
+                }
+                this.__initLabel();
+                return this;
+            };
+            LabelTTF.prototype.setEnabled = function (b) {
+                this._enabled = b;
+            };
+            LabelTTF.prototype.setText = function (text) {
+                if (this._text === text) {
+                    return;
+                }
+                this._text = text;
+                this.__initLabel();
+            };
+            LabelTTF.prototype.setString = function (text) {
+                this.setText(text);
+            };
+            LabelTTF.prototype.__initLabel = function () {
+                if (this._texture) {
+                    this._texture.release();
+                }
+                var canvas = document.createElement("canvas");
+                var ctx = canvas.getContext("2d");
+                this.__prepareContext(ctx);
+                var textSize = this.__getTextSize(ctx, this._text, this._flowWidth);
+                var canvas = this.__drawText(this._text, textSize);
+                var textureId = "labelTTF" + __index++;
+                this._texture = new cc.render.Texture2D(canvas, textureId);
+                this.setSpriteFrame(new cc.node.sprite.SpriteFrame(this._texture));
+            };
+            LabelTTF.prototype.__prepareContext = function (ctx) {
+                ctx.font = "" + this._size + "px " + this._font;
+                ctx.textBaseline = "top";
+                ctx.fillStyle = this._fillColor;
+                if (this._stroke) {
+                    ctx.strokeStyle = this._strokeColor;
+                    ctx.lineWidth = this._strokeSize;
+                }
+                if (this._shadowBlur) {
+                    ctx.shadowBlur = this._shadowBlur;
+                    ctx.shadowColor = this._shadowColor;
+                    ctx.shadowOffsetX = this._shadowOffsetX;
+                    ctx.shadowOffsetY = this._shadowOffsetY;
+                }
+            };
+            LabelTTF.prototype.__drawText = function (text, size) {
+                var y = 0;
+                var flowWidth = size.width;
+                var offsetX = 0;
+                var offsetY = 0;
+                if (this._stroke) {
+                    offsetX += this._strokeSize / 2;
+                    offsetY += this._strokeSize / 2;
+                    size.width += this._strokeSize;
+                }
+                if (this._shadowBlur) {
+                    size.width += this._shadowBlur + this._shadowOffsetX;
+                    size.height += this._shadowBlur + this._shadowOffsetY;
+                    offsetX += this._shadowBlur / 2 + this._shadowOffsetX;
+                    offsetY += this._shadowBlur / 2 + this._shadowOffsetY * (cc.render.RENDER_ORIGIN === "bottom" ? -1 : 1);
+                }
+                var canvas = document.createElement("canvas");
+                canvas.width = size.width;
+                canvas.height = size.height;
+                var ctx = canvas.getContext("2d");
+                this.__prepareContext(ctx);
+                y = offsetY;
+                var lines = text.split("\n");
+                for (var l = 0; l &lt; lines.length; l++) {
+                    var x = offsetX;
+                    var words = lines[l].split(" ");
+                    for (var w = 0; w &lt; words.length; w++) {
+                        var word = words[w] + (w &lt; words.length - 1 ? " " : "");
+                        var wordLength = ctx.measureText(word).width;
+                        if (x + wordLength > flowWidth) {
+                            y += this._size;
+                            x = 0;
+                        }
+                        if (this._stroke) {
+                            ctx.strokeText(word, x, y);
+                        }
+                        if (this._fill) {
+                            ctx.fillText(word, x, y);
+                        }
+                        x += wordLength;
+                    }
+                    y += this._size;
+                }
+                return canvas;
+            };
+            LabelTTF.prototype.__getTextSize = function (ctx, text, flowWidth) {
+                var dim = new cc.math.Dimension();
+                flowWidth = this._flowWidth;
+                var lines = text.split("\n");
+                for (var l = 0; l &lt; lines.length; l++) {
+                    var x = 0;
+                    var words = lines[l].split(" ");
+                    for (var w = 0; w &lt; words.length; w++) {
+                        var word = words[w] + (w &lt; words.length - 1 ? " " : "");
+                        var wordLength = ctx.measureText(word).width;
+                        if (x + wordLength > flowWidth) {
+                            dim.width = Math.max(dim.width, x);
+                            dim.height += this._size;
+                            x = wordLength;
+                        }
+                        else {
+                            x += wordLength;
+                        }
+                    }
+                    dim.height += this._size;
+                    dim.width = Math.max(dim.width, x);
+                }
+                if (this._flow) {
+                    dim.width = flowWidth;
+                }
+                return dim;
+            };
+            LabelTTF.prototype.getFont = function () {
+                return this._font;
+            };
+            LabelTTF.prototype.setFont = function (font) {
+                this._font = font;
+                this.__initLabel();
+            };
+            LabelTTF.prototype.setFontSize = function (s) {
+                this._size = s;
+                this.__initLabel();
+            };
+            LabelTTF.prototype.getFontSize = function () {
+                return this._size;
+            };
+            return LabelTTF;
+        })(cc.node.Sprite);
+        widget.LabelTTF = LabelTTF;
+    })(widget = cc.widget || (cc.widget = {}));
+})(cc || (cc = {}));
+</pre>
+	</article>
+</section>
+
+
+
+
+
+				</div>
+
+				<div class="clearfix"></div>
+				<footer>
+					
+					@hyperandroid
+					<br />
+					
+					
+		<span class="copyright">
+		Chukong inc. 2014
+		</span>
+					<br />
+					
+		<span class="jsdoc-message">
+		Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha5</a>
+		on 23/Tu/2015 using the <a
+			href="https://github.com/terryweiss/docstrap">DocStrap template</a>.
+		</span>
+				</footer>
+			</div>
+
+			
+			<br clear="both">
+		</div>
+
+	</div>
+	<!--<script src="scripts/sunlight.js"></script>-->
+	<script src="scripts/docstrap.lib.js"></script>
+	<script src="scripts/bootstrap-dropdown.js"></script>
+	<script src="scripts/toc.js"></script>
+
+	<script>
+		$( function () {
+			$( "[id*='$']" ).each( function () {
+				var $this = $( this );
+
+				$this.attr( "id", $this.attr( "id" ).replace( "$", "__" ) );
+			} );
+
+			$( "#toc" ).toc( {
+				anchorName  : function ( i, heading, prefix ) {
+					return $( heading ).attr( "id" ) || ( prefix + i );
+				},
+				selectors   : "h1,h2,h3,h4",
+				showAndHide : false,
+				scrollTo    : "100px"
+			} );
+
+			$( "#toc>ul" ).addClass( "nav nav-pills nav-stacked" );
+			$( "#main span[id^='toc']" ).addClass( "toc-shim" );
+			$( '.dropdown-toggle' ).dropdown();
+//			$( ".tutorial-section pre, .readme-section pre" ).addClass( "sunlight-highlight-javascript" ).addClass( "linenums" );
+
+			$( ".tutorial-section pre, .readme-section pre" ).each( function () {
+				var $this = $( this );
+
+				var example = $this.find( "code" );
+				exampleText = example.html();
+				var lang = /{@lang (.*?)}/.exec( exampleText );
+				if ( lang && lang[1] ) {
+					exampleText = exampleText.replace( lang[0], "" );
+					example.html( exampleText );
+					lang = lang[1];
+				} else {
+					lang = "javascript";
+				}
+
+				if ( lang ) {
+
+					$this
+						.addClass( "sunlight-highlight-" + lang )
+						.addClass( "linenums" )
+						.html( example.html() );
+
+				}
+			} );
+
+			Sunlight.highlightAll( {
+				lineNumbers : true,
+				showMenu : true,
+				enableDoclinks : true
+			} );
+		} );
+	 </script>
+
+
+
+	<!--Navigation and Symbol Display-->
+	
+
+
+	<!--Google Analytics-->
+	
+
+</body>
+</html>

@@ -1,0 +1,192 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Cocos2d-HTML5 Test Cases</title>
+</head>
+<body>
+<style>
+    #fps{color: #fff;z-index: 9999;font-size: 26px;position: absolute;}
+    #info{color: #fff;z-index: 9999;font-size: 26px;position: absolute;left: 90px;}
+    .btn{height: 30px;position: absolute;z-index: 9999;left: 0;font-size: 20px;}
+    #addition{top: 40px;width: 30px;}
+    #subtraction{top: 80px;width: 30px;}
+    #rotate{top: 120px;width: 130px;}
+    #move{top: 160px;width: 130px;}
+    #scale{top: 200px;width: 130px;}
+    #all{top: 240px;width: 130px;}
+</style>
+<div id="fps">000</div>
+<div id="info">Unknown</div>
+<button class="btn" id="addition">+</button>
+<button class="btn" id="subtraction">-</button>
+<button class="btn" id="rotate">rotate</button>
+<button class="btn" id="move">move</button>
+<button class="btn" id="scale">scale</button>
+<button class="btn" id="all">all</button>
+<div>
+    <script src="../../../lib/stats/stats.js"></script>
+    <script src="../../../dist/all.js"></script>
+    <script>
+        var fps = 0;
+        (function () {
+
+
+            var stats = new Stats();
+            document.body.appendChild(stats.domElement);
+            stats.domElement.style.position = "absolute";
+            stats.domElement.style.top = "0px";
+            stats.domElement.style.right = "0px";
+
+            var param = {};
+            var paramArr = location.href.match(/([^\?\&]*)\=([^\?\&]*)/g);
+            paramArr && paramArr.forEach(function(item){
+                item = item.split("=");
+                param[item[0]] = item[1];
+
+            });
+
+
+            var TestScene = [
+                {a: 10, b: 20}, //200
+                {a: 15, b: 30}, //450
+                {a: 20, b: 40}, //800
+                {a: 25, b: 50}, //1250
+                {a: 30, b: 60}, //1800
+                {a: 35, b: 70}, //2450
+                {a: 40, b: 80} //3200
+            ];
+            var level = (param["t"]-0) || 0;
+
+            var W = 2000;
+            var H = 2000;
+            var list = [];
+
+            var numElem = document.getElementById("info");
+
+            function init( parent, texture ) {
+
+                createFish(parent, TestScene[level], texture);
+
+                var a = document.getElementById("addition");
+                a.addEventListener("click", function(){
+                    createFish(parent, TestScene[++level], texture);
+                }, false);
+                var b = document.getElementById("subtraction");
+                b.addEventListener("click", function(){
+                    createFish(parent, TestScene[--level], texture);
+                }, false);
+
+                var c = document.getElementById("rotate");
+                c.addEventListener("click", function(){
+                    for(var i=0; i<list.length; i++){
+                        var tw = cc.rotateBy(5, 360);
+                        list[i].scaleX=1;
+                        list[i].scaleY=1;
+                        list[i].runAction(tw);
+                    }
+                });
+                var d = document.getElementById("move");
+                d.addEventListener("click", function(){
+                    for(var i=0; i<list.length; i++){
+                        var tw = cc.moveBy(5, cc.p(50, 0));
+                        list[i].rotationAngle= 0;
+                        list[i].scaleX=1;
+                        list[i].scaleY=1;
+                        list[i].runAction(tw);
+                    }
+                });
+                var e = document.getElementById("scale");
+                e.addEventListener("click", function(){
+                    for(var i=0; i<list.length; i++){
+                        var tw = cc.scaleTo(5, 2, 1);
+                        list[i].scaleX=1;
+                        list[i].scaleY=1;
+
+                        list[i].rotationAngle= 0;
+                        list[i].runAction(tw);
+                    }
+                });
+                var f = document.getElementById("all");
+                f.addEventListener("click", function(){
+                    for(var i=0; i<list.length; i++){
+                        var tw = cc.spawn(
+                                cc.rotateBy(5, 360),
+                                cc.moveBy(5, cc.p(50, 0)),
+                                cc.scaleTo(5, 2, 1)
+                        );
+                        list[i].runAction(tw);
+                    }
+                });
+            }
+
+            function createFish(parent, obj, texture){
+                if(!obj) return;
+                parent._children.length = list.length = 0;
+                var a = obj.a;
+                var b = obj.b;
+
+                var totalNum = a*b;
+                var info = document.getElementById("info");
+                if(info){
+                    info.innerHTML = totalNum.toString();
+                }
+
+                for(var  i=0; i<totalNum; i++){
+                    (function(i){
+                        var tmp = new cc.node.Node().setPosition((i % a) * 50, (i / a | 0) * 25);
+                        tmp.setContentSize(50,26);
+
+                        tmp.draw = function( ctx) {
+
+                            ctx.tintColor= this._color;
+                            ctx.drawTexture( texture, 0, 0, 50, 26, 0, 0, 50, 26);
+                        };
+                        list.push(tmp);
+                        parent.addChild(tmp);
+                    })(i)
+                }
+
+            }
+
+            function createDirector( name, renderer, img ) {
+
+                document.body.appendChild(renderer._surface);
+
+                var director = new cc.node.Director().
+                        setContentSize(W, H).
+                        setColor(0, 0, 1).
+                        setRenderer( renderer ).
+                        setName(name);
+
+                var scene1 = director.createScene().
+                        setColor(0, 0, 0).
+                        setName("scene1");
+
+                var texture= new cc.render.Texture2D(img,"img");
+                renderer.prepareTexture(texture);
+
+                init(scene1, texture);
+
+                director.runScene(scene1);
+                stats.begin();
+
+
+                scene1._scheduler.scheduleTask(null, function() {
+                    stats.end();
+                    stats.begin();
+                }, 0);
+
+                return director;
+            }
+
+            var texture2= new Image();
+            texture2.onload= function() {
+                var director= createDirector("d1", new cc.render.WebGLRenderer(W, H), texture2);
+            };
+            texture2.src="../res/anim1.png";
+        }());
+    </script>
+</div>
+</body>
+</html>

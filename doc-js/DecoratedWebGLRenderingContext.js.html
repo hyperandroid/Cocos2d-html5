@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>CocosJS Source: render/DecoratedWebGLRenderingContext.js</title>
+
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+	<link type="text/css" rel="stylesheet" href="styles/sunlight.default.css">
+
+	<link type="text/css" rel="stylesheet" href="styles/site.cerulean.css">
+
+</head>
+
+<body>
+<div class="container-fluid">
+	<div class="navbar navbar-fixed-top ">
+		<div class="navbar-inner">
+			<a class="brand" href="index.html">CocosJS</a>
+			<ul class="nav">
+				
+				<li class="dropdown">
+					<a href="namespaces.list.html" class="dropdown-toggle" data-toggle="dropdown">Namespaces<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="global.html#cc">cc</a>
+						</li>
+						
+						<li>
+							<a href="global.html#cc#action">cc.action</a>
+						</li>
+						
+						<li>
+							<a href="cc.Debug.html">cc.Debug</a>
+						</li>
+						
+						<li>
+							<a href="cc.game.html">cc.game</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.html">cc.input</a>
+						</li>
+						
+						<li>
+							<a href="cc.locale.html">cc.locale</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.html">cc.math</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path_.html">cc.math.path</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.html">cc.node</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.sprite.html">cc.node.sprite</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.html">cc.plugin</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.asset.html">cc.plugin.asset</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.audio.html">cc.plugin.audio</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.html">cc.plugin.layout</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.html">cc.plugin.loader</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.texture.html">cc.plugin.texture</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.html">cc.render</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.html">cc.render.shader</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.WebGLState.html">cc.render.WebGLState</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.html">cc.transition</a>
+						</li>
+						
+						<li>
+							<a href="cc.util.html">cc.util</a>
+						</li>
+						
+						<li>
+							<a href="cc.widget.html">cc.widget</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+				<li class="dropdown">
+					<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="cc.action.Action.html">cc.action.Action</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ActionChainContext.html">cc.action.ActionChainContext</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ActionChainContext_constructor.html">cc.action.ActionChainContext#constructor</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ActionInfo.html">cc.action.ActionInfo</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ActionManager.html">cc.action.ActionManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.AlphaAction.html">cc.action.AlphaAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.AnimateAction.html">cc.action.AnimateAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.Interpolator.html">cc.action.Interpolator</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.JumpAction.html">cc.action.JumpAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.MoveAction.html">cc.action.MoveAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ParseInterpolator.html">cc.action.ParseInterpolator</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.PathAction.html">cc.action.PathAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.PropertyAction.html">cc.action.PropertyAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.PropertyInfo.html">cc.action.PropertyInfo</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.RotateAction.html">cc.action.RotateAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.ScaleAction.html">cc.action.ScaleAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.SchedulerQueue.html">cc.action.SchedulerQueue</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.SchedulerQueueTask.html">cc.action.SchedulerQueueTask</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.SequenceAction.html">cc.action.SequenceAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.action.TintAction.html">cc.action.TintAction</a>
+						</li>
+						
+						<li>
+							<a href="cc.game.Game.html">cc.game.Game</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.InputManager.html">cc.input.InputManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.InputManagerEvent.html">cc.input.InputManagerEvent</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.KeyActionInfo.html">cc.input.KeyActionInfo</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.KeyboardCursor.html">cc.input.KeyboardCursor</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.KeyboardInputManager.html">cc.input.KeyboardInputManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.KeyInfo.html">cc.input.KeyInfo</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.MouseInputManager.html">cc.input.MouseInputManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.MouseInputManagerEvent.html">cc.input.MouseInputManagerEvent</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.PriorityInputNode.html">cc.input.PriorityInputNode</a>
+						</li>
+						
+						<li>
+							<a href="cc.input.SceneGraphInputTreeNode.html">cc.input.SceneGraphInputTreeNode</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Color.html">cc.math.Color</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Dimension.html">cc.math.Dimension</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Matrix3.html">cc.math.Matrix3</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Path.html">cc.math.Path</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.ContainerSegment.html">cc.math.path.ContainerSegment</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.SegmentArc.html">cc.math.path.SegmentArc</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.SegmentBezier.html">cc.math.path.SegmentBezier</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.SegmentCardinalSpline.html">cc.math.path.SegmentCardinalSpline</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path_.html#SegmentLine">cc.math.path.SegmentLine</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.SegmentQuadratic.html">cc.math.path.SegmentQuadratic</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.path.SubPath.html">cc.math.path.SubPath</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Rectangle.html">cc.math.Rectangle</a>
+						</li>
+						
+						<li>
+							<a href="cc.math.Vector.html">cc.math.Vector</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.Director.html">cc.node.Director</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.FastSprite.html">cc.node.FastSprite</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.Node.html">cc.node.Node</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.Scene.html">cc.node.Scene</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.Sprite_.html">cc.node.Sprite</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.sprite.Animation.html">cc.node.sprite.Animation</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.sprite.AnimationCache.html">cc.node.sprite.AnimationCache</a>
+						</li>
+						
+						<li>
+							<a href="cc.node.sprite.SpriteFrame.html">cc.node.sprite.SpriteFrame</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.asset.AssetManager.html">cc.plugin.asset.AssetManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.audio.AudioEffect.html">cc.plugin.audio.AudioEffect</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.audio.AudioManager.html">cc.plugin.audio.AudioManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.font.FontMetrics.html">cc.plugin.font.FontMetrics</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.font.SpriteFont.html">cc.plugin.font.SpriteFont</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.font.SpriteFontChar.html">cc.plugin.font.SpriteFontChar</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.BorderLayout.html">cc.plugin.layout.BorderLayout</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.Gap.html">cc.plugin.layout.Gap</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.GridLayout.html">cc.plugin.layout.GridLayout</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.Insets.html">cc.plugin.layout.Insets</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.LayerLayout.html">cc.plugin.layout.LayerLayout</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.Layout.html">cc.plugin.layout.Layout</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.layout.Unit.html">cc.plugin.layout.Unit</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.Loader.html">cc.plugin.loader.Loader</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.ResourceLoaderAudioBuffer.html">cc.plugin.loader.ResourceLoaderAudioBuffer</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.ResourceLoaderImage.html">cc.plugin.loader.ResourceLoaderImage</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.ResourceLoaderJSON.html">cc.plugin.loader.ResourceLoaderJSON</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.loader.ResourceLoaderXML.html">cc.plugin.loader.ResourceLoaderXML</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.texture.TexturePacker.html">cc.plugin.texture.TexturePacker</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.texture.TexturePackerNode.html">cc.plugin.texture.TexturePackerNode</a>
+						</li>
+						
+						<li>
+							<a href="cc.plugin.texture.TexturePackerPage.html">cc.plugin.texture.TexturePackerPage</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.CanvasRenderer.html">cc.render.CanvasRenderer</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.DecoratedWebGLRenderingContext.html">cc.render.DecoratedWebGLRenderingContext</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.GeometryBatcher.html">cc.render.GeometryBatcher</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.Pattern.html">cc.render.Pattern</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.Renderer.html">cc.render.Renderer</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.RenderingContextSnapshot.html">cc.render.RenderingContextSnapshot</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.ScaleManager.html">cc.render.ScaleManager</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.AbstractShader.html">cc.render.shader.AbstractShader</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.Attribute.html">cc.render.shader.Attribute</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.MatrixUniform.html">cc.render.shader.MatrixUniform</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.SolidColorShader.html">cc.render.shader.SolidColorShader</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.TextureShader.html">cc.render.shader.TextureShader</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.TextureUniform.html">cc.render.shader.TextureUniform</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.shader.Uniform.html">cc.render.shader.Uniform</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.Texture2D.html">cc.render.Texture2D</a>
+						</li>
+						
+						<li>
+							<a href="cc.render.WebGLRenderer.html">cc.render.WebGLRenderer</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.Transition.html">cc.transition.Transition</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionFade.html">cc.transition.TransitionFade</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionMove.html">cc.transition.TransitionMove</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionSlideInB.html">cc.transition.TransitionSlideInB</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionSlideInL.html">cc.transition.TransitionSlideInL</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionSlideInR.html">cc.transition.TransitionSlideInR</a>
+						</li>
+						
+						<li>
+							<a href="cc.transition.TransitionSlideInT.html">cc.transition.TransitionSlideInT</a>
+						</li>
+						
+						<li>
+							<a href="cc.util.Resource.html">cc.util.Resource</a>
+						</li>
+						
+						<li>
+							<a href="cc.widget.Button.html">cc.widget.Button</a>
+						</li>
+						
+						<li>
+							<a href="cc.widget.Label.html">cc.widget.Label</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+				<li class="dropdown">
+					<a href="global.html" class="dropdown-toggle" data-toggle="dropdown">Global<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="global.html#__extends">__extends</a>
+						</li>
+						
+						<li>
+							<a href="global.html#test">test</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+			</ul>
+		</div>
+	</div>
+
+	<div class="row-fluid">
+
+		
+			<div class="span12">
+				
+				<div id="main">
+					
+
+
+		<h1 class="page-title">Source: render/DecoratedWebGLRenderingContext.js</h1>
+    
+<section>
+	<article>
+		<pre
+			class="sunlight-highlight-javascript linenums">/**
+ * License: see license.txt file.
+ */
+/// &lt;reference path="../math/Color.ts"/>
+/// &lt;reference path="../math/Rectangle.ts"/>
+/// &lt;reference path="../math/Matrix3.ts"/>
+/// &lt;reference path="../node/Sprite.ts"/>
+/// &lt;reference path="../node/sprite/SpriteFrame.ts"/>
+/// &lt;reference path="./RenderingContext.ts"/>
+/// &lt;reference path="./RenderingContextSnapshot.ts"/>
+/// &lt;reference path="./WebGLState.ts"/>
+/// &lt;reference path="./Texture2D.ts"/>
+/// &lt;reference path="./GeometryBatcher.ts"/>
+/// &lt;reference path="./shader/AbstractShader.ts"/>
+/// &lt;reference path="./shader/SolidColorShader.ts"/>
+/// &lt;reference path="./shader/TextureShader.ts"/>
+/// &lt;reference path="./shader/FastTextureShader.ts"/>
+/// &lt;reference path="./shader/TexturePatternShader.ts"/>
+/// &lt;reference path="./shader/Uniform.ts"/>
+var cc;
+(function (cc) {
+    var render;
+    (function (render) {
+        "use strict";
+        var RenderingContextSnapshot = cc.render.RenderingContextSnapshot;
+        var GeometryBatcher = cc.render.GeometryBatcher;
+        var SolidColorShader = cc.render.shader.SolidColorShader;
+        var TextureShader = cc.render.shader.TextureShader;
+        var TexturePatternShader = cc.render.shader.TexturePatternShader;
+        var FastTextureShader = cc.render.shader.FastTextureShader;
+        var Matrix3 = cc.math.Matrix3;
+        var WebGLState = cc.render.WebGLState;
+        /**
+         * Decorated WebGL Rendering Context fill style types.
+         * @tsenum cc.render.FillStyleType
+         */
+        (function (FillStyleType) {
+            FillStyleType[FillStyleType["COLOR"] = 0] = "COLOR";
+            FillStyleType[FillStyleType["IMAGE"] = 1] = "IMAGE";
+            FillStyleType[FillStyleType["IMAGEFAST"] = 2] = "IMAGEFAST";
+            FillStyleType[FillStyleType["PATTERN_REPEAT"] = 3] = "PATTERN_REPEAT";
+        })(render.FillStyleType || (render.FillStyleType = {}));
+        var FillStyleType = render.FillStyleType;
+        /**
+         * Shader types
+         * @tsenum cc.render.ShaderType
+         */
+        (function (ShaderType) {
+            ShaderType[ShaderType["COLOR"] = 0] = "COLOR";
+            ShaderType[ShaderType["IMAGE"] = 1] = "IMAGE";
+            ShaderType[ShaderType["IMAGEFAST"] = 2] = "IMAGEFAST";
+            ShaderType[ShaderType["PATTERN_REPEAT"] = 3] = "PATTERN_REPEAT";
+        })(render.ShaderType || (render.ShaderType = {}));
+        var ShaderType = render.ShaderType;
+        /**
+         * BIT Flag for WebGL enabled/disabled flags.
+         * @tsenum cc.render.WEBGL_FLAGS
+         */
+        (function (WEBGL_FLAGS) {
+            WEBGL_FLAGS[WEBGL_FLAGS["BLEND"] = 1] = "BLEND";
+            WEBGL_FLAGS[WEBGL_FLAGS["DEPTH_TEST"] = 2] = "DEPTH_TEST";
+            WEBGL_FLAGS[WEBGL_FLAGS["CULL_FACE"] = 4] = "CULL_FACE";
+        })(render.WEBGL_FLAGS || (render.WEBGL_FLAGS = {}));
+        var WEBGL_FLAGS = render.WEBGL_FLAGS;
+        var __mat3 = new Float32Array([1.0, 0, 0, 0, 1.0, 0, 0, 0, 1.0]);
+        /**
+         * @class cc.render.DecoratedWebGLRenderingContext
+         * @classdesc
+         *
+         * This object wraps a 3D canvas context (webgl) and exposes a canvas like 2d rendering API.
+         * The implementation should be extremely efficient by:
+         *   &lt;li>lazily set every property.
+         *   &lt;li>batch all drawing operations as much as possible.
+         *   &lt;li>ping pong between buffers
+         *
+         * &lt;br>
+         * All this would be transparent for the developer and happen automatically. For example, is a value is set to
+         * &lt;code>globalCompositeOperation&lt;/code> (set a blend mode), a gl call is not immediately executed, which prevents
+         * consecutive calls to &lt;code>globalCompositeOperation&lt;/code> to make explicit gl calls. Instead, the gl call
+         * is deferred until the moment when some geometry will happen, for example, a fillRect call.
+         * &lt;br>
+         * This mechanism is set for every potential flushing operation like changing fillStyle, compisite, textures, etc.
+         */
+        var DecoratedWebGLRenderingContext = (function () {
+            /**
+             * Create a new DecoratedWebGLRenderingContext instance.
+             * @method cc.render.DecoratedWebGLRenderingContext#constructor
+             * @param r {cc.render.Renderer}
+             */
+            function DecoratedWebGLRenderingContext(r) {
+                /**
+                 * Current rendering context data.
+                 * @member cc.render.DecoratedWebGLRenderingContext#_currentContextSnapshot
+                 * @type {cc.render.RenderingContextSnapshot}
+                 * @private
+                 */
+                this._currentContextSnapshot = null;
+                /**
+                 * Each call to save will create a new rendering context snapshot that will be tracked here.
+                 * @member cc.render.DecoratedWebGLRenderingContext#_contextSnapshots
+                 * @type {Array&lt;cc.render.RenderingContextSnapshot>}
+                 * @private
+                 */
+                this._contextSnapshots = [];
+                /**
+                 * if _currentFillStyleType===COLOR, this is the current color.
+                 * @member cc.render.DecoratedWebGLRenderingContext#_currentFillStyleColor
+                 * @type {Float32Array}
+                 * @private
+                 */
+                this._currentFillStyleColor = new Float32Array([0.0, 0.0, 0.0, 1.0]);
+                this._currentFillStylePattern = null;
+                /**
+                 * Current fill style type. The style type reflects what shader is currently set for rendering.
+                 * @member cc.render.DecoratedWebGLRenderingContext#_currentFillStyleType
+                 * @type {cc.render.FillStyleType}
+                 * @private
+                 */
+                this._currentFillStyleType = 0 /* COLOR */;
+                this._currentTintColor = new Float32Array([1.0, 1.0, 1.0, 1.0]);
+                /**
+                 * Last global composite operation set.
+                 * @member cc.render.DecoratedWebGLRenderingContext#_currentGlobalCompositeOperation
+                 * @type {string}
+                 * @private
+                 */
+                this._currentGlobalCompositeOperation = 0 /* source_over */;
+                /**
+                 * Internal rendering shaders.
+                 * @member cc.render.DecoratedWebGLRenderingContext#_shaders
+                 * @type {Array&lt;cc.render.shader.SolidColorShader>}
+                 * @private
+                 */
+                this._shaders = [];
+                /**
+                 * Geometry batcher.
+                 * @member cc.render.DecoratedWebGLRenderingContext#_batcher
+                 * @type {cc.render.GeometryBatcher}
+                 * @private
+                 */
+                this._batcher = null;
+                this._webglState = null;
+                this._width = 0;
+                this._height = 0;
+                this._renderer = null;
+                /**
+                 * Rendering surface (canvas object)
+                 * @member cc.render.DecoratedWebGLRenderingContext#_canvas
+                 * @type {HTMLCanvasElement}
+                 * @private
+                 */
+                this._canvas = null;
+                this._renderer = r;
+                this._canvas = r._surface;
+                this.__initContext();
+                this._batcher = new GeometryBatcher(this._webglState);
+                this._currentContextSnapshot = new RenderingContextSnapshot();
+                this._contextSnapshots.push(this._currentContextSnapshot);
+                this.__createRenderingShaders(this._canvas.width, this._canvas.height);
+                this.__setGlobalCompositeOperation();
+            }
+            DecoratedWebGLRenderingContext.prototype.__initContext = function () {
+                var _canvas = this._canvas;
+                function createContext() {
+                    var _gl = null;
+                    try {
+                        var obj = {
+                            premultipliedAlpha: DecoratedWebGLRenderingContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL,
+                            antialias: DecoratedWebGLRenderingContext.ANTIALIAS,
+                            alpha: DecoratedWebGLRenderingContext.CTX_ALPHA,
+                            stencil: true
+                        };
+                        _gl = _canvas.getContext("webgl", obj) || _canvas.getContext("experimental-webgl", obj);
+                        _gl.pixelStorei(_gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, DecoratedWebGLRenderingContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL ? 1 : 0);
+                    }
+                    catch (e) {
+                        alert("WebGL context error");
+                    }
+                    return _gl;
+                }
+                function initializeContext(webglState) {
+                    var _gl = webglState._gl;
+                    // Set clear color to black, fully transparent
+                    webglState.clearColor(0, 0, 0, 0);
+                    // Disable depth testing
+                    webglState.disable(_gl.DEPTH_TEST);
+                    // Disable back face culling
+                    webglState.disable(_gl.CULL_FACE);
+                    // Clear the color as well as the depth buffer.
+                    webglState.clear(_gl.COLOR_BUFFER_BIT);
+                    webglState.viewport(0, 0, _canvas.width, _canvas.height);
+                }
+                this._width = this._canvas.width;
+                this._height = this._canvas.height;
+                this._webglState = new WebGLState(createContext());
+                initializeContext(this._webglState);
+            };
+            DecoratedWebGLRenderingContext.prototype.clear = function () {
+                var gl = this._webglState;
+                var flags = gl._gl.COLOR_BUFFER_BIT;
+                if (gl.flagEnabled(gl._gl.STENCIL_TEST)) {
+                    flags |= gl._gl.STENCIL_BUFFER_BIT;
+                }
+                gl.clear(flags);
+            };
+            DecoratedWebGLRenderingContext.prototype.getWidth = function () {
+                return this._width;
+            };
+            DecoratedWebGLRenderingContext.prototype.getHeight = function () {
+                return this._height;
+            };
+            DecoratedWebGLRenderingContext.prototype.__createProjection = function (w, h) {
+                /**
+                 * Make an orthographics projection matrix.
+                 * @param left {number}
+                 * @param right {number}
+                 * @param bottom {number}
+                 * @param top {number}
+                 * @param znear {number}
+                 * @param zfar {number}
+                 *
+                 * @returns {Float32Array}
+                 */
+                function createOrthographicProjectionMatrix(left, right, bottom, top, znear, zfar) {
+                    var tx = -(right + left) / (right - left);
+                    var ty = -(top + bottom) / (top - bottom);
+                    var tz = -(zfar + znear) / (zfar - znear);
+                    return new Float32Array([2 / (right - left), 0, 0, 0, 0, 2 / (top - bottom), 0, 0, 0, 0, -2 / (zfar - znear), 0, tx, ty, tz, 1]);
+                }
+                var opm = [];
+                opm.push(createOrthographicProjectionMatrix(0, w, h, 0, -1, 1));
+                opm.push(createOrthographicProjectionMatrix(0, w, 0, h, -1, 1));
+                return opm;
+            };
+            /**
+             * Create internal rendering shaders.
+             * Do not call directly.
+             * @method cc.render.DecoratedWebGLRenderingContext#__createRenderingShaders
+             * @param w {number}
+             * @param h {number}
+             * @private
+             */
+            DecoratedWebGLRenderingContext.prototype.__createRenderingShaders = function (w, h) {
+                /**
+                 * Never change the order the shaders are pushed.
+                 * BUGBUG change the _shader array in favor of an associative collection.
+                 */
+                this._shaders.push(new SolidColorShader(this._webglState));
+                this._shaders.push(new TextureShader(this._webglState));
+                this._shaders.push(new FastTextureShader(this._webglState));
+                this._shaders.push(new TexturePatternShader(this._webglState));
+                this.__setShadersProjection(w, h);
+                this._shaders[0].useProgram();
+            };
+            DecoratedWebGLRenderingContext.prototype.__setShadersProjection = function (w, h) {
+                var opms = this.__createProjection(w, h);
+                var opm = opms[0];
+                var opm_inverse = opms[1];
+                this._shaders[0]._uniformProjection.setValue(opm);
+                this._shaders[1]._uniformProjection.setValue(opm);
+                /**
+                 * FastShader needs different projection matrices because quad coordinates are calculated in the shader,
+                 * and not in the client. Thus it is mandatory to send the correct projection matrix based on the
+                 * y-axis rendering origin.
+                 */
+                this._shaders[2]._uniformProjection.setValue(cc.render.RENDER_ORIGIN === "top" ? opm : opm_inverse);
+                this._shaders[3]._uniformProjection.setValue(opm);
+            };
+            Object.defineProperty(DecoratedWebGLRenderingContext.prototype, "canvas", {
+                /**
+                 * Get the rendering surface object (canvas).
+                 * @method cc.render.DecoratedWebGLRenderingContext#get:canvas
+                 * @returns {HTMLCanvasElement}
+                 */
+                get: function () {
+                    return this._canvas;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            /**
+             * Set the current rendering tint color. Tint color is an array of 4 components for rgba. Values 0..1
+             * @method cc.render.DecoratedWebGLRenderingContext#set:tintColor
+             * @param color {cc.math.Color}
+             */
+            DecoratedWebGLRenderingContext.prototype.setTintColor = function (color) {
+                this._currentTintColor = color._color;
+            };
+            Object.defineProperty(DecoratedWebGLRenderingContext.prototype, "tintColor", {
+                set: function (color) {
+                    this._currentTintColor = color._color;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(DecoratedWebGLRenderingContext.prototype, "globalAlpha", {
+                get: function () {
+                    return this._currentContextSnapshot._globalAlpha;
+                },
+                set: function (v) {
+                    this._currentContextSnapshot._globalAlpha = v;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            /**
+             * Set the current rendering composite operation (blend mode).
+             * The value is any of:
+             *
+             * "source-over", "source-out", "source-in", "source-atop", "destination-over", "destination-in",
+             * "destination-out", "destination-atop", "multiply", "screen", "copy", "lighter", "darker", "xor", "add"
+             *
+             * @method cc.render.DecoratedWebGLRenderingContext#set:globalCompositeOperation
+             * @param gco {cc.render.CompositeOperation}
+             */
+            DecoratedWebGLRenderingContext.prototype.setCompositeOperation = function (gco) {
+                this._currentGlobalCompositeOperation = gco;
+            };
+            DecoratedWebGLRenderingContext.prototype.getCompositeOperation = function () {
+                return this._currentGlobalCompositeOperation;
+            };
+            /**
+             * Internal blending mode set.
+             * This function is called not when the blending mode is set, but when an actual geometry operation is about
+             * to happen.
+             * @method cc.render.DecoratedWebGLRenderingContext#__setGlobalCompositeOperation
+             * @private
+             */
+            DecoratedWebGLRenderingContext.prototype.__setGlobalCompositeOperation = function () {
+                var gl = this._webglState._gl;
+                this._webglState.enable(gl.BLEND);
+                switch (this._currentGlobalCompositeOperation) {
+                    case 0 /* source_over */:
+                        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+                        break;
+                    case 1 /* source_out */:
+                        gl.blendFunc(gl.ONE_MINUS_DST_ALPHA, gl.ZERO);
+                        break;
+                    case 2 /* source_in */:
+                        gl.blendFunc(gl.DST_ALPHA, gl.ZERO);
+                        break;
+                    case 3 /* source_atop */:
+                        gl.blendFunc(gl.DST_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+                        break;
+                    case 4 /* destination_over */:
+                        gl.blendFunc(gl.ONE_MINUS_DST_ALPHA, gl.DST_ALPHA);
+                        break;
+                    case 5 /* destination_in */:
+                        gl.blendFunc(gl.ZERO, gl.SRC_ALPHA);
+                        break;
+                    case 6 /* destination_out */:
+                        gl.blendFunc(gl.ZERO, gl.ONE_MINUS_SRC_ALPHA);
+                        break;
+                    case 7 /* destination_atop */:
+                        gl.blendFunc(gl.ONE_MINUS_DST_ALPHA, gl.SRC_ALPHA);
+                        break;
+                    case 8 /* multiply */:
+                        gl.blendFunc(gl.DST_COLOR, gl.ONE_MINUS_SRC_ALPHA);
+                        break;
+                    case 9 /* screen */:
+                        gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_COLOR);
+                        break;
+                    case 10 /* copy */:
+                        gl.blendFunc(gl.ONE, gl.ZERO);
+                        break;
+                    case 11 /* lighter */:
+                        gl.blendFunc(gl.ONE, gl.ONE);
+                        break;
+                    case 12 /* darker */:
+                        gl.blendFunc(gl.DST_COLOR, gl.ONE_MINUS_SRC_ALPHA);
+                        break;
+                    case 13 /* xor */:
+                        gl.blendFunc(gl.ONE_MINUS_DST_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+                        break;
+                    case 14 /* add */:
+                        gl.blendFunc(gl.SRC_ALPHA, gl.DST_ALPHA);
+                        break;
+                    default:
+                        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+                }
+                this._currentContextSnapshot._globalCompositeOperation = this._currentGlobalCompositeOperation;
+            };
+            /**
+             * Set the current transformation matrix.
+             * @method cc.render.DecoratedWebGLRenderingContext#setTransform
+             * @param a {number}
+             * @param b {number}
+             * @param c {number}
+             * @param d {number}
+             * @param tx {number}
+             * @param ty {number}
+             */
+            DecoratedWebGLRenderingContext.prototype.setTransform = function (a, b, c, d, tx, ty) {
+                Matrix3.setTransform(this._currentContextSnapshot._currentMatrix, a, b, c, d, tx, ty);
+            };
+            /**
+             * Concatenate current transformation matrix with the given matrix coeficients.
+             * @method cc.render.DecoratedWebGLRenderingContext#transform
+             * @param a {number}
+             * @param b {number}
+             * @param c {number}
+             * @param d {number}
+             * @param tx {number}
+             * @param ty {number}
+             */
+            DecoratedWebGLRenderingContext.prototype.transform = function (a, b, c, d, tx, ty) {
+                Matrix3.transform(this._currentContextSnapshot._currentMatrix, a, b, c, d, tx, ty);
+            };
+            /**
+             * Fill an area with the current fillStyle.
+             * If w or h are &lt;= 0 the call does nothing.
+             * @method cc.render.DecoratedWebGLRenderingContext#fillRect
+             * @param x {number}
+             * @param y {number}
+             * @param w {number}
+             * @param h {number}
+             */
+            DecoratedWebGLRenderingContext.prototype.fillRect = function (x, y, w, h) {
+                if (w &lt;= 0 || h &lt;= 0) {
+                    return;
+                }
+                this.__flushFillRectIfNeeded();
+                if (this._batcher.batchRect(x, y, w, h, this._currentContextSnapshot)) {
+                    this.flush();
+                }
+            };
+            DecoratedWebGLRenderingContext.prototype.drawTexture = function (texture, sx, sy, sw, sh, dx, dy, dw, dh) {
+                var ti = texture;
+                var textureId = ti._glId;
+                // no texture info, or invalid gl texture id. do nothing.
+                if (textureId === null) {
+                    // BUGBUG refactor this
+                    cc.Debug.warn(" --- lazy image to texture call.  --- deprecated and dangerous.");
+                    ti.__setAsGLTexture(this._webglState);
+                    textureId = ti._glId;
+                }
+                this.__drawImageFlushIfNeeded(textureId);
+                var _sx;
+                var _sy;
+                var _sw;
+                var _sh;
+                var _dx;
+                var _dy;
+                var _dw;
+                var _dh;
+                if (arguments.length >= 9) {
+                    if (ti._invertedY) {
+                        sy = ti._imageHeight - (ti._offsetY + sy) - sh;
+                    }
+                    _sy = (sy + ti._offsetY) / ti._textureHeight;
+                    _sx = (sx + ti._offsetX) / ti._textureWidth;
+                    _sw = (sx + sw + ti._offsetX) / ti._textureWidth;
+                    _sh = (sy + sh + ti._offsetY) / ti._textureHeight;
+                    _dx = dx;
+                    _dy = dy;
+                    _dw = dw;
+                    _dh = dh;
+                }
+                else if (arguments.length >= 5) {
+                    _dx = sx;
+                    _dy = sy;
+                    _dw = sw;
+                    _dh = sh;
+                    _sx = ti._u0;
+                    _sy = ti._v0;
+                    _sw = ti._u1;
+                    _sh = ti._v1;
+                }
+                else {
+                    _dx = sx;
+                    _dy = sy;
+                    _dw = ti._imageWidth;
+                    _dh = ti._imageHeight;
+                    _sx = ti._u0;
+                    _sy = ti._v0;
+                    _sw = ti._u1;
+                    _sh = ti._v1;
+                }
+                if (this._batcher.batchRectWithTexture(_dx, _dy, _dw, _dh, this._currentContextSnapshot, _sx, _sy, _sw, _sh)) {
+                    this.flush();
+                }
+            };
+            DecoratedWebGLRenderingContext.prototype.batchGeometryWithSprite = function (sprite, transposed) {
+                var frame = sprite._spriteFrame;
+                var rect = frame._normalizedRect;
+                var u0 = rect.x;
+                var v0 = rect.y;
+                var u1 = rect.x1;
+                var v1 = rect.y1;
+                if (transposed) {
+                }
+                if (sprite.flippedX) {
+                    var itmp = u0;
+                    u0 = u1;
+                    u1 = itmp;
+                }
+                if (sprite.flippedY) {
+                    var itmp = v0;
+                    v0 = v1;
+                    v1 = itmp;
+                }
+                this.__drawImageFlushIfNeeded(frame._texture._glId);
+                if (this._batcher.batchRectGeometryWithTexture(sprite._BBVertices, u0, v0, u1, v1, this._currentContextSnapshot)) {
+                    this.flush();
+                }
+            };
+            DecoratedWebGLRenderingContext.prototype.batchGeometryWithSpriteFast = function (sprite) {
+                var frame = sprite._spriteFrame;
+                var rect = frame._normalizedRect;
+                var u0 = rect.x;
+                var v0 = rect.y;
+                var u1 = rect.x1;
+                var v1 = rect.y1;
+                if (sprite.flippedX) {
+                    var itmp = u0;
+                    u0 = u1;
+                    u1 = itmp;
+                }
+                if (sprite.flippedY) {
+                    var itmp = v0;
+                    v0 = v1;
+                    v1 = itmp;
+                }
+                this.__drawImageFastFlushIfNeeded(frame._texture._glId);
+                if (this._batcher.batchRectGeometryWithSpriteFast(sprite, u0, v0, u1, v1, this._currentContextSnapshot)) {
+                    this.flush();
+                }
+            };
+            /**
+             * Translate the current rendering context transformation matrix.
+             * @method cc.render.DecoratedWebGLRenderingContext#translate
+             * @param x {number}
+             * @param y {number}
+             */
+            DecoratedWebGLRenderingContext.prototype.translate = function (x, y) {
+                Matrix3.setTranslate(__mat3, x, y);
+                Matrix3.multiply(this._currentContextSnapshot._currentMatrix, __mat3);
+            };
+            /**
+             * Rotate the current rendering context transformation matrix.
+             * @method cc.render.DecoratedWebGLRenderingContext#rotate
+             * @param angle {number} angle in radians.
+             */
+            DecoratedWebGLRenderingContext.prototype.rotate = function (angle) {
+                Matrix3.setRotate(__mat3, angle);
+                Matrix3.multiply(this._currentContextSnapshot._currentMatrix, __mat3);
+            };
+            /**
+             * Scale the current rendering context transformation matrix.
+             * @method cc.render.DecoratedWebGLRenderingContext#scale
+             * @param x {number} scale x axis.
+             * @param y {number} scale y axis.
+             */
+            DecoratedWebGLRenderingContext.prototype.scale = function (x, y) {
+                Matrix3.setScale(__mat3, x, y);
+                Matrix3.multiply(this._currentContextSnapshot._currentMatrix, __mat3);
+            };
+            /**
+             * Flush the content geometry, color and texture to the screen.
+             * @member cc.render.DecoratedWebGLRenderingContext#flush
+             */
+            DecoratedWebGLRenderingContext.prototype.flush = function () {
+                this._batcher.flush(this._shaders[this._currentContextSnapshot._currentFillStyleType], this._currentContextSnapshot);
+                //            this._debugInfo._draws++;
+            };
+            DecoratedWebGLRenderingContext.prototype.resize = function () {
+                this.__initContext();
+                this.__setShadersProjection(this._canvas.width, this._canvas.height);
+            };
+            DecoratedWebGLRenderingContext.prototype.getUnitsFactor = function () {
+                return this._renderer.getUnitsFactor();
+            };
+            Object.defineProperty(DecoratedWebGLRenderingContext.prototype, "type", {
+                /**
+                 * Get RenderingContext type.
+                 * @member cc.render.DecoratedWebGLRenderingContext#get:type
+                 * @returns {string} "webgl" or "canvas" (lowercase)
+                 */
+                get: function () {
+                    return "webgl";
+                },
+                enumerable: true,
+                configurable: true
+            });
+            /**
+             * @method cc.render.DecoratedWebGLRenderingContext#__drawImageFlushIfNeeded
+             * @param textureId {WebGLTexture}
+             * @private
+             */
+            DecoratedWebGLRenderingContext.prototype.__drawImageFastFlushIfNeeded = function (textureId) {
+                this.__drawImageFlushIfNeededImpl(2 /* IMAGEFAST */, this._shaders[2 /* IMAGEFAST */], textureId);
+            };
+            /**
+             * @method cc.render.DecoratedWebGLRenderingContext#__drawImageFlushIfNeeded
+             * @param textureId {WebGLTexture}
+             * @private
+             */
+            DecoratedWebGLRenderingContext.prototype.__drawImageFlushIfNeeded = function (textureId) {
+                this.__drawImageFlushIfNeededImpl(1 /* IMAGE */, this._shaders[1 /* IMAGE */], textureId);
+            };
+            DecoratedWebGLRenderingContext.prototype.__drawImageFlushIfNeededImpl = function (fillStyleType, shader, textureId) {
+                if (this._currentContextSnapshot._currentFillStyleType !== fillStyleType) {
+                    this.flush();
+                    this.__setCurrentFillStyleType(fillStyleType);
+                    this._currentContextSnapshot._tintColor = this._currentTintColor;
+                    shader._uniformTextureSampler.setValue(0);
+                    this._webglState.setTexture(0, textureId);
+                }
+                else {
+                    // different textures ? flush.
+                    if (this._webglState._currentTexture !== textureId) {
+                        this.flush();
+                        shader._uniformTextureSampler.setValue(0);
+                        this._webglState.setTexture(0, textureId);
+                    }
+                    this._currentContextSnapshot._tintColor = this._currentTintColor;
+                    this.__compositeFlushIfNeeded();
+                }
+            };
+            DecoratedWebGLRenderingContext.prototype.__flushFillRectIfNeeded = function () {
+                if (this._currentContextSnapshot._currentFillStyleType !== this._currentFillStyleType) {
+                    this.flush();
+                    this.__setCurrentFillStyleType(this._currentFillStyleType);
+                }
+                this._currentContextSnapshot._fillStyleColor = this._currentFillStyleColor;
+                this._currentContextSnapshot._fillStylePattern = this._currentFillStylePattern;
+                this._currentContextSnapshot._tintColor = this._currentTintColor;
+            };
+            DecoratedWebGLRenderingContext.prototype.__compositeFlushIfNeeded = function () {
+                if (this._currentGlobalCompositeOperation !== this._currentContextSnapshot._globalCompositeOperation) {
+                    this.flush();
+                    this.__setGlobalCompositeOperation();
+                }
+            };
+            /**
+             * @method cc.render.DecoratedWebGLRenderingContext#__setCurrentFillStyleType
+             * @param f {cc.render.FillStyleType}
+             * @private
+             */
+            DecoratedWebGLRenderingContext.prototype.__setCurrentFillStyleType = function (f) {
+                this._shaders[this._currentContextSnapshot._currentFillStyleType].notUseProgram();
+                this._shaders[f].useProgram();
+                this._currentContextSnapshot._currentFillStyleType = f;
+                this._currentFillStyleType = f;
+            };
+            DecoratedWebGLRenderingContext.prototype.setFillStyleColor = function (color) {
+                this._currentFillStyleColor = color._color;
+                this._currentFillStyleType = 0 /* COLOR */;
+            };
+            DecoratedWebGLRenderingContext.prototype.setFillStyleColorArray = function (colorArray) {
+                this._currentFillStyleColor = colorArray;
+                this._currentFillStyleType = 0 /* COLOR */;
+            };
+            DecoratedWebGLRenderingContext.prototype.setFillStylePattern = function (pattern) {
+                // BUGBUG change for actual pattern type
+                this._currentFillStyleType = 3 /* PATTERN_REPEAT */;
+                this._currentFillStylePattern = pattern;
+            };
+            DecoratedWebGLRenderingContext.prototype.beginPath = function () {
+            };
+            DecoratedWebGLRenderingContext.prototype.stroke = function () {
+            };
+            DecoratedWebGLRenderingContext.prototype.moveTo = function (x, y) {
+            };
+            DecoratedWebGLRenderingContext.prototype.lineTo = function (x, y) {
+            };
+            /**
+             * Enable UNPACK_PREMULTIPLY_ALPHA_WEBGL for textures. False by default.
+             * @member cc.render.DecoratedWebGLRenderingContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL
+             * @type {boolean}
+             */
+            DecoratedWebGLRenderingContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL = false;
+            /**
+             * Enable antialias. False by default
+             * @member cc.render.DecoratedWebGLRenderingContext.ANTIALIAS
+             * @type {boolean}
+             */
+            DecoratedWebGLRenderingContext.ANTIALIAS = false;
+            /**
+             * Enable context-document alpha blending. False by default.
+             * @member cc.render.DecoratedWebGLRenderingContext.CTX_ALPHA
+             * @type {boolean}
+             */
+            DecoratedWebGLRenderingContext.CTX_ALPHA = false;
+            return DecoratedWebGLRenderingContext;
+        })();
+        render.DecoratedWebGLRenderingContext = DecoratedWebGLRenderingContext;
+    })(render = cc.render || (cc.render = {}));
+})(cc || (cc = {}));
+</pre>
+	</article>
+</section>
+
+
+
+
+
+				</div>
+
+				<div class="clearfix"></div>
+				<footer>
+					
+					@hyperandroid
+					<br />
+					
+					
+		<span class="copyright">
+		Chukong inc. 2014
+		</span>
+					<br />
+					
+		<span class="jsdoc-message">
+		Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha5</a>
+		on 23/Tu/2015 using the <a
+			href="https://github.com/terryweiss/docstrap">DocStrap template</a>.
+		</span>
+				</footer>
+			</div>
+
+			
+			<br clear="both">
+		</div>
+
+	</div>
+	<!--<script src="scripts/sunlight.js"></script>-->
+	<script src="scripts/docstrap.lib.js"></script>
+	<script src="scripts/bootstrap-dropdown.js"></script>
+	<script src="scripts/toc.js"></script>
+
+	<script>
+		$( function () {
+			$( "[id*='$']" ).each( function () {
+				var $this = $( this );
+
+				$this.attr( "id", $this.attr( "id" ).replace( "$", "__" ) );
+			} );
+
+			$( "#toc" ).toc( {
+				anchorName  : function ( i, heading, prefix ) {
+					return $( heading ).attr( "id" ) || ( prefix + i );
+				},
+				selectors   : "h1,h2,h3,h4",
+				showAndHide : false,
+				scrollTo    : "100px"
+			} );
+
+			$( "#toc>ul" ).addClass( "nav nav-pills nav-stacked" );
+			$( "#main span[id^='toc']" ).addClass( "toc-shim" );
+			$( '.dropdown-toggle' ).dropdown();
+//			$( ".tutorial-section pre, .readme-section pre" ).addClass( "sunlight-highlight-javascript" ).addClass( "linenums" );
+
+			$( ".tutorial-section pre, .readme-section pre" ).each( function () {
+				var $this = $( this );
+
+				var example = $this.find( "code" );
+				exampleText = example.html();
+				var lang = /{@lang (.*?)}/.exec( exampleText );
+				if ( lang && lang[1] ) {
+					exampleText = exampleText.replace( lang[0], "" );
+					example.html( exampleText );
+					lang = lang[1];
+				} else {
+					lang = "javascript";
+				}
+
+				if ( lang ) {
+
+					$this
+						.addClass( "sunlight-highlight-" + lang )
+						.addClass( "linenums" )
+						.html( example.html() );
+
+				}
+			} );
+
+			Sunlight.highlightAll( {
+				lineNumbers : true,
+				showMenu : true,
+				enableDoclinks : true
+			} );
+		} );
+	 </script>
+
+
+
+	<!--Navigation and Symbol Display-->
+	
+
+
+	<!--Google Analytics-->
+	
+
+</body>
+</html>

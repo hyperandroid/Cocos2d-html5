@@ -1,0 +1,368 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Cocos2d-html5 Audio control</title>
+
+    <link rel="stylesheet" href="../css/genericons.css">
+    <link rel="stylesheet" href="../css/templatestyles.css">
+    <link rel="stylesheet" href="../stylesheets/pygment_trac.css">
+    <link rel="stylesheet" id="open-sans-css"
+          href="//fonts.googleapis.com/css?family=Open+Sans%3A300italic%2C400italic%2C600italic%2C300%2C400%2C600&amp;subset=latin%2Clatin-ext&amp;ver=4.1.1"
+          type="text/css" media="all">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+</head>
+<body>
+
+    <button class="toggle" id="menutoggle">
+    </button>
+<div class="wrapper">
+    <header>
+
+        <div class="site-title">
+            <div class="site-title-info">
+                <h1>Cocos2d-html5</h1>
+            </div>
+            <div id="menu" class="site-menu">
+                <div id="menuclose" class="close-button"><span class="icon-close"></span></div>
+                <p class="demos-menu-title">Demos list</p>
+                <ul id="site-menu" >
+
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <section>
+        <div>
+            <div>
+                <div>
+                    <ul>
+                    <li>Play</li>
+                    <li>Play/pause/play</li>
+                    <li>Play/loop (wait to play 2 times at least)/loop</li>
+                    <li>Play/stop</li>
+                    <li>loop/play/loop</li>
+                    <li>loop/play/pause/play/pause/play/loop</li>
+                    <li>loop/play/pause/loop/play</li>
+                    </ul>
+                </div>
+                <p>
+                    After each test, there should be a notification in the console about onEnd audio callback for all of them
+                    but play/stop test.
+                </p>
+            </div>
+
+            <div>
+                <span>Main volume:</span><span><input type="range" min="0" max="1" step=".01" value="1" id="maingain"></span>
+            </div>
+            <div><span>&nbsp;</span></div>
+            <div id="content">
+
+            </div>
+        </div>
+    </section>
+    <footer>
+        <p>This project is maintained by <a href="https://github.com/hyperandroid">hyperandroid</a></p>
+    </footer>
+</div>
+    <script src="../../../javascripts/scale.fix.js"></script>
+    <script src="menu.js"></script>
+    <script src="../../../dist/all.js"></script>
+<script>
+    (function() {
+
+
+        document.getElementById("menutoggle").addEventListener("click", function(e) {
+            e.preventDefault();
+            document.getElementById("menu").style["display"]="block";
+        }, false );
+        document.getElementById("menuclose").addEventListener("click", function(e) {
+            e.preventDefault();
+            document.getElementById("menu").style["display"]="none";
+        }, false );
+
+        var AssetManager= cc.plugin.asset.AssetManager;
+
+        function loadResources() {
+            AssetManager.load(
+                    {
+                        prefix : "../res/",
+                        resources: [
+                            "techno.wav@sound0",
+                            "sound/speech.mp3@speech",
+                            "sound/impulse_response/telephone.wav@telephone",
+                            "sound/impulse_response/muffler.wav@muffler",
+                            "sound/impulse_response/spring.wav@spring"
+                        ]
+                    },
+                    function onEnd(resources) {
+                        initialize(resources);
+                    }
+            );
+        }
+
+        function create(audiomgr, id, label, table, sprite) {
+
+            var audioEffect= audiomgr.createAudio(id).
+                    onEnd( function(ae) {
+                        console.log("audio "+id+" ended.");
+                    });
+
+            if ( sprite ) {
+                audioEffect.setSprite( true, sprite.start, sprite.duration );
+            }
+
+                var row= document.createElement('tr');
+
+                    // id
+                    var col0= document.createElement('td');
+                        var span0= document.createElement('span');
+                            span0.innerHTML= label;
+                        col0.appendChild(span0);
+                    row.appendChild(col0);
+
+                    // play
+                    var col1= document.createElement('td');
+                        var play= document.createElement("input");
+                        play.type="button";
+                        play.value="Play";
+                        play.name="play";
+                        play.onclick= function() {
+                            audioEffect.play();
+                        };
+                        col1.appendChild(play);
+                    row.appendChild(col1);
+
+                    // stop
+                        var stop= document.createElement("input");
+                        stop.type="button";
+                        stop.value="Stop";
+                        stop.name="Stop";
+                        stop.onclick= function() {
+                            audioEffect.stop();
+                        };
+                        col1.appendChild(stop);
+
+                    // pause
+                    var col3= document.createElement('td');
+                        var pause= document.createElement("input");
+                        pause.type="button";
+                        pause.value="Pause";
+                        pause.name="Pause";
+                        pause.onclick= function() {
+                            audioEffect.pause();
+                        };
+                        col3.appendChild(pause);
+                    row.appendChild(col3);
+
+                    // resume
+                        var resume= document.createElement("input");
+                        resume.type="button";
+                        resume.value="Resume";
+                        resume.name="Resume";
+                        resume.onclick= function() {
+                            audioEffect.resume();
+                        };
+                        col3.appendChild(resume);
+
+                    // loop
+                    var col5= document.createElement('td');
+                        var play= document.createElement("input");
+                        play.type="checkbox";
+                        play.value="Loop";
+                        play.name="loop";
+                        play.onclick= function() {
+                            audioEffect.loop( play.checked );
+                        };
+                        col5.appendChild(play);
+                    var text= document.createElement("span");
+                        text.innerHTML=" Loop";
+                    col5.appendChild(text);
+                    row.appendChild(col5);
+
+                    // mute
+                    var col7= document.createElement('td');
+                        var mute= document.createElement("input");
+                        mute.type="checkbox";
+                        mute.value="Mute";
+                        mute.name="Mute";
+                        mute.onclick= function() {
+                            if (mute.checked) {
+                                audioEffect.mute();
+                            } else {
+                                audioEffect.unmute();
+                            }
+                        };
+                        col7.appendChild(mute);
+                        var text2= document.createElement("span");
+                            text2.innerHTML=" Mute";
+                        col7.appendChild(text2);
+                    row.appendChild(col7);
+
+            table.appendChild(row);
+            row= document.createElement('tr');
+                    var colFiller= document.createElement('td');
+                    row.appendChild( colFiller );
+
+                    var col6= document.createElement('td');
+                        var text3= document.createElement("span");
+                            text3.innerHTML=" Volume";
+                        col6.appendChild(text3);
+                        var volume= document.createElement('input');
+                        volume.type= "range";
+                        volume.min= 0;
+                        volume.max= 1;
+                        volume.step= .01
+                        volume.value= 1;
+                        volume.onchange= function(e) {
+                            audioEffect.setVolume( volume.value );
+                        };
+                        col6.appendChild(volume);
+                    row.appendChild( col6 );
+
+                    var col8= document.createElement('td');
+                        var text3= document.createElement("span");
+                            text3.innerHTML=" CurrentPos";
+                        col8.appendChild(text3);
+                        var position= document.createElement('input');
+                        position.type= "range";
+                        position.min= 0;
+                        position.max= 1;
+                        position.step= .01
+                        position.value= 0;
+                        position.onchange= function(e) {
+                            audioEffect.setCurrentTime( position.value*audioEffect.getDuration() );
+                        };
+                        col8.appendChild(position);
+                    row.appendChild( col8 );
+
+
+            function option(select, v) {
+                var option0= document.createElement("option");
+                    option0.setAttribute("value", v);
+                    option0.appendChild( document.createTextNode(v) );
+                    select.appendChild(option0);
+
+            }
+
+                    var col9= document.createElement('td');
+                        var text90 = document.createTextNode("filter:");
+                        col9.appendChild(text90);
+                        var select= document.createElement("select");
+                            var fs= ['none','lowpass','highpass','bandpass','lowshelf','highself','peaking','notch','allpass'];
+                            for( var i=0; i<fs.length; i++ ) {
+                                            option(select, fs[i]);
+                            }
+
+                        select.onchange= function(e) {
+
+                            var filter= e.target[e.target.selectedIndex].value;
+
+                            if ( filter==="none" ) {
+                                audioEffect.setFilter(null);
+                            } else {
+                                audioEffect.setFilter({ type:filter, frequency:800 });
+                            }
+                        };
+
+                        col9.appendChild(select);
+                    row.appendChild(col9);
+
+                    var col10= document.createElement('td');
+                        var text91 = document.createTextNode("convoler:");
+                        col10.appendChild(text91);
+                        var selectc= document.createElement("select");
+                            option(selectc, 'none');
+                            option(selectc, 'telephone');
+                            option(selectc, 'muffler');
+                            option(selectc, 'spring');
+
+                        selectc.onchange= function(e) {
+
+                            var convolve= e.target[e.target.selectedIndex].value;
+                            audioEffect.convolve(( convolve==="none") ? null : convolve);
+                        };
+
+                        col10.appendChild(selectc);
+                    row.appendChild(col10);
+
+                    var col11= document.createElement('td');
+                        var text92 = document.createTextNode("playback rate:");
+                        col11.appendChild(text92);
+                        var positionrate= document.createElement('input');
+                        positionrate.type= "range";
+                        positionrate.min= 0.5;
+                        positionrate.max= 2;
+                        positionrate.step= .01
+                        positionrate.value= 1;
+                        positionrate.onchange= function(e) {
+                            audioEffect.setPlaybackRate( parseFloat(positionrate.value) );
+                        };
+
+                        col11.appendChild(positionrate);
+                    row.appendChild(col11);
+
+                    colFiller= document.createElement('td');
+                    row.appendChild( colFiller );
+
+                table.appendChild(row);
+        }
+
+        /**
+         *
+         * @param resources {Array<cc.plugin.loader.Resource}
+         */
+        function initialize( resources ) {
+
+            var audiomgr = new cc.plugin.audio.AudioManager();
+
+            document.getElementById("maingain").onchange= function(e) {
+                    audiomgr.setVolume(e.target.value );
+                };
+
+            var table= document.createElement('table');
+
+                cc.plugin.asset.AssetManager.addAudioBuffer( resources['speech'], 'speech' );
+                cc.plugin.asset.AssetManager.addAudioBuffer( resources['sound0'], 'sound0' );
+                cc.plugin.asset.AssetManager.addAudioBuffer( resources['telephone'], 'telephone' );
+                cc.plugin.asset.AssetManager.addAudioBuffer( resources['muffler'], 'muffler' );
+                cc.plugin.asset.AssetManager.addAudioBuffer( resources['spring'], 'spring' );
+
+                create( audiomgr, 'speech', 'speech', table );
+                create(audiomgr, "speech", "speech sprite", table, {
+                    enable: true,
+                    start: 0,
+                    duration: 3.5
+                });
+                create(audiomgr, "speech", "speech sprite 2", table, {
+                    enable: true,
+                    start: 3.5,
+                    duration: 2.8
+                });
+                create( audiomgr, 'sound0', 'sound0', table );
+
+
+                for( var i=0; i<2; i++ ) {
+                    create(audiomgr, "sound0", "sound0 sprite"+i, table, {
+                        enable: true,
+                        start: i,
+                        duration: 1
+                    });
+                }
+
+            document.getElementById("content").appendChild(table);
+
+        }
+
+        window.addEventListener("DOMContentLoaded", loadResources, false);
+
+    })();
+</script>
+
+</body>
+</html>
