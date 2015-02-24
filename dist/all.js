@@ -21694,6 +21694,7 @@ var cc;
                      * @private
                      */
                     this._convolverEnabled = false;
+                    this._playbackRate = 1;
                     this._isWebAudio = true;
                     if (buffer) {
                         this.setBuffer(buffer);
@@ -21795,6 +21796,19 @@ var cc;
                         }
                     }
                 };
+                AudioEffect.prototype.setPlaybackRate = function (rate) {
+                    this._playbackRate = rate;
+                    if (this._source) {
+                        var wasPlaying = this.isPlaying();
+                        if (wasPlaying) {
+                            this.pause();
+                        }
+                        this._source.playbackRate.value = rate;
+                        if (wasPlaying) {
+                            this.resume();
+                        }
+                    }
+                };
                 /**
                  * Get audio duration. If the audio loops, getDuration will be Number.MAX_VALUE, and the buffer or sprite duration
                  * otherwise plus the delay otherwise.
@@ -21840,12 +21854,6 @@ var cc;
                     for (var i = 0; i < chain.length - 1; i++) {
                         chain[i].connect(chain[i + 1]);
                     }
-                    //if (this._filterEnabled) {
-                    //    this._filter.connect(this._gain);
-                    //    this._source.connect(this._filter);
-                    //} else {
-                    //    this._source.connect( this._gain );
-                    //}
                 };
                 /**
                  * Set a filter for the effect.
@@ -21904,6 +21912,7 @@ var cc;
                     this._status = 1 /* PLAY */;
                     this._startPlaybackTime = audioContext.currentTime;
                     this._delayTime = delay;
+                    this._source.playbackRate.value = this._playbackRate;
                     if (this._isSprite) {
                         if (this._isWebAudio) {
                             if (typeof this._source.start === 'undefined') {
@@ -22016,7 +22025,7 @@ var cc;
                     if (this._endTimerId) {
                         return;
                     }
-                    var timeleft = this.getRemainingTime();
+                    var timeleft = this.getRemainingTime() / this._playbackRate;
                     var me = this;
                     this._endTimerId = setTimeout(function () {
                         me._endTimerId = null;
