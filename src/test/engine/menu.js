@@ -63,6 +63,10 @@
             {
                 file : "test7.html",
                 title: "Custom node draw"
+            },
+            {
+                file : "text.html",
+                title: "Loads of text"
             }
         ]
     };
