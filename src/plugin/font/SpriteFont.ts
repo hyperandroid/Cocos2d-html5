@@ -224,7 +224,7 @@ module cc.plugin.font {
                 return;
             }
 
-            if ( nextChar ) {
+            if ( nextChar!==null ) {
                 var _kerning= this._kerningInfo[ nextChar ];
                 if ( _kerning ) {
                     x+= _kerning;
@@ -623,7 +623,7 @@ module cc.plugin.font {
                 var char = this._chars[text.charAt(i)];
                 if (char) {
                     // draw char
-                    char.draw(ctx, x, y, text.charAt(i + 1));
+                    char.draw(ctx, x, y, i<text.length-1 ? text.charAt(i + 1) : null );
                     x += char._xadvance;
                 }
             }

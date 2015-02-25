@@ -23,9 +23,34 @@ In its current state, we must be humble and low demanding so that:
 * Some code is not yet documented even at method level (the least), but the project will catch up with
   documentation and tutorials ASAP.
 
-This release has the following features:
+# How to build Cocos2D V4
 
-* Backward compatible Core nodes: `Node`, `Scene`, `Director`.
+* Install [Typescrypt](http://www.typescriptlang.org/) 1.4.0+
+* Execute `setup.sh` in project's root folder. If you get some errors about file permissions, either use sudo to execute
+  `setup.sh` or fix your permissions: `sudo chown -R $USER /usr/local` [http://howtonode.org/introduction-to-npm].
+* Now you'll be able to execute 'cocos' located in cmd folder.
+
+# How to try the tests
+
+* XXX FIXME
+
+# Contribution guide
+
+* Make sure you have a GitHub account.
+* Fork the repository on GitHub.
+* Always contribute to the latest DEV branch. Never to master.
+* Check at least Unit tests are not broken.
+* Document and LINT your code.
+* Always use curly braces {}. Always curly braces to the right, not new line.
+* Format your code.
+* Make changes to your clone of the repository.
+* Submit a pull request.
+* If the pull references a bug, issue, or anything identified with an id, include that id in the description.
+* Contribute to JavaScript or Typescript at your own criteria.
+
+# V4 features:
+
+* Backward compatible Core nodes: `Node`, `Scene`, `Director`, `Sprite`.
   These nodes have improved functionality compared to the V3 ones.
   For example, `Node` can redefine is draw method to augment its capabilities and transform a `Node` into a `LayerColor`,
   or `LayerGradient`. `Layer` will be deprecated. These `Node` objects are backwards compatible with its V3 counterparts.
@@ -112,31 +137,9 @@ cc.loader, etc. have been removed in favor of local per game/director objects.
 There are still missing some other basic Core capabilities like Particles, Audio and more widgets, which are going
 to be added for the next iteration.
 
-# How to build Cocos2D V4
-
-* Install [Typescrypt](http://www.typescriptlang.org/) 1.4.0+
-* Execute `setup.sh` in project's root folder. If you get some errors about file permissions, either use sudo to execute
-  `setup.sh` or fix your permissions: `sudo chown -R $USER /usr/local` [http://howtonode.org/introduction-to-npm].
-* Now you'll be able to execute 'cocos' located in cmd folder.
-
-# How to try the tests
-
-* XXX FIXME
-
-# Contribution guide
-
-* Make sure you have a GitHub account.
-* Fork the repository on GitHub.
-* Always contribute to the latest DEV branch. Never to master.
-* Check at least Unit tests are not broken.
-* Document and LINT your code.
-* Always use curly braces {}. Always curly braces to the right, not new line.
-* Format your code.
-* Make changes to your clone of the repository.
-* Submit a pull request.
-* If the pull references a bug, issue, or anything identified with an id, include that id in the description.
-* Contribute to JavaScript or Typescript at your own criteria.
-
 # Known issues:
 
 * `FastSprite` do not honor parent's transformation.
+
+
+[![Analytics](https://ga-beacon.appspot.com/UA-17485141-6/cocos2dhtml5/index)](https://github.com/hyperandroid/Cocos2d-html5)
