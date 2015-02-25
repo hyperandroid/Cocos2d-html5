@@ -377,25 +377,36 @@ module cc.render {
 
             var prefix= ['','moz','ms','webkit'];
             for( var i=0; i<prefix.length; i++ ) {
-                if ( document.body[ prefix[i]+ (prefix[i]==='' ? 'requestFullscreen' : 'RequestFullscreen') ] ) {
-                    this._prefix= prefix[i];
 
-                    this._requestFullScreen= prefix[i]==='' ? 'requestFullscreen' : prefix[i]+'RequestFullscreen';
-                    this._exitFullScreen= prefix[i]==='' ? 'exitFullscreen' : prefix[i]+'ExitFullscreen';
+                if ( prefix[i]==="moz") {
 
-                    if ( prefix[i]==='moz') {
-                        this._exitFullScreen= 'mozCancelFullScreen';
-
-                    } else if ( prefix[i]==='ms') {
-                        document.addEventListener('MSFullscreenChange', this.__fullScreenChange.bind(this), false);
-                        document.addEventListener('MSFullscreenError', this.__fullScreenError.bind(this), false);
-
-                    } else {
+                    if ( typeof document.body['mozRequestFullScreen']!=="undefined" ) {
+                        this._prefix= 'moz';
+                        this._requestFullScreen = 'mozRequestFullScreen';
+                        this._exitFullScreen = 'mozCancelFullScreen';
                         document.addEventListener(this._prefix + 'fullscreenchange', this.__fullScreenChange.bind(this), false);
                         document.addEventListener(this._prefix + 'fullscreenerror', this.__fullScreenError.bind(this), false);
                     }
 
-                    break;
+                } else {
+
+                    if (document.body[prefix[i] + (prefix[i] === '' ? 'requestFullscreen' : 'RequestFullscreen')]) {
+                        this._prefix = prefix[i];
+
+                        this._requestFullScreen = prefix[i] === '' ? 'requestFullscreen' : prefix[i] + 'RequestFullscreen';
+                        this._exitFullScreen = prefix[i] === '' ? 'exitFullscreen' : prefix[i] + 'ExitFullscreen';
+
+                        if (prefix[i] === 'ms') {
+                            document.addEventListener('MSFullscreenChange', this.__fullScreenChange.bind(this), false);
+                            document.addEventListener('MSFullscreenError', this.__fullScreenError.bind(this), false);
+
+                        } else {
+                            document.addEventListener(this._prefix + 'fullscreenchange', this.__fullScreenChange.bind(this), false);
+                            document.addEventListener(this._prefix + 'fullscreenerror', this.__fullScreenError.bind(this), false);
+                        }
+
+                        break;
+                    }
                 }
             }
 

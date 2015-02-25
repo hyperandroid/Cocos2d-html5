@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>CocosJS - Units.</title>
+    <link rel="stylesheet" type="text/css" href="demos.css"/>
+    <meta name="viewport" content="width=1024, initial-scale=1, maximum-scale=1">
+</head>
+<body>
+
+<script>
+    (function() {
+
+/**
+ * Original hash function.
+ * @param alphabet {string} alphabet composing the guessed words
+ * @param s {string} string to get hash for
+ *
+ * @return {number} string hash value
+ */
+function hash (alphabet, s) {
+    var h = 7;
+    for(var i = 0; i < s.length; i++) {
+        h = (h * 37 + alphabet.indexOf(s[i]));
+    }
+    return h;
+}
+
+/**
+ * Guess the closest (if not exact) string to a given hash value.
+ * The guess happens by approximation of hash value.
+ * Based on the guessed word expected length, we iterate on every character
+ * changing it for the next alphabet letter until the hash value is the
+ * expected one (return the string as is) or is greater than the expected.
+ * In the final case, change the current char for the previous one in the
+ * alphabet, and move to the next character.
+ *
+ * @param alphabet {string} alphabet composing the guessed words
+ * @param find {number} the guessed word hash must match this value.
+ *
+ * @return {string} the guessed word, or "not found :(" if unable to match.
+ */
+function find( alphabet, find ) {
+
+    // initialize guessed word based on supplied hash.
+    var letters= [ ];
+    while(true) {
+
+        letters.push(alphabet[0]);
+        var word= letters.join('');
+        var hashValue= hash( alphabet, word );
+
+        if (hashValue > find) {
+            letters.pop();
+            break;
+        } else if ( hashValue===find ) {
+            // lucky boy
+            return word;
+        }
+    }
+
+    // guess the hashed word
+    for( var currentCharIndex=0; currentCharIndex < letters.length; currentCharIndex++ ) {
+
+        for( var index=0; index < alphabet.length; index++) {
+
+            letters[ currentCharIndex ]= alphabet[index];
+            var str= letters.join('');
+            var value= hash( alphabet, str );
+
+            if ( value===find ) {
+                return str;
+            } else if ( value > find ) {
+                letters[ currentCharIndex ]= alphabet[index-1];
+                break;
+            }
+        }
+    }
+
+    return "not found :(";
+}
+
+// get the word with the given hash
+console.log( find( "acdegilmnoprstuw", 956446786872726 ) );
+console.log( find( "acdegilmnoprstuw", 680131659347 ) );
+    })();
+</script>
+
+            <canvas id="c"></canvas>
+<div>
+    <div>
+        <div>
+        </div>
+        <div>
+            <span id="span"></span>
+        </div>
+    </div>
+    <div>
+        <p>
+            This demos shows animated sprites traversing a path.
+        </p>
+        <p>
+            Click on the screen to add a new Sprite.
+        </p>
+    </div>
+</div>
+<div id="orientation" class="orientation"><span class="orientation-text">Wrong orientation</span></div>
+
+</body>
+</html>
