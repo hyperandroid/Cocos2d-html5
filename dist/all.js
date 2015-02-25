@@ -20482,7 +20482,7 @@ var cc;
                     if (null === this._frame || this._frame._rect.isEmpty()) {
                         return;
                     }
-                    if (nextChar) {
+                    if (nextChar !== null) {
                         var _kerning = this._kerningInfo[nextChar];
                         if (_kerning) {
                             x += _kerning;
@@ -20814,7 +20814,7 @@ var cc;
                         var char = this._chars[text.charAt(i)];
                         if (char) {
                             // draw char
-                            char.draw(ctx, x, y, text.charAt(i + 1));
+                            char.draw(ctx, x, y, i < text.length - 1 ? text.charAt(i + 1) : null);
                             x += char._xadvance;
                         }
                     }
