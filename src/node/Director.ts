@@ -216,8 +216,8 @@ module cc.node {
                         x= preferredUnitsWidth-unitsWidth;
                     }
 
-                    if ( (cc.render.RENDER_ORIGIN==="top" && sceneHint&cc.render.ScaleContentSceneHint.BOTTOM) ||
-                         (cc.render.RENDER_ORIGIN==="bottom" && sceneHint&cc.render.ScaleContentSceneHint.TOP) ) {
+                    if ( (cc.render.RENDER_ORIGIN===cc.render.ORIGIN_TOP && sceneHint&cc.render.ScaleContentSceneHint.BOTTOM) ||
+                         (cc.render.RENDER_ORIGIN===cc.render.ORIGIN_BOTTOM && sceneHint&cc.render.ScaleContentSceneHint.TOP) ) {
 
                         y= preferredUnitsHeight-unitsHeight;
                     }

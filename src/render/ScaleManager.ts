@@ -742,7 +742,7 @@ module cc.render {
 
                 cc.math.Matrix3.setScale(this._unitsMatrix, scale, scale);
 
-                if (cc.render.RENDER_ORIGIN === "bottom") {
+                if (cc.render.RENDER_ORIGIN === cc.render.ORIGIN_BOTTOM) {
                     // invert viewport
                     var um:Float32Array = this.getScaleContentMatrix();
                     um[1] *= -1;

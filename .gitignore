@@ -5,3 +5,5 @@
 ./doc-js/*
 ./doc-ts/*
 ./dist/*
+./src/test/retina
+./src/test/retina/*

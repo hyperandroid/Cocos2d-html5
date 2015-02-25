@@ -228,9 +228,7 @@ var GameLayer = cc.Layer.extend({
         if (this._state == STATE_PLAYING) {
             var delta = event.getDelta();
 
-            if ( cc.render.RENDER_ORIGIN==="bottom" ) {
-                delta.y*=-1;
-            }
+            delta.y*=-1;
 
             var curPos = cc.p(this._ship.x, this._ship.y);
             curPos = cc.pAdd(curPos, delta);

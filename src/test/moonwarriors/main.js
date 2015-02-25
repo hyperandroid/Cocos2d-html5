@@ -49,7 +49,6 @@ window.addEventListener("DOMContentLoaded", function() {
     }
 
     cc.action.setTimeReferenceInSeconds();
-    cc.render.RENDER_ORIGIN="bottom";
     cc.node.DEFAULT_ANCHOR_POSITION=        new cc.math.Vector(0.5,0.5);
     cc.node.DEFAULT_ANCHOR_TRANSFORMATION=  new cc.math.Vector(0.5,0.5);
 

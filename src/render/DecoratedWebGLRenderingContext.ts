@@ -351,7 +351,7 @@ module cc.render {
              * and not in the client. Thus it is mandatory to send the correct projection matrix based on the
              * y-axis rendering origin.
              */
-            this._shaders[2]._uniformProjection.setValue( cc.render.RENDER_ORIGIN==="top" ? opm : opm_inverse );
+            this._shaders[2]._uniformProjection.setValue( cc.render.RENDER_ORIGIN===cc.render.ORIGIN_TOP ? opm : opm_inverse );
 
             this._shaders[3]._uniformProjection.setValue(opm);
         }

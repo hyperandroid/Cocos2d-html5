@@ -12274,7 +12274,7 @@ var cc;
                         if (sceneHint & 8 /* RIGHT */) {
                             x = preferredUnitsWidth - unitsWidth;
                         }
-                        if ((cc.render.RENDER_ORIGIN === "top" && sceneHint & 4 /* BOTTOM */) || (cc.render.RENDER_ORIGIN === "bottom" && sceneHint & 1 /* TOP */)) {
+                        if ((cc.render.RENDER_ORIGIN === cc.render.ORIGIN_TOP && sceneHint & 4 /* BOTTOM */) || (cc.render.RENDER_ORIGIN === cc.render.ORIGIN_BOTTOM && sceneHint & 1 /* TOP */)) {
                             y = preferredUnitsHeight - unitsHeight;
                         }
                         me._currentScene.setContentSize(unitsWidth, unitsHeight);
@@ -12747,7 +12747,7 @@ var cc;
                 this._glId = gl.createTexture();
                 webglstate.bindTexture(gl.TEXTURE_2D, this._glId);
                 webglstate.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-                if (cc.render.RENDER_ORIGIN === "bottom") {
+                if (cc.render.RENDER_ORIGIN === cc.render.ORIGIN_BOTTOM) {
                     this._invertedY = true;
                     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
                 }
@@ -13062,7 +13062,7 @@ var cc;
                  * @private
                  */
                 SpriteFrame.prototype.__calculateNormalizedRect = function () {
-                    if (cc.render.RENDER_ORIGIN === "bottom") {
+                    if (cc.render.RENDER_ORIGIN === cc.render.ORIGIN_BOTTOM) {
                         this._normalizedRect.set(this._rect.x, this._texture._imageHeight - this._rect.y - this._rect.h, this._rect.w, this._rect.h).normalizeBy(this._texture._textureWidth, this._texture._textureHeight);
                     }
                     else {
@@ -14488,7 +14488,7 @@ var cc;
                     size.width += this._shadowBlur + this._shadowOffsetX;
                     size.height += this._shadowBlur + this._shadowOffsetY;
                     offsetX += this._shadowBlur / 2 + this._shadowOffsetX;
-                    offsetY += this._shadowBlur / 2 + this._shadowOffsetY * (cc.render.RENDER_ORIGIN === "bottom" ? -1 : 1);
+                    offsetY += this._shadowBlur / 2 + this._shadowOffsetY * (cc.render.RENDER_ORIGIN === cc.render.ORIGIN_BOTTOM ? -1 : 1);
                 }
                 var canvas = document.createElement("canvas");
                 canvas.width = size.width;
@@ -16193,6 +16193,8 @@ var cc;
     var render;
     (function (render) {
         "use strict";
+        render.ORIGIN_BOTTOM = 1;
+        render.ORIGIN_TOP = 0;
         /**
          * This flag sets renderer's y axis origin to be on top or bottom (y axis increases up or downwards.
          * <p>
@@ -16211,7 +16213,7 @@ var cc;
          *     There could be some solutions to avoid this extra transformation call though:
          *     <li>Invert all your images at compile time. Images are already flipped vertically before loading.
          *     <li>Invert all your images at load time. Extra memory, and extra bootstrapping time.
-         *     <li>Change the y axis orientation to "top", and avoid the extra call. This will work for both canvas and
+         *     <li>Change the y axis orientation to cc.render.ORIGIN_BOTTOM, and avoid the extra call. This will work for both canvas and
          *         webgl rendering.
          * <p>
          *     In either case, right now, the system DOES apply the extra transformation, and the performance penalty is
@@ -16221,9 +16223,9 @@ var cc;
          *     either at the top or the bottom of the node itself.
          *
          * @member cc.render.RENDER_ORIGIN
-         * @type {string}
+         * @type {number}
          */
-        render.RENDER_ORIGIN = "bottom";
+        render.RENDER_ORIGIN = cc.render.ORIGIN_BOTTOM;
         function autodetectRenderer(w, h, elem) {
             w = w || 800;
             h = h || 600;
@@ -16558,7 +16560,7 @@ var cc;
                 "use strict";
                 var h;
                 if (arguments.length === 3) {
-                    if (cc.render.RENDER_ORIGIN === "bottom") {
+                    if (cc.render.RENDER_ORIGIN === cc.render.ORIGIN_BOTTOM) {
                         h = sy + texture._image.height;
                         this.translate(0, h);
                         this.scale(1, -1);
@@ -16571,7 +16573,7 @@ var cc;
                     }
                 }
                 else if (arguments.length === 5) {
-                    if (cc.render.RENDER_ORIGIN === "bottom") {
+                    if (cc.render.RENDER_ORIGIN === cc.render.ORIGIN_BOTTOM) {
                         h = sy + sh;
                         this.translate(0, h);
                         this.scale(1, -1);
@@ -16584,7 +16586,7 @@ var cc;
                     }
                 }
                 else {
-                    if (cc.render.RENDER_ORIGIN === "bottom") {
+                    if (cc.render.RENDER_ORIGIN === cc.render.ORIGIN_BOTTOM) {
                         h = dy + dh;
                         this.translate(0, h);
                         this.scale(1, -1);
@@ -16768,9 +16770,9 @@ var cc;
                 var spriteMiddleWidth = sf.getWidth() - paddingW;
                 var spriteLeftWidth = patchData.left;
                 var scaleFactor = ctx.getUnitsFactor();
-                var topy = cc.render.RENDER_ORIGIN === "top" ? y : y + h - spriteTopHeight / scaleFactor;
-                var bottomy = cc.render.RENDER_ORIGIN === "top" ? y + h - spriteBottomHeight / scaleFactor : y;
-                var middley = cc.render.RENDER_ORIGIN === "top" ? y + spriteTopHeight / scaleFactor : y + spriteBottomHeight / scaleFactor;
+                var topy = cc.render.RENDER_ORIGIN === cc.render.ORIGIN_TOP ? y : y + h - spriteTopHeight / scaleFactor;
+                var bottomy = cc.render.RENDER_ORIGIN === cc.render.ORIGIN_TOP ? y + h - spriteBottomHeight / scaleFactor : y;
+                var middley = cc.render.RENDER_ORIGIN === cc.render.ORIGIN_TOP ? y + spriteTopHeight / scaleFactor : y + spriteBottomHeight / scaleFactor;
                 if (patchData.left) {
                     // top left
                     if (patchData.top) {
@@ -17644,7 +17646,7 @@ var cc;
                  * and not in the client. Thus it is mandatory to send the correct projection matrix based on the
                  * y-axis rendering origin.
                  */
-                this._shaders[2]._uniformProjection.setValue(cc.render.RENDER_ORIGIN === "top" ? opm : opm_inverse);
+                this._shaders[2]._uniformProjection.setValue(cc.render.RENDER_ORIGIN === cc.render.ORIGIN_TOP ? opm : opm_inverse);
                 this._shaders[3]._uniformProjection.setValue(opm);
             };
             Object.defineProperty(DecoratedWebGLRenderingContext.prototype, "canvas", {
@@ -18696,7 +18698,7 @@ var cc;
                     var scale = Math.min(this._surface.width / this._units.width, this._surface.height / this._units.height);
                     this._unitsFactor = scale;
                     cc.math.Matrix3.setScale(this._unitsMatrix, scale, scale);
-                    if (cc.render.RENDER_ORIGIN === "bottom") {
+                    if (cc.render.RENDER_ORIGIN === cc.render.ORIGIN_BOTTOM) {
                         // invert viewport
                         var um = this.getScaleContentMatrix();
                         um[1] *= -1;
@@ -20488,7 +20490,7 @@ var cc;
                     }
                     var rect = this._frame._rect;
                     var _y;
-                    if (cc.render.RENDER_ORIGIN === "top") {
+                    if (cc.render.RENDER_ORIGIN === cc.render.ORIGIN_TOP) {
                         _y = y + this._yoffset;
                     }
                     else {
@@ -20533,6 +20535,7 @@ var cc;
              *
              * Fonts can be cached in the AssetManager.
              *
+             * BUGBUG: fonts are slow. remove all split calls in favor or faster methods.
              */
             var SpriteFont = (function () {
                 /**
@@ -20767,7 +20770,8 @@ var cc;
                 /**
                  * Draw text with the font.
                  * Characters not present in the font will be skipped, as if they were not in the string.
-                 * The string can be multiline, by splitting it with \n character.
+                 * The string can be multiline, and text is splitted in lines with \n character.
+                 * The split operation is slow and GC prone, so better call drawTextArray.
                  * @method cc.plugin.font.SpriteFont#drawText
                  * @param ctx {cc.render.RenderingContext}
                  * @param text {string}
@@ -20775,22 +20779,44 @@ var cc;
                  * @param y {number}
                  */
                 SpriteFont.prototype.drawText = function (ctx, text, x, y) {
-                    var xx = x;
                     var lines = text.split('\n');
-                    if (cc.render.RENDER_ORIGIN === "bottom") {
+                    this.drawTextArray(ctx, lines, x, y);
+                };
+                /**
+                 * Draw an array of strings. Each string will be considered one line of text.
+                 * This method will be called by drawText. Prefer this method to avoid creating intermediate strings
+                 * per frame compared to drawText.
+                 * @param ctx {cc.render.RenderingContext}
+                 * @param text {string}
+                 * @param x {number}
+                 * @param y {number}
+                 */
+                SpriteFont.prototype.drawTextArray = function (ctx, lines, x, y) {
+                    if (cc.render.RENDER_ORIGIN === cc.render.ORIGIN_BOTTOM) {
                         y += (lines.length - 1) * this._height;
                     }
                     for (var n = 0; n < lines.length; n++) {
-                        for (var i = 0; i < lines[n].length; i++) {
-                            var char = this._chars[lines[n].charAt(i)];
-                            if (char) {
-                                // draw char
-                                char.draw(ctx, x, y, lines[n].charAt(i + 1));
-                                x += char._xadvance;
-                            }
+                        this.drawTextLine(ctx, lines[n], x, y);
+                        y += this._height * (cc.render.RENDER_ORIGIN === cc.render.ORIGIN_BOTTOM ? -1 : 1);
+                    }
+                };
+                /**
+                 * This method is like drawText but does not take into account line breaks.
+                 * It will therefore draw all text in one single line.
+                 * This method is called by drawTextArray. Prefer this method if the text has one single line of text.
+                 * @param ctx {cc.render.RenderingContext}
+                 * @param text {string}
+                 * @param x {number}
+                 * @param y {number}
+                 */
+                SpriteFont.prototype.drawTextLine = function (ctx, text, x, y) {
+                    for (var i = 0; i < text.length; i++) {
+                        var char = this._chars[text.charAt(i)];
+                        if (char) {
+                            // draw char
+                            char.draw(ctx, x, y, text.charAt(i + 1));
+                            x += char._xadvance;
                         }
-                        y += this._height * (cc.render.RENDER_ORIGIN === "bottom" ? -1 : 1);
-                        x = xx;
                     }
                 };
                 /**
@@ -20813,7 +20839,7 @@ var cc;
                     var textHeight = textSize.height;
                     var yoffset = 0;
                     // make top be always up regardless how y-axis grows.
-                    if (cc.render.RENDER_ORIGIN === "bottom") {
+                    if (cc.render.RENDER_ORIGIN === cc.render.ORIGIN_BOTTOM) {
                         if (valign === 2 /* BOTTOM */) {
                             valign = 0 /* TOP */;
                         }
@@ -20828,7 +20854,7 @@ var cc;
                         case 2 /* BOTTOM */:
                             yoffset = height - textHeight - 1;
                     }
-                    if (cc.render.RENDER_ORIGIN === "bottom") {
+                    if (cc.render.RENDER_ORIGIN === cc.render.ORIGIN_BOTTOM) {
                         yoffset += (lines.length - 1) * this._height;
                     }
                     var xx = x;
@@ -20848,7 +20874,7 @@ var cc;
                             }
                             var wordWidth = this.getStringWidth(word);
                             if (x + wordWidth > width) {
-                                y += this._height * (cc.render.RENDER_ORIGIN === "bottom" ? -1 : 1);
+                                y += this._height * (cc.render.RENDER_ORIGIN === cc.render.ORIGIN_BOTTOM ? -1 : 1);
                                 x = 0;
                             }
                             for (var j = 0; j < word.length; j++) {
@@ -20860,7 +20886,7 @@ var cc;
                                 }
                             }
                         }
-                        y += this._height * (cc.render.RENDER_ORIGIN === "bottom" ? -1 : 1);
+                        y += this._height * (cc.render.RENDER_ORIGIN === cc.render.ORIGIN_BOTTOM ? -1 : 1);
                         x = xx;
                     }
                 };

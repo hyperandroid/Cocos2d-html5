@@ -350,7 +350,7 @@ module cc.widget {
                 size.height+= this._shadowBlur + this._shadowOffsetY;
 
                 offsetX+= this._shadowBlur / 2 + this._shadowOffsetX;
-                offsetY+= this._shadowBlur / 2 + this._shadowOffsetY * (cc.render.RENDER_ORIGIN==="bottom" ? -1 : 1);
+                offsetY+= this._shadowBlur / 2 + this._shadowOffsetY * (cc.render.RENDER_ORIGIN===cc.render.ORIGIN_BOTTOM ? -1 : 1);
             }
 
             var canvas= document.createElement("canvas");

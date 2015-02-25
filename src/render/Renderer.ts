@@ -20,6 +20,9 @@ module cc.render {
 
     "use strict";
 
+    export var ORIGIN_BOTTOM = 1;
+    export var ORIGIN_TOP = 0;
+
     /**
      * This flag sets renderer's y axis origin to be on top or bottom (y axis increases up or downwards.
      * <p>
@@ -38,7 +41,7 @@ module cc.render {
      *     There could be some solutions to avoid this extra transformation call though:
      *     <li>Invert all your images at compile time. Images are already flipped vertically before loading.
      *     <li>Invert all your images at load time. Extra memory, and extra bootstrapping time.
-     *     <li>Change the y axis orientation to "top", and avoid the extra call. This will work for both canvas and
+     *     <li>Change the y axis orientation to cc.render.ORIGIN_BOTTOM, and avoid the extra call. This will work for both canvas and
      *         webgl rendering.
      * <p>
      *     In either case, right now, the system DOES apply the extra transformation, and the performance penalty is
@@ -48,9 +51,9 @@ module cc.render {
      *     either at the top or the bottom of the node itself.
      *
      * @member cc.render.RENDER_ORIGIN
-     * @type {string}
+     * @type {number}
      */
-    export var RENDER_ORIGIN:string="bottom";
+    export var RENDER_ORIGIN:number=cc.render.ORIGIN_BOTTOM;
 
     export function autodetectRenderer( w:number, h:number, elem:string ) : cc.render.Renderer {
 
@@ -472,7 +475,7 @@ module cc.render {
             var h;
 
             if ( arguments.length===3 ) {
-                if ( cc.render.RENDER_ORIGIN==="bottom" ) {
+                if ( cc.render.RENDER_ORIGIN===cc.render.ORIGIN_BOTTOM ) {
                     h= sy+texture._image.height;
                     this.translate( 0, h );
                     this.scale( 1, -1 );
@@ -483,7 +486,7 @@ module cc.render {
                     this.drawImage(texture._image, sx, sy);
                 }
             } else if ( arguments.length===5 ) {
-                if ( cc.render.RENDER_ORIGIN==="bottom" ) {
+                if ( cc.render.RENDER_ORIGIN===cc.render.ORIGIN_BOTTOM ) {
                     h= sy+sh;
                     this.translate(0, h);
                     this.scale(1, -1);
@@ -494,7 +497,7 @@ module cc.render {
                     this.drawImage(texture._image, sx, sy, sw, sh);
                 }
             } else {
-                if ( cc.render.RENDER_ORIGIN==="bottom" ) {
+                if ( cc.render.RENDER_ORIGIN===cc.render.ORIGIN_BOTTOM ) {
                     h= dy+dh;
                     this.translate(0, h);
                     this.scale(1, -1);
@@ -715,11 +718,11 @@ module cc.render {
 
             var scaleFactor= ctx.getUnitsFactor();
 
-            var topy=       cc.render.RENDER_ORIGIN==="top" ? y :
+            var topy=       cc.render.RENDER_ORIGIN===cc.render.ORIGIN_TOP ? y :
                                 y+h-spriteTopHeight/scaleFactor;
-            var bottomy=    cc.render.RENDER_ORIGIN==="top" ? y+h-spriteBottomHeight/scaleFactor :
+            var bottomy=    cc.render.RENDER_ORIGIN===cc.render.ORIGIN_TOP ? y+h-spriteBottomHeight/scaleFactor :
                                 y;
-            var middley=    cc.render.RENDER_ORIGIN==="top" ? y + spriteTopHeight/scaleFactor :
+            var middley=    cc.render.RENDER_ORIGIN===cc.render.ORIGIN_TOP ? y + spriteTopHeight/scaleFactor :
                                 y+spriteBottomHeight/scaleFactor;
 
             if ( patchData.left ) {

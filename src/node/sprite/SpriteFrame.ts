@@ -262,7 +262,7 @@ module cc.node.sprite {
          */
         __calculateNormalizedRect() : void {
 
-            if ( cc.render.RENDER_ORIGIN==="bottom" ) {
+            if ( cc.render.RENDER_ORIGIN===cc.render.ORIGIN_BOTTOM ) {
                 this._normalizedRect.set(
                     this._rect.x,
                     this._texture._imageHeight - this._rect.y - this._rect.h,

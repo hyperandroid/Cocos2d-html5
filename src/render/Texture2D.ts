@@ -157,7 +157,7 @@ module cc.render {
             webglstate.bindTexture(gl.TEXTURE_2D, this._glId);
             webglstate.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
-            if (cc.render.RENDER_ORIGIN==="bottom") {
+            if (cc.render.RENDER_ORIGIN===cc.render.ORIGIN_BOTTOM) {
                 this._invertedY = true;
                 gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
             }

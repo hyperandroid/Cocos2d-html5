@@ -234,7 +234,7 @@ module cc.plugin.font {
             var rect= this._frame._rect;
 
             var _y;
-            if ( cc.render.RENDER_ORIGIN==="top" ) {
+            if ( cc.render.RENDER_ORIGIN===cc.render.ORIGIN_TOP ) {
                 _y= y + this._yoffset;
             } else {
                 _y = y + this._font._height - (rect.h+this._yoffset);
@@ -284,6 +284,7 @@ module cc.plugin.font {
      * 
      * Fonts can be cached in the AssetManager.
      *
+     * BUGBUG: fonts are slow. remove all split calls in favor or faster methods.
      */
     export class SpriteFont {
 
@@ -571,7 +572,8 @@ module cc.plugin.font {
         /**
          * Draw text with the font.
          * Characters not present in the font will be skipped, as if they were not in the string.
-         * The string can be multiline, by splitting it with \n character.
+         * The string can be multiline, and text is splitted in lines with \n character.
+         * The split operation is slow and GC prone, so better call drawTextArray.
          * @method cc.plugin.font.SpriteFont#drawText
          * @param ctx {cc.render.RenderingContext}
          * @param text {string}
@@ -580,27 +582,50 @@ module cc.plugin.font {
          */
         drawText( ctx:cc.render.RenderingContext, text:string, x:number, y:number ) {
 
-            var xx = x;
-
             var lines = text.split('\n');
+            this.drawTextArray( ctx, lines, x, y );
+        }
 
-            if ( cc.render.RENDER_ORIGIN==="bottom") {
+        /**
+         * Draw an array of strings. Each string will be considered one line of text.
+         * This method will be called by drawText. Prefer this method to avoid creating intermediate strings
+         * per frame compared to drawText.
+         * @param ctx {cc.render.RenderingContext}
+         * @param text {string}
+         * @param x {number}
+         * @param y {number}
+         */
+        drawTextArray( ctx:cc.render.RenderingContext, lines:string[], x:number, y:number ) {
+
+            if ( cc.render.RENDER_ORIGIN===cc.render.ORIGIN_BOTTOM) {
                 y += (lines.length - 1) * this._height;
             }
 
             for(var n = 0; n < lines.length; n++) {
+                this.drawTextLine( ctx, lines[n], x, y );
+                y += this._height * (cc.render.RENDER_ORIGIN===cc.render.ORIGIN_BOTTOM ? -1 : 1);
+            }
+        }
 
-                for (var i = 0; i < lines[n].length; i++) {
-                    var char = this._chars[lines[n].charAt(i)];
-                    if (char) {
-                        // draw char
-                        char.draw(ctx, x, y, lines[n].charAt(i + 1));
-                        x += char._xadvance;
-                    }
+        /**
+         * This method is like drawText but does not take into account line breaks.
+         * It will therefore draw all text in one single line.
+         * This method is called by drawTextArray. Prefer this method if the text has one single line of text.
+         * @param ctx {cc.render.RenderingContext}
+         * @param text {string}
+         * @param x {number}
+         * @param y {number}
+         */
+        drawTextLine( ctx:cc.render.RenderingContext, text:string, x:number, y:number ) {
+
+            for (var i = 0; i < text.length; i++) {
+
+                var char = this._chars[text.charAt(i)];
+                if (char) {
+                    // draw char
+                    char.draw(ctx, x, y, text.charAt(i + 1));
+                    x += char._xadvance;
                 }
-                y += this._height * (cc.render.RENDER_ORIGIN==="bottom" ? -1 : 1);
-                x = xx;
-
             }
         }
 
@@ -628,7 +653,7 @@ module cc.plugin.font {
             var yoffset= 0;
 
             // make top be always up regardless how y-axis grows.
-            if ( cc.render.RENDER_ORIGIN==="bottom") {
+            if ( cc.render.RENDER_ORIGIN===cc.render.ORIGIN_BOTTOM) {
                 if ( valign===cc.widget.VALIGN.BOTTOM ) {
                     valign= cc.widget.VALIGN.TOP;
                 } else if ( valign===cc.widget.VALIGN.TOP ) {
@@ -644,7 +669,7 @@ module cc.plugin.font {
                     yoffset= height-textHeight-1;
             }
 
-            if ( cc.render.RENDER_ORIGIN==="bottom") {
+            if ( cc.render.RENDER_ORIGIN===cc.render.ORIGIN_BOTTOM) {
                 yoffset += (lines.length - 1) * this._height;
             }
 
@@ -673,7 +698,7 @@ module cc.plugin.font {
 
                     var wordWidth= this.getStringWidth( word );
                     if ( x+wordWidth>width ) {
-                        y += this._height * (cc.render.RENDER_ORIGIN==="bottom" ? -1 : 1);
+                        y += this._height * (cc.render.RENDER_ORIGIN===cc.render.ORIGIN_BOTTOM ? -1 : 1);
                         x= 0;
                     }
 
@@ -687,7 +712,7 @@ module cc.plugin.font {
                     }
                 }
 
-                y += this._height * (cc.render.RENDER_ORIGIN==="bottom" ? -1 : 1);
+                y += this._height * (cc.render.RENDER_ORIGIN===cc.render.ORIGIN_BOTTOM ? -1 : 1);
                 x = xx;
 
             }
