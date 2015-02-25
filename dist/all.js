@@ -20767,7 +20767,8 @@ var cc;
                 /**
                  * Draw text with the font.
                  * Characters not present in the font will be skipped, as if they were not in the string.
-                 * The string can be multiline, by splitting it with \n character.
+                 * The string can be multiline, and text is splitted in lines with \n character.
+                 * The split operation is slow and GC prone, so better call drawTextArray.
                  * @method cc.plugin.font.SpriteFont#drawText
                  * @param ctx {cc.render.RenderingContext}
                  * @param text {string}
@@ -20775,22 +20776,44 @@ var cc;
                  * @param y {number}
                  */
                 SpriteFont.prototype.drawText = function (ctx, text, x, y) {
-                    var xx = x;
                     var lines = text.split('\n');
+                    this.drawTextArray(ctx, lines, x, y);
+                };
+                /**
+                 * Draw an array of strings. Each string will be considered one line of text.
+                 * This method will be called by drawText. Prefer this method to avoid creating intermediate strings
+                 * per frame compared to drawText.
+                 * @param ctx {cc.render.RenderingContext}
+                 * @param text {string}
+                 * @param x {number}
+                 * @param y {number}
+                 */
+                SpriteFont.prototype.drawTextArray = function (ctx, lines, x, y) {
                     if (cc.render.RENDER_ORIGIN === "bottom") {
                         y += (lines.length - 1) * this._height;
                     }
                     for (var n = 0; n < lines.length; n++) {
-                        for (var i = 0; i < lines[n].length; i++) {
-                            var char = this._chars[lines[n].charAt(i)];
-                            if (char) {
-                                // draw char
-                                char.draw(ctx, x, y, lines[n].charAt(i + 1));
-                                x += char._xadvance;
-                            }
-                        }
+                        this.drawTextLine(ctx, lines[n], x, y);
                         y += this._height * (cc.render.RENDER_ORIGIN === "bottom" ? -1 : 1);
-                        x = xx;
+                    }
+                };
+                /**
+                 * This method is like drawText but does not take into account line breaks.
+                 * It will therefore draw all text in one single line.
+                 * This method is called by drawTextArray. Prefer this method if the text has one single line of text.
+                 * @param ctx {cc.render.RenderingContext}
+                 * @param text {string}
+                 * @param x {number}
+                 * @param y {number}
+                 */
+                SpriteFont.prototype.drawTextLine = function (ctx, text, x, y) {
+                    for (var i = 0; i < text.length; i++) {
+                        var char = this._chars[text.charAt(i)];
+                        if (char) {
+                            // draw char
+                            char.draw(ctx, x, y, text.charAt(i + 1));
+                            x += char._xadvance;
+                        }
                     }
                 };
                 /**

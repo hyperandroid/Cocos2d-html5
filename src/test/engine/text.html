@@ -130,7 +130,7 @@
             scene.update= function( delta ) {
                 for( var i=0; i<rowData.length; i++ ) {
                     var row= rowData[i];
-                    var rowInc= 400*Math.sin( (1+i)/rowData.length * Math.PI  )*delta;
+                    var rowInc= 300*Math.sin( (1+i)/rowData.length * Math.PI   )*delta;
                     for( var j=0; j<row.chars.length; j++ ) {
                         var char= row.chars[j];
                         char.x-= rowInc;
@@ -148,7 +148,7 @@
                     var row= rowData[i];
                     for( var j=0; j<row.chars.length; j++ ) {
                         var char= row.chars[j];
-                        font.drawText( ctx, char.char, char.x, char. y );
+                        font.drawTextLine( ctx, char.char, char.x, char. y );
                     }
                 }
 
