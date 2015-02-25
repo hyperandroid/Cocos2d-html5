@@ -32,7 +32,7 @@ In its current state, we must be humble and low demanding so that:
 
 # How to try the tests
 
-* XXX FIXME
+* [See the examples here](http://hyperandroid.github.io/Cocos2d-html5/src/test/engine/anchors.html).
 
 # Contribution guide
 
