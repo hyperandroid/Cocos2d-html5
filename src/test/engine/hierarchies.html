@@ -1,0 +1,178 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Cocos2d-html5 Basic Node hierarchy</title>
+
+    <link rel="stylesheet" href="../css/genericons.css">
+    <link rel="stylesheet" href="../css/templatestyles.css">
+    <link rel="stylesheet" href="../stylesheets/pygment_trac.css">
+    <link rel="stylesheet" id="open-sans-css"
+          href="//fonts.googleapis.com/css?family=Open+Sans%3A300italic%2C400italic%2C600italic%2C300%2C400%2C600&amp;subset=latin%2Clatin-ext&amp;ver=4.1.1"
+          type="text/css" media="all">
+    <meta name="viewport" content="width=device-width, initial-scale=1, min-scale=1, max-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-17485141-5', 'auto');
+      ga('send', 'pageview');
+
+    </script>
+</head>
+<body>
+
+<button class="toggle" id="menutoggle">
+</button>
+<div class="wrapper">
+<header>
+
+    <div class="site-title">
+        <div class="site-title-info">
+            <h1>Cocos2d-html5</h1>
+        </div>
+        <div id="menu" class="site-menu">
+            <div id="menuclose" class="close-button"><span class="icon-close"></span></div>
+            <p class="demos-menu-title">Demos list</p>
+            <ul id="site-menu" >
+
+            </ul>
+        </div>
+    </div>
+</header>
+
+    <section>
+        <div>
+            <canvas id="c"></canvas>
+        </div>
+
+        <div>
+            <p>
+                This demos shows Node hierarchies.<br>
+                Each grass is composed of between 8 and 12 Nodes, one being the children of the previous.<br>
+                The size of each node is modified to become closed to 0 as we link Nodes.<br>
+                The movement is achieved by applying rotation to each node, since Nodes are linked, the rotation
+                accumulates to give the shown effect.
+            </p>
+        </div>
+
+    </section>
+    <footer>
+        <p>This project is maintained by <a href="https://github.com/hyperandroid">hyperandroid</a></p>
+    </footer>
+</div>
+<script src="../../../javascripts/scale.fix.js"></script>
+<script src="menu.js"></script>
+<script src="../../../dist/all.js"></script>
+<script>
+    (function() {
+
+        document.getElementById("menutoggle").addEventListener("click", function(e) {
+            e.preventDefault();
+            document.getElementById("menu").style["display"]="block";
+        }, false );
+        document.getElementById("menuclose").addEventListener("click", function(e) {
+            e.preventDefault();
+            document.getElementById("menu").style["display"]="none";
+        }, false );
+
+        var AssetManager= cc.plugin.asset.AssetManager;
+
+        function loadResources() {
+            AssetManager.load(
+                    {
+                        prefix : "../res/",
+                        resources: ["dude.png@dude"] },
+                    function onEnd(resources) {
+                        initialize(resources);
+                    }
+            );
+        }
+
+        /**
+         *
+         * @param resources {Array<cc.plugin.loader.Resource}
+         */
+        function initialize( resources ) {
+
+            AssetManager.addImage( resources['dude'], 'dude' );
+
+            // the renderer will setup pre-loaded textures for the renderer type.
+            // it will also create necessary SpriteFrames for each texture, in this case a frame for the image dude.png
+            var renderer= new cc.render.WebGLRenderer(700,600,document.getElementById("c"));
+
+            // director is the main Cocos Node, and must exist.
+            var director= new cc.node.Director().
+                    setRenderer( renderer );
+
+            // scenes run in directors, and are the main displayable element.
+            var scene= director.createScene().setColor(.1,.1,.3);
+
+            for( var i=0; i<100; i++ ) {
+                createNode( scene );
+            }
+
+            // run the scene.
+            director.runScene( scene );
+        }
+
+        function createNode( parent ) {
+
+            var height = 50 + Math.random()*40;
+            var width = 7 + Math.random()*7;
+            var shrinkFactor = .6 + Math.random()*.3;
+            var segments = (8+Math.random()*5)>>0;
+            var diffAngle= 5+Math.random()*10;
+            var orgAngle= Math.random()*10*(Math.random() <.5?1:-1);
+
+            var prevNode= parent;
+            var prevY= 0;
+            var prevX= 0;
+            for( var i=0 ;i<segments; i++ ) {
+
+                var node= new cc.node.Node().
+                        setContentSize( width * (segments-i)/segments, height).
+                        setPosition( prevNode===parent ? (-20 + Math.random()*720) : prevX/2, prevY-1).
+                        setTransformationAnchor( .5, 0).
+                        setPositionAnchor(.5, 0).
+                        setColor( 0,Math.random()/2 +.5,0 );
+
+                node.update= (function( armIndex ) {
+                    return function( delta ) {
+                        var t= new Date().getTime();
+                        this.rotationAngle= (armIndex===0 ? orgAngle : 0) +
+                                diffAngle *
+                                Math.sin(t * .0005 + armIndex * Math.PI / segments / 2)*
+                                Math.cos(t *.002 * Math.PI / segments / 2);
+
+                    };
+                })(i);
+
+                node.scheduleUpdate();
+
+                height*= shrinkFactor;
+
+                prevNode.addChild( node );
+                prevNode= node;
+
+                prevY= node.height;
+                prevX= node.width;
+
+            }
+
+        }
+
+        window.addEventListener("DOMContentLoaded", loadResources, false);
+
+    })();
+</script>
+
+
+</body>
+</html>

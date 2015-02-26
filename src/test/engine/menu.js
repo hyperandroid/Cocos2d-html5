@@ -67,6 +67,10 @@
             {
                 file : "text.html",
                 title: "Loads of text"
+            },
+            {
+                file : "hierarchies.html",
+                title: "Hierarchical Nodes"
             }
         ]
     };
