@@ -6,7 +6,7 @@
 
     var demos= {
 
-        path : "",
+        path : window.DEMOS_PATH || "",
         demos: [
             {
                 file : "anchors.html",
@@ -71,6 +71,10 @@
             {
                 file : "hierarchies.html",
                 title: "Hierarchical Nodes"
+            },
+            {
+                file : "../moonwarriors/index.html",
+                title: "Moon Warriors (the game)"
             }
         ]
     };

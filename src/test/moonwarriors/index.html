@@ -1,0 +1,133 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Cocos2d-html5 Liquid layout + Orientation</title>
+
+    <link rel="stylesheet" href="demos.css">
+    <link rel="stylesheet" href="../css/genericons.css">
+    <link rel="stylesheet" href="../css/templatestylesfull.css">
+    <link rel="stylesheet" href="../stylesheets/pygment_trac.css">
+    <link rel="stylesheet" id="open-sans-css"
+          href="//fonts.googleapis.com/css?family=Open+Sans%3A300italic%2C400italic%2C600italic%2C300%2C400%2C600&amp;subset=latin%2Clatin-ext&amp;ver=4.1.1"
+          type="text/css" media="all">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-17485141-5', 'auto');
+      ga('send', 'pageview');
+
+    </script>
+</head>
+<body>
+
+<canvas id="gameCanvas" width="320" height="480"></canvas>
+
+<div>
+    <button class="toggle" id="menutoggle" >
+    </button>
+</div>
+<div>
+    <button class="toggle-info" id="infotoggle" >
+    </button>
+</div>
+
+<div id="info" class="info">
+    <div id="infoclose" class="close-button"><span class="icon-close"></span></div>
+    <header>
+        <div class="site-title">
+            <div class="site-title-info">
+                <h1>Cocos2d-html5</h1>
+            </div>
+        </div>
+    </header>
+    <section>
+        <p>
+            This a port of the MoonWarriors demo game from Cocos2d-html5 v3 to v4.
+        </p>
+        <p>
+            For porting instructions, refer to <a href="https://github.com/hyperandroid/Cocos2d-html5/wiki/V3-to-V4-Upgrade-guide">From V3 to V4 guide.</a>
+        </p>
+    </section>
+    <footer>
+        <p>This project is maintained by <a href="https://github.com/hyperandroid">hyperandroid</a></p>
+    </footer>
+
+</div>
+
+<div id="menu" class="demos-menu">
+    <div>
+        <div id="menuclose" class="close-button"><span class="icon-close"></span></div>
+        <div class="demos-menu-title">Demos list</div>
+    </div>
+    <header>
+        <ul id="site-menu" class="site-menu">
+
+        </ul>
+    </header>
+</div>
+
+    <script src="../../../javascripts/scale.fix.js"></script>
+<script>
+    window.DEMOS_PATH= "../engine"
+</script>
+    <script src="../engine/menu.js"></script>
+    <script src="../../../dist/all.js"></script>
+
+<script src="main.js"></script>
+
+<script src="src/Resource.js"></script>
+<script src="src/config/GameConfig.js"></script>
+<script src="src/config/EnemyType.js"></script>
+<script src="src/config/Level.js"></script>
+
+<script src="src/Effect.js"></script>
+<script src="src/Bullet.js"></script>
+<script src="src/Enemy.js"></script>
+<script src="src/Explosion.js"></script>
+<script src="src/Ship.js"></script>
+<script src="src/LevelManager.js"></script>
+<!--<script src="src/GameController.js"></script>-->
+<script src="src/GameControlMenu.js"></script>
+<script src="src/GameLayer.js"></script>
+<script src="src/GameOver.js"></script>
+<script src="src/AboutLayer.js"></script>
+<script src="src/SettingsLayer.js"></script>
+<script src="src/SysMenu.js"></script>
+<script src="src/HitEffect.js"></script>
+<script src="src/SparkEffect.js"></script>
+<script src="src/Background.js"></script>
+<script>
+    (function() {
+
+        document.getElementById("menutoggle").addEventListener("click", function(e) {
+            e.preventDefault();
+            document.getElementById("menu").style["display"]="block";
+        }, false );
+        document.getElementById("menuclose").addEventListener("click", function(e) {
+            e.preventDefault();
+            document.getElementById("menu").style["display"]="none";
+        }, false );
+        document.getElementById("infotoggle").addEventListener("click", function(e) {
+            e.preventDefault();
+            document.getElementById("info").style["display"]="block";
+        }, false );
+        document.getElementById("infoclose").addEventListener("click", function(e) {
+            e.preventDefault();
+            document.getElementById("info").style["display"]="none";
+        }, false );
+
+
+    })();
+</script>
+
+</body>
+</html>
