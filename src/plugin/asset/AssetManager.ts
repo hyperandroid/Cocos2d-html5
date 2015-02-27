@@ -147,7 +147,7 @@ module cc.plugin.asset {
          * @param img {HTMLImageElement|HTMLCanvasElement}
          * @param id {string} The texture and the SpriteFrame representing the texture will have this id.
          */
-        static addImage( img:any, id:string ) : cc.render.Texture2D {
+        static addImage( img:HTMLImageElement|HTMLCanvasElement, id:string ) : cc.render.Texture2D {
             var texture:Texture2D= new cc.render.Texture2D(img, id);
            _textures[ id ]= texture;
            _frames[ id ]= new cc.node.sprite.SpriteFrame( texture );
@@ -208,6 +208,8 @@ module cc.plugin.asset {
 
         /**
          * Get an array of sprite frames identified by an array of SpriteFrame ids.
+         * If any of the ids does not match a SpriteFrame object, a warning will be printed in the console,
+         * but nothing will happen.
          * @method cc.plugin.asset.AssetManager.getSpriteFrames
          * @param ids {Array<string>}
          * @returns {Array<cc.node.sprite.SpriteFrame>}
@@ -259,11 +261,11 @@ module cc.plugin.asset {
          * @param frames {Array<number|string>}
          * @param prefix {string=}
          */
-        static addAnimationForFrames( animationId:string, frames:any[], prefix?:string ) : Animation {
+        static addAnimationForFrames( animationId:string, frames:Array<number>|string[], prefix?:string ) : Animation {
 
             var animation= new cc.node.sprite.Animation();
             for( var i=0; i<frames.length; i++ ) {
-                var frameName= prefix ? prefix+frames[i] : frames[i];
+                var frameName : string= prefix ? prefix+frames[i] : <string>frames[i];
                 var spriteFrame= _frames[ frameName ];
                 if ( spriteFrame ) {
                     animation.addFrame( spriteFrame );

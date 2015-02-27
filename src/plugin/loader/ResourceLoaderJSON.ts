@@ -210,7 +210,7 @@ module cc.plugin.loader {
          * @private
          */
         __parseDict(node) {
-            var data= {};
+            var data = {};
             var key = null;
             for (var i = 0; i < node.childNodes.length; i++) {
                 var child = node.childNodes[i];

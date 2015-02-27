@@ -361,6 +361,8 @@ module cc.plugin.layout {
          */
         _name: string= '';
 
+        _parent: BaseLayout = null;
+
         /**
          * Create a new BaseLayout object instance.
          * Do not create directly, only by subclasses.
@@ -453,8 +455,8 @@ module cc.plugin.layout {
          */
         getPreferredSize() : cc.math.Dimension {
             return new cc.math.Dimension(
-                    this._preferredWidth.getValue( this._bounds.w ),
-                    this._preferredHeight.getValue( this._bounds.h ) );
+                    this._preferredWidth.getValue( this._parent ? this._parent._bounds.w : this._bounds.w ),
+                    this._preferredHeight.getValue( this._parent ? this._parent._bounds.h : this._bounds.h ) );
         }
 
         /**
@@ -497,6 +499,7 @@ module cc.plugin.layout {
          */
         layout( x:number, y:number, w:number, h:number ) {
             this.setBounds(x,y,w,h);
+            this.getPreferredLayoutSize();
             this.doLayout();
         }
 
@@ -563,10 +566,11 @@ module cc.plugin.layout {
 
             var me= this;
 
-            function addElement( s:string|BaseLayoutInitializer ) {
+            function addElement( s:string|BaseLayoutInitializer, parent:BaseLayout ) {
 
                 var elem:BaseLayout = cc.plugin.layout.BaseLayout.parse(s);
                 if (elem) {
+                    elem._parent= parent;
                     me._children.push(elem);
                 } else {
 
@@ -593,23 +597,23 @@ module cc.plugin.layout {
                             var to:number= parseInt( pattern[1] );
 
                             while( from <= to ) {
-                                addElement( prefix+from );
+                                addElement( prefix+from, this );
                                 from++;
                             }
 
                         } else {
                             /// wrong pattern ?!?!?!?!?
                             console.log("wrong pattern for element by name: "+elem );
-                            addElement( elem );
+                            addElement( elem, this );
                         }
                     } else {
                         // not name pattern.
-                        addElement( elem );
+                        addElement( elem, this );
                     }
 
                 } else {
 
-                    addElement( children[i] );
+                    addElement( children[i], this );
                 }
             }
         }
@@ -812,6 +816,7 @@ module cc.plugin.layout {
         left( e:BaseLayout ) : BorderLayout {
             this._children.push(e);
             this._left= e;
+            this._left._parent= this;
             return this;
         }
 
@@ -824,6 +829,7 @@ module cc.plugin.layout {
         right( e:BaseLayout ) : BorderLayout {
             this._children.push(e);
             this._right= e;
+            this._right._parent= this;
             return this;
         }
 
@@ -836,6 +842,7 @@ module cc.plugin.layout {
         top( e:BaseLayout ) : BorderLayout {
             this._children.push(e);
             this._top= e;
+            this._top._parent= this;
             return this;
         }
 
@@ -848,6 +855,7 @@ module cc.plugin.layout {
         bottom( e:BaseLayout ) : BorderLayout {
             this._children.push(e);
             this._bottom= e;
+            this._bottom._parent= this;
             return this;
         }
 
@@ -860,6 +868,7 @@ module cc.plugin.layout {
         center( e:BaseLayout ) : BorderLayout {
             this._children.push(e);
             this._center= e;
+            this._center._parent= this;
             return this;
         }
 
@@ -1089,7 +1098,7 @@ console.log("bug bug grid info wrong defined.");
 
             var pd= this.getPreferredSize();
             d.width= Math.max( d.width, pd.width );
-            d.height= Math.max( d.width, pd.height );
+            d.height= Math.max( d.height, pd.height );
 
 
             this._rows= rows;

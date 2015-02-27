@@ -1010,7 +1010,7 @@ module cc.plugin.audio {
         }
     }
 
-    export interface AudioManagerInitialized {
+    export interface AudioManagerInitializer {
 
         numChannels? : number;
 
@@ -1053,7 +1053,7 @@ module cc.plugin.audio {
 
         _music : SimpleAudioEffect = null;
 
-        constructor( ami?:AudioManagerInitialized ) {
+        constructor( ami?:AudioManagerInitializer ) {
 
             if ( audioContext ) {
                 this._masterGain= audioContext.createGain();
@@ -1108,8 +1108,9 @@ module cc.plugin.audio {
          * This method plays a fully system-controlled sound. There's no user-side control.
          * To have a client side controlled audio effect object, call <code>createAudio</code>.
          * @param id {string|AudioBuffer} a string id in the asset manager.
+         * @param volume {number=} the volume for this effect. if not set, full volume will be used.
          */
-        playEffect( id:string|AudioBuffer ) {
+        playEffect( id:string|AudioBuffer, volume?:number ) {
             if ( this._soundPool.length===0 ) {
                 cc.Debug.warn( cc.locale.ERR_SOUND_POOL_EMPTY );
             }
@@ -1123,6 +1124,7 @@ module cc.plugin.audio {
 
             if (null!==ab) {
                 var ae:AudioEffect = this._soundPool.pop();
+                ae.setVolume( volume || 1 );
                 ae.setBuffer( ab );
                 ae.play();
 

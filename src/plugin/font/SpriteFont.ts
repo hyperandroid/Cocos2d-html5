@@ -591,19 +591,22 @@ module cc.plugin.font {
          * This method will be called by drawText. Prefer this method to avoid creating intermediate strings
          * per frame compared to drawText.
          * @param ctx {cc.render.RenderingContext}
-         * @param text {string}
+         * @param lines {string[]}
          * @param x {number}
          * @param y {number}
          */
         drawTextArray( ctx:cc.render.RenderingContext, lines:string[], x:number, y:number ) {
 
+            var h= this._height;
+
             if ( cc.render.RENDER_ORIGIN===cc.render.ORIGIN_BOTTOM) {
                 y += (lines.length - 1) * this._height;
+                h= -h;
             }
 
             for(var n = 0; n < lines.length; n++) {
                 this.drawTextLine( ctx, lines[n], x, y );
-                y += this._height * (cc.render.RENDER_ORIGIN===cc.render.ORIGIN_BOTTOM ? -1 : 1);
+                y += h;
             }
         }
 

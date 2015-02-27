@@ -17,7 +17,7 @@ module cc.plugin.loader {
      * @param resources {Array<cc.plugin.loader.Resource>} all resources created in this loader.
      */
     export interface LoaderFinishedCallback {
-        ( resources : {[id:string] : Resource} ) : any;
+        ( resources : {[id:string] : any} ) : any;
     }
 
     /**

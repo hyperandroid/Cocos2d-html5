@@ -20795,17 +20795,19 @@ var cc;
                  * This method will be called by drawText. Prefer this method to avoid creating intermediate strings
                  * per frame compared to drawText.
                  * @param ctx {cc.render.RenderingContext}
-                 * @param text {string}
+                 * @param lines {string[]}
                  * @param x {number}
                  * @param y {number}
                  */
                 SpriteFont.prototype.drawTextArray = function (ctx, lines, x, y) {
+                    var h = this._height;
                     if (cc.render.RENDER_ORIGIN === cc.render.ORIGIN_BOTTOM) {
                         y += (lines.length - 1) * this._height;
+                        h = -h;
                     }
                     for (var n = 0; n < lines.length; n++) {
                         this.drawTextLine(ctx, lines[n], x, y);
-                        y += this._height * (cc.render.RENDER_ORIGIN === cc.render.ORIGIN_BOTTOM ? -1 : 1);
+                        y += h;
                     }
                 };
                 /**
@@ -21296,6 +21298,8 @@ var cc;
                 };
                 /**
                  * Get an array of sprite frames identified by an array of SpriteFrame ids.
+                 * If any of the ids does not match a SpriteFrame object, a warning will be printed in the console,
+                 * but nothing will happen.
                  * @method cc.plugin.asset.AssetManager.getSpriteFrames
                  * @param ids {Array<string>}
                  * @returns {Array<cc.node.sprite.SpriteFrame>}
@@ -22364,8 +22368,9 @@ var cc;
                  * This method plays a fully system-controlled sound. There's no user-side control.
                  * To have a client side controlled audio effect object, call <code>createAudio</code>.
                  * @param id {string|AudioBuffer} a string id in the asset manager.
+                 * @param volume {number=} the volume for this effect. if not set, full volume will be used.
                  */
-                AudioManager.prototype.playEffect = function (id) {
+                AudioManager.prototype.playEffect = function (id, volume) {
                     if (this._soundPool.length === 0) {
                         cc.Debug.warn(cc.locale.ERR_SOUND_POOL_EMPTY);
                     }
@@ -22378,6 +22383,7 @@ var cc;
                     }
                     if (null !== ab) {
                         var ae = this._soundPool.pop();
+                        ae.setVolume(volume || 1);
                         ae.setBuffer(ab);
                         ae.play();
                         this._playingPool.push(ae);
@@ -22705,6 +22711,7 @@ var cc;
                      * @private
                      */
                     this._name = '';
+                    this._parent = null;
                     this._bounds = new cc.math.Rectangle();
                     this._insets = new Insets();
                     this._gap = new Gap();
@@ -22788,7 +22795,7 @@ var cc;
                  * @returns {cc.math.Dimension}
                  */
                 BaseLayout.prototype.getPreferredSize = function () {
-                    return new cc.math.Dimension(this._preferredWidth.getValue(this._bounds.w), this._preferredHeight.getValue(this._bounds.h));
+                    return new cc.math.Dimension(this._preferredWidth.getValue(this._parent ? this._parent._bounds.w : this._bounds.w), this._preferredHeight.getValue(this._parent ? this._parent._bounds.h : this._bounds.h));
                 };
                 /**
                  * Recursively evaluate the layout elements and get the resulting preferred size.
@@ -22826,6 +22833,7 @@ var cc;
                  */
                 BaseLayout.prototype.layout = function (x, y, w, h) {
                     this.setBounds(x, y, w, h);
+                    this.getPreferredLayoutSize();
                     this.doLayout();
                 };
                 /**
@@ -22880,9 +22888,10 @@ var cc;
                  */
                 BaseLayout.prototype.parseElements = function (children) {
                     var me = this;
-                    function addElement(s) {
+                    function addElement(s, parent) {
                         var elem = cc.plugin.layout.BaseLayout.parse(s);
                         if (elem) {
+                            elem._parent = parent;
                             me._children.push(elem);
                         }
                         else {
@@ -22901,23 +22910,23 @@ var cc;
                                     var from = parseInt(pattern[0]);
                                     var to = parseInt(pattern[1]);
                                     while (from <= to) {
-                                        addElement(prefix + from);
+                                        addElement(prefix + from, this);
                                         from++;
                                     }
                                 }
                                 else {
                                     /// wrong pattern ?!?!?!?!?
                                     console.log("wrong pattern for element by name: " + elem);
-                                    addElement(elem);
+                                    addElement(elem, this);
                                 }
                             }
                             else {
                                 // not name pattern.
-                                addElement(elem);
+                                addElement(elem, this);
                             }
                         }
                         else {
-                            addElement(children[i]);
+                            addElement(children[i], this);
                         }
                     }
                 };
@@ -23099,6 +23108,7 @@ var cc;
                 BorderLayout.prototype.left = function (e) {
                     this._children.push(e);
                     this._left = e;
+                    this._left._parent = this;
                     return this;
                 };
                 /**
@@ -23110,6 +23120,7 @@ var cc;
                 BorderLayout.prototype.right = function (e) {
                     this._children.push(e);
                     this._right = e;
+                    this._right._parent = this;
                     return this;
                 };
                 /**
@@ -23121,6 +23132,7 @@ var cc;
                 BorderLayout.prototype.top = function (e) {
                     this._children.push(e);
                     this._top = e;
+                    this._top._parent = this;
                     return this;
                 };
                 /**
@@ -23132,6 +23144,7 @@ var cc;
                 BorderLayout.prototype.bottom = function (e) {
                     this._children.push(e);
                     this._bottom = e;
+                    this._bottom._parent = this;
                     return this;
                 };
                 /**
@@ -23143,6 +23156,7 @@ var cc;
                 BorderLayout.prototype.center = function (e) {
                     this._children.push(e);
                     this._center = e;
+                    this._center._parent = this;
                     return this;
                 };
                 /**
@@ -23344,7 +23358,7 @@ var cc;
                     d.height += rows * ret.height + (rows - 1) * this._gap.vertical.getValue(this._bounds.h);
                     var pd = this.getPreferredSize();
                     d.width = Math.max(d.width, pd.width);
-                    d.height = Math.max(d.width, pd.height);
+                    d.height = Math.max(d.height, pd.height);
                     this._rows = rows;
                     this._columns = columns;
                     return d;
