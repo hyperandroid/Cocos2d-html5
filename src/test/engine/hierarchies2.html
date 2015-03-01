@@ -1,0 +1,242 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Cocos2d-html5 Basic Node hierarchy (II)</title>
+
+    <link rel="stylesheet" href="../css/genericons.css">
+    <link rel="stylesheet" href="../css/templatestyles.css">
+    <link rel="stylesheet" href="../stylesheets/pygment_trac.css">
+    <link rel="stylesheet" id="open-sans-css"
+          href="//fonts.googleapis.com/css?family=Open+Sans%3A300italic%2C400italic%2C600italic%2C300%2C400%2C600&amp;subset=latin%2Clatin-ext&amp;ver=4.1.1"
+          type="text/css" media="all">
+    <meta name="viewport" content="width=device-width, initial-scale=1, min-scale=1, max-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-17485141-5', 'auto');
+      ga('send', 'pageview');
+
+    </script>
+</head>
+<body>
+
+<button class="toggle" id="menutoggle">
+</button>
+<div class="wrapper">
+<header>
+
+    <div class="site-title">
+        <div class="site-title-info">
+            <h1>Cocos2d-html5</h1>
+        </div>
+        <div id="menu" class="site-menu">
+            <div id="menuclose" class="close-button"><span class="icon-close"></span></div>
+            <p class="demos-menu-title">Demos list</p>
+            <ul id="site-menu" >
+
+            </ul>
+        </div>
+    </div>
+</header>
+
+    <section>
+        <div>
+            <canvas id="c"></canvas>
+        </div>
+
+        <div>
+            <p>
+                This demos shows Node hierarchies.<br>
+                Some nodes are linked together to create a Spirograph effect. The nodes continuously rotate randomly
+                in a positive or negative angle which gives the weird effect.<br>
+                Click on the screen to restart the Spirograph, will never two the same.
+            </p>
+        </div>
+
+    </section>
+    <footer>
+        <p>This project is maintained by <a href="https://github.com/hyperandroid">hyperandroid</a></p>
+    </footer>
+</div>
+<script src="../../../javascripts/scale.fix.js"></script>
+<script src="menu.js"></script>
+<script src="../../../dist/all.js"></script>
+<script>
+    (function() {
+
+        document.getElementById("menutoggle").addEventListener("click", function(e) {
+            e.preventDefault();
+            document.getElementById("menu").style["display"]="block";
+        }, false );
+        document.getElementById("menuclose").addEventListener("click", function(e) {
+            e.preventDefault();
+            document.getElementById("menu").style["display"]="none";
+        }, false );
+
+        var AssetManager= cc.plugin.asset.AssetManager;
+
+        function loadResources() {
+            AssetManager.load(
+                    {
+                        prefix : "../res/",
+                        resources: ["dude.png@dude"] },
+                    function onEnd(resources) {
+                        initialize(resources);
+                    }
+            );
+        }
+
+        /**
+         *
+         * @param resources {Array<cc.plugin.loader.Resource}
+         */
+        function initialize( resources ) {
+
+            AssetManager.addImage( resources['dude'], 'dude' );
+
+            // the renderer will setup pre-loaded textures for the renderer type.
+            // it will also create necessary SpriteFrames for each texture, in this case a frame for the image dude.png
+            var renderer= new cc.render.CanvasRenderer(700,600,document.getElementById("c"));
+
+            // director is the main Cocos Node, and must exist.
+            var director= new cc.node.Director().
+                    setRenderer( renderer );
+
+            // scenes run in directors, and are the main displayable element.
+            var scene= director.createScene().setColor(.1,.1,.3);
+
+            createNode( scene );
+            scene.visit(renderer.getRenderingContext());
+
+            scene.enableEvents( true );
+            scene.addEventListener("mouseup", function(e) {
+                scene.removeAllChildren(true);
+                createNode(scene);
+                scene.visit(renderer.getRenderingContext());
+            });
+            scene.addEventListener("touchup", function(e) {
+                scene.removeAllChildren(true);
+                createNode(scene);
+                scene.visit(renderer.getRenderingContext());
+            });
+
+            // run the scene.
+            director.runScene( scene );
+        }
+
+        function createNode( parent ) {
+
+            var height = 50;
+            var width = 10;
+            var shrinkFactor = 1;
+            var segments = 7;
+
+            var prevNode= parent;
+            var prevY= 350;
+            var prevX= 300;
+
+            var prevPoint= null;
+            var newPoint= new cc.math.Vector();
+            var calculatedPoints = false;
+
+            var canvas= cc.render.util.createCanvas( parent.width, parent.height );
+            var ctxc= canvas.getContext("2d");
+
+            var t=0;
+
+            parent.draw= function( ctx ) {
+
+                var c= {
+                    r: 128,
+                    g: 0,
+                    b: 0
+                };
+
+                if ( calculatedPoints ) {
+                    ctxc.beginPath();
+                    ctxc.moveTo(prevPoint.x, prevPoint.y);
+                    ctxc.lineTo(newPoint.x, newPoint.y);
+                    ctxc.lineWidth = 2;
+
+                    cc.math.Color.HSV( c, t/2,100,1 );
+
+                    ctxc.strokeStyle = "rgb("+(c.r|0)+","+ (c.g|0)+","+ (c.b|0)+")";
+                    ctxc.stroke();
+
+                    prevPoint.set(newPoint.x, newPoint.y);
+
+                    ctx.drawImage(canvas, 0, 0);
+
+                }
+            };
+
+            for( var i=0 ;i<segments; i++ ) {
+
+                var node= new cc.node.Node().
+                        setContentSize( width * (segments-i)/segments, height).
+                        setTransformationAnchor( .5, 0).
+                        setPositionAnchor(.5, 0).
+                        setColor( 0, 0, 1 );
+
+                if ( prevNode===parent ) {
+                    node.setPosition(350,300);
+                } else {
+                    node.setPosition( prevX / 2, prevY - 1);
+                }
+
+                node.update= (function( armIndex ) {
+
+                    var angle= (Math.random()*20+5)*(Math.random() <.5?2:-2);
+
+                    return function( delta ) {
+                        this.rotationAngle+= delta*angle;
+
+                        if ( armIndex===6 ) {
+
+                            newPoint.set( this.width/2, this.height );
+                            this.getLocalPointInNodeSpace(newPoint, parent);
+
+                            if ( prevPoint===null ) {
+                                prevPoint= new cc.math.Vector();
+                                prevPoint.set(newPoint.x, newPoint.y);
+                            }
+
+                            calculatedPoints = true;
+
+                        }
+
+                        t+=delta;
+
+                    };
+                })(i);
+
+                node.scheduleUpdate();
+
+                height*= shrinkFactor;
+
+                prevNode.addChild( node );
+                prevNode= node;
+
+                prevY= node.height;
+                prevX= node.width;
+
+            }
+
+        }
+
+        window.addEventListener("DOMContentLoaded", loadResources, false);
+
+    })();
+</script>
+
+
+</body>
+</html>

@@ -679,6 +679,29 @@ var cc;
                 }
             };
             /**
+             * Shamelessly ripped from: http://beesbuzz.biz/code/hsv_color_transforms.php
+             * Thanks for the awesome code.
+             *
+             * Convert a color value based on HSV parameters.
+             *
+             * @param c {cc.math.Color}
+             * @param H {number} angle
+             * @param S {number}
+             * @param V {number}
+             * @returns {cc.math.Color} modified color.
+             */
+            Color.HSV = function (c, H, S, V) {
+                var VSU = V * S * Math.cos(H * Math.PI / 180);
+                var VSW = V * S * Math.sin(H * Math.PI / 180);
+                var r = (.299 * V + .701 * VSU + .168 * VSW) * c.r + (.587 * V - .587 * VSU + .330 * VSW) * c.g + (.114 * V - .114 * VSU - .497 * VSW) * c.b;
+                var g = (.299 * V - .299 * VSU - .328 * VSW) * c.r + (.587 * V + .413 * VSU + .035 * VSW) * c.g + (.114 * V - .114 * VSU + .292 * VSW) * c.b;
+                var b = (.299 * V - .3 * VSU + 1.25 * VSW) * c.r + (.587 * V - .588 * VSU - 1.05 * VSW) * c.g + (.114 * V + .886 * VSU - .203 * VSW) * c.b;
+                c.r = r;
+                c.g = g;
+                c.b = b;
+                return c;
+            };
+            /**
              * Transparent black color.
              * @member cc.math.Color.TRANSPARENT_BLACK
              * @type {cc.math.Color}
@@ -5544,6 +5567,12 @@ var cc;
                 this._inputEvents[event] = callback;
                 return this;
             };
+            /**
+             * Notify an event callback based on the event type.
+             * @method cc.node.Node#notifyEvent
+             * @param e {cc.event.InputManagerEvent}
+             * @returns {boolean} whether the event must bubble.
+             */
             Node.prototype.notifyEvent = function (e) {
                 var callback = this._inputEvents[e.type];
                 if (e.type === "touchstart") {
@@ -5576,10 +5605,48 @@ var cc;
                 }
                 return false;
             };
+            /**
+             * Get a point in screen space turned into local node space.
+             * When nodes are axis aligned, this is trivial, but for transformed nodes this method is needed.
+             * The point will be modified.
+             * See input demos.
+             * @method cc.node.Node#getScreenPointInLocalSpace
+             * @param p {cc.math.Vector}
+             */
             Node.prototype.getScreenPointInLocalSpace = function (p) {
                 var matrix = this.getInverseWorldModelViewMatrix();
                 cc.math.Matrix3.transformPoint(matrix, p);
             };
+            /**
+             * Get a point in local Node space turned into screen space.
+             * When nodes are axis aligned, this is trivial, but for transformed nodes this method is needed.
+             * The point will be modified.
+             * See input demos.
+             * @method cc.node.Node#getLocalPointInScreenSpace
+             * @param p {cc.math.Vector}
+             */
+            Node.prototype.getLocalPointInScreenSpace = function (p) {
+                cc.math.Matrix3.transformPoint(this._worldModelViewMatrix, p);
+            };
+            /**
+             * Get a point in local Node space turned into another Node's local space.
+             * When nodes are axis aligned, this is trivial, but for transformed nodes this method is needed.
+             * The point will be modified.
+             * See input demos.
+             * @method cc.node.Node#getLocalPointInNodeSpace
+             * @param p {cc.math.Vector}
+             */
+            Node.prototype.getLocalPointInNodeSpace = function (p, node) {
+                this.getLocalPointInScreenSpace(p);
+                node.getScreenPointInLocalSpace(p);
+            };
+            /**
+             * Get whether a point in screen space lies in the Node's bounds.
+             * When nodes are axis aligned, this is trivial, but for transformed nodes this method is needed.
+             * See input demos.
+             * @method cc.node.Node#isScreenPointInNode
+             * @param p {cc.math.Vector}
+             */
             Node.prototype.isScreenPointInNode = function (p) {
                 if (!this.isVisible()) {
                     return false;
@@ -20795,17 +20862,19 @@ var cc;
                  * This method will be called by drawText. Prefer this method to avoid creating intermediate strings
                  * per frame compared to drawText.
                  * @param ctx {cc.render.RenderingContext}
-                 * @param text {string}
+                 * @param lines {string[]}
                  * @param x {number}
                  * @param y {number}
                  */
                 SpriteFont.prototype.drawTextArray = function (ctx, lines, x, y) {
+                    var h = this._height;
                     if (cc.render.RENDER_ORIGIN === cc.render.ORIGIN_BOTTOM) {
                         y += (lines.length - 1) * this._height;
+                        h = -h;
                     }
                     for (var n = 0; n < lines.length; n++) {
                         this.drawTextLine(ctx, lines[n], x, y);
-                        y += this._height * (cc.render.RENDER_ORIGIN === cc.render.ORIGIN_BOTTOM ? -1 : 1);
+                        y += h;
                     }
                 };
                 /**
@@ -21296,6 +21365,8 @@ var cc;
                 };
                 /**
                  * Get an array of sprite frames identified by an array of SpriteFrame ids.
+                 * If any of the ids does not match a SpriteFrame object, a warning will be printed in the console,
+                 * but nothing will happen.
                  * @method cc.plugin.asset.AssetManager.getSpriteFrames
                  * @param ids {Array<string>}
                  * @returns {Array<cc.node.sprite.SpriteFrame>}
@@ -22364,8 +22435,9 @@ var cc;
                  * This method plays a fully system-controlled sound. There's no user-side control.
                  * To have a client side controlled audio effect object, call <code>createAudio</code>.
                  * @param id {string|AudioBuffer} a string id in the asset manager.
+                 * @param volume {number=} the volume for this effect. if not set, full volume will be used.
                  */
-                AudioManager.prototype.playEffect = function (id) {
+                AudioManager.prototype.playEffect = function (id, volume) {
                     if (this._soundPool.length === 0) {
                         cc.Debug.warn(cc.locale.ERR_SOUND_POOL_EMPTY);
                     }
@@ -22378,6 +22450,7 @@ var cc;
                     }
                     if (null !== ab) {
                         var ae = this._soundPool.pop();
+                        ae.setVolume(volume || 1);
                         ae.setBuffer(ab);
                         ae.play();
                         this._playingPool.push(ae);
@@ -22705,6 +22778,7 @@ var cc;
                      * @private
                      */
                     this._name = '';
+                    this._parent = null;
                     this._bounds = new cc.math.Rectangle();
                     this._insets = new Insets();
                     this._gap = new Gap();
@@ -22788,7 +22862,7 @@ var cc;
                  * @returns {cc.math.Dimension}
                  */
                 BaseLayout.prototype.getPreferredSize = function () {
-                    return new cc.math.Dimension(this._preferredWidth.getValue(this._bounds.w), this._preferredHeight.getValue(this._bounds.h));
+                    return new cc.math.Dimension(this._preferredWidth.getValue(this._parent ? this._parent._bounds.w : this._bounds.w), this._preferredHeight.getValue(this._parent ? this._parent._bounds.h : this._bounds.h));
                 };
                 /**
                  * Recursively evaluate the layout elements and get the resulting preferred size.
@@ -22826,6 +22900,7 @@ var cc;
                  */
                 BaseLayout.prototype.layout = function (x, y, w, h) {
                     this.setBounds(x, y, w, h);
+                    this.getPreferredLayoutSize();
                     this.doLayout();
                 };
                 /**
@@ -22880,9 +22955,10 @@ var cc;
                  */
                 BaseLayout.prototype.parseElements = function (children) {
                     var me = this;
-                    function addElement(s) {
+                    function addElement(s, parent) {
                         var elem = cc.plugin.layout.BaseLayout.parse(s);
                         if (elem) {
+                            elem._parent = parent;
                             me._children.push(elem);
                         }
                         else {
@@ -22901,23 +22977,23 @@ var cc;
                                     var from = parseInt(pattern[0]);
                                     var to = parseInt(pattern[1]);
                                     while (from <= to) {
-                                        addElement(prefix + from);
+                                        addElement(prefix + from, this);
                                         from++;
                                     }
                                 }
                                 else {
                                     /// wrong pattern ?!?!?!?!?
                                     console.log("wrong pattern for element by name: " + elem);
-                                    addElement(elem);
+                                    addElement(elem, this);
                                 }
                             }
                             else {
                                 // not name pattern.
-                                addElement(elem);
+                                addElement(elem, this);
                             }
                         }
                         else {
-                            addElement(children[i]);
+                            addElement(children[i], this);
                         }
                     }
                 };
@@ -23099,6 +23175,7 @@ var cc;
                 BorderLayout.prototype.left = function (e) {
                     this._children.push(e);
                     this._left = e;
+                    this._left._parent = this;
                     return this;
                 };
                 /**
@@ -23110,6 +23187,7 @@ var cc;
                 BorderLayout.prototype.right = function (e) {
                     this._children.push(e);
                     this._right = e;
+                    this._right._parent = this;
                     return this;
                 };
                 /**
@@ -23121,6 +23199,7 @@ var cc;
                 BorderLayout.prototype.top = function (e) {
                     this._children.push(e);
                     this._top = e;
+                    this._top._parent = this;
                     return this;
                 };
                 /**
@@ -23132,6 +23211,7 @@ var cc;
                 BorderLayout.prototype.bottom = function (e) {
                     this._children.push(e);
                     this._bottom = e;
+                    this._bottom._parent = this;
                     return this;
                 };
                 /**
@@ -23143,6 +23223,7 @@ var cc;
                 BorderLayout.prototype.center = function (e) {
                     this._children.push(e);
                     this._center = e;
+                    this._center._parent = this;
                     return this;
                 };
                 /**
@@ -23205,6 +23286,7 @@ var cc;
                     if (this._bottom) {
                         this._bottom.setSize(right - left, this._bottom._bounds.h);
                         d = this._bottom.getPreferredLayoutSize();
+                        d.height = Math.min(d.height, bottom - top);
                         this._bottom._bounds.set(left, bottom - d.height, right - left, d.height);
                         this._bottom.doLayout();
                         bottom -= d.height + this._gap.vertical.getValue(this._bounds.h);
@@ -23219,6 +23301,7 @@ var cc;
                     if (this._left) {
                         this._left.setSize(this._left._bounds.w, bottom - top);
                         d = this._left.getPreferredLayoutSize();
+                        d.width = Math.min(d.width, right - left);
                         this._left._bounds.set(left, top, d.width, bottom - top);
                         this._left.doLayout();
                         left += d.width + this._gap.horizontal.getValue(this._bounds.w);
@@ -23344,7 +23427,7 @@ var cc;
                     d.height += rows * ret.height + (rows - 1) * this._gap.vertical.getValue(this._bounds.h);
                     var pd = this.getPreferredSize();
                     d.width = Math.max(d.width, pd.width);
-                    d.height = Math.max(d.width, pd.height);
+                    d.height = Math.max(d.height, pd.height);
                     this._rows = rows;
                     this._columns = columns;
                     return d;
@@ -24400,6 +24483,9 @@ var cc;
             return MouseInputManagerEvent;
         })(InputManagerEvent);
         input.MouseInputManagerEvent = MouseInputManagerEvent;
+        function hasTouch() {
+            return (('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (navigator.msMaxTouchPoints > 0));
+        }
         /**
          * @class cc.input.MouseInputManager
          * @classdesc
@@ -24447,15 +24533,19 @@ var cc;
                     this.disable();
                 }
                 _target = target;
-                window.addEventListener('mouseup', mouseUp, false);
-                window.addEventListener('mousedown', mouseDown, false);
-                window.addEventListener('mouseover', mouseOver, false);
-                window.addEventListener('mouseout', mouseOut, false);
-                window.addEventListener('mousemove', mouseMove, false);
-                window.addEventListener('dblclick', doubleClick, false);
-                target.addEventListener("touchstart", touchStart, false);
-                target.addEventListener("touchmove", touchMove, false);
-                target.addEventListener("touchend", touchEnd, false);
+                if (hasTouch()) {
+                    target.addEventListener("touchstart", touchStart, false);
+                    target.addEventListener("touchmove", touchMove, false);
+                    target.addEventListener("touchend", touchEnd, false);
+                }
+                else {
+                    window.addEventListener('mouseup', mouseUp, false);
+                    window.addEventListener('mousedown', mouseDown, false);
+                    window.addEventListener('mouseover', mouseOver, false);
+                    window.addEventListener('mouseout', mouseOut, false);
+                    window.addEventListener('mousemove', mouseMove, false);
+                    window.addEventListener('dblclick', doubleClick, false);
+                }
             };
             /**
              * Disable the input for mouse and touch.
@@ -24463,15 +24553,19 @@ var cc;
              */
             MouseInputManager.disable = function () {
                 if (_target !== null) {
-                    window.removeEventListener('mouseup', mouseUp, false);
-                    window.removeEventListener('mousedown', mouseDown, false);
-                    window.removeEventListener('mouseover', mouseOver, false);
-                    window.removeEventListener('mouseout', mouseOut, false);
-                    window.removeEventListener('mousemove', mouseMove, false);
-                    window.removeEventListener('dblclick', doubleClick, false);
-                    _target.removeEventListener("touchstart", touchStart, false);
-                    _target.removeEventListener("touchmove", touchMove, false);
-                    _target.removeEventListener("touchend", touchEnd, false);
+                    if (hasTouch()) {
+                        _target.removeEventListener("touchstart", touchStart, false);
+                        _target.removeEventListener("touchmove", touchMove, false);
+                        _target.removeEventListener("touchend", touchEnd, false);
+                    }
+                    else {
+                        window.removeEventListener('mouseup', mouseUp, false);
+                        window.removeEventListener('mousedown', mouseDown, false);
+                        window.removeEventListener('mouseover', mouseOver, false);
+                        window.removeEventListener('mouseout', mouseOut, false);
+                        window.removeEventListener('mousemove', mouseMove, false);
+                        window.removeEventListener('dblclick', doubleClick, false);
+                    }
                     _target = null;
                 }
             };

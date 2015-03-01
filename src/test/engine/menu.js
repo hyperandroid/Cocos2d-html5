@@ -73,6 +73,10 @@
                 title: "Hierarchical Nodes"
             },
             {
+                file : "hierarchies2.html",
+                title: "Hierarchical Nodes (II)"
+            },
+            {
                 file : "../moonwarriors/index.html",
                 title: "Moon Warriors (the game)"
             }
