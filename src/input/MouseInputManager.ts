@@ -719,17 +719,19 @@ module cc.input {
             }
             _target= target;
 
-            window.addEventListener('mouseup',  mouseUp,    false);
-            window.addEventListener('mousedown',mouseDown,  false);
-            window.addEventListener('mouseover',mouseOver,  false);
-            window.addEventListener('mouseout', mouseOut,   false);
-            window.addEventListener('mousemove',mouseMove,  false);
-            window.addEventListener('dblclick', doubleClick,false);
 
             if ( hasTouch() ) {
                 target.addEventListener("touchstart", touchStart, false);
                 target.addEventListener("touchmove", touchMove, false);
                 target.addEventListener("touchend", touchEnd, false);
+            } else {
+
+                window.addEventListener('mouseup',  mouseUp,    false);
+                window.addEventListener('mousedown',mouseDown,  false);
+                window.addEventListener('mouseover',mouseOver,  false);
+                window.addEventListener('mouseout', mouseOut,   false);
+                window.addEventListener('mousemove',mouseMove,  false);
+                window.addEventListener('dblclick', doubleClick,false);
             }
         }
 
@@ -740,17 +742,19 @@ module cc.input {
         static disable() {
 
             if ( _target!==null ) {
-                window.removeEventListener('mouseup',  mouseUp,     false);
-                window.removeEventListener('mousedown',mouseDown,   false);
-                window.removeEventListener('mouseover',mouseOver,   false);
-                window.removeEventListener('mouseout', mouseOut,    false);
-                window.removeEventListener('mousemove',mouseMove,   false);
-                window.removeEventListener('dblclick', doubleClick, false);
 
                 if ( hasTouch() ) {
                     _target.removeEventListener("touchstart", touchStart, false);
                     _target.removeEventListener("touchmove", touchMove, false);
                     _target.removeEventListener("touchend", touchEnd, false);
+                } else {
+
+                    window.removeEventListener('mouseup',  mouseUp,     false);
+                    window.removeEventListener('mousedown',mouseDown,   false);
+                    window.removeEventListener('mouseover',mouseOver,   false);
+                    window.removeEventListener('mouseout', mouseOut,    false);
+                    window.removeEventListener('mousemove',mouseMove,   false);
+                    window.removeEventListener('dblclick', doubleClick, false);
                 }
 
                 _target= null;
