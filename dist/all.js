@@ -679,6 +679,29 @@ var cc;
                 }
             };
             /**
+             * Shamelessly ripped from: http://beesbuzz.biz/code/hsv_color_transforms.php
+             * Thanks for the awesome code.
+             *
+             * Convert a color value based on HSV parameters.
+             *
+             * @param c {cc.math.Color}
+             * @param H {number} angle
+             * @param S {number}
+             * @param V {number}
+             * @returns {cc.math.Color} modified color.
+             */
+            Color.HSV = function (c, H, S, V) {
+                var VSU = V * S * Math.cos(H * Math.PI / 180);
+                var VSW = V * S * Math.sin(H * Math.PI / 180);
+                var r = (.299 * V + .701 * VSU + .168 * VSW) * c.r + (.587 * V - .587 * VSU + .330 * VSW) * c.g + (.114 * V - .114 * VSU - .497 * VSW) * c.b;
+                var g = (.299 * V - .299 * VSU - .328 * VSW) * c.r + (.587 * V + .413 * VSU + .035 * VSW) * c.g + (.114 * V - .114 * VSU + .292 * VSW) * c.b;
+                var b = (.299 * V - .3 * VSU + 1.25 * VSW) * c.r + (.587 * V - .588 * VSU - 1.05 * VSW) * c.g + (.114 * V + .886 * VSU - .203 * VSW) * c.b;
+                c.r = r;
+                c.g = g;
+                c.b = b;
+                return c;
+            };
+            /**
              * Transparent black color.
              * @member cc.math.Color.TRANSPARENT_BLACK
              * @type {cc.math.Color}
