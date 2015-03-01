@@ -1173,6 +1173,12 @@ module cc.node {
             return this;
         }
 
+        /**
+         * Notify an event callback based on the event type.
+         * @method cc.node.Node#notifyEvent
+         * @param e {cc.event.InputManagerEvent}
+         * @returns {boolean} whether the event must bubble.
+         */
         notifyEvent( e:any ) : boolean {
             var callback= this._inputEvents[e.type];
             if ( e.type==="touchstart" ) {
@@ -1204,12 +1210,51 @@ module cc.node {
             return false;
         }
 
+        /**
+         * Get a point in screen space turned into local node space.
+         * When nodes are axis aligned, this is trivial, but for transformed nodes this method is needed.
+         * The point will be modified.
+         * See input demos.
+         * @method cc.node.Node#getScreenPointInLocalSpace
+         * @param p {cc.math.Vector}
+         */
         getScreenPointInLocalSpace( p:Vector ) {
             var matrix = this.getInverseWorldModelViewMatrix();
             cc.math.Matrix3.transformPoint(matrix, p);
-
         }
 
+        /**
+         * Get a point in local Node space turned into screen space.
+         * When nodes are axis aligned, this is trivial, but for transformed nodes this method is needed.
+         * The point will be modified.
+         * See input demos.
+         * @method cc.node.Node#getLocalPointInScreenSpace
+         * @param p {cc.math.Vector}
+         */
+        getLocalPointInScreenSpace( p:Vector ) {
+            cc.math.Matrix3.transformPoint( this._worldModelViewMatrix, p );
+        }
+
+        /**
+         * Get a point in local Node space turned into another Node's local space.
+         * When nodes are axis aligned, this is trivial, but for transformed nodes this method is needed.
+         * The point will be modified.
+         * See input demos.
+         * @method cc.node.Node#getLocalPointInNodeSpace
+         * @param p {cc.math.Vector}
+         */
+        getLocalPointInNodeSpace( p:Vector, node:Node ) {
+            this.getLocalPointInScreenSpace(p);
+            node.getScreenPointInLocalSpace(p);
+        }
+
+        /**
+         * Get whether a point in screen space lies in the Node's bounds.
+         * When nodes are axis aligned, this is trivial, but for transformed nodes this method is needed.
+         * See input demos.
+         * @method cc.node.Node#isScreenPointInNode
+         * @param p {cc.math.Vector}
+         */
         isScreenPointInNode( p:Vector ) : boolean {
 
             if ( !this.isVisible() ) {

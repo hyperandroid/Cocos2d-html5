@@ -939,6 +939,7 @@ module cc.plugin.layout {
             if ( this._bottom ) {
                 this._bottom.setSize(right - left, this._bottom._bounds.h);
                 d = this._bottom.getPreferredLayoutSize();
+                d.height= Math.min( d.height, bottom-top );
                 this._bottom._bounds.set(left, bottom - d.height, right-left, d.height);
                 this._bottom.doLayout( );
                 bottom-= d.height + this._gap.vertical.getValue( this._bounds.h );
@@ -953,6 +954,7 @@ module cc.plugin.layout {
             if ( this._left ) {
                 this._left.setSize(this._left._bounds.w, bottom - top);
                 d = this._left.getPreferredLayoutSize();
+                d.width= Math.min( d.width, right-left );
                 this._left._bounds.set(left, top, d.width, bottom-top );
                 this._left.doLayout();
                 left+= d.width + this._gap.horizontal.getValue( this._bounds.w );

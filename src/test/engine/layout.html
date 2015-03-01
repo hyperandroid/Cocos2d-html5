@@ -12,7 +12,7 @@
 <script>
     (function() {
 
-        var layout = {
+        var layout0 = {
 
             type: "border",
             insets: ["5%", "2%", "5%", "2%"],
@@ -81,7 +81,59 @@
             }
         };
 
-        var l= cc.plugin.layout.BaseLayout.parse(layout);
+        var layout1= {
+
+                    type: "border",
+
+                    // layouts can be nested. in this case, in the border's layout north position, we lay out a row of 6 elements.
+
+                    // the center takes the remaining space after laying out north/south/east/west elements.
+                    top: {
+
+                        // add in the center a grid of 6 elements.
+                        type: "grid",
+                        columns: 2,
+                        gap: ["10%", "5%"],
+                        insets: ["20%", "20%", "20%", "10%"],
+
+                        // piles can be an array apart of a string with wildcards.
+                        elements: [
+
+                            // lay the 4 Tableau elements in a row (4 columns)
+
+                            {
+                                type : "grid",
+                                rows : 4,
+                                gap : [ "0px", "10%" ],
+                                elements : ["a0","a1","a2","a3"],
+                                insets : ["2%","2%","2%","2%"]
+                            },
+                            {
+                                type : "grid",
+                                rows : 4,
+                                gap : [ "0px", "10%" ],
+                                elements : ["b0","b1","b2","b3"],
+                                insets : ["2%","2%","2%","2%"]
+                            }
+                        ],
+
+                        preferredHeight: "85%"
+                    },
+                    bottom: {
+                        type: "grid",
+                        columns: 2,
+                        insets: ["20%", "0%", "20%", "0%"],
+                        gap: ["10%", "0%"],
+                        elements: [
+                            "f1","f2"
+                        ],
+                        preferredHeight : "35%" // will be constrained to remaining space, ie 15%
+                    }
+
+                };
+
+
+        var l= cc.plugin.layout.BaseLayout.parse(layout0);
         l.layout(0,0,800,600);
 
         var c= document.createElement("canvas");
@@ -93,8 +145,6 @@
         ctx.lineWidth=2;
 
         l.paint(ctx);
-
-        console.log( JSON.stringify( l, null, 2 ) );
 
     })();
 </script>

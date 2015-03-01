@@ -5544,6 +5544,12 @@ var cc;
                 this._inputEvents[event] = callback;
                 return this;
             };
+            /**
+             * Notify an event callback based on the event type.
+             * @method cc.node.Node#notifyEvent
+             * @param e {cc.event.InputManagerEvent}
+             * @returns {boolean} whether the event must bubble.
+             */
             Node.prototype.notifyEvent = function (e) {
                 var callback = this._inputEvents[e.type];
                 if (e.type === "touchstart") {
@@ -5576,10 +5582,48 @@ var cc;
                 }
                 return false;
             };
+            /**
+             * Get a point in screen space turned into local node space.
+             * When nodes are axis aligned, this is trivial, but for transformed nodes this method is needed.
+             * The point will be modified.
+             * See input demos.
+             * @method cc.node.Node#getScreenPointInLocalSpace
+             * @param p {cc.math.Vector}
+             */
             Node.prototype.getScreenPointInLocalSpace = function (p) {
                 var matrix = this.getInverseWorldModelViewMatrix();
                 cc.math.Matrix3.transformPoint(matrix, p);
             };
+            /**
+             * Get a point in local Node space turned into screen space.
+             * When nodes are axis aligned, this is trivial, but for transformed nodes this method is needed.
+             * The point will be modified.
+             * See input demos.
+             * @method cc.node.Node#getLocalPointInScreenSpace
+             * @param p {cc.math.Vector}
+             */
+            Node.prototype.getLocalPointInScreenSpace = function (p) {
+                cc.math.Matrix3.transformPoint(this._worldModelViewMatrix, p);
+            };
+            /**
+             * Get a point in local Node space turned into another Node's local space.
+             * When nodes are axis aligned, this is trivial, but for transformed nodes this method is needed.
+             * The point will be modified.
+             * See input demos.
+             * @method cc.node.Node#getLocalPointInNodeSpace
+             * @param p {cc.math.Vector}
+             */
+            Node.prototype.getLocalPointInNodeSpace = function (p, node) {
+                this.getLocalPointInScreenSpace(p);
+                node.getScreenPointInLocalSpace(p);
+            };
+            /**
+             * Get whether a point in screen space lies in the Node's bounds.
+             * When nodes are axis aligned, this is trivial, but for transformed nodes this method is needed.
+             * See input demos.
+             * @method cc.node.Node#isScreenPointInNode
+             * @param p {cc.math.Vector}
+             */
             Node.prototype.isScreenPointInNode = function (p) {
                 if (!this.isVisible()) {
                     return false;
@@ -23219,6 +23263,7 @@ var cc;
                     if (this._bottom) {
                         this._bottom.setSize(right - left, this._bottom._bounds.h);
                         d = this._bottom.getPreferredLayoutSize();
+                        d.height = Math.min(d.height, bottom - top);
                         this._bottom._bounds.set(left, bottom - d.height, right - left, d.height);
                         this._bottom.doLayout();
                         bottom -= d.height + this._gap.vertical.getValue(this._bounds.h);
@@ -23233,6 +23278,7 @@ var cc;
                     if (this._left) {
                         this._left.setSize(this._left._bounds.w, bottom - top);
                         d = this._left.getPreferredLayoutSize();
+                        d.width = Math.min(d.width, right - left);
                         this._left._bounds.set(left, top, d.width, bottom - top);
                         this._left.doLayout();
                         left += d.width + this._gap.horizontal.getValue(this._bounds.w);
@@ -24414,6 +24460,9 @@ var cc;
             return MouseInputManagerEvent;
         })(InputManagerEvent);
         input.MouseInputManagerEvent = MouseInputManagerEvent;
+        function hasTouch() {
+            return (('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (navigator.msMaxTouchPoints > 0));
+        }
         /**
          * @class cc.input.MouseInputManager
          * @classdesc
@@ -24467,9 +24516,11 @@ var cc;
                 window.addEventListener('mouseout', mouseOut, false);
                 window.addEventListener('mousemove', mouseMove, false);
                 window.addEventListener('dblclick', doubleClick, false);
-                target.addEventListener("touchstart", touchStart, false);
-                target.addEventListener("touchmove", touchMove, false);
-                target.addEventListener("touchend", touchEnd, false);
+                if (hasTouch()) {
+                    target.addEventListener("touchstart", touchStart, false);
+                    target.addEventListener("touchmove", touchMove, false);
+                    target.addEventListener("touchend", touchEnd, false);
+                }
             };
             /**
              * Disable the input for mouse and touch.
@@ -24483,9 +24534,11 @@ var cc;
                     window.removeEventListener('mouseout', mouseOut, false);
                     window.removeEventListener('mousemove', mouseMove, false);
                     window.removeEventListener('dblclick', doubleClick, false);
-                    _target.removeEventListener("touchstart", touchStart, false);
-                    _target.removeEventListener("touchmove", touchMove, false);
-                    _target.removeEventListener("touchend", touchEnd, false);
+                    if (hasTouch()) {
+                        _target.removeEventListener("touchstart", touchStart, false);
+                        _target.removeEventListener("touchmove", touchMove, false);
+                        _target.removeEventListener("touchend", touchEnd, false);
+                    }
                     _target = null;
                 }
             };

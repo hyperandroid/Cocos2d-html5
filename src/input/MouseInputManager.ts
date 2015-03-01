@@ -661,6 +661,13 @@ module cc.input {
         }
     }
 
+    function hasTouch() {
+        return (('ontouchstart' in window) ||
+                (navigator.maxTouchPoints > 0) ||
+                (navigator.msMaxTouchPoints > 0));
+    }
+
+
     /**
      * @class cc.input.MouseInputManager
      * @classdesc
@@ -719,10 +726,11 @@ module cc.input {
             window.addEventListener('mousemove',mouseMove,  false);
             window.addEventListener('dblclick', doubleClick,false);
 
-            target.addEventListener("touchstart",   touchStart, false);
-            target.addEventListener("touchmove",    touchMove,  false);
-            target.addEventListener("touchend",     touchEnd,   false);
-
+            if ( hasTouch() ) {
+                target.addEventListener("touchstart", touchStart, false);
+                target.addEventListener("touchmove", touchMove, false);
+                target.addEventListener("touchend", touchEnd, false);
+            }
         }
 
         /**
@@ -739,9 +747,11 @@ module cc.input {
                 window.removeEventListener('mousemove',mouseMove,   false);
                 window.removeEventListener('dblclick', doubleClick, false);
 
-                _target.removeEventListener("touchstart",   touchStart, false);
-                _target.removeEventListener("touchmove",    touchMove,  false);
-                _target.removeEventListener("touchend",     touchEnd,   false);
+                if ( hasTouch() ) {
+                    _target.removeEventListener("touchstart", touchStart, false);
+                    _target.removeEventListener("touchmove", touchMove, false);
+                    _target.removeEventListener("touchend", touchEnd, false);
+                }
 
                 _target= null;
             }
