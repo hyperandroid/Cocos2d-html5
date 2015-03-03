@@ -96,6 +96,19 @@ module cc.math {
             destination.set( source );
         }
 
+        static set( m:Float32Array, a:number, b:number, c:number, d:number, tx:number, ty:number ) {
+            m[0]= a;
+            m[1]= b;
+            m[2]= tx;
+            m[3]= c;
+            m[4]= d;
+            m[5]= ty;
+            m[6]= 0;
+            m[7]= 0;
+            m[8]= 1;
+
+        }
+
         /**
          * Given a node, calculate a resulting matrix for position, scale and rotate.
          * @method cc.math.Matrix3.setTransformAll

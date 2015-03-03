@@ -51,7 +51,7 @@ module cc.node {
                 //ctx.globalAlpha = this._frameAlpha;
                 //ctx.setTintColor(this._color);
 
-                if ( ctx.type==="webgl" ) {
+                if ( ctx.type===cc.render.RENDERER_TYPE_WEBGL ) {
                     (<cc.render.DecoratedWebGLRenderingContext>ctx).batchGeometryWithSpriteFast(this);
                 } else {
                     super.visit(ctx);

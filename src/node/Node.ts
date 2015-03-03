@@ -1598,7 +1598,7 @@ module cc.node {
          */
         draw(ctx:RenderingContext) {
             if ( this._color!==DEFAULT_COLOR ) {
-                ctx.globalAlpha= this._frameAlpha;
+                ctx.setGlobalAlpha( this._frameAlpha );
                 ctx.setTintColor( cc.math.Color.WHITE );
                 ctx.setFillStyleColor( this._color );
                 ctx.fillRect(0, 0, this._contentSize.width, this._contentSize.height);

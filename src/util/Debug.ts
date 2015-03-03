@@ -20,6 +20,11 @@ module cc.Debug {
         RELEASE = 1
     }
 
+    var enabled= true;
+    export function EnableConsole( b:boolean ) {
+        enabled= b;
+    }
+
     /**
      * Current Runtime debug level. DEBUG by default.
      * @member cc.Debug.DEBUG_LEVEL
@@ -53,6 +58,11 @@ module cc.Debug {
      * @param rest {Array<any>} other parameters to show in console.
      */
     export function debug( level : DebugLevel, msg : string, rest : Array<any> ) {
+
+        if ( !enabled ) {
+            return;
+        }
+
         console.log("%c%s:%c %s", __consoleDecoration[level], DebugLevel[level], __defaultDecoration, msg );
         if ( rest.length ) {
             console.log( rest );

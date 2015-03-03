@@ -116,7 +116,7 @@ module cc {
             draw( ctx:cc.render.RenderingContext ) {
                 var sf= this.__getCurrentFrame();
                 if ( sf ) {
-                    ctx.globalAlpha = this._frameAlpha;
+                    ctx.setGlobalAlpha( this._frameAlpha );
                     ctx.setTintColor(this._color);
                     sf.draw( ctx, this.width, this.height );
                 }

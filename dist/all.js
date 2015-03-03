@@ -171,6 +171,11 @@ var cc;
             RuntimeDebugLevel[RuntimeDebugLevel["RELEASE"] = 1] = "RELEASE";
         })(Debug.RuntimeDebugLevel || (Debug.RuntimeDebugLevel = {}));
         var RuntimeDebugLevel = Debug.RuntimeDebugLevel;
+        var enabled = true;
+        function EnableConsole(b) {
+            enabled = b;
+        }
+        Debug.EnableConsole = EnableConsole;
         /**
          * Current Runtime debug level. DEBUG by default.
          * @member cc.Debug.DEBUG_LEVEL
@@ -202,6 +207,9 @@ var cc;
          * @param rest {Array<any>} other parameters to show in console.
          */
         function debug(level, msg, rest) {
+            if (!enabled) {
+                return;
+            }
             console.log("%c%s:%c %s", __consoleDecoration[level], DebugLevel[level], __defaultDecoration, msg);
             if (rest.length) {
                 console.log(rest);
@@ -839,6 +847,17 @@ var cc;
              */
             Matrix3.copy = function (source, destination) {
                 destination.set(source);
+            };
+            Matrix3.set = function (m, a, b, c, d, tx, ty) {
+                m[0] = a;
+                m[1] = b;
+                m[2] = tx;
+                m[3] = c;
+                m[4] = d;
+                m[5] = ty;
+                m[6] = 0;
+                m[7] = 0;
+                m[8] = 1;
             };
             /**
              * Given a node, calculate a resulting matrix for position, scale and rotate.
@@ -5945,7 +5964,7 @@ var cc;
              */
             Node.prototype.draw = function (ctx) {
                 if (this._color !== DEFAULT_COLOR) {
-                    ctx.globalAlpha = this._frameAlpha;
+                    ctx.setGlobalAlpha(this._frameAlpha);
                     ctx.setTintColor(cc.math.Color.WHITE);
                     ctx.setFillStyleColor(this._color);
                     ctx.fillRect(0, 0, this._contentSize.width, this._contentSize.height);
@@ -13149,17 +13168,21 @@ var cc;
                  * This method takes care of drawing the Frame with the correct rotation and Sprite's status of flip axis values.
                  * @method cc.node.sprite.SpriteFrame#draw
                  * @param ctx {cc.render.RenderingContext}
-                 * @param sprite {cc.node.Sprite}
+                 * @param w {number}
+                 * @param h {number}
                  */
                 SpriteFrame.prototype.draw = function (ctx, w, h) {
-                    if (ctx.type === "webgl") {
+                    if (ctx.type === cc.render.RENDERER_TYPE_WEBGL) {
                         if (!this._texture.isWebGLEnabled()) {
                             cc.Debug.warn(cc.locale.SPRITEFRAME_WARN_TEXTURE_NOT_WEBGL_INITIALIZED, "SpriteFrame.draw");
                             this._texture.__setAsGLTexture(ctx._webglState);
                             this.__calculateNormalizedRect();
                         }
+                        ctx.drawTexture(this._texture, this._rect.x, this._rect.y, this._rect.w, this._rect.h, 0, 0, w, h);
                     }
-                    ctx.drawTexture(this._texture, this._rect.x, this._rect.y, this._rect.w, this._rect.h, 0, 0, w, h);
+                    else {
+                        ctx.drawTextureUnsafe(this._texture, this._rect.x, this._rect.y, this._rect.w, this._rect.h, 0, 0, w, h);
+                    }
                 };
                 /**
                  * Create a set of new SpriteFrames from this SpriteFrame area, and defined by a JSON object.
@@ -13606,7 +13629,7 @@ var cc;
              */
             Sprite.prototype.draw = function (ctx) {
                 if (this._spriteFrame) {
-                    ctx.globalAlpha = this._frameAlpha;
+                    ctx.setGlobalAlpha(this._frameAlpha);
                     ctx.setTintColor(this._color);
                     this._spriteFrame.draw(ctx, this.width, this.height);
                 }
@@ -13625,39 +13648,107 @@ var cc;
                     this._spriteMatrixDirty = true;
                 }
             };
+            /**
+             *
+             *           cc.math.Matrix3.identity( this._spriteMatrix );
+    
+                         if (this._flippedX && this._flippedY) {
+                             cc.math.Matrix3.translateBy(this._spriteMatrix, w, h);
+                             cc.math.Matrix3.scaleBy(this._spriteMatrix, -1, -1);
+                             this._spriteMatrixSet= true;
+                         } else if (this._flippedX) {
+                             cc.math.Matrix3.translateBy(this._spriteMatrix, w, 0);
+                             cc.math.Matrix3.scaleBy(this._spriteMatrix, -1, 1);
+                             this._spriteMatrixSet= true;
+                         } else if (this._flippedY) {
+                             cc.math.Matrix3.translateBy(this._spriteMatrix, 0, h);
+                             cc.math.Matrix3.scaleBy(this._spriteMatrix, 1, -1);
+                             this._spriteMatrixSet= true;
+                         }
+    
+                         if ( this._spriteFrame.needsSpecialMatrix() ) {
+                             cc.math.Matrix3.translateBy(this._spriteMatrix,
+                                 this._spriteFrame._offsetFromCenter.x,
+                                 this._spriteFrame._offsetFromCenter.y);
+    
+                             if (this._spriteFrame._rotated) {
+                                 cc.math.Matrix3.translateBy(this._spriteMatrix, w / 2, h / 2);
+                                 cc.math.Matrix3.rotateBy(this._spriteMatrix, Math.PI / 2);
+                                 cc.math.Matrix3.translateBy(this._spriteMatrix, -w / 2, -h / 2);
+                             }
+    
+                             this._spriteMatrixSet = true;
+                         }
+    
+             *
+             * @private
+             */
             Sprite.prototype.__createMatrix = function () {
                 var w = this.width;
                 var h = this.height;
                 this._spriteMatrixSet = false;
-                cc.math.Matrix3.identity(this._spriteMatrix);
+                var mat = this._spriteMatrix;
                 if (this._flippedX && this._flippedY) {
-                    cc.math.Matrix3.translateBy(this._spriteMatrix, w, h);
-                    cc.math.Matrix3.scaleBy(this._spriteMatrix, -1, -1);
+                    cc.math.Matrix3.set(mat, -1.0, 0.0, 0.0, -1.0, w, h);
                     this._spriteMatrixSet = true;
                 }
                 else if (this._flippedX) {
-                    cc.math.Matrix3.translateBy(this._spriteMatrix, w, 0);
-                    cc.math.Matrix3.scaleBy(this._spriteMatrix, -1, 1);
+                    cc.math.Matrix3.set(mat, -1.0, 0.0, 0.0, 1.0, w, 0.0);
                     this._spriteMatrixSet = true;
                 }
                 else if (this._flippedY) {
-                    cc.math.Matrix3.translateBy(this._spriteMatrix, 0, h);
-                    cc.math.Matrix3.scaleBy(this._spriteMatrix, 1, -1);
+                    cc.math.Matrix3.set(mat, 1.0, 0.0, 0.0, -1.0, 0.0, h);
                     this._spriteMatrixSet = true;
                 }
-                if (this._spriteFrame.needsSpecialMatrix()) {
-                    cc.math.Matrix3.translateBy(this._spriteMatrix, this._spriteFrame._offsetFromCenter.x, this._spriteFrame._offsetFromCenter.y);
-                    if (this._spriteFrame._rotated) {
-                        cc.math.Matrix3.translateBy(this._spriteMatrix, w / 2, h / 2);
-                        cc.math.Matrix3.rotateBy(this._spriteMatrix, Math.PI / 2);
-                        cc.math.Matrix3.translateBy(this._spriteMatrix, -w / 2, -h / 2);
+                else {
+                    cc.math.Matrix3.identity(mat);
+                }
+                var sf = this._spriteFrame;
+                if (sf.needsSpecialMatrix()) {
+                    mat[2] += mat[0] * sf._offsetFromCenter.x;
+                    mat[5] += mat[4] * sf._offsetFromCenter.y;
+                    if (sf._rotated) {
+                        mat[2] += mat[0] * w / 2.0;
+                        mat[5] += mat[4] * h / 2.0;
+                        var t = mat[0];
+                        mat[0] = mat[1];
+                        mat[1] = -t;
+                        t = mat[3];
+                        mat[3] = mat[4];
+                        mat[4] = -t;
+                        cc.math.Matrix3.translateBy(mat, -w / 2.0, -h / 2.0);
                     }
                     this._spriteMatrixSet = true;
                 }
                 this._spriteMatrixDirty = false;
             };
             Sprite.prototype.__setLocalTransform = function () {
-                _super.prototype.__setLocalTransform.call(this);
+                //super.__setLocalTransform();
+                if (this._rotation.x !== this.rotationAngle || (this.rotationAngle % 360) !== 0 || this.__isFlagSet(4 /* REQUEST_TRANSFORM */)) {
+                    this.__setLocalTransformRotate();
+                }
+                else if (this.scaleX !== this._scale.x || this._scale.y !== this.scaleY || this._scale.x !== 1 || this._scale.y !== 1) {
+                    this.__setLocalTransformScale();
+                }
+                else if (this.x !== this._position.x || this.y !== this._position.y) {
+                    var mm = this._modelViewMatrix;
+                    var pa = this._positionAnchor;
+                    var cs = this._contentSize;
+                    var x = this.x - pa.x * cs.width;
+                    var y = this.y - pa.y * cs.height;
+                    mm[2] = x;
+                    mm[5] = y;
+                    mm[0] = 1.0;
+                    mm[1] = 0.0;
+                    mm[3] = 0.0;
+                    mm[4] = 1.0;
+                    mm[6] = 0.0;
+                    mm[7] = 0.0;
+                    mm[8] = 1.0;
+                    this._position.x = this.x;
+                    this._position.y = this.y;
+                    this.__setFlag(2 /* TRANSFORMATION_DIRTY */);
+                }
                 if (this.__isFlagSet(2 /* TRANSFORMATION_DIRTY */)) {
                     if (this._spriteMatrixDirty) {
                         this.__createMatrix();
@@ -13781,7 +13872,7 @@ var cc;
                 if (this._spriteFrame) {
                     //ctx.globalAlpha = this._frameAlpha;
                     //ctx.setTintColor(this._color);
-                    if (ctx.type === "webgl") {
+                    if (ctx.type === cc.render.RENDERER_TYPE_WEBGL) {
                         ctx.batchGeometryWithSpriteFast(this);
                     }
                     else {
@@ -13899,7 +13990,7 @@ var cc;
             Button.prototype.draw = function (ctx) {
                 var sf = this.__getCurrentFrame();
                 if (sf) {
-                    ctx.globalAlpha = this._frameAlpha;
+                    ctx.setGlobalAlpha(this._frameAlpha);
                     ctx.setTintColor(this._color);
                     sf.draw(ctx, this.width, this.height);
                 }
@@ -16572,7 +16663,7 @@ var cc;
                 this._dimension.height = h;
             };
             Renderer.prototype.getType = function () {
-                return "";
+                return cc.render.RENDERER_TYPE_CANVAS;
             };
             return Renderer;
         })();
@@ -16580,16 +16671,19 @@ var cc;
         function dc2d(renderer) {
             var canvas = renderer._surface;
             var c2d = canvas.getContext("2d");
+            var globalAlpha = 1;
+            var globalCompositeOperation = 0 /* source_over */;
             c2d.flush = function () {
                 this.setTransform(1, 0, 0, 1, 0, 0);
             };
-            Object.defineProperty(c2d, "type", {
-                get: function () {
-                    return "canvas";
-                },
-                enumerable: true,
-                configurable: true
-            });
+            c2d.type = cc.render.RENDERER_TYPE_CANVAS;
+            //Object.defineProperty(c2d, "type", {
+            //    get: function () {
+            //        return cc.render.RENDERER_TYPE_CANVAS;
+            //    },
+            //    enumerable: true,
+            //    configurable: true
+            //});
             c2d.setFillStyleColor = function (color) {
                 this.fillStyle = color.getFillStyle();
             };
@@ -16618,22 +16712,53 @@ var cc;
                 return this.canvas.height;
             };
             c2d.setCompositeOperation = function (o) {
+                if (o === globalCompositeOperation) {
+                    return;
+                }
+                globalCompositeOperation = o;
                 this.globalCompositeOperation = cc.render.CompositeOperationToCanvas[o];
             };
             c2d.getCompositeOperation = function () {
-                return cc.render.CanvasToComposite[this.globalCompositeOperation];
+                return globalCompositeOperation;
             };
+            c2d.setGlobalAlpha = function (alpha) {
+                if (alpha === globalAlpha) {
+                    return;
+                }
+                globalAlpha = alpha;
+                this.globalAlpha = alpha;
+            };
+            c2d.getGlobalAlpha = function () {
+                return globalAlpha;
+            };
+            /**
+             * this.transform(1,0,0,-1,0,h);
+               //this.translate(0, h);
+               //this.scale(1, -1);
+               this.drawImage(texture._image, sx, sy, sw, sh, dx, 0, dw, dh);
+               //this.scale(1, -1);
+               //this.translate(0, -h);
+               this.transform(1,0,0,-1,0,-h);
+    
+             * @param texture
+             * @param sx
+             * @param sy
+             * @param sw
+             * @param sh
+             * @param dx
+             * @param dy
+             * @param dw
+             * @param dh
+             */
             c2d.drawTexture = function (texture, sx, sy, sw, sh, dx, dy, dw, dh) {
                 "use strict";
                 var h;
                 if (arguments.length === 3) {
                     if (cc.render.RENDER_ORIGIN === cc.render.ORIGIN_BOTTOM) {
                         h = sy + texture._image.height;
-                        this.translate(0, h);
-                        this.scale(1, -1);
+                        this.transform(1, 0, 0, -1, 0, h);
                         this.drawImage(texture._image, sx, 0);
-                        this.scale(1, -1);
-                        this.translate(0, -h);
+                        this.transform(1, 0, 0, -1, 0, -h);
                     }
                     else {
                         this.drawImage(texture._image, sx, sy);
@@ -16642,11 +16767,9 @@ var cc;
                 else if (arguments.length === 5) {
                     if (cc.render.RENDER_ORIGIN === cc.render.ORIGIN_BOTTOM) {
                         h = sy + sh;
-                        this.translate(0, h);
-                        this.scale(1, -1);
+                        this.transform(1, 0, 0, -1, 0, h);
                         this.drawImage(texture._image, sx, 0, sw, sh);
-                        this.scale(1, -1);
-                        this.translate(0, -h);
+                        this.transform(1, 0, 0, -1, 0, -h);
                     }
                     else {
                         this.drawImage(texture._image, sx, sy, sw, sh);
@@ -16655,15 +16778,49 @@ var cc;
                 else {
                     if (cc.render.RENDER_ORIGIN === cc.render.ORIGIN_BOTTOM) {
                         h = dy + dh;
-                        this.translate(0, h);
-                        this.scale(1, -1);
+                        this.transform(1, 0, 0, -1, 0, h);
                         this.drawImage(texture._image, sx, sy, sw, sh, dx, 0, dw, dh);
-                        this.scale(1, -1);
-                        this.translate(0, -h);
+                        this.transform(1, 0, 0, -1, 0, -h);
                     }
                     else {
                         this.drawImage(texture._image, sx, sy, sw, sh, dx, dy, dw, dh);
                     }
+                }
+            };
+            /**
+             * draw a texture, but not preserving transformation homogeneity.
+             * For most cases will work, but not for custom drawing nodes.
+             * This method is used in Sprite, where you only want to draw the associated SpriteFrame.
+             *
+             * @param texture
+             * @param sx
+             * @param sy
+             * @param sw
+             * @param sh
+             * @param dx
+             * @param dy
+             * @param dw
+             * @param dh
+             */
+            c2d.drawTextureUnsafe = function (texture, sx, sy, sw, sh, dx, dy, dw, dh) {
+                "use strict";
+                if (arguments.length === 3) {
+                    if (cc.render.RENDER_ORIGIN === cc.render.ORIGIN_BOTTOM) {
+                        this.transform(1, 0, 0, -1, 0, texture._image.height);
+                    }
+                    this.drawImage(texture._image, sx, sy);
+                }
+                else if (arguments.length === 5) {
+                    if (cc.render.RENDER_ORIGIN === cc.render.ORIGIN_BOTTOM) {
+                        this.transform(1, 0, 0, -1, 0, sh);
+                    }
+                    this.drawImage(texture._image, sx, sy, sw, sh);
+                }
+                else {
+                    if (cc.render.RENDER_ORIGIN === cc.render.ORIGIN_BOTTOM) {
+                        this.transform(1, 0, 0, -1, 0, dh);
+                    }
+                    this.drawImage(texture._image, sx, sy, sw, sh, dx, dy, dw, dh);
                 }
             };
             return c2d;
@@ -16720,7 +16877,7 @@ var cc;
                 this._renderingContext = dc2d(this);
             };
             CanvasRenderer.prototype.getType = function () {
-                return "canvas";
+                return cc.render.RENDERER_TYPE_CANVAS;
             };
             return CanvasRenderer;
         })(Renderer);
@@ -16790,7 +16947,7 @@ var cc;
                 this._webglState = this._renderingContext._webglState;
             };
             WebGLRenderer.prototype.getType = function () {
-                return "webgl";
+                return cc.render.RENDERER_TYPE_WEBGL;
             };
             return WebGLRenderer;
         })(Renderer);
@@ -16886,6 +17043,8 @@ var cc;
     var render;
     (function (render) {
         "use strict";
+        render.RENDERER_TYPE_CANVAS = 1;
+        render.RENDERER_TYPE_WEBGL = 0;
         /**
          * @class cc.render.Pattern
          * @classdesc
@@ -17600,6 +17759,12 @@ var cc;
                  * @private
                  */
                 this._canvas = null;
+                /**
+                 * Get RenderingContext type.
+                 * @member cc.render.DecoratedWebGLRenderingContext#get:type
+                 * @returns {number} cc.render.RENDERER_TYPE_WEBGL or cc.render.RENDERER_TYPE_CANVAS
+                 */
+                this.type = cc.render.RENDERER_TYPE_WEBGL;
                 this._renderer = r;
                 this._canvas = r._surface;
                 this.__initContext();
@@ -17743,16 +17908,12 @@ var cc;
                 enumerable: true,
                 configurable: true
             });
-            Object.defineProperty(DecoratedWebGLRenderingContext.prototype, "globalAlpha", {
-                get: function () {
-                    return this._currentContextSnapshot._globalAlpha;
-                },
-                set: function (v) {
-                    this._currentContextSnapshot._globalAlpha = v;
-                },
-                enumerable: true,
-                configurable: true
-            });
+            DecoratedWebGLRenderingContext.prototype.setGlobalAlpha = function (v) {
+                this._currentContextSnapshot._globalAlpha = v;
+            };
+            DecoratedWebGLRenderingContext.prototype.getGlobalAlpha = function () {
+                return this._currentContextSnapshot._globalAlpha;
+            };
             /**
              * Set the current rendering composite operation (blend mode).
              * The value is any of:
@@ -17873,6 +18034,8 @@ var cc;
                 if (this._batcher.batchRect(x, y, w, h, this._currentContextSnapshot)) {
                     this.flush();
                 }
+            };
+            DecoratedWebGLRenderingContext.prototype.drawTextureUnsafe = function (texture, sx, sy, sw, sh, dx, dy, dw, dh) {
             };
             DecoratedWebGLRenderingContext.prototype.drawTexture = function (texture, sx, sy, sw, sh, dx, dy, dw, dh) {
                 var ti = texture;
@@ -18020,18 +18183,6 @@ var cc;
             DecoratedWebGLRenderingContext.prototype.getUnitsFactor = function () {
                 return this._renderer.getUnitsFactor();
             };
-            Object.defineProperty(DecoratedWebGLRenderingContext.prototype, "type", {
-                /**
-                 * Get RenderingContext type.
-                 * @member cc.render.DecoratedWebGLRenderingContext#get:type
-                 * @returns {string} "webgl" or "canvas" (lowercase)
-                 */
-                get: function () {
-                    return "webgl";
-                },
-                enumerable: true,
-                configurable: true
-            });
             /**
              * @method cc.render.DecoratedWebGLRenderingContext#__drawImageFlushIfNeeded
              * @param textureId {WebGLTexture}

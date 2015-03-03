@@ -402,8 +402,8 @@ module cc.render {
             this._dimension.height= h;
         }
 
-        getType() : string {
-            return "";
+        getType() : number {
+            return cc.render.RENDERER_TYPE_CANVAS;
         }
     }
 
@@ -411,16 +411,21 @@ module cc.render {
         var canvas:HTMLCanvasElement= renderer._surface;
         var c2d:any= canvas.getContext("2d");
 
+        var globalAlpha:number =1;
+        var globalCompositeOperation:cc.render.CompositeOperation= cc.render.CompositeOperation.source_over;
+
         c2d.flush= function() {
             this.setTransform(1,0,0,1,0,0);
         };
-        Object.defineProperty(c2d, "type", {
-            get: function () {
-                return "canvas";
-            },
-            enumerable: true,
-            configurable: true
-        });
+
+        c2d.type= cc.render.RENDERER_TYPE_CANVAS;
+        //Object.defineProperty(c2d, "type", {
+        //    get: function () {
+        //        return cc.render.RENDERER_TYPE_CANVAS;
+        //    },
+        //    enumerable: true,
+        //    configurable: true
+        //});
 
         c2d.setFillStyleColor= function( color:cc.math.Color ) {
             this.fillStyle = (<cc.math.Color>color).getFillStyle();
@@ -458,13 +463,49 @@ module cc.render {
         };
 
         c2d.setCompositeOperation= function( o:cc.render.CompositeOperation ) {
+            if ( o===globalCompositeOperation ) {
+                return;
+            }
+            globalCompositeOperation= o;
             this.globalCompositeOperation= cc.render.CompositeOperationToCanvas[ o ];
         };
 
-        c2d.getCompositeOperation= function( ) {
-            return cc.render.CanvasToComposite[ this.globalCompositeOperation ];
+        c2d.getCompositeOperation= function( ) : cc.render.CompositeOperation {
+            return globalCompositeOperation;
         };
 
+        c2d.setGlobalAlpha= function( alpha:number ) {
+            if ( alpha===globalAlpha ) {
+                return;
+            }
+
+            globalAlpha= alpha;
+            this.globalAlpha= alpha;
+        };
+
+        c2d.getGlobalAlpha= function() : number {
+            return globalAlpha;
+        };
+
+        /**
+         * this.transform(1,0,0,-1,0,h);
+           //this.translate(0, h);
+           //this.scale(1, -1);
+           this.drawImage(texture._image, sx, sy, sw, sh, dx, 0, dw, dh);
+           //this.scale(1, -1);
+           //this.translate(0, -h);
+           this.transform(1,0,0,-1,0,-h);
+
+         * @param texture
+         * @param sx
+         * @param sy
+         * @param sw
+         * @param sh
+         * @param dx
+         * @param dy
+         * @param dw
+         * @param dh
+         */
         c2d.drawTexture= function(
             texture:cc.render.Texture2D,
             sx:number,  sy:number,  sw?:number, sh?:number,
@@ -477,37 +518,71 @@ module cc.render {
             if ( arguments.length===3 ) {
                 if ( cc.render.RENDER_ORIGIN===cc.render.ORIGIN_BOTTOM ) {
                     h= sy+texture._image.height;
-                    this.translate( 0, h );
-                    this.scale( 1, -1 );
+                    this.transform(1,0,0,-1,0,h);
                     this.drawImage(texture._image, sx, 0);
-                    this.scale( 1, -1 );
-                    this.translate( 0, -h );
+                    this.transform(1,0,0,-1,0,-h);
                 } else {
                     this.drawImage(texture._image, sx, sy);
                 }
             } else if ( arguments.length===5 ) {
                 if ( cc.render.RENDER_ORIGIN===cc.render.ORIGIN_BOTTOM ) {
                     h= sy+sh;
-                    this.translate(0, h);
-                    this.scale(1, -1);
+                    this.transform(1,0,0,-1,0,h);
                     this.drawImage(texture._image, sx, 0, sw, sh);
-                    this.scale(1, -1);
-                    this.translate(0, -h);
+                    this.transform(1,0,0,-1,0,-h);
                 } else {
                     this.drawImage(texture._image, sx, sy, sw, sh);
                 }
             } else {
                 if ( cc.render.RENDER_ORIGIN===cc.render.ORIGIN_BOTTOM ) {
                     h= dy+dh;
-                    this.translate(0, h);
-                    this.scale(1, -1);
+                    this.transform(1,0,0,-1,0,h);
                     this.drawImage(texture._image, sx, sy, sw, sh, dx, 0, dw, dh);
-                    this.scale(1, -1);
-                    this.translate(0, -h);
+                    this.transform(1,0,0,-1,0,-h);
                 } else {
 
                     this.drawImage(texture._image, sx, sy, sw, sh, dx, dy, dw, dh);
                 }
+            }
+        };
+
+        /**
+         * draw a texture, but not preserving transformation homogeneity.
+         * For most cases will work, but not for custom drawing nodes.
+         * This method is used in Sprite, where you only want to draw the associated SpriteFrame.
+         *
+         * @param texture
+         * @param sx
+         * @param sy
+         * @param sw
+         * @param sh
+         * @param dx
+         * @param dy
+         * @param dw
+         * @param dh
+         */
+        c2d.drawTextureUnsafe= function(
+            texture:cc.render.Texture2D,
+            sx:number,  sy:number,  sw?:number, sh?:number,
+            dx?:number, dy?:number, dw?:number, dh?:number ) {
+
+            "use strict";
+
+            if ( arguments.length===3 ) {
+                if ( cc.render.RENDER_ORIGIN===cc.render.ORIGIN_BOTTOM ) {
+                    this.transform(1, 0, 0, -1, 0, texture._image.height);
+                }
+                this.drawImage(texture._image, sx, sy);
+            } else if ( arguments.length===5 ) {
+                if ( cc.render.RENDER_ORIGIN===cc.render.ORIGIN_BOTTOM ) {
+                    this.transform(1, 0, 0, -1, 0, sh);
+                }
+                this.drawImage(texture._image, sx, sy, sw, sh);
+            } else {
+                if (cc.render.RENDER_ORIGIN === cc.render.ORIGIN_BOTTOM) {
+                    this.transform(1, 0, 0, -1, 0, dh);
+                }
+                this.drawImage(texture._image, sx, sy, sw, sh, dx, dy, dw, dh);
             }
         };
 
@@ -565,8 +640,8 @@ module cc.render {
             this._renderingContext= dc2d( this );
         }
 
-        getType() : string {
-            return "canvas";
+        getType() : number {
+            return cc.render.RENDERER_TYPE_CANVAS;
         }
 
     }
@@ -639,8 +714,8 @@ module cc.render {
             this._webglState= (<DecoratedWebGLRenderingContext>this._renderingContext)._webglState;
         }
 
-        getType() : string {
-            return "webgl";
+        getType() : number {
+            return cc.render.RENDERER_TYPE_WEBGL;
         }
 
     }
