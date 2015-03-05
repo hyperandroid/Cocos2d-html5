@@ -788,6 +788,7 @@ module cc.render {
             var spriteMiddleWidth= sf.getWidth()-paddingW;
 
             var spriteLeftWidth= patchData.left;
+            var spriteRightWidth= patchData.right;
 
             var scaleFactor= ctx.getUnitsFactor();
 
@@ -825,20 +826,20 @@ module cc.render {
                 // top left
                 if ( patchData.top ) {
                     ctx.drawTexture(sf.getTexture(),
-                        sf.getWidth()-patchData.right, 0, spriteLeftWidth, spriteTopHeight,
-                        x + w - patchData.right/scaleFactor, topy, spriteLeftWidth/scaleFactor, spriteTopHeight/scaleFactor );
+                        sf.getWidth()-patchData.right, 0, spriteRightWidth, spriteTopHeight,
+                        x + w - patchData.right/scaleFactor, topy, spriteRightWidth/scaleFactor, spriteTopHeight/scaleFactor );
                 }
 
                 // bottom left
                 if ( patchData.bottom ) {
                     ctx.drawTexture(sf.getTexture(),
-                        sf.getWidth()-patchData.right, spriteBottomY, spriteLeftWidth, spriteBottomHeight,
-                        x + w - patchData.right/scaleFactor, bottomy , spriteLeftWidth/scaleFactor, spriteBottomHeight/scaleFactor );
+                        sf.getWidth()-patchData.right, spriteBottomY, spriteRightWidth, spriteBottomHeight,
+                        x + w - patchData.right/scaleFactor, bottomy , spriteRightWidth/scaleFactor, spriteBottomHeight/scaleFactor );
                 }
 
                 ctx.drawTexture(sf.getTexture(),
-                    sf.getWidth()-patchData.right, patchData.top, spriteLeftWidth, spriteMiddleHeight,
-                    x + w - patchData.right/scaleFactor, middley, spriteLeftWidth/scaleFactor, h - paddingH/scaleFactor );
+                    sf.getWidth()-patchData.right, patchData.top, spriteRightWidth, spriteMiddleHeight,
+                    x + w - patchData.right/scaleFactor, middley, spriteRightWidth/scaleFactor, h - paddingH/scaleFactor );
 
             }
 
