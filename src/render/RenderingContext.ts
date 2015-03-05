@@ -11,6 +11,8 @@ module cc.render {
 
     "use strict";
 
+    export var RENDERER_TYPE_CANVAS:number = 1;
+    export var RENDERER_TYPE_WEBGL:number = 0;
 
     /**
      * @class cc.render.Pattern
@@ -112,7 +114,8 @@ module cc.render {
 
         setTintColor( color:Color );
 
-        globalAlpha : number;
+        setGlobalAlpha( alpha: number );
+        getGlobalAlpha( ) : number;
 
         /**
          * Set rendering context current transformation matrix.
@@ -157,6 +160,7 @@ module cc.render {
          * @param y {number}
          */
         drawTexture( texture:Texture2D, sx: number, sy:number, sw?:number, sh?:number, dx?: number, dy?:number, dw?:number, dh?:number  ) : void;
+        drawTextureUnsafe( texture:Texture2D, sx: number, sy:number, sw?:number, sh?:number, dx?: number, dy?:number, dw?:number, dh?:number  ) : void;
 
         /**
          * Clear the current renderer surface.
@@ -197,7 +201,7 @@ module cc.render {
         getWidth() : number;
         getHeight() : number;
 
-        type : string;
+        type : number;
 
         beginPath();
 

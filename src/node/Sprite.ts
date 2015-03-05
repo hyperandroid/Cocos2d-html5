@@ -192,7 +192,7 @@ module cc.node {
          */
         draw(ctx:RenderingContext):void {
             if ( this._spriteFrame ) {
-                ctx.globalAlpha= this._frameAlpha;
+                ctx.setGlobalAlpha( this._frameAlpha );
                 ctx.setTintColor( this._color );
                 this._spriteFrame.draw( ctx, this.width, this.height );
             }
@@ -214,6 +214,41 @@ module cc.node {
             }
         }
 
+        /**
+         *
+         *           cc.math.Matrix3.identity( this._spriteMatrix );
+
+                     if (this._flippedX && this._flippedY) {
+                         cc.math.Matrix3.translateBy(this._spriteMatrix, w, h);
+                         cc.math.Matrix3.scaleBy(this._spriteMatrix, -1, -1);
+                         this._spriteMatrixSet= true;
+                     } else if (this._flippedX) {
+                         cc.math.Matrix3.translateBy(this._spriteMatrix, w, 0);
+                         cc.math.Matrix3.scaleBy(this._spriteMatrix, -1, 1);
+                         this._spriteMatrixSet= true;
+                     } else if (this._flippedY) {
+                         cc.math.Matrix3.translateBy(this._spriteMatrix, 0, h);
+                         cc.math.Matrix3.scaleBy(this._spriteMatrix, 1, -1);
+                         this._spriteMatrixSet= true;
+                     }
+
+                     if ( this._spriteFrame.needsSpecialMatrix() ) {
+                         cc.math.Matrix3.translateBy(this._spriteMatrix,
+                             this._spriteFrame._offsetFromCenter.x,
+                             this._spriteFrame._offsetFromCenter.y);
+
+                         if (this._spriteFrame._rotated) {
+                             cc.math.Matrix3.translateBy(this._spriteMatrix, w / 2, h / 2);
+                             cc.math.Matrix3.rotateBy(this._spriteMatrix, Math.PI / 2);
+                             cc.math.Matrix3.translateBy(this._spriteMatrix, -w / 2, -h / 2);
+                         }
+
+                         this._spriteMatrixSet = true;
+                     }
+
+         *
+         * @private
+         */
         __createMatrix() {
 
             var w= this.width;
@@ -221,33 +256,39 @@ module cc.node {
 
             this._spriteMatrixSet= false;
 
-            cc.math.Matrix3.identity( this._spriteMatrix );
+            var mat= this._spriteMatrix;
 
             if (this._flippedX && this._flippedY) {
-                cc.math.Matrix3.translateBy(this._spriteMatrix, w, h);
-                cc.math.Matrix3.scaleBy(this._spriteMatrix, -1, -1);
+                cc.math.Matrix3.set( mat, -1.0, 0.0, 0.0, -1.0, w, h );
                 this._spriteMatrixSet= true;
-
             } else if (this._flippedX) {
-                cc.math.Matrix3.translateBy(this._spriteMatrix, w, 0);
-                cc.math.Matrix3.scaleBy(this._spriteMatrix, -1, 1);
+                cc.math.Matrix3.set( mat, -1.0, 0.0, 0.0, 1.0, w, 0.0 );
                 this._spriteMatrixSet= true;
-
             } else if (this._flippedY) {
-                cc.math.Matrix3.translateBy(this._spriteMatrix, 0, h);
-                cc.math.Matrix3.scaleBy(this._spriteMatrix, 1, -1);
+                cc.math.Matrix3.set( mat, 1.0, 0.0, 0.0, -1.0, 0.0, h );
                 this._spriteMatrixSet= true;
+            } else {
+                cc.math.Matrix3.identity( mat );
             }
 
-            if ( this._spriteFrame.needsSpecialMatrix() ) {
-                cc.math.Matrix3.translateBy(this._spriteMatrix,
-                    this._spriteFrame._offsetFromCenter.x,
-                    this._spriteFrame._offsetFromCenter.y);
+            var sf= this._spriteFrame;
 
-                if (this._spriteFrame._rotated) {
-                    cc.math.Matrix3.translateBy(this._spriteMatrix, w / 2, h / 2);
-                    cc.math.Matrix3.rotateBy(this._spriteMatrix, Math.PI / 2);
-                    cc.math.Matrix3.translateBy(this._spriteMatrix, -w / 2, -h / 2);
+            if ( sf.needsSpecialMatrix() ) {
+                mat[2]+= mat[0]*sf._offsetFromCenter.x;
+                mat[5]+= mat[4]*sf._offsetFromCenter.y;
+
+                if (sf._rotated) {
+                    mat[2]+= mat[0]*w/2.0;
+                    mat[5]+= mat[4]*h/2.0;
+
+                    var t= mat[0];
+                    mat[0]= mat[1];
+                    mat[1]= -t;
+                    t= mat[3];
+                    mat[3]= mat[4];
+                    mat[4]= -t;
+
+                    cc.math.Matrix3.translateBy(mat, -w / 2.0, -h / 2.0);
                 }
 
                 this._spriteMatrixSet = true;
@@ -257,7 +298,35 @@ module cc.node {
         }
 
         __setLocalTransform() {
-            super.__setLocalTransform();
+            //super.__setLocalTransform();
+
+
+            if ( this._rotation.x!==this.rotationAngle || (this.rotationAngle%360)!==0 || this.__isFlagSet(NodeDirtyFlags.REQUEST_TRANSFORM) ) {
+                this.__setLocalTransformRotate();
+            } else if ( this.scaleX!==this._scale.x || this._scale.y!==this.scaleY || this._scale.x!==1 || this._scale.y!==1 ) {
+                this.__setLocalTransformScale();
+            } else if ( this.x!==this._position.x || this.y!==this._position.y ) {
+
+                var mm=this._modelViewMatrix;
+                var pa=this._positionAnchor;
+                var cs=this._contentSize;
+                var x: number = this.x - pa.x * cs.width;
+                var y: number = this.y - pa.y * cs.height;
+                mm[2] = x;
+                mm[5] = y;
+                mm[0] = 1.0;
+                mm[1] = 0.0;
+                mm[3] = 0.0;
+                mm[4] = 1.0;
+                mm[6] = 0.0;
+                mm[7] = 0.0;
+                mm[8] = 1.0;
+
+                this._position.x= this.x;
+                this._position.y= this.y;
+                this.__setFlag( NodeDirtyFlags.TRANSFORMATION_DIRTY );
+            }
+
             if ( this.__isFlagSet(cc.node.NodeDirtyFlags.TRANSFORMATION_DIRTY ) ) {
                 if ( this._spriteMatrixDirty ) {
                     this.__createMatrix();

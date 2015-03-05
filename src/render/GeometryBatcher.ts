@@ -41,7 +41,7 @@ module cc.render {
          * @member cc.render.GeometryBatcher.MAX_QUADS
          * @type {number}
          */
-        static MAX_QUADS : number = 26214; // 1Mb/40
+        static MAX_QUADS : number = 16383;
 
         /**
          * WebGL geometry, color and uv buffer ids.
@@ -196,23 +196,17 @@ module cc.render {
         }
 
         batchRectGeometryWithTexture( vertices:Point[], u0:number, v0:number, u1:number, v1:number, rcs:RenderingContextSnapshot ) {
+            var cc= this.__uintColor( rcs );
 
-            var tint:Float32Array= rcs._tintColor;
-
-            var r= tint[0];
-            var g= tint[1];
-            var b= tint[2];
-            var a= tint[3] * rcs._globalAlpha;
-
-            this.batchVertex( vertices[0], r,g,b,a, u0,v0 );
-            this.batchVertex( vertices[1], r,g,b,a, u1,v0 );
-            this.batchVertex( vertices[2], r,g,b,a, u1,v1 );
-            this.batchVertex( vertices[3], r,g,b,a, u0,v1 );
+            this.batchVertex( vertices[0], cc, u0,v0 );
+            this.batchVertex( vertices[1], cc, u1,v0 );
+            this.batchVertex( vertices[2], cc, u1,v1 );
+            this.batchVertex( vertices[3], cc, u0,v1 );
 
             // add two triangles * 3 values each.
             this._indexBufferIndex+=6;
 
-            return this._dataBufferIndex+32 >= this._dataBufferFloat.length;
+            return this._indexBufferIndex+6 >= this._indexBuffer.length;
         }
 
         /**
@@ -232,32 +226,26 @@ module cc.render {
         batchRectWithTexture( x:number, y:number, w:number, h:number, rcs:RenderingContextSnapshot,
                               u0:number, v0:number, u1:number, v1:number ) :boolean {
 
-            var tint:Float32Array= rcs._tintColor;
-
-            var r= tint[0];
-            var g= tint[1];
-            var b= tint[2];
-            var a= tint[3] * rcs._globalAlpha;
-
             var cm : Float32Array= rcs._currentMatrix;
+            var cc= this.__uintColor( rcs );
 
             __vv.x= x;
             __vv.y= y;
-            this.batchVertex( Matrix3.transformPoint(cm,__vv), r,g,b,a, u0,v0 );
+            this.batchVertex( Matrix3.transformPoint(cm,__vv), cc, u0,v0 );
             __vv.x= x+w;
             __vv.y= y;
-            this.batchVertex( Matrix3.transformPoint(cm,__vv), r,g,b,a, u1,v0 );
+            this.batchVertex( Matrix3.transformPoint(cm,__vv), cc, u1,v0 );
             __vv.x= x+w;
             __vv.y= y+h;
-            this.batchVertex( Matrix3.transformPoint(cm,__vv), r,g,b,a, u1,v1 );
+            this.batchVertex( Matrix3.transformPoint(cm,__vv), cc, u1,v1 );
             __vv.x= x;
             __vv.y= y+h;
-            this.batchVertex( Matrix3.transformPoint(cm,__vv), r,g,b,a, u0,v1 );
+            this.batchVertex( Matrix3.transformPoint(cm,__vv), cc, u0,v1 );
 
             // add two triangles * 3 values each.
             this._indexBufferIndex+=6;
 
-            return this._dataBufferIndex+32 >= this._dataBufferFloat.length;
+            return this._indexBufferIndex+6 >= this._indexBuffer.length;
         }
 
         /**
@@ -275,30 +263,46 @@ module cc.render {
             var color:Float32Array= rcs._fillStyleColor;
             var tint:Float32Array= rcs._tintColor;
 
-            var r= color[0] * tint[0];
-            var g= color[1] * tint[1];
-            var b= color[2] * tint[2];
-            var a= color[3] * tint[3] * rcs._globalAlpha;
+            var r= ((color[0] * tint[0])*255)|0;
+            var g= ((color[1] * tint[1])*255)|0;
+            var b= ((color[2] * tint[2])*255)|0;
+            var a= ((color[3] * tint[3] * rcs._globalAlpha)*255)|0;
+            var cc= (r)|(g<<8)|(b<<16)|(a<<24);
 
             var cm : Float32Array= rcs._currentMatrix;
 
             __vv.x= x;
             __vv.y= y;
-            this.batchVertex( Matrix3.transformPoint(cm,__vv), r,g,b,a, 0,0 );
+            Matrix3.transformPoint(cm,__vv);
+            this._dataBufferFloat[ this._dataBufferIndex++ ] = __vv.x;
+            this._dataBufferFloat[ this._dataBufferIndex++ ] = __vv.y;
+            this._dataBufferUint [ this._dataBufferIndex++ ] = cc;
+
             __vv.x= x+w;
             __vv.y= y;
-            this.batchVertex( Matrix3.transformPoint(cm,__vv), r,g,b,a, 0,0 );
+            Matrix3.transformPoint(cm,__vv);
+            this._dataBufferFloat[ this._dataBufferIndex++ ] = __vv.x;
+            this._dataBufferFloat[ this._dataBufferIndex++ ] = __vv.y;
+            this._dataBufferUint [ this._dataBufferIndex++ ] = cc;
+
             __vv.x= x+w;
             __vv.y= y+h;
-            this.batchVertex( Matrix3.transformPoint(cm,__vv), r,g,b,a, 0,0 );
+            Matrix3.transformPoint(cm,__vv);
+            this._dataBufferFloat[ this._dataBufferIndex++ ] = __vv.x;
+            this._dataBufferFloat[ this._dataBufferIndex++ ] = __vv.y;
+            this._dataBufferUint [ this._dataBufferIndex++ ] = cc;
+
             __vv.x= x;
             __vv.y= y+h;
-            this.batchVertex( Matrix3.transformPoint(cm,__vv), r,g,b,a, 0,0 );
+            Matrix3.transformPoint(cm,__vv);
+            this._dataBufferFloat[ this._dataBufferIndex++ ] = __vv.x;
+            this._dataBufferFloat[ this._dataBufferIndex++ ] = __vv.y;
+            this._dataBufferUint [ this._dataBufferIndex++ ] = cc;
 
             // add two triangles * 3 values each.
             this._indexBufferIndex+=6;
 
-            return this._dataBufferIndex+32 >= this._dataBufferFloat.length;
+            return this._indexBufferIndex+6 >= this._indexBuffer.length;
         }
 
         /**
@@ -312,13 +316,10 @@ module cc.render {
          * @param u {number}
          * @param v {number}
          */
-        batchVertex( p:Point, r:number, g:number, b:number, a:number, u:number, v:number ) : void {
+        batchVertex( p:Point, cc:number, u:number, v:number ) : void {
             this._dataBufferFloat[ this._dataBufferIndex++ ] = p.x;
             this._dataBufferFloat[ this._dataBufferIndex++ ] = p.y;
-            this._dataBufferFloat[ this._dataBufferIndex++ ] = r;
-            this._dataBufferFloat[ this._dataBufferIndex++ ] = g;
-            this._dataBufferFloat[ this._dataBufferIndex++ ] = b;
-            this._dataBufferFloat[ this._dataBufferIndex++ ] = a;
+            this._dataBufferUint [ this._dataBufferIndex++ ] = cc;
             this._dataBufferFloat[ this._dataBufferIndex++ ] = u;
             this._dataBufferFloat[ this._dataBufferIndex++ ] = v;
         }
