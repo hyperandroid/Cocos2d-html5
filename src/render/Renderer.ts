@@ -517,28 +517,26 @@ module cc.render {
 
             if ( arguments.length===3 ) {
                 if ( cc.render.RENDER_ORIGIN===cc.render.ORIGIN_BOTTOM ) {
-                    h= sy+texture._image.height;
+                    h= texture._image.height+sy;
                     this.transform(1,0,0,-1,0,h);
                     this.drawImage(texture._image, sx, 0);
-                    this.transform(1,0,0,-1,0,-h);
+                    this.transform(1,0,0,-1,0,h);
                 } else {
                     this.drawImage(texture._image, sx, sy);
                 }
             } else if ( arguments.length===5 ) {
                 if ( cc.render.RENDER_ORIGIN===cc.render.ORIGIN_BOTTOM ) {
-                    h= sy+sh;
-                    this.transform(1,0,0,-1,0,h);
+                    this.transform(1,0,0,-1,0,sh+sy);
                     this.drawImage(texture._image, sx, 0, sw, sh);
-                    this.transform(1,0,0,-1,0,-h);
+                    this.transform(1,0,0,-1,0,sh+sy);
                 } else {
                     this.drawImage(texture._image, sx, sy, sw, sh);
                 }
             } else {
                 if ( cc.render.RENDER_ORIGIN===cc.render.ORIGIN_BOTTOM ) {
-                    h= dy+dh;
-                    this.transform(1,0,0,-1,0,h);
+                    this.transform(1,0,0,-1,0,dy+dh);
                     this.drawImage(texture._image, sx, sy, sw, sh, dx, 0, dw, dh);
-                    this.transform(1,0,0,-1,0,-h);
+                    this.transform(1,0,0,-1,0,dy+dh);
                 } else {
 
                     this.drawImage(texture._image, sx, sy, sw, sh, dx, dy, dw, dh);

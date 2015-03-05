@@ -15904,9 +15904,9 @@ var cc;
                 SolidColorShader.prototype.flushBuffersWithContent = function (rcs) {
                     this.__updateUniformValues();
                     var gl = this._webglState;
-                    gl.vertexAttribPointer(this._attributePosition._location, 2, gl._gl.FLOAT, false, 8 * 4, 0);
-                    gl.vertexAttribPointer(this._attributeColor._location, 4, gl._gl.FLOAT, false, 8 * 4, 2 * 4);
-                    //            gl.vertexAttribPointer(this._attributeTexture._location, 2, gl.FLOAT, false, 8*4, 6*4 );
+                    gl.vertexAttribPointer(this._attributePosition._location, 2, gl._gl.FLOAT, false, 12, 0);
+                    gl.vertexAttribPointer(this._attributeColor._location, 4, gl._gl.UNSIGNED_BYTE, true, 12, 2 * 4);
+                    //gl.vertexAttribPointer(this._attributeColor._location, 4, gl._gl.FLOAT, false, 8*4, 2*4);
                 };
                 /**
                  * Spare matrix
@@ -16020,9 +16020,9 @@ var cc;
                 TextureShader.prototype.flushBuffersWithContent = function (rcs) {
                     this.__updateUniformValues();
                     var gl = this._webglState;
-                    gl.vertexAttribPointer(this._attributePosition._location, 2, gl._gl.FLOAT, false, 8 * 4, 0);
-                    gl.vertexAttribPointer(this._attributeColor._location, 4, gl._gl.FLOAT, false, 8 * 4, 2 * 4);
-                    gl.vertexAttribPointer(this._attributeTexture._location, 2, gl._gl.FLOAT, false, 8 * 4, 6 * 4);
+                    gl.vertexAttribPointer(this._attributePosition._location, 2, gl._gl.FLOAT, false, 5 * 4, 0);
+                    gl.vertexAttribPointer(this._attributeColor._location, 4, gl._gl.UNSIGNED_BYTE, true, 5 * 4, 2 * 4);
+                    gl.vertexAttribPointer(this._attributeTexture._location, 2, gl._gl.FLOAT, false, 5 * 4, 3 * 4);
                 };
                 /**
                  * Spare matrix
@@ -16290,12 +16290,12 @@ var cc;
             })();
             var Buffer = (function () {
                 function Buffer(_gl, _type, initialValue, usage) {
-                    //this._usage= usage;
                     this._gl = _gl;
                     this._type = _type;
                     this._buffer = null;
                     this._prevValue = null;
-                    this._usage = _gl.STATIC_DRAW;
+                    this._usage = usage;
+                    //this._usage= _gl.STATIC_DRAW;
                     this._buffer = _gl.createBuffer();
                     if (initialValue) {
                         this._gl.bindBuffer(_type, this._buffer);
@@ -16310,15 +16310,15 @@ var cc;
                 Buffer.prototype.enableWithValue = function (v) {
                     this._gl.bindBuffer(this._type, this._buffer);
                     //if ( this._prevValue!==v ) {
-                    this._gl.bufferData(this._type, v, this._usage);
-                    //this._gl.bufferSubData( this._type, 0, v );
+                    //    this._gl.bufferData( this._type, v, this._usage );
+                    this._gl.bufferSubData(this._type, 0, v);
                     //this._prevValue= v;
                     //}
                 };
                 Buffer.prototype.forceEnableWithValue = function (v) {
                     this._gl.bindBuffer(this._type, this._buffer);
-                    this._gl.bufferData(this._type, v, this._usage);
-                    //this._gl.bufferSubData( this._type, 0, v );
+                    //this._gl.bufferData( this._type, v, this._usage );
+                    this._gl.bufferSubData(this._type, 0, v);
                 };
                 return Buffer;
             })();
@@ -16755,10 +16755,10 @@ var cc;
                 var h;
                 if (arguments.length === 3) {
                     if (cc.render.RENDER_ORIGIN === cc.render.ORIGIN_BOTTOM) {
-                        h = sy + texture._image.height;
+                        h = texture._image.height + sy;
                         this.transform(1, 0, 0, -1, 0, h);
                         this.drawImage(texture._image, sx, 0);
-                        this.transform(1, 0, 0, -1, 0, -h);
+                        this.transform(1, 0, 0, -1, 0, h);
                     }
                     else {
                         this.drawImage(texture._image, sx, sy);
@@ -16766,10 +16766,9 @@ var cc;
                 }
                 else if (arguments.length === 5) {
                     if (cc.render.RENDER_ORIGIN === cc.render.ORIGIN_BOTTOM) {
-                        h = sy + sh;
-                        this.transform(1, 0, 0, -1, 0, h);
+                        this.transform(1, 0, 0, -1, 0, sh + sy);
                         this.drawImage(texture._image, sx, 0, sw, sh);
-                        this.transform(1, 0, 0, -1, 0, -h);
+                        this.transform(1, 0, 0, -1, 0, sh + sy);
                     }
                     else {
                         this.drawImage(texture._image, sx, sy, sw, sh);
@@ -16777,10 +16776,9 @@ var cc;
                 }
                 else {
                     if (cc.render.RENDER_ORIGIN === cc.render.ORIGIN_BOTTOM) {
-                        h = dy + dh;
-                        this.transform(1, 0, 0, -1, 0, h);
+                        this.transform(1, 0, 0, -1, 0, dy + dh);
                         this.drawImage(texture._image, sx, sy, sw, sh, dx, 0, dw, dh);
-                        this.transform(1, 0, 0, -1, 0, -h);
+                        this.transform(1, 0, 0, -1, 0, dy + dh);
                     }
                     else {
                         this.drawImage(texture._image, sx, sy, sw, sh, dx, dy, dw, dh);
@@ -17415,18 +17413,14 @@ var cc;
                 this._glIndexBuffer = this._glIndexBuffers[0];
             }
             GeometryBatcher.prototype.batchRectGeometryWithTexture = function (vertices, u0, v0, u1, v1, rcs) {
-                var tint = rcs._tintColor;
-                var r = tint[0];
-                var g = tint[1];
-                var b = tint[2];
-                var a = tint[3] * rcs._globalAlpha;
-                this.batchVertex(vertices[0], r, g, b, a, u0, v0);
-                this.batchVertex(vertices[1], r, g, b, a, u1, v0);
-                this.batchVertex(vertices[2], r, g, b, a, u1, v1);
-                this.batchVertex(vertices[3], r, g, b, a, u0, v1);
+                var cc = this.__uintColor(rcs);
+                this.batchVertex(vertices[0], cc, u0, v0);
+                this.batchVertex(vertices[1], cc, u1, v0);
+                this.batchVertex(vertices[2], cc, u1, v1);
+                this.batchVertex(vertices[3], cc, u0, v1);
                 // add two triangles * 3 values each.
                 this._indexBufferIndex += 6;
-                return this._dataBufferIndex + 32 >= this._dataBufferFloat.length;
+                return this._indexBufferIndex + 6 >= this._indexBuffer.length;
             };
             /**
              * Batch a rectangle with texture info and tint color.
@@ -17443,27 +17437,23 @@ var cc;
              * @param v1 {number}
              */
             GeometryBatcher.prototype.batchRectWithTexture = function (x, y, w, h, rcs, u0, v0, u1, v1) {
-                var tint = rcs._tintColor;
-                var r = tint[0];
-                var g = tint[1];
-                var b = tint[2];
-                var a = tint[3] * rcs._globalAlpha;
                 var cm = rcs._currentMatrix;
+                var cc = this.__uintColor(rcs);
                 __vv.x = x;
                 __vv.y = y;
-                this.batchVertex(Matrix3.transformPoint(cm, __vv), r, g, b, a, u0, v0);
+                this.batchVertex(Matrix3.transformPoint(cm, __vv), cc, u0, v0);
                 __vv.x = x + w;
                 __vv.y = y;
-                this.batchVertex(Matrix3.transformPoint(cm, __vv), r, g, b, a, u1, v0);
+                this.batchVertex(Matrix3.transformPoint(cm, __vv), cc, u1, v0);
                 __vv.x = x + w;
                 __vv.y = y + h;
-                this.batchVertex(Matrix3.transformPoint(cm, __vv), r, g, b, a, u1, v1);
+                this.batchVertex(Matrix3.transformPoint(cm, __vv), cc, u1, v1);
                 __vv.x = x;
                 __vv.y = y + h;
-                this.batchVertex(Matrix3.transformPoint(cm, __vv), r, g, b, a, u0, v1);
+                this.batchVertex(Matrix3.transformPoint(cm, __vv), cc, u0, v1);
                 // add two triangles * 3 values each.
                 this._indexBufferIndex += 6;
-                return this._dataBufferIndex + 32 >= this._dataBufferFloat.length;
+                return this._indexBufferIndex + 6 >= this._indexBuffer.length;
             };
             /**
              * Batch a rect with the current rendering info. The rect color will be tinted. Resulting transparency value will
@@ -17478,26 +17468,39 @@ var cc;
             GeometryBatcher.prototype.batchRect = function (x, y, w, h, rcs) {
                 var color = rcs._fillStyleColor;
                 var tint = rcs._tintColor;
-                var r = color[0] * tint[0];
-                var g = color[1] * tint[1];
-                var b = color[2] * tint[2];
-                var a = color[3] * tint[3] * rcs._globalAlpha;
+                var r = ((color[0] * tint[0]) * 255) | 0;
+                var g = ((color[1] * tint[1]) * 255) | 0;
+                var b = ((color[2] * tint[2]) * 255) | 0;
+                var a = ((color[3] * tint[3] * rcs._globalAlpha) * 255) | 0;
+                var cc = (r) | (g << 8) | (b << 16) | (a << 24);
                 var cm = rcs._currentMatrix;
                 __vv.x = x;
                 __vv.y = y;
-                this.batchVertex(Matrix3.transformPoint(cm, __vv), r, g, b, a, 0, 0);
+                Matrix3.transformPoint(cm, __vv);
+                this._dataBufferFloat[this._dataBufferIndex++] = __vv.x;
+                this._dataBufferFloat[this._dataBufferIndex++] = __vv.y;
+                this._dataBufferUint[this._dataBufferIndex++] = cc;
                 __vv.x = x + w;
                 __vv.y = y;
-                this.batchVertex(Matrix3.transformPoint(cm, __vv), r, g, b, a, 0, 0);
+                Matrix3.transformPoint(cm, __vv);
+                this._dataBufferFloat[this._dataBufferIndex++] = __vv.x;
+                this._dataBufferFloat[this._dataBufferIndex++] = __vv.y;
+                this._dataBufferUint[this._dataBufferIndex++] = cc;
                 __vv.x = x + w;
                 __vv.y = y + h;
-                this.batchVertex(Matrix3.transformPoint(cm, __vv), r, g, b, a, 0, 0);
+                Matrix3.transformPoint(cm, __vv);
+                this._dataBufferFloat[this._dataBufferIndex++] = __vv.x;
+                this._dataBufferFloat[this._dataBufferIndex++] = __vv.y;
+                this._dataBufferUint[this._dataBufferIndex++] = cc;
                 __vv.x = x;
                 __vv.y = y + h;
-                this.batchVertex(Matrix3.transformPoint(cm, __vv), r, g, b, a, 0, 0);
+                Matrix3.transformPoint(cm, __vv);
+                this._dataBufferFloat[this._dataBufferIndex++] = __vv.x;
+                this._dataBufferFloat[this._dataBufferIndex++] = __vv.y;
+                this._dataBufferUint[this._dataBufferIndex++] = cc;
                 // add two triangles * 3 values each.
                 this._indexBufferIndex += 6;
-                return this._dataBufferIndex + 32 >= this._dataBufferFloat.length;
+                return this._indexBufferIndex + 6 >= this._indexBuffer.length;
             };
             /**
              * Batch a vertex with color and texture.
@@ -17510,13 +17513,10 @@ var cc;
              * @param u {number}
              * @param v {number}
              */
-            GeometryBatcher.prototype.batchVertex = function (p, r, g, b, a, u, v) {
+            GeometryBatcher.prototype.batchVertex = function (p, cc, u, v) {
                 this._dataBufferFloat[this._dataBufferIndex++] = p.x;
                 this._dataBufferFloat[this._dataBufferIndex++] = p.y;
-                this._dataBufferFloat[this._dataBufferIndex++] = r;
-                this._dataBufferFloat[this._dataBufferIndex++] = g;
-                this._dataBufferFloat[this._dataBufferIndex++] = b;
-                this._dataBufferFloat[this._dataBufferIndex++] = a;
+                this._dataBufferUint[this._dataBufferIndex++] = cc;
                 this._dataBufferFloat[this._dataBufferIndex++] = u;
                 this._dataBufferFloat[this._dataBufferIndex++] = v;
             };
@@ -17600,7 +17600,7 @@ var cc;
              * @member cc.render.GeometryBatcher.MAX_QUADS
              * @type {number}
              */
-            GeometryBatcher.MAX_QUADS = 26214; // 1Mb/40
+            GeometryBatcher.MAX_QUADS = 16383;
             return GeometryBatcher;
         })();
         render.GeometryBatcher = GeometryBatcher;
