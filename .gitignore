@@ -7,3 +7,4 @@
 ./dist/*
 ./src/test/retina
 ./src/test/retina/*
+node_modules
