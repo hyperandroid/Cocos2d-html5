@@ -27080,6 +27080,7 @@ var cc;
     };
     cc.node.Node.extend = _Class.extend;
     cc.node.Sprite.extend = _Class.extend;
+    cc.node.FastSprite.extend = _Class.extend;
     cc.node.SpriteBatchNode.extend = _Class.extend;
     cc.node.Scene.extend = _Class.extend;
     cc.action.Action.extend = _Class.extend;
