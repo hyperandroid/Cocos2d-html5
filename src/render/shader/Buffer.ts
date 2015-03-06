@@ -16,9 +16,9 @@ module cc.render.shader {
 
         constructor(public _gl : WebGLRenderingContext, public _type : number, initialValue:any, usage:number ) {
 
-            //this._usage= usage;
+            this._usage= usage;
 
-            this._usage= _gl.STATIC_DRAW;
+            //this._usage= _gl.STATIC_DRAW;
 
             this._buffer= _gl.createBuffer();
             if ( initialValue ) {
@@ -36,8 +36,8 @@ module cc.render.shader {
 
             this._gl.bindBuffer( this._type, this._buffer );
             //if ( this._prevValue!==v ) {
-                this._gl.bufferData( this._type, v, this._usage );
-                //this._gl.bufferSubData( this._type, 0, v );
+            //    this._gl.bufferData( this._type, v, this._usage );
+                this._gl.bufferSubData( this._type, 0, v );
                 //this._prevValue= v;
             //}
         }
@@ -45,8 +45,8 @@ module cc.render.shader {
         forceEnableWithValue( v : any ) {
 
             this._gl.bindBuffer( this._type, this._buffer );
-            this._gl.bufferData( this._type, v, this._usage );
-            //this._gl.bufferSubData( this._type, 0, v );
+            //this._gl.bufferData( this._type, v, this._usage );
+            this._gl.bufferSubData( this._type, 0, v );
         }
 
     }

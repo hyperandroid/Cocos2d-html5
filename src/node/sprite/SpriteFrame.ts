@@ -294,24 +294,31 @@ module cc.node.sprite {
          * This method takes care of drawing the Frame with the correct rotation and Sprite's status of flip axis values.
          * @method cc.node.sprite.SpriteFrame#draw
          * @param ctx {cc.render.RenderingContext}
-         * @param sprite {cc.node.Sprite}
+         * @param w {number}
+         * @param h {number}
          */
         draw( ctx : RenderingContext, w:number, h:number ) : void {
 
-            if ( ctx.type==="webgl" ) {
+            if ( ctx.type===cc.render.RENDERER_TYPE_WEBGL ) {
 
                 if (!this._texture.isWebGLEnabled()) {
                     cc.Debug.warn(cc.locale.SPRITEFRAME_WARN_TEXTURE_NOT_WEBGL_INITIALIZED, "SpriteFrame.draw");
                     this._texture.__setAsGLTexture((<DecoratedWebGLRenderingContext>ctx)._webglState);
                     this.__calculateNormalizedRect();
                 }
+
+                ctx.drawTexture(
+                    this._texture,
+                    this._rect.x, this._rect.y, this._rect.w, this._rect.h,
+                    0, 0, w, h);
+
+            } else {
+
+                ctx.drawTextureUnsafe(
+                    this._texture,
+                    this._rect.x, this._rect.y, this._rect.w, this._rect.h,
+                    0, 0, w, h);
             }
-
-            ctx.drawTexture(
-                this._texture,
-                this._rect.x, this._rect.y, this._rect.w, this._rect.h,
-                0,0 ,w, h );
-
         }
 
         /**

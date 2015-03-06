@@ -378,11 +378,11 @@ module cc.render {
             this._currentTintColor= color._color;
         }
 
-        set globalAlpha( v : number ) {
+        setGlobalAlpha( v : number ) {
             this._currentContextSnapshot._globalAlpha= v;
         }
 
-        get globalAlpha() : number {
+        getGlobalAlpha() : number {
             return this._currentContextSnapshot._globalAlpha;
         }
 
@@ -518,6 +518,10 @@ module cc.render {
             if ( this._batcher.batchRect(x, y, w, h, this._currentContextSnapshot) ) {
                 this.flush();
             }
+        }
+
+        drawTextureUnsafe( texture:Texture2D, sx: number, sy:number, sw?:number, sh?:number, dx?: number, dy?:number, dw?:number, dh?:number  ) : void {
+
         }
 
         drawTexture( texture:Texture2D, sx: number, sy:number, sw?:number, sh?:number, dx?: number, dy?:number, dw?:number, dh?:number  ) : void {
@@ -711,11 +715,9 @@ module cc.render {
         /**
          * Get RenderingContext type.
          * @member cc.render.DecoratedWebGLRenderingContext#get:type
-         * @returns {string} "webgl" or "canvas" (lowercase)
+         * @returns {number} cc.render.RENDERER_TYPE_WEBGL or cc.render.RENDERER_TYPE_CANVAS
          */
-        get type() {
-            return "webgl";
-        }
+        type : number= cc.render.RENDERER_TYPE_WEBGL;
 
         /**
          * @method cc.render.DecoratedWebGLRenderingContext#__drawImageFlushIfNeeded
