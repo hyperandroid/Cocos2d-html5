@@ -138,9 +138,8 @@ module cc.render.shader {
 
             var gl = this._webglState;
 
-            gl.vertexAttribPointer(this._attributePosition._location, 2, gl._gl.FLOAT, false, 8*4, 0);
-            gl.vertexAttribPointer(this._attributeColor._location, 4, gl._gl.FLOAT, false, 8*4, 2*4);
-
+            gl.vertexAttribPointer(this._attributePosition._location, 2, gl._gl.FLOAT, false, 3*4, 0);
+            gl.vertexAttribPointer(this._attributeColor._location, 4, gl._gl.FLOAT, false, 3*4, 2*4);
 
         }
     }

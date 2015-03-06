@@ -15906,7 +15906,6 @@ var cc;
                     var gl = this._webglState;
                     gl.vertexAttribPointer(this._attributePosition._location, 2, gl._gl.FLOAT, false, 12, 0);
                     gl.vertexAttribPointer(this._attributeColor._location, 4, gl._gl.UNSIGNED_BYTE, true, 12, 2 * 4);
-                    //gl.vertexAttribPointer(this._attributeColor._location, 4, gl._gl.FLOAT, false, 8*4, 2*4);
                 };
                 /**
                  * Spare matrix
@@ -16155,8 +16154,8 @@ var cc;
                 TexturePatternShader.prototype.flushBuffersWithContent = function (rcs) {
                     this.__updateUniformValues();
                     var gl = this._webglState;
-                    gl.vertexAttribPointer(this._attributePosition._location, 2, gl._gl.FLOAT, false, 8 * 4, 0);
-                    gl.vertexAttribPointer(this._attributeColor._location, 4, gl._gl.FLOAT, false, 8 * 4, 2 * 4);
+                    gl.vertexAttribPointer(this._attributePosition._location, 2, gl._gl.FLOAT, false, 3 * 4, 0);
+                    gl.vertexAttribPointer(this._attributeColor._location, 4, gl._gl.FLOAT, false, 3 * 4, 2 * 4);
                 };
                 TexturePatternShader.mat = new Float32Array(16);
                 return TexturePatternShader;
@@ -27009,6 +27008,11 @@ var cc;
 /**
  * License: see license.txt file.
  */
+/// <reference path="../node/Node.ts"/>
+/// <reference path="../node/Sprite.ts"/>
+/// <reference path="../node/FastSprite.ts"/>
+/// <reference path="../node/Scene.ts"/>
+/// <reference path="../action/Action.ts"/>
 var cc;
 (function (cc) {
     var initializing = false;
@@ -27081,6 +27085,7 @@ var cc;
     };
     cc.node.Node.extend = _Class.extend;
     cc.node.Sprite.extend = _Class.extend;
+    cc.node.FastSprite.extend = _Class.extend;
     cc.node.SpriteBatchNode.extend = _Class.extend;
     cc.node.Scene.extend = _Class.extend;
     cc.action.Action.extend = _Class.extend;

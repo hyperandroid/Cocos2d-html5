@@ -2,6 +2,12 @@
  * License: see license.txt file.
  */
 
+/// <reference path="../node/Node.ts"/>
+/// <reference path="../node/Sprite.ts"/>
+/// <reference path="../node/FastSprite.ts"/>
+/// <reference path="../node/Scene.ts"/>
+/// <reference path="../action/Action.ts"/>
+
 module cc {
 
     var initializing:boolean= false;
@@ -99,6 +105,7 @@ module cc {
 
     (<any>cc.node.Node).extend =   _Class.extend;
     (<any>cc.node.Sprite).extend = _Class.extend;
+    (<any>cc.node.FastSprite).extend = _Class.extend;
     (<any>cc.node.SpriteBatchNode).extend = _Class.extend;
     (<any>cc.node.Scene).extend =  _Class.extend;
     (<any>cc.action.Action).extend = _Class.extend;
