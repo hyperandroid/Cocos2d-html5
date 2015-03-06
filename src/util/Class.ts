@@ -99,6 +99,7 @@ module cc {
 
     (<any>cc.node.Node).extend =   _Class.extend;
     (<any>cc.node.Sprite).extend = _Class.extend;
+    (<any>cc.node.FastSprite).extend = _Class.extend;
     (<any>cc.node.SpriteBatchNode).extend = _Class.extend;
     (<any>cc.node.Scene).extend =  _Class.extend;
     (<any>cc.action.Action).extend = _Class.extend;

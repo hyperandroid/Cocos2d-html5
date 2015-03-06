@@ -124,8 +124,6 @@ module cc.render.shader {
 
             gl.vertexAttribPointer(this._attributePosition._location, 2, gl._gl.FLOAT, false, 12, 0);
             gl.vertexAttribPointer(this._attributeColor._location, 4, gl._gl.UNSIGNED_BYTE, true,  12, 2 * 4 );
-            //gl.vertexAttribPointer(this._attributeColor._location, 4, gl._gl.FLOAT, false, 8*4, 2*4);
-
         }
 
     }
