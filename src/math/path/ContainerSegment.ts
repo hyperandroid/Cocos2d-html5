@@ -99,7 +99,7 @@ module cc.math.path {
                 this._dirty= false;
             }
 
-            out= out || __v0;
+            out= out || new cc.math.Vector();
 
             // BUGBUG change for binary search
 
@@ -130,7 +130,7 @@ module cc.math.path {
          * @param dstArray {Array<cc.math.Vector>=}
          * @returns {Array<cc.math.Vector>} the supplied array or a newly created one with the traced points .
          */
-        trace(numPoints?:number, dstArray?:Array<Vector>):Vector[] {
+        trace(dstArray?:Array<Vector>, numPoints?:number):Vector[] {
 
             dstArray= dstArray || [];
 
@@ -215,11 +215,11 @@ module cc.math.path {
          * No action for Arcs.
          * @method cc.math.path.ContainerSegment#setDirty
          */
-        setDirty() {
-            this._dirty= true;
+        setDirty(b:boolean) {
+            this._dirty= b;
             var p : ContainerSegment= <ContainerSegment>this._parent;
             while(p) {
-                p.setDirty();
+                p.setDirty(b);
                 p=p._parent;
             }
         }

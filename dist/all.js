@@ -1296,7 +1296,7 @@ var cc;
                 return this;
             };
             Vector.add = function (v0, v1) {
-                return new Vector().set(v1.x + v0.x, v1.y + v0.y);
+                return new Vector(v1.x + v0.x, v1.y + v0.y);
             };
             /**
              * Create a Vector with the substraction of two vectors.
@@ -1305,7 +1305,7 @@ var cc;
              * @returns {Vector}
              */
             Vector.sub = function (v0, v1) {
-                return new Vector().set(v1.x - v0.x, v1.y - v0.y);
+                return new Vector(v1.x - v0.x, v1.y - v0.y);
             };
             /**
              * Calculate the distance between two vectors
@@ -1322,6 +1322,11 @@ var cc;
                 var x = p1.x - p0.x;
                 var y = p1.y - p0.y;
                 return Math.atan2(y, x);
+            };
+            Vector.middlePoint = function (p0, p1) {
+                var x = (p1.x + p0.x) / 2;
+                var y = (p1.y + p0.y) / 2;
+                return new Vector(x, y);
             };
             /**
              * Compare the vector with another vector for equality.
@@ -1755,7 +1760,11 @@ var cc;
                 SegmentLine.prototype.initialize = function (start, end) {
                     this._start = new Vector(start.x, start.y);
                     this._end = new Vector(end.x, end.y);
+                    this.__calculateLength();
+                };
+                SegmentLine.prototype.__calculateLength = function () {
                     this._length = Math.sqrt((this._start.x - this._end.x) * (this._start.x - this._end.x) + (this._start.y - this._end.y) * (this._start.y - this._end.y));
+                    this._dirty = false;
                 };
                 /**
                  * Get the line length.
@@ -1775,7 +1784,7 @@ var cc;
                  * @param dstArray {Array<cc.math.Vector>=} array where to add the traced points.
                  * @returns {Array<Vector>} returns the supplied array of points, or a new array of points if not set.
                  */
-                SegmentLine.prototype.trace = function (numPoints, dstArray) {
+                SegmentLine.prototype.trace = function (dstArray, numPoints) {
                     dstArray = dstArray || [];
                     dstArray.push(this._start);
                     dstArray.push(this._end);
@@ -1789,7 +1798,7 @@ var cc;
                  * successive calls to getValue will return the same point instance.
                  */
                 SegmentLine.prototype.getValueAt = function (normalizedPos, out) {
-                    out = out || __v;
+                    out = out || new cc.math.Vector();
                     out.x = (this._end.x - this._start.x) * normalizedPos + this._start.x;
                     out.y = (this._end.y - this._start.y) * normalizedPos + this._start.y;
                     return out;
@@ -1853,15 +1862,19 @@ var cc;
                  * No action for Arcs.
                  * @method cc.math.path.ContainerSegment#setDirty
                  */
-                SegmentLine.prototype.setDirty = function () {
-                    this._dirty = true;
+                SegmentLine.prototype.setDirty = function (d) {
+                    this._dirty = d;
                     var p = this._parent;
                     while (p) {
-                        p.setDirty();
+                        p.setDirty(d);
                         p = p._parent;
                     }
                 };
                 SegmentLine.prototype.paint = function (ctx) {
+                    ctx.beginPath();
+                    ctx.moveTo(this._start.x, this._start.y);
+                    ctx.lineTo(this._end.x, this._end.y);
+                    ctx.stroke();
                 };
                 return SegmentLine;
             })();
@@ -2195,7 +2208,7 @@ var cc;
     var math;
     (function (math) {
         var path;
-        (function (_path) {
+        (function (path) {
             var Vector = cc.math.Vector;
             var __v0 = new Vector();
             /**
@@ -2264,20 +2277,6 @@ var cc;
                      * @private
                      */
                     this._length = 0;
-                    /**
-                     * Whether the Quadratic is internally treated as a polyline.
-                     * @member cc.math.path.SegmentQuadratic#_flattened
-                     * @type {boolean}
-                     * @private
-                     */
-                    this._flattened = false;
-                    /**
-                     * A cache of points on the curve. This is approximation with which the length is calculated.
-                     * @member cc.math.path.SegmentQuadratic#_cachedContourPoints
-                     * @type {Array<cc.math.Vector>}
-                     * @private
-                     */
-                    this._cachedContourPoints = null;
                     if (data) {
                         this.initialize(data.p0, data.p1, data.p2);
                     }
@@ -2292,71 +2291,17 @@ var cc;
                     this._p0 = new Vector(p0.x, p0.y);
                     this._cp0 = new Vector(p1.x, p1.y);
                     this._p1 = new Vector(p2.x, p2.y);
-                    this.__update();
-                    this._dirty = false;
-                };
-                /**
-                 * Flatten this Segment and consider it a polyline with equidistant points.
-                 * @param numPoints {number=} Number of points (meaning numPoints-1 line segments). If not set, the number of
-                 *        points will be exactly the same resulting from tracing the Quadratic segment. (you are good by not
-                 *        supplying a value).
-                 * @returns {cc.math.path.SegmentQuadratic}
-                 */
-                SegmentQuadratic.prototype.flatten = function (numPoints) {
-                    // already flattened and with the same amount of points ? do nothing dude.
-                    if (!this._dirty && this._flattened && numPoints === this._cachedContourPoints.length) {
-                        return;
-                    }
-                    // trace this quadratic segment
-                    var points = cc.math.path.traceQuadratic(this._p0, this._cp0, this._p1);
-                    // build a polyline of the specified number of points, or as much as twice the traced contour.
-                    // twice, since after all, we are approximating a curve to lines. and this is just preprocess, won't hurt
-                    // the long term.
-                    numPoints = numPoints || points.length * 2;
-                    // now path is a polyline which is not proportionally sampled.
-                    var path = cc.math.Path.createFromPoints(points);
-                    // sample the path and get another polyline with each point at a regular distance.
-                    points = [];
-                    path.trace(numPoints, points);
-                    // signal flattened data
-                    this._flattened = true;
-                    // save data for later usage
-                    this._cachedContourPoints = points;
-                    // update segment length
                     this.__calculateLength();
-                    // not dirty, caches and length are freshly calculated
                     this._dirty = false;
-                    return this;
-                };
-                /**
-                 * Update the Quadratic Segment info.
-                 * @param numPoints {number=}
-                 * @private
-                 */
-                SegmentQuadratic.prototype.__update = function (numPoints) {
-                    this._dirty = false;
-                    numPoints = numPoints || (this._cachedContourPoints && this._cachedContourPoints.length) || cc.math.path.DEFAULT_TRACE_LENGTH;
-                    // and was flattened
-                    if (this._flattened) {
-                        // recalculate polyline of equally distributed points
-                        this.flatten();
-                    }
-                    else {
-                        // was not flattened
-                        this._cachedContourPoints = [];
-                        for (var i = 0; i <= numPoints; i++) {
-                            this._cachedContourPoints.push(this.getValueAt(i / numPoints, new Vector()));
-                        }
-                    }
-                    this.__calculateLength();
                 };
                 SegmentQuadratic.prototype.__calculateLength = function () {
-                    var points = this._cachedContourPoints;
+                    var points = this.trace(null, cc.math.path.DEFAULT_TRACE_LENGTH);
                     // calculate distance
                     this._length = 0;
                     for (var i = 0; i < points.length - 1; i++) {
                         this._length += points[i].distance(points[i + 1]);
                     }
+                    this._dirty = false;
                 };
                 /**
                  * Get the Segment's parent Segment.
@@ -2382,7 +2327,7 @@ var cc;
                  */
                 SegmentQuadratic.prototype.getLength = function () {
                     if (this._dirty) {
-                        this.__update();
+                        this.__calculateLength();
                     }
                     return this._length;
                 };
@@ -2394,17 +2339,9 @@ var cc;
                  * @param dstArray {Array<cc.math.Vector>=} array where to add the traced points.
                  * @returns {Array<Vector>} returns the supplied array of points, or a new array of points if not set.
                  */
-                SegmentQuadratic.prototype.trace = function (numPoints, dstArray) {
-                    if (this._dirty) {
-                        this.__update(numPoints);
-                    }
+                SegmentQuadratic.prototype.trace = function (dstArray, numPoints) {
                     dstArray = dstArray || [];
-                    // copy flattened polyline to dst array.
-                    if (this._cachedContourPoints !== dstArray) {
-                        for (var i = 0; i < this._cachedContourPoints.length; i++) {
-                            dstArray.push(this._cachedContourPoints[i]);
-                        }
-                    }
+                    cc.math.path.traceQuadratic(this._p0, this._cp0, this._p1, dstArray);
                     return dstArray;
                 };
                 /**
@@ -2418,12 +2355,8 @@ var cc;
                  * successive calls to getValue will return the same point instance.
                  */
                 SegmentQuadratic.prototype.getValueAt = function (normalizedPos, out) {
-                    // if dirty, update curve info
-                    if (this._dirty) {
-                        this.__update();
-                    }
                     // no out point, use a spare internal one. WARNING, will be continuously reused.
-                    out = out || __v0;
+                    out = out || new cc.math.Vector();
                     // fix normalization values, just in case.
                     if (normalizedPos > 1 || normalizedPos < -1) {
                         normalizedPos %= 1;
@@ -2431,31 +2364,18 @@ var cc;
                     if (normalizedPos < 0) {
                         normalizedPos += 1;
                     }
-                    if (this._flattened) {
-                        var fp = this._cachedContourPoints;
-                        var segment = (normalizedPos * fp.length - 1);
-                        normalizedPos = (segment - (segment | 0)) / (1 / (fp.length - 1));
-                        segment |= 0;
-                        out.x = fp[segment].x + (fp[segment + 1].x - fp[segment].x) * normalizedPos;
-                        out.y = fp[segment].y + (fp[segment + 1].y - fp[segment].y) * normalizedPos;
+                    if (normalizedPos === 1) {
+                        out.set(this._p1.x, this._p1.y);
+                    }
+                    else if (normalizedPos === 0) {
+                        out.set(this._p0.x, this._p0.y);
                     }
                     else {
-                        if (normalizedPos === 1) {
-                            out.set(this._p1.x, this._p1.y);
-                        }
-                        else if (normalizedPos === 0) {
-                            out.set(this._p0.x, this._p0.y);
-                        }
-                        else {
-                            var cl0 = this._p0;
-                            var cl1 = this._cp0;
-                            var cl2 = this._p1;
-                            var t1 = 1 - normalizedPos;
-                            var t = normalizedPos;
-                            // solve cubic bezier for nomalized time.
-                            out.x = SegmentQuadratic.solve(this._p0.x, this._cp0.x, this._p1.x, t, t1);
-                            out.y = SegmentQuadratic.solve(this._p0.y, this._cp0.y, this._p1.y, t, t1);
-                        }
+                        var t1 = 1 - normalizedPos;
+                        var t = normalizedPos;
+                        // solve quadratic
+                        out.x = SegmentQuadratic.solve(this._p0.x, this._cp0.x, this._p1.x, t, t1);
+                        out.y = SegmentQuadratic.solve(this._p0.y, this._cp0.y, this._p1.y, t, t1);
                     }
                     return out;
                 };
@@ -2498,9 +2418,6 @@ var cc;
                             y: this._p1.y
                         }
                     });
-                    if (this._flattened) {
-                        segment.flatten(this._cachedContourPoints.length);
-                    }
                     segment._length = this._length;
                     return segment;
                 };
@@ -2528,11 +2445,11 @@ var cc;
                  * No action for Arcs.
                  * @method cc.math.path.ContainerSegment#setDirty
                  */
-                SegmentQuadratic.prototype.setDirty = function () {
-                    this._dirty = true;
+                SegmentQuadratic.prototype.setDirty = function (d) {
+                    this._dirty = d;
                     var p = this._parent;
                     while (p) {
-                        p.setDirty();
+                        p.setDirty(d);
                         p = p._parent;
                     }
                 };
@@ -2540,7 +2457,7 @@ var cc;
                 };
                 return SegmentQuadratic;
             })();
-            _path.SegmentQuadratic = SegmentQuadratic;
+            path.SegmentQuadratic = SegmentQuadratic;
         })(path = math.path || (math.path = {}));
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
@@ -2559,7 +2476,7 @@ var cc;
     var math;
     (function (math) {
         var path;
-        (function (_path) {
+        (function (path) {
             var Vector = cc.math.Vector;
             var __v0 = new Vector();
             /**
@@ -2635,20 +2552,6 @@ var cc;
                      * @private
                      */
                     this._length = 0;
-                    /**
-                     * Whether the Cubic is internally treated as a polyline.
-                     * @member cc.math.path.SegmentBezier#_flattened
-                     * @type {boolean}
-                     * @private
-                     */
-                    this._flattened = false;
-                    /**
-                     * A cache of points on the curve. This is approximation with which the length is calculated.
-                     * @member cc.math.path.SegmentBezier#_cachedContourPoints
-                     * @type {Array<cc.math.Vector>}
-                     * @private
-                     */
-                    this._cachedContourPoints = null;
                     if (data) {
                         this.initialize(data.p0, data.p1, data.p2, data.p3);
                     }
@@ -2665,71 +2568,17 @@ var cc;
                     this._cp0 = new Vector(p1.x, p1.y);
                     this._cp1 = new Vector(p2.x, p2.y);
                     this._p1 = new Vector(p3.x, p3.y);
-                    this.__update();
                     this._dirty = false;
-                };
-                /**
-                 * Flatten this Segment and consider it a polyline with equidistant points.
-                 * @param numPoints {number=} Number of points (meaning numPoints-1 line segments). If not set, the number of
-                 *        points will be exactly the same resulting from tracing the Cubic segment. (you are good by not
-                 *        supplying a value).
-                 * @returns {cc.math.path.SegmentBezier}
-                 */
-                SegmentBezier.prototype.flatten = function (numPoints) {
-                    // already flattened and with the same amount of points ? do nothing dude.
-                    if (!this._dirty && this._flattened && numPoints === this._cachedContourPoints.length) {
-                        return;
-                    }
-                    // trace this Cubic segment
-                    var points = cc.math.path.traceBezier(this._p0, this._cp0, this._cp1, this._p1);
-                    // build a polyline of the specified number of points, or as much as twice the traced contour.
-                    // twice, since after all, we are approximating a curve to lines. and this is just preprocess, won't hurt
-                    // the long term.
-                    numPoints = numPoints || points.length * 2;
-                    // now path is a polyline which is not proportionally sampled.
-                    var path = cc.math.Path.createFromPoints(points);
-                    // sample the path and get another polyline with each point at a regular distance.
-                    points = [];
-                    path.trace(numPoints, points);
-                    // signal flattened data
-                    this._flattened = true;
-                    // save data for later usage
-                    this._cachedContourPoints = points;
-                    // update segment length
-                    this.__calculateLength();
-                    // not dirty, caches and length are freshly calculated
-                    this._dirty = false;
-                    return this;
-                };
-                /**
-                 * Update the Cubic Segment info.
-                 * @param numPoints {number=}
-                 * @private
-                 */
-                SegmentBezier.prototype.__update = function (numPoints) {
-                    this._dirty = false;
-                    numPoints = numPoints || (this._cachedContourPoints && this._cachedContourPoints.length) || cc.math.path.DEFAULT_TRACE_LENGTH;
-                    // and was flattened
-                    if (this._flattened) {
-                        // recalculate polyline of equally distributed points
-                        this.flatten();
-                    }
-                    else {
-                        // was not flattened
-                        this._cachedContourPoints = [];
-                        for (var i = 0; i <= numPoints; i++) {
-                            this._cachedContourPoints.push(this.getValueAt(i / numPoints, new Vector()));
-                        }
-                    }
                     this.__calculateLength();
                 };
                 SegmentBezier.prototype.__calculateLength = function () {
-                    var points = this._cachedContourPoints;
+                    var points = this.trace(null, cc.math.path.DEFAULT_TRACE_LENGTH);
                     // calculate distance
                     this._length = 0;
                     for (var i = 0; i < points.length - 1; i++) {
                         this._length += points[i].distance(points[i + 1]);
                     }
+                    this._dirty = false;
                 };
                 /**
                  * Get the Segment's parent Segment.
@@ -2755,7 +2604,7 @@ var cc;
                  */
                 SegmentBezier.prototype.getLength = function () {
                     if (this._dirty) {
-                        this.__update();
+                        this.__calculateLength();
                     }
                     return this._length;
                 };
@@ -2767,17 +2616,9 @@ var cc;
                  * @param dstArray {Array<cc.math.Vector>=} array where to add the traced points.
                  * @returns {Array<Vector>} returns the supplied array of points, or a new array of points if not set.
                  */
-                SegmentBezier.prototype.trace = function (numPoints, dstArray) {
-                    if (this._dirty) {
-                        this.__update(numPoints);
-                    }
+                SegmentBezier.prototype.trace = function (dstArray, numPoints) {
                     dstArray = dstArray || [];
-                    // copy flattened polyline to dst array.
-                    if (this._cachedContourPoints !== dstArray) {
-                        for (var i = 0; i < this._cachedContourPoints.length; i++) {
-                            dstArray.push(this._cachedContourPoints[i]);
-                        }
-                    }
+                    cc.math.path.traceBezier(this._p0, this._cp0, this._cp1, this._p1, dstArray);
                     return dstArray;
                 };
                 /**
@@ -2792,12 +2633,8 @@ var cc;
                  * successive calls to getValue will return the same point instance.
                  */
                 SegmentBezier.prototype.getValueAt = function (normalizedPos, out) {
-                    // if dirty, update curve info
-                    if (this._dirty) {
-                        this.__update();
-                    }
                     // no out point, use a spare internal one. WARNING, will be continuously reused.
-                    out = out || __v0;
+                    out = out || new cc.math.Vector();
                     // fix normalization values, just in case.
                     if (normalizedPos > 1 || normalizedPos < -1) {
                         normalizedPos %= 1;
@@ -2805,29 +2642,19 @@ var cc;
                     if (normalizedPos < 0) {
                         normalizedPos += 1;
                     }
-                    if (this._flattened) {
-                        var fp = this._cachedContourPoints;
-                        var segment = normalizedPos * (fp.length - 1);
-                        normalizedPos = (segment - (segment | 0)) / (1 / (fp.length - 1));
-                        segment |= 0;
-                        out.x = fp[segment].x + (fp[segment + 1].x - fp[segment].x) * normalizedPos;
-                        out.y = fp[segment].y + (fp[segment + 1].y - fp[segment].y) * normalizedPos;
+                    if (normalizedPos === 1) {
+                        out.set(this._p1.x, this._p1.y);
+                    }
+                    else if (normalizedPos === 0) {
+                        out.set(this._p0.x, this._p0.y);
                     }
                     else {
-                        if (normalizedPos === 1) {
-                            out.set(this._p1.x, this._p1.y);
-                        }
-                        else if (normalizedPos === 0) {
-                            out.set(this._p0.x, this._p0.y);
-                        }
-                        else {
-                            var t = normalizedPos;
-                            var t2 = t * t;
-                            var t3 = t * t2;
-                            // solve cubic bezier for nomalized time.
-                            out.x = SegmentBezier.solve(this._p0.x, this._cp0.x, this._cp1.x, this._p1.x, t, t2, t3);
-                            out.y = SegmentBezier.solve(this._p0.y, this._cp0.y, this._cp1.y, this._p1.y, t, t2, t3);
-                        }
+                        var t = normalizedPos;
+                        var t2 = t * t;
+                        var t3 = t * t2;
+                        // solve cubic bezier for nomalized time.
+                        out.x = SegmentBezier.solve(this._p0.x, this._cp0.x, this._cp1.x, this._p1.x, t, t2, t3);
+                        out.y = SegmentBezier.solve(this._p0.y, this._cp0.y, this._cp1.y, this._p1.y, t, t2, t3);
                     }
                     return out;
                 };
@@ -2886,9 +2713,6 @@ var cc;
                             y: this._p1.y
                         }
                     });
-                    if (this._flattened) {
-                        segment.flatten(this._cachedContourPoints.length);
-                    }
                     segment._length = this._length;
                     return segment;
                 };
@@ -2917,11 +2741,11 @@ var cc;
                  * No action for Arcs.
                  * @method cc.math.path.ContainerSegment#setDirty
                  */
-                SegmentBezier.prototype.setDirty = function () {
-                    this._dirty = true;
+                SegmentBezier.prototype.setDirty = function (d) {
+                    this._dirty = d;
                     var p = this._parent;
                     while (p) {
-                        p.setDirty();
+                        p.setDirty(d);
                         p = p._parent;
                     }
                 };
@@ -2929,7 +2753,7 @@ var cc;
                 };
                 return SegmentBezier;
             })();
-            _path.SegmentBezier = SegmentBezier;
+            path.SegmentBezier = SegmentBezier;
         })(path = math.path || (math.path = {}));
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
@@ -3017,7 +2841,11 @@ var cc;
                     this._endingPoint = new Vector();
                     this._endingPoint.x = s.x;
                     this._endingPoint.y = s.y;
+                    this.__calculateLength();
+                };
+                SegmentArc.prototype.__calculateLength = function () {
                     this._length = Math.abs(this._radius * (this._endAngle - this._startAngle));
+                    this._dirty = false;
                 };
                 /**
                  * Return the Segment's starting point reference. It is the stored one, not a copy.
@@ -3041,6 +2869,9 @@ var cc;
                  * @returns {number}
                  */
                 SegmentArc.prototype.getLength = function () {
+                    if (this._dirty) {
+                        this.__calculateLength();
+                    }
                     return this._length;
                 };
                 /**
@@ -3052,7 +2883,7 @@ var cc;
                  */
                 SegmentArc.prototype.getValueAt = function (v, out) {
                     var diffAngle = (this._endAngle - this._startAngle) * v;
-                    out = out || __v0;
+                    out = out || new cc.math.Vector();
                     out.x = this._x + this._radius * Math.cos(this._startAngle + diffAngle);
                     out.y = this._y + this._radius * Math.sin(this._startAngle + diffAngle);
                     return out;
@@ -3064,7 +2895,7 @@ var cc;
                  * @param dstArray {Array<cc.math.Vector>=} optional output array of points. If not set, a new one will be created.
                  * @returns {Array<Vector>} An array where the traced points have been added.
                  */
-                SegmentArc.prototype.trace = function (numPoints, dstArray) {
+                SegmentArc.prototype.trace = function (dstArray, numPoints) {
                     numPoints = numPoints || cc.math.path.DEFAULT_TRACE_LENGTH;
                     dstArray = dstArray || [];
                     if (this._startAngle === this._endAngle || this._radius === 0) {
@@ -3124,11 +2955,11 @@ var cc;
                  * No action for Arcs.
                  * @method cc.math.path.ContainerSegment#setDirty
                  */
-                SegmentArc.prototype.setDirty = function () {
-                    this._dirty = true;
+                SegmentArc.prototype.setDirty = function (d) {
+                    this._dirty = d;
                     var p = this._parent;
                     while (p) {
-                        p.setDirty();
+                        p.setDirty(d);
                         p = p._parent;
                     }
                 };
@@ -3154,7 +2985,7 @@ var cc;
     var math;
     (function (math) {
         var path;
-        (function (_path) {
+        (function (path) {
             var Vector = cc.math.Vector;
             var __v0 = new Vector();
             /**
@@ -3263,7 +3094,7 @@ var cc;
                     this._cp0 = new Vector(cp0.x, cp0.y);
                     this._cp1 = new Vector(cp1.x, cp1.y);
                     this._p1 = new Vector(p1.x, p1.y);
-                    this.__update();
+                    this.__calculateLength();
                     this._dirty = false;
                 };
                 /**
@@ -3274,76 +3105,20 @@ var cc;
                 SegmentCardinalSpline.prototype.setTension = function (t) {
                     if (t !== this._tension) {
                         this._tension = t;
-                        this.setDirty();
+                        this.__calculateLength();
+                        if (this._parent) {
+                            this._parent.setDirty(true);
+                        }
                     }
-                };
-                /**
-                 * Flatten this Segment and consider it a polyline with equidistant points.
-                 * @param numPoints {number=} Number of points (meaning numPoints-1 line segments). If not set, the number of
-                 *        points will be a default value. (you are good by not supplying a value).
-                 * @returns {cc.math.path.SegmentCardinalSpline}
-                 */
-                SegmentCardinalSpline.prototype.flatten = function (numPoints) {
-                    // already flattened and with the same amount of points ? do nothing dude.
-                    if (!this._dirty && this._flattened && numPoints === this._cachedContourPoints.length) {
-                        return;
-                    }
-                    numPoints = numPoints || cc.math.path.DEFAULT_TRACE_LENGTH;
-                    // trace this quadratic segment
-                    var points = this.__trace(null, numPoints);
-                    // build a polyline of the specified number of points, or as much as twice the traced contour.
-                    // twice, since after all, we are approximating a curve to lines. and this is just preprocess, won't hurt
-                    // the long term.
-                    numPoints = numPoints || points.length * 2;
-                    // now path is a polyline which is not proportionally sampled.
-                    var path = cc.math.Path.createFromPoints(points);
-                    // sample the path and get another polyline with each point at a regular distance.
-                    points = [];
-                    path.trace(numPoints, points);
-                    // signal flattened data
-                    this._flattened = true;
-                    // save data for later usage
-                    this._cachedContourPoints = points;
-                    // update segment length
-                    this.__calculateLength();
-                    // not dirty, caches and length are freshly calculated
-                    this._dirty = false;
-                    return this;
-                };
-                SegmentCardinalSpline.prototype.__trace = function (points, numPoints) {
-                    points = points || [];
-                    for (var i = 0; i <= numPoints; i++) {
-                        points.push(this.getValueAt(i / numPoints, new Vector()));
-                    }
-                    return points;
-                };
-                /**
-                 * Update the Quadratic Segment info.
-                 * @param numPoints {number=}
-                 * @private
-                 */
-                SegmentCardinalSpline.prototype.__update = function (numPoints) {
-                    this._dirty = false;
-                    numPoints = numPoints || (this._cachedContourPoints && this._cachedContourPoints.length) || cc.math.path.DEFAULT_TRACE_LENGTH;
-                    // and was flattened
-                    if (this._flattened) {
-                        // recalculate polyline of equally distributed points
-                        this.flatten();
-                    }
-                    else {
-                        // was not flattened
-                        this._cachedContourPoints = [];
-                        this.__trace(this._cachedContourPoints, numPoints);
-                    }
-                    this.__calculateLength();
                 };
                 SegmentCardinalSpline.prototype.__calculateLength = function () {
-                    var points = this._cachedContourPoints;
+                    var points = this.trace(null, cc.math.path.DEFAULT_TRACE_LENGTH);
                     // calculate distance
                     this._length = 0;
                     for (var i = 0; i < points.length - 1; i++) {
                         this._length += points[i].distance(points[i + 1]);
                     }
+                    this._dirty = false;
                 };
                 /**
                  * Get the Segment's parent Segment.
@@ -3369,7 +3144,7 @@ var cc;
                  */
                 SegmentCardinalSpline.prototype.getLength = function () {
                     if (this._dirty) {
-                        this.__update();
+                        this.__calculateLength();
                     }
                     return this._length;
                 };
@@ -3381,16 +3156,11 @@ var cc;
                  * @param dstArray {Array<cc.math.Vector>=} array where to add the traced points.
                  * @returns {Array<Vector>} returns the supplied array of points, or a new array of points if not set.
                  */
-                SegmentCardinalSpline.prototype.trace = function (numPoints, dstArray) {
-                    if (this._dirty && this._flattened) {
-                        this.__update(numPoints);
-                    }
+                SegmentCardinalSpline.prototype.trace = function (dstArray, numPoints) {
+                    numPoints = numPoints || cc.math.path.DEFAULT_TRACE_LENGTH;
                     dstArray = dstArray || [];
-                    // copy flattened polyline to dst array.
-                    if (this._cachedContourPoints !== dstArray) {
-                        for (var i = 0; i < this._cachedContourPoints.length; i++) {
-                            dstArray.push(this._cachedContourPoints[i]);
-                        }
+                    for (var i = 0; i <= numPoints; i++) {
+                        dstArray.push(this.getValueAt(i / numPoints));
                     }
                     return dstArray;
                 };
@@ -3405,12 +3175,8 @@ var cc;
                  * successive calls to getValue will return the same point instance.
                  */
                 SegmentCardinalSpline.prototype.getValueAt = function (normalizedPos, out) {
-                    // if dirty, update curve info
-                    if (this._dirty) {
-                        this.__update();
-                    }
                     // no out point, use a spare internal one. WARNING, will be continuously reused.
-                    out = out || __v0;
+                    out = out || new cc.math.Vector();
                     // fix normalization values, just in case.
                     if (normalizedPos > 1 || normalizedPos < -1) {
                         normalizedPos %= 1;
@@ -3418,35 +3184,25 @@ var cc;
                     if (normalizedPos < 0) {
                         normalizedPos += 1;
                     }
-                    if (this._flattened) {
-                        var fp = this._cachedContourPoints;
-                        var segment = (normalizedPos * fp.length - 1);
-                        normalizedPos = (segment - (segment | 0)) / (1 / (fp.length - 1));
-                        segment |= 0;
-                        out.x = fp[segment].x + (fp[segment + 1].x - fp[segment].x) * normalizedPos;
-                        out.y = fp[segment].y + (fp[segment + 1].y - fp[segment].y) * normalizedPos;
+                    if (normalizedPos === 1) {
+                        var lp = this.getEndingPoint();
+                        out.set(lp.x, lp.y);
+                    }
+                    else if (normalizedPos === 0) {
+                        var fp_ = this.getStartingPoint();
+                        out.set(fp_.x, fp_.y);
                     }
                     else {
-                        if (normalizedPos === 1) {
-                            var lp = this.getEndingPoint();
-                            out.set(lp.x, lp.y);
-                        }
-                        else if (normalizedPos === 0) {
-                            var fp_ = this.getStartingPoint();
-                            out.set(fp_.x, fp_.y);
-                        }
-                        else {
-                            var t = normalizedPos;
-                            var t2 = t * t;
-                            var t3 = t2 * t;
-                            var s = (1 - this._tension) / 2;
-                            var b1 = s * ((-t3 + (2 * t2)) - t); // s(-t3 + 2 t2 - t)P1
-                            var b2 = s * (-t3 + t2) + (2 * t3 - 3 * t2 + 1); // s(-t3 + t2)P2 + (2 t3 - 3 t2 + 1)P2
-                            var b3 = s * (t3 - 2 * t2 + t) + (-2 * t3 + 3 * t2); // s(t3 - 2 t2 + t)P3 + (-2 t3 + 3 t2)P3
-                            var b4 = s * (t3 - t2); // s(t3 - t2)P4
-                            out.x = this._p0.x * b1 + this._cp0.x * b2 + this._cp1.x * b3 + this._p1.x * b4;
-                            out.y = this._p0.y * b1 + this._cp0.y * b2 + this._cp1.y * b3 + this._p1.y * b4;
-                        }
+                        var t = normalizedPos;
+                        var t2 = t * t;
+                        var t3 = t2 * t;
+                        var s = (1.0 - this._tension) / 2.0;
+                        var b1 = s * ((-t3 + (2.0 * t2)) - t); // s(-t3 + 2 t2 - t)P1
+                        var b2 = s * (-t3 + t2) + (2.0 * t3 - 3.0 * t2 + 1.0); // s(-t3 + t2)P2 + (2 t3 - 3 t2 + 1)P2
+                        var b3 = s * (t3 - 2.0 * t2 + t) + (-2.0 * t3 + 3.0 * t2); // s(t3 - 2 t2 + t)P3 + (-2 t3 + 3 t2)P3
+                        var b4 = s * (t3 - t2); // s(t3 - t2)P4
+                        out.x = this._p0.x * b1 + this._cp0.x * b2 + this._cp1.x * b3 + this._p1.x * b4;
+                        out.y = this._p0.y * b1 + this._cp0.y * b2 + this._cp1.y * b3 + this._p1.y * b4;
                     }
                     return out;
                 };
@@ -3479,9 +3235,6 @@ var cc;
                         p1: this._p1,
                         tension: this._tension
                     });
-                    if (this._flattened) {
-                        segment.flatten(this._cachedContourPoints.length);
-                    }
                     segment._length = this._length;
                     return segment;
                 };
@@ -3510,25 +3263,26 @@ var cc;
                  * No action for Arcs.
                  * @method cc.math.path.ContainerSegment#setDirty
                  */
-                SegmentCardinalSpline.prototype.setDirty = function () {
-                    this._dirty = true;
+                SegmentCardinalSpline.prototype.setDirty = function (d) {
+                    this._dirty = d;
                     var p = this._parent;
                     while (p) {
-                        p.setDirty();
+                        p.setDirty(d);
                         p = p._parent;
                     }
                 };
                 SegmentCardinalSpline.prototype.paint = function (ctx) {
+                    var c = this.trace(null, 50);
                     ctx.beginPath();
-                    ctx.moveTo(this._cachedContourPoints[0].x, this._cachedContourPoints[0].y);
-                    for (var i = 1; i < this._cachedContourPoints.length; i++) {
-                        ctx.lineTo(this._cachedContourPoints[i].x, this._cachedContourPoints[i].y);
+                    ctx.moveTo(c[0].x, c[0].y);
+                    for (var i = 1; i < c.length; i++) {
+                        ctx.lineTo(c[i].x, c[i].y);
                     }
                     ctx.stroke();
                 };
                 return SegmentCardinalSpline;
             })();
-            _path.SegmentCardinalSpline = SegmentCardinalSpline;
+            path.SegmentCardinalSpline = SegmentCardinalSpline;
         })(path = math.path || (math.path = {}));
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
@@ -3620,7 +3374,7 @@ var cc;
                         this.__calculateLength();
                         this._dirty = false;
                     }
-                    out = out || __v0;
+                    out = out || new cc.math.Vector();
                     // BUGBUG change for binary search
                     var pos = normalizedPos * this._length;
                     var search = 0;
@@ -3644,7 +3398,7 @@ var cc;
                  * @param dstArray {Array<cc.math.Vector>=}
                  * @returns {Array<cc.math.Vector>} the supplied array or a newly created one with the traced points .
                  */
-                ContainerSegment.prototype.trace = function (numPoints, dstArray) {
+                ContainerSegment.prototype.trace = function (dstArray, numPoints) {
                     dstArray = dstArray || [];
                     numPoints = numPoints || cc.math.path.DEFAULT_TRACE_LENGTH;
                     for (var i = 0; i <= numPoints; i++) {
@@ -3715,11 +3469,11 @@ var cc;
                  * No action for Arcs.
                  * @method cc.math.path.ContainerSegment#setDirty
                  */
-                ContainerSegment.prototype.setDirty = function () {
-                    this._dirty = true;
+                ContainerSegment.prototype.setDirty = function (b) {
+                    this._dirty = b;
                     var p = this._parent;
                     while (p) {
-                        p.setDirty();
+                        p.setDirty(b);
                         p = p._parent;
                     }
                 };
@@ -4523,10 +4277,12 @@ var cc;
                 return path;
             };
             Path.prototype.paint = function (ctx) {
-                ctx.setTransform(1.0, 0, 0, 1.0, 0, 0);
                 for (var i = 0; i < this._segments.length; i++) {
                     this._segments[i].paint(ctx);
                 }
+            };
+            Path.prototype.getStrokeGeometry = function () {
+                return [];
             };
             return Path;
         })(ContainerSegment);
@@ -10090,15 +9846,7 @@ var cc;
                     // current node position will be the first control point of the Segment.
                     // all other segment points will have node's position substracted.
                     var points = this._segment.getControlPoints();
-                    /*
-                                    if ( points.length ) {
-                                        for (var i = 0; i < points.length; i++) {
-                                            points[i].x -= node.x;
-                                            points[i].y -= node.y;
-                                        }
-                                    }
-                    */
-                    this._segment.setDirty();
+                    this._segment.setDirty(true);
                     this._segment.getLength();
                     // if tangential rotation is enabled, calculate initial rotation angle.
                     if (this._adjustTangentialRotation && node.setFlippedX) {

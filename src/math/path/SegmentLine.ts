@@ -128,9 +128,15 @@ module cc.math.path {
             this._start = new Vector(start.x, start.y);
             this._end = new Vector(end.x, end.y);
 
+            this.__calculateLength();
+        }
+
+        __calculateLength() {
             this._length= Math.sqrt(
                 (this._start.x-this._end.x)*(this._start.x-this._end.x) +
                 (this._start.y-this._end.y)*(this._start.y-this._end.y) );
+
+            this._dirty= false;
         }
 
         /**
@@ -152,7 +158,8 @@ module cc.math.path {
          * @param dstArray {Array<cc.math.Vector>=} array where to add the traced points.
          * @returns {Array<Vector>} returns the supplied array of points, or a new array of points if not set.
          */
-        trace( numPoints? : number, dstArray? : Array<Vector> ) : Vector[] {
+        trace( dstArray? : Array<Vector>, numPoints? : number ) : Vector[] {
+
             dstArray= dstArray || [];
 
             dstArray.push( this._start );
@@ -170,7 +177,7 @@ module cc.math.path {
          */
         getValueAt( normalizedPos : number, out? : Vector ) : Vector {
 
-            out= out || __v;
+            out= out || new cc.math.Vector();
 
             out.x= ( this._end.x - this._start.x )*normalizedPos + this._start.x;
             out.y= ( this._end.y - this._start.y )*normalizedPos + this._start.y;
@@ -246,17 +253,21 @@ module cc.math.path {
          * No action for Arcs.
          * @method cc.math.path.ContainerSegment#setDirty
          */
-        setDirty() {
-            this._dirty= true;
+        setDirty(d:boolean) {
+            this._dirty= d;
             var p : ContainerSegment= this._parent;
             while(p) {
-                p.setDirty();
+                p.setDirty(d);
                 p=p._parent;
             }
         }
 
         paint( ctx:cc.render.RenderingContext ) {
 
+            ctx.beginPath();
+            ctx.moveTo( this._start.x, this._start.y );
+            ctx.lineTo( this._end.x, this._end.y );
+            ctx.stroke();
         }
 
     }

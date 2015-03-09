@@ -530,10 +530,15 @@ module cc.math {
         }
 
         paint( ctx:cc.render.RenderingContext ) {
-            ctx.setTransform(1.0,0,0,1.0,0,0);
             for( var i=0; i<this._segments.length; i++ ) {
                 this._segments[i].paint(ctx);
             }
+        }
+
+        getStrokeGeometry() : number[] {
+
+
+            return [];
         }
     }
 }

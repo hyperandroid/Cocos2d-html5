@@ -31,6 +31,8 @@ cc.game.run();
 
 window.addEventListener("DOMContentLoaded", function() {
 
+
+
     // get renderer type from url. valid values are: canvas, webgl, auto.
     // for example call like: index.html?renderer=canvas
     var renderer= "auto";

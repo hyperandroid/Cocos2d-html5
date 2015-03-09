@@ -150,7 +150,7 @@ module cc.math {
         }
 
         static add( v0:Vector,v1:Vector ) : Vector {
-            return new Vector().set( v1.x+v0.x, v1.y+v0.y );
+            return new Vector( v1.x+v0.x, v1.y+v0.y );
         }
 
         /**
@@ -160,7 +160,7 @@ module cc.math {
          * @returns {Vector}
          */
         static sub( v0:Vector,v1:Vector ) : Vector {
-            return new Vector().set( v1.x-v0.x, v1.y-v0.y );
+            return new Vector( v1.x-v0.x, v1.y-v0.y );
         }
 
         /**
@@ -180,6 +180,12 @@ module cc.math {
             var x= p1.x - p0.x;
             var y= p1.y - p0.y;
             return Math.atan2(y,x);
+        }
+
+        static middlePoint( p0:Point, p1:Point ) {
+            var x= (p1.x+p0.x)/2;
+            var y= (p1.y+p0.y)/2;
+            return new Vector(x,y);
         }
 
         /**
