@@ -773,6 +773,9 @@ module cc.render {
                 return;
             }
 
+            var tx = sf.getX();
+            var ty = sf.getY();
+
             patchData.left=     patchData.left || 0;
             patchData.top=      patchData.top || 0;
             patchData.right=    patchData.right || 0;
@@ -804,19 +807,19 @@ module cc.render {
                 // top left
                 if ( patchData.top ) {
                     ctx.drawTexture(sf.getTexture(),
-                        0, 0, spriteLeftWidth, spriteTopHeight,
+                        tx, ty, spriteLeftWidth, spriteTopHeight,
                         x, topy, spriteLeftWidth/scaleFactor, spriteTopHeight/scaleFactor );
                 }
 
                 // bottom left
                 if ( patchData.bottom ) {
                     ctx.drawTexture(sf.getTexture(),
-                        0, spriteBottomY, spriteLeftWidth, spriteBottomHeight,
+                        tx, ty + spriteBottomY, spriteLeftWidth, spriteBottomHeight,
                         x, bottomy , spriteLeftWidth/scaleFactor, spriteBottomHeight/scaleFactor );
                 }
 
                 ctx.drawTexture(sf.getTexture(),
-                    0, patchData.top, spriteLeftWidth, spriteMiddleHeight,
+                    tx, ty +patchData.top, spriteLeftWidth, spriteMiddleHeight,
                     x, middley, spriteLeftWidth/scaleFactor, h - paddingH/scaleFactor );
 
             }
@@ -826,19 +829,19 @@ module cc.render {
                 // top left
                 if ( patchData.top ) {
                     ctx.drawTexture(sf.getTexture(),
-                        sf.getWidth()-patchData.right, 0, spriteRightWidth, spriteTopHeight,
+                        tx + sf.getWidth()-patchData.right, ty, spriteRightWidth, spriteTopHeight,
                         x + w - patchData.right/scaleFactor, topy, spriteRightWidth/scaleFactor, spriteTopHeight/scaleFactor );
                 }
 
                 // bottom left
                 if ( patchData.bottom ) {
                     ctx.drawTexture(sf.getTexture(),
-                        sf.getWidth()-patchData.right, spriteBottomY, spriteRightWidth, spriteBottomHeight,
+                        tx + sf.getWidth()-patchData.right, ty + spriteBottomY, spriteRightWidth, spriteBottomHeight,
                         x + w - patchData.right/scaleFactor, bottomy , spriteRightWidth/scaleFactor, spriteBottomHeight/scaleFactor );
                 }
 
                 ctx.drawTexture(sf.getTexture(),
-                    sf.getWidth()-patchData.right, patchData.top, spriteRightWidth, spriteMiddleHeight,
+                    tx + sf.getWidth()-patchData.right, ty + patchData.top, spriteRightWidth, spriteMiddleHeight,
                     x + w - patchData.right/scaleFactor, middley, spriteRightWidth/scaleFactor, h - paddingH/scaleFactor );
 
             }
@@ -847,19 +850,19 @@ module cc.render {
             // top left
             if ( patchData.top ) {
                 ctx.drawTexture(sf.getTexture(),
-                    patchData.left, 0, spriteMiddleWidth, spriteTopHeight,
+                    tx + patchData.left, ty, spriteMiddleWidth, spriteTopHeight,
                     x + patchData.left/scaleFactor, topy, w - paddingW/scaleFactor, spriteTopHeight/scaleFactor );
             }
 
             // bottom left
             if ( patchData.bottom ) {
                 ctx.drawTexture(sf.getTexture(),
-                    patchData.left, spriteBottomY, spriteMiddleWidth, spriteBottomHeight,
+                    tx + patchData.left, ty + spriteBottomY, spriteMiddleWidth, spriteBottomHeight,
                     x + patchData.left/scaleFactor, bottomy , w - paddingW/scaleFactor, spriteBottomHeight/scaleFactor );
             }
 
             ctx.drawTexture(sf.getTexture(),
-                patchData.left, patchData.top, spriteMiddleWidth, spriteMiddleHeight,
+                tx + patchData.left, ty + patchData.top, spriteMiddleWidth, spriteMiddleHeight,
                 x + patchData.left/scaleFactor, middley, w - paddingW/scaleFactor, h - paddingH/scaleFactor );
 
 
