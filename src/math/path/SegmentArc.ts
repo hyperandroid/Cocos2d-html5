@@ -150,23 +150,27 @@ module cc.math.path {
             this._endAngle = data.endAngle;
             this._ccw = data.ccw;
 
-            if( !this._ccw && this._endAngle <= this._startAngle ) {
+            if (!this._ccw && this._endAngle <= this._startAngle) {
                 this._endAngle += 2 * Math.PI;
             }
-            else if( this._ccw && this._startAngle <= this._endAngle ) {
+            else if (this._ccw && this._startAngle <= this._endAngle) {
                 this._startAngle += 2 * Math.PI;
             }
 
-            var s : Vector= this.getValueAt(0);
-            this._startingPoint= new Vector();
-            this._startingPoint.x= s.x;
-            this._startingPoint.y= s.y;
-            s= this.getValueAt(1);
-            this._endingPoint= new Vector();
-            this._endingPoint.x= s.x;
-            this._endingPoint.y= s.y;
+            var s:Vector = this.getValueAt(0);
+            this._startingPoint = new Vector();
+            this._startingPoint.x = s.x;
+            this._startingPoint.y = s.y;
+            s = this.getValueAt(1);
+            this._endingPoint = new Vector();
+            this._endingPoint.x = s.x;
+            this._endingPoint.y = s.y;
+            this.__calculateLength();
+        }
 
+        __calculateLength() {
             this._length= Math.abs( this._radius * (this._endAngle - this._startAngle ) );
+            this._dirty= false;
         }
 
         /**
@@ -193,6 +197,9 @@ module cc.math.path {
          * @returns {number}
          */
         getLength() : number {
+            if ( this._dirty ) {
+                this.__calculateLength();
+            }
             return this._length;
         }
 
@@ -207,7 +214,7 @@ module cc.math.path {
 
             var diffAngle : number = ( this._endAngle - this._startAngle ) * v;
 
-            out= out || __v0;
+            out= out || new cc.math.Vector();
 
             out.x= this._x + this._radius * Math.cos(this._startAngle + diffAngle);
             out.y= this._y + this._radius * Math.sin(this._startAngle + diffAngle);
@@ -222,7 +229,7 @@ module cc.math.path {
          * @param dstArray {Array<cc.math.Vector>=} optional output array of points. If not set, a new one will be created.
          * @returns {Array<Vector>} An array where the traced points have been added.
          */
-        trace( numPoints? : number, dstArray? : Array<Vector> ) : Vector[] {
+        trace( dstArray? : Array<Vector>, numPoints? : number ) : Vector[] {
 
             numPoints = numPoints || cc.math.path.DEFAULT_TRACE_LENGTH;
             dstArray = dstArray || [];
@@ -292,16 +299,17 @@ module cc.math.path {
          * No action for Arcs.
          * @method cc.math.path.ContainerSegment#setDirty
          */
-        setDirty() {
-            this._dirty= true;
+        setDirty(d:boolean) {
+            this._dirty= d;
             var p : ContainerSegment= this._parent;
             while(p) {
-                p.setDirty();
+                p.setDirty(d);
                 p=p._parent;
             }
         }
 
         paint( ctx:cc.render.RenderingContext ) {
+
 
         }
 

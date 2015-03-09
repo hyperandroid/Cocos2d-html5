@@ -91,7 +91,7 @@ module cc.math.path {
          * @param dstArray {Array<Vector>=} destination array of points. if not set, a new array will be created.
          * @returns {Array<cc.math.Vector>} an array of points on the segment.
          */
-        trace( numPoints? : number, dstArray? : Array<Vector> ) : Vector[];
+        trace( dstArray? : Array<Vector>, numPoints? : number ) : Vector[];
 
         /**
          * Get a point on the segment. Assuming the Segment will be of size 1, being 0 the origin segment point, and
@@ -146,7 +146,7 @@ module cc.math.path {
          * Mark a Segment and all its SubSegments are dirty whatever it means.
          * @methodcc.math.path.Segment#setDirty
          */
-        setDirty();
+        setDirty( d:boolean );
 
         paint( ctx:RenderingContext );
     }

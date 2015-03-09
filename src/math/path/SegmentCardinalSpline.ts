@@ -186,7 +186,7 @@ module cc.math.path {
             this._cp1= new Vector( cp1.x,cp1.y );
             this._p1= new Vector( p1.x,p1.y );
 
-            this.__update();
+            this.__calculateLength();
             this._dirty = false;
         }
 
@@ -198,97 +198,22 @@ module cc.math.path {
         setTension( t : number ) {
             if ( t!==this._tension ) {
                 this._tension= t;
-                this.setDirty();
+                this.__calculateLength();
+                if ( this._parent ) {
+                    this._parent.setDirty(true);
+                }
             }
-        }
-
-        /**
-         * Flatten this Segment and consider it a polyline with equidistant points.
-         * @param numPoints {number=} Number of points (meaning numPoints-1 line segments). If not set, the number of
-         *        points will be a default value. (you are good by not supplying a value).
-         * @returns {cc.math.path.SegmentCardinalSpline}
-         */
-        flatten(numPoints?:number):SegmentCardinalSpline {
-
-            // already flattened and with the same amount of points ? do nothing dude.
-            if (!this._dirty && this._flattened && numPoints === this._cachedContourPoints.length) {
-                return;
-            }
-
-            numPoints = numPoints || cc.math.path.DEFAULT_TRACE_LENGTH;
-
-            // trace this quadratic segment
-            var points:Vector[] = this.__trace(null, numPoints);
-
-            // build a polyline of the specified number of points, or as much as twice the traced contour.
-            // twice, since after all, we are approximating a curve to lines. and this is just preprocess, won't hurt
-            // the long term.
-            numPoints = numPoints || points.length * 2;
-
-            // now path is a polyline which is not proportionally sampled.
-            var path:Path = cc.math.Path.createFromPoints(points);
-
-            // sample the path and get another polyline with each point at a regular distance.
-            points = [];
-            path.trace(numPoints, points);
-
-            // signal flattened data
-            this._flattened = true;
-
-            // save data for later usage
-            this._cachedContourPoints = points;
-
-            // update segment length
-            this.__calculateLength();
-
-            // not dirty, caches and length are freshly calculated
-            this._dirty = false;
-
-            return this;
-        }
-
-        __trace( points:Vector[], numPoints:number ) : Vector[] {
-            points= points || [];
-            for (var i = 0; i <= numPoints; i++) {
-                points.push(this.getValueAt(i / numPoints, new Vector()));
-            }
-
-            return points;
-        }
-
-        /**
-         * Update the Quadratic Segment info.
-         * @param numPoints {number=}
-         * @private
-         */
-        __update(numPoints?:number):void {
-
-            this._dirty = false;
-
-            numPoints = numPoints || (this._cachedContourPoints && this._cachedContourPoints.length) || cc.math.path.DEFAULT_TRACE_LENGTH;
-
-            // and was flattened
-            if (this._flattened) {
-                // recalculate polyline of equally distributed points
-                this.flatten();
-            } else {
-                // was not flattened
-                this._cachedContourPoints = [];
-                this.__trace( this._cachedContourPoints, numPoints );
-            }
-
-
-            this.__calculateLength();
         }
 
         __calculateLength():void {
-            var points = this._cachedContourPoints;
+            var points = this.trace( null, cc.math.path.DEFAULT_TRACE_LENGTH );
             // calculate distance
             this._length = 0;
             for (var i = 0; i < points.length - 1; i++) {
                 this._length += points[i].distance(points[i + 1]);
             }
 
+            this._dirty= false;
         }
 
         /**
@@ -316,8 +241,8 @@ module cc.math.path {
          * @returns {number}
          */
         getLength():number {
-            if (this._dirty) {
-                this.__update();
+            if ( this._dirty ) {
+                this.__calculateLength();
             }
             return this._length;
         }
@@ -330,19 +255,13 @@ module cc.math.path {
          * @param dstArray {Array<cc.math.Vector>=} array where to add the traced points.
          * @returns {Array<Vector>} returns the supplied array of points, or a new array of points if not set.
          */
-        trace(numPoints?:number, dstArray?:Array<Vector>):Vector[] {
+        trace( dstArray?:Array<Vector>, numPoints?:number ):Vector[] {
 
-            if (this._dirty && this._flattened) {
-                this.__update(numPoints);
-            }
+            numPoints= numPoints||cc.math.path.DEFAULT_TRACE_LENGTH;
 
             dstArray = dstArray || [];
-
-            // copy flattened polyline to dst array.
-            if (this._cachedContourPoints !== dstArray) {
-                for (var i = 0; i < this._cachedContourPoints.length; i++) {
-                    dstArray.push(this._cachedContourPoints[i]);
-                }
+            for( var i=0; i<=numPoints; i++ ) {
+                dstArray.push( this.getValueAt(i/numPoints) );
             }
 
             return dstArray;
@@ -360,13 +279,8 @@ module cc.math.path {
          */
         getValueAt(normalizedPos:number, out?:Vector):Vector {
 
-            // if dirty, update curve info
-            if (this._dirty) {
-                this.__update();
-            }
-
             // no out point, use a spare internal one. WARNING, will be continuously reused.
-            out = out || __v0;
+            out = out || new cc.math.Vector();
 
             // fix normalization values, just in case.
             if (normalizedPos > 1 || normalizedPos < -1) {
@@ -376,43 +290,31 @@ module cc.math.path {
                 normalizedPos += 1;
             }
 
-            if (this._flattened) {
+            if (normalizedPos === 1) {
+                var lp = this.getEndingPoint();
+                out.set(lp.x, lp.y);
+            } else if (normalizedPos === 0) {
 
-                var fp = this._cachedContourPoints;
-                var segment = ( normalizedPos * fp.length - 1 );
-                normalizedPos = (segment - (segment | 0)) / (1 / (fp.length - 1));
-                segment |= 0;
-
-                out.x = fp[segment].x + (fp[segment + 1].x - fp[segment].x) * normalizedPos;
-                out.y = fp[segment].y + (fp[segment + 1].y - fp[segment].y) * normalizedPos;
-
+                var fp_ = this.getStartingPoint();
+                out.set(fp_.x, fp_.y);
             } else {
 
-                if (normalizedPos === 1) {
-                    var lp = this.getEndingPoint();
-                    out.set(lp.x, lp.y);
-                } else if (normalizedPos === 0) {
+                var t= normalizedPos;
 
-                    var fp_ = this.getStartingPoint();
-                    out.set(fp_.x, fp_.y);
-                } else {
+                var t2 = t * t;
+                var t3 = t2 * t;
 
-                    var t= normalizedPos;
+                var s = (1.0 - this._tension) / 2.0;
 
-                    var t2 = t * t;
-                    var t3 = t2 * t;
+                var b1 = s * ((-t3 + (2.0 * t2)) - t);                      // s(-t3 + 2 t2 - t)P1
+                var b2 = s * (-t3 + t2) + (2.0 * t3 - 3.0 * t2 + 1.0);          // s(-t3 + t2)P2 + (2 t3 - 3 t2 + 1)P2
+                var b3 = s * (t3 - 2.0 * t2 + t) + (-2.0 * t3 + 3.0 * t2);      // s(t3 - 2 t2 + t)P3 + (-2 t3 + 3 t2)P3
+                var b4 = s * (t3 - t2);                                   // s(t3 - t2)P4
 
-                    var s = (1 - this._tension) / 2;
+                out.x = this._p0.x * b1 + this._cp0.x * b2 + this._cp1.x * b3 + this._p1.x * b4;
+                out.y = this._p0.y * b1 + this._cp0.y * b2 + this._cp1.y * b3 + this._p1.y * b4;
 
-                    var b1 = s * ((-t3 + (2 * t2)) - t);                      // s(-t3 + 2 t2 - t)P1
-                    var b2 = s * (-t3 + t2) + (2 * t3 - 3 * t2 + 1);          // s(-t3 + t2)P2 + (2 t3 - 3 t2 + 1)P2
-                    var b3 = s * (t3 - 2 * t2 + t) + (-2 * t3 + 3 * t2);      // s(t3 - 2 t2 + t)P3 + (-2 t3 + 3 t2)P3
-                    var b4 = s * (t3 - t2);                                   // s(t3 - t2)P4
 
-                    out.x = this._p0.x * b1 + this._cp0.x * b2 + this._cp1.x * b3 + this._p1.x * b4;
-                    out.y = this._p0.y * b1 + this._cp0.y * b2 + this._cp1.y * b3 + this._p1.y * b4;
-
-                }
             }
 
             return out;
@@ -451,10 +353,6 @@ module cc.math.path {
                 tension: this._tension
             });
 
-            if (this._flattened) {
-                segment.flatten(this._cachedContourPoints.length);
-            }
-
             segment._length = this._length;
 
             return segment;
@@ -490,21 +388,22 @@ module cc.math.path {
          * No action for Arcs.
          * @method cc.math.path.ContainerSegment#setDirty
          */
-        setDirty() {
-            this._dirty= true;
+        setDirty(d:boolean) {
+            this._dirty= d;
             var p : ContainerSegment= this._parent;
             while(p) {
-                p.setDirty();
+                p.setDirty(d);
                 p=p._parent;
             }
         }
 
         paint( ctx:cc.render.RenderingContext ) {
 
+            var c= this.trace(null, 50);
             ctx.beginPath();
-            ctx.moveTo(this._cachedContourPoints[0].x, this._cachedContourPoints[0].y );
-            for( var i=1 ; i<this._cachedContourPoints.length; i++ ) {
-                ctx.lineTo( this._cachedContourPoints[i].x, this._cachedContourPoints[i].y );
+            ctx.moveTo(c[0].x, c[0].y );
+            for( var i=1 ; i<c.length; i++ ) {
+                ctx.lineTo( c[i].x, c[i].y );
             }
             ctx.stroke();
         }

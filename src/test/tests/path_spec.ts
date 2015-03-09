@@ -264,17 +264,13 @@ module test.math {
 
             it("length and flatten length", function() {
 
-                var sq0= new SegmentQuadratic({
-                    p0 : { x:0, y:0},
-                    p1 : { x:50,y:100},
-                    p2 : { x:50,y:50}
-                });
                 var sq1= new SegmentQuadratic({
                     p0 : { x:0, y:0},
                     p1 : { x:50,y:100},
                     p2 : { x:50,y:50}
                 });
-                sq1.flatten();
+
+                var sq0= cc.math.Path.createFromPoints( sq1.trace() );
 
                 expect( sq0.getLength() ).toBeCloseTo( sq1.getLength(), .001 );
 
@@ -304,19 +300,14 @@ module test.math {
 
             it("length and flatten length", function() {
 
-                var sq0= new SegmentBezier({
-                    p0 : { x:0, y:0},
-                    p1 : { x:50,y:100},
-                    p2 : { x:30,y:70},
-                    p3 : { x:50,y:50}
-                });
                 var sq1= new SegmentBezier({
                     p0 : { x:0, y:0},
                     p1 : { x:50,y:100},
                     p2 : { x:30,y:70},
                     p3 : { x:50,y:50}
                 });
-                sq1.flatten();
+
+                var sq0= cc.math.Path.createFromPoints( sq1.trace() );
 
                 expect( sq0.getLength() ).toBeCloseTo( sq1.getLength(), .001 );
 

@@ -258,15 +258,8 @@ module cc.action {
                 // current node position will be the first control point of the Segment.
                 // all other segment points will have node's position substracted.
                 var points : Array<Point> = this._segment.getControlPoints();
-/*
-                if ( points.length ) {
-                    for (var i = 0; i < points.length; i++) {
-                        points[i].x -= node.x;
-                        points[i].y -= node.y;
-                    }
-                }
-*/
-                this._segment.setDirty();
+
+                this._segment.setDirty(true);
                 this._segment.getLength();
 
                 // if tangential rotation is enabled, calculate initial rotation angle.
