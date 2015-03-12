@@ -148,14 +148,13 @@
             var scene= director.createScene();
 
             scene.update= function( delta ) {
-                new_manager.Update(delta);
+                new_manager.Update(delta*1.4);
             };
 
             scene.draw= function( ctx ) {
 
+                ctx._webglState.clearColor(1,1,1,1);
                 ctx.clear();
-                ctx.setFillStyleColorArray([1,1,1,1]);
-                ctx.fillRect(0,0,800,600);
                 ctx.save();
                 ctx.translate(400, 300);
                 ctx.scale(13, 13);
