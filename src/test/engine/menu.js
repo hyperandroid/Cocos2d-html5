@@ -9,6 +9,14 @@
         path : window.DEMOS_PATH || "",
         demos: [
             {
+                file : "creature.html",
+                title: "Creature support"
+            },
+            {
+                file : "creature2.html",
+                title: "Creature support (II)"
+            },
+            {
                 file : "anchors.html",
                 title: "Anchors"
             },

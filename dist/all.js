@@ -171,6 +171,11 @@ var cc;
             RuntimeDebugLevel[RuntimeDebugLevel["RELEASE"] = 1] = "RELEASE";
         })(Debug.RuntimeDebugLevel || (Debug.RuntimeDebugLevel = {}));
         var RuntimeDebugLevel = Debug.RuntimeDebugLevel;
+        var enabled = true;
+        function EnableConsole(b) {
+            enabled = b;
+        }
+        Debug.EnableConsole = EnableConsole;
         /**
          * Current Runtime debug level. DEBUG by default.
          * @member cc.Debug.DEBUG_LEVEL
@@ -202,6 +207,9 @@ var cc;
          * @param rest {Array<any>} other parameters to show in console.
          */
         function debug(level, msg, rest) {
+            if (!enabled) {
+                return;
+            }
             console.log("%c%s:%c %s", __consoleDecoration[level], DebugLevel[level], __defaultDecoration, msg);
             if (rest.length) {
                 console.log(rest);
@@ -840,6 +848,17 @@ var cc;
             Matrix3.copy = function (source, destination) {
                 destination.set(source);
             };
+            Matrix3.set = function (m, a, b, c, d, tx, ty) {
+                m[0] = a;
+                m[1] = b;
+                m[2] = tx;
+                m[3] = c;
+                m[4] = d;
+                m[5] = ty;
+                m[6] = 0;
+                m[7] = 0;
+                m[8] = 1;
+            };
             /**
              * Given a node, calculate a resulting matrix for position, scale and rotate.
              * @method cc.math.Matrix3.setTransformAll
@@ -1277,7 +1296,7 @@ var cc;
                 return this;
             };
             Vector.add = function (v0, v1) {
-                return new Vector().set(v1.x + v0.x, v1.y + v0.y);
+                return new Vector(v1.x + v0.x, v1.y + v0.y);
             };
             /**
              * Create a Vector with the substraction of two vectors.
@@ -1286,7 +1305,7 @@ var cc;
              * @returns {Vector}
              */
             Vector.sub = function (v0, v1) {
-                return new Vector().set(v1.x - v0.x, v1.y - v0.y);
+                return new Vector(v1.x - v0.x, v1.y - v0.y);
             };
             /**
              * Calculate the distance between two vectors
@@ -1303,6 +1322,11 @@ var cc;
                 var x = p1.x - p0.x;
                 var y = p1.y - p0.y;
                 return Math.atan2(y, x);
+            };
+            Vector.middlePoint = function (p0, p1) {
+                var x = (p1.x + p0.x) / 2;
+                var y = (p1.y + p0.y) / 2;
+                return new Vector(x, y);
             };
             /**
              * Compare the vector with another vector for equality.
@@ -1736,7 +1760,11 @@ var cc;
                 SegmentLine.prototype.initialize = function (start, end) {
                     this._start = new Vector(start.x, start.y);
                     this._end = new Vector(end.x, end.y);
+                    this.__calculateLength();
+                };
+                SegmentLine.prototype.__calculateLength = function () {
                     this._length = Math.sqrt((this._start.x - this._end.x) * (this._start.x - this._end.x) + (this._start.y - this._end.y) * (this._start.y - this._end.y));
+                    this._dirty = false;
                 };
                 /**
                  * Get the line length.
@@ -1756,7 +1784,7 @@ var cc;
                  * @param dstArray {Array<cc.math.Vector>=} array where to add the traced points.
                  * @returns {Array<Vector>} returns the supplied array of points, or a new array of points if not set.
                  */
-                SegmentLine.prototype.trace = function (numPoints, dstArray) {
+                SegmentLine.prototype.trace = function (dstArray, numPoints) {
                     dstArray = dstArray || [];
                     dstArray.push(this._start);
                     dstArray.push(this._end);
@@ -1770,7 +1798,7 @@ var cc;
                  * successive calls to getValue will return the same point instance.
                  */
                 SegmentLine.prototype.getValueAt = function (normalizedPos, out) {
-                    out = out || __v;
+                    out = out || new cc.math.Vector();
                     out.x = (this._end.x - this._start.x) * normalizedPos + this._start.x;
                     out.y = (this._end.y - this._start.y) * normalizedPos + this._start.y;
                     return out;
@@ -1834,15 +1862,19 @@ var cc;
                  * No action for Arcs.
                  * @method cc.math.path.ContainerSegment#setDirty
                  */
-                SegmentLine.prototype.setDirty = function () {
-                    this._dirty = true;
+                SegmentLine.prototype.setDirty = function (d) {
+                    this._dirty = d;
                     var p = this._parent;
                     while (p) {
-                        p.setDirty();
+                        p.setDirty(d);
                         p = p._parent;
                     }
                 };
                 SegmentLine.prototype.paint = function (ctx) {
+                    ctx.beginPath();
+                    ctx.moveTo(this._start.x, this._start.y);
+                    ctx.lineTo(this._end.x, this._end.y);
+                    ctx.stroke();
                 };
                 return SegmentLine;
             })();
@@ -2176,7 +2208,7 @@ var cc;
     var math;
     (function (math) {
         var path;
-        (function (_path) {
+        (function (path) {
             var Vector = cc.math.Vector;
             var __v0 = new Vector();
             /**
@@ -2245,20 +2277,6 @@ var cc;
                      * @private
                      */
                     this._length = 0;
-                    /**
-                     * Whether the Quadratic is internally treated as a polyline.
-                     * @member cc.math.path.SegmentQuadratic#_flattened
-                     * @type {boolean}
-                     * @private
-                     */
-                    this._flattened = false;
-                    /**
-                     * A cache of points on the curve. This is approximation with which the length is calculated.
-                     * @member cc.math.path.SegmentQuadratic#_cachedContourPoints
-                     * @type {Array<cc.math.Vector>}
-                     * @private
-                     */
-                    this._cachedContourPoints = null;
                     if (data) {
                         this.initialize(data.p0, data.p1, data.p2);
                     }
@@ -2273,71 +2291,17 @@ var cc;
                     this._p0 = new Vector(p0.x, p0.y);
                     this._cp0 = new Vector(p1.x, p1.y);
                     this._p1 = new Vector(p2.x, p2.y);
-                    this.__update();
-                    this._dirty = false;
-                };
-                /**
-                 * Flatten this Segment and consider it a polyline with equidistant points.
-                 * @param numPoints {number=} Number of points (meaning numPoints-1 line segments). If not set, the number of
-                 *        points will be exactly the same resulting from tracing the Quadratic segment. (you are good by not
-                 *        supplying a value).
-                 * @returns {cc.math.path.SegmentQuadratic}
-                 */
-                SegmentQuadratic.prototype.flatten = function (numPoints) {
-                    // already flattened and with the same amount of points ? do nothing dude.
-                    if (!this._dirty && this._flattened && numPoints === this._cachedContourPoints.length) {
-                        return;
-                    }
-                    // trace this quadratic segment
-                    var points = cc.math.path.traceQuadratic(this._p0, this._cp0, this._p1);
-                    // build a polyline of the specified number of points, or as much as twice the traced contour.
-                    // twice, since after all, we are approximating a curve to lines. and this is just preprocess, won't hurt
-                    // the long term.
-                    numPoints = numPoints || points.length * 2;
-                    // now path is a polyline which is not proportionally sampled.
-                    var path = cc.math.Path.createFromPoints(points);
-                    // sample the path and get another polyline with each point at a regular distance.
-                    points = [];
-                    path.trace(numPoints, points);
-                    // signal flattened data
-                    this._flattened = true;
-                    // save data for later usage
-                    this._cachedContourPoints = points;
-                    // update segment length
                     this.__calculateLength();
-                    // not dirty, caches and length are freshly calculated
                     this._dirty = false;
-                    return this;
-                };
-                /**
-                 * Update the Quadratic Segment info.
-                 * @param numPoints {number=}
-                 * @private
-                 */
-                SegmentQuadratic.prototype.__update = function (numPoints) {
-                    this._dirty = false;
-                    numPoints = numPoints || (this._cachedContourPoints && this._cachedContourPoints.length) || cc.math.path.DEFAULT_TRACE_LENGTH;
-                    // and was flattened
-                    if (this._flattened) {
-                        // recalculate polyline of equally distributed points
-                        this.flatten();
-                    }
-                    else {
-                        // was not flattened
-                        this._cachedContourPoints = [];
-                        for (var i = 0; i <= numPoints; i++) {
-                            this._cachedContourPoints.push(this.getValueAt(i / numPoints, new Vector()));
-                        }
-                    }
-                    this.__calculateLength();
                 };
                 SegmentQuadratic.prototype.__calculateLength = function () {
-                    var points = this._cachedContourPoints;
+                    var points = this.trace(null, cc.math.path.DEFAULT_TRACE_LENGTH);
                     // calculate distance
                     this._length = 0;
                     for (var i = 0; i < points.length - 1; i++) {
                         this._length += points[i].distance(points[i + 1]);
                     }
+                    this._dirty = false;
                 };
                 /**
                  * Get the Segment's parent Segment.
@@ -2363,7 +2327,7 @@ var cc;
                  */
                 SegmentQuadratic.prototype.getLength = function () {
                     if (this._dirty) {
-                        this.__update();
+                        this.__calculateLength();
                     }
                     return this._length;
                 };
@@ -2375,17 +2339,9 @@ var cc;
                  * @param dstArray {Array<cc.math.Vector>=} array where to add the traced points.
                  * @returns {Array<Vector>} returns the supplied array of points, or a new array of points if not set.
                  */
-                SegmentQuadratic.prototype.trace = function (numPoints, dstArray) {
-                    if (this._dirty) {
-                        this.__update(numPoints);
-                    }
+                SegmentQuadratic.prototype.trace = function (dstArray, numPoints) {
                     dstArray = dstArray || [];
-                    // copy flattened polyline to dst array.
-                    if (this._cachedContourPoints !== dstArray) {
-                        for (var i = 0; i < this._cachedContourPoints.length; i++) {
-                            dstArray.push(this._cachedContourPoints[i]);
-                        }
-                    }
+                    cc.math.path.traceQuadratic(this._p0, this._cp0, this._p1, dstArray);
                     return dstArray;
                 };
                 /**
@@ -2399,12 +2355,8 @@ var cc;
                  * successive calls to getValue will return the same point instance.
                  */
                 SegmentQuadratic.prototype.getValueAt = function (normalizedPos, out) {
-                    // if dirty, update curve info
-                    if (this._dirty) {
-                        this.__update();
-                    }
                     // no out point, use a spare internal one. WARNING, will be continuously reused.
-                    out = out || __v0;
+                    out = out || new cc.math.Vector();
                     // fix normalization values, just in case.
                     if (normalizedPos > 1 || normalizedPos < -1) {
                         normalizedPos %= 1;
@@ -2412,31 +2364,18 @@ var cc;
                     if (normalizedPos < 0) {
                         normalizedPos += 1;
                     }
-                    if (this._flattened) {
-                        var fp = this._cachedContourPoints;
-                        var segment = (normalizedPos * fp.length - 1);
-                        normalizedPos = (segment - (segment | 0)) / (1 / (fp.length - 1));
-                        segment |= 0;
-                        out.x = fp[segment].x + (fp[segment + 1].x - fp[segment].x) * normalizedPos;
-                        out.y = fp[segment].y + (fp[segment + 1].y - fp[segment].y) * normalizedPos;
+                    if (normalizedPos === 1) {
+                        out.set(this._p1.x, this._p1.y);
+                    }
+                    else if (normalizedPos === 0) {
+                        out.set(this._p0.x, this._p0.y);
                     }
                     else {
-                        if (normalizedPos === 1) {
-                            out.set(this._p1.x, this._p1.y);
-                        }
-                        else if (normalizedPos === 0) {
-                            out.set(this._p0.x, this._p0.y);
-                        }
-                        else {
-                            var cl0 = this._p0;
-                            var cl1 = this._cp0;
-                            var cl2 = this._p1;
-                            var t1 = 1 - normalizedPos;
-                            var t = normalizedPos;
-                            // solve cubic bezier for nomalized time.
-                            out.x = SegmentQuadratic.solve(this._p0.x, this._cp0.x, this._p1.x, t, t1);
-                            out.y = SegmentQuadratic.solve(this._p0.y, this._cp0.y, this._p1.y, t, t1);
-                        }
+                        var t1 = 1 - normalizedPos;
+                        var t = normalizedPos;
+                        // solve quadratic
+                        out.x = SegmentQuadratic.solve(this._p0.x, this._cp0.x, this._p1.x, t, t1);
+                        out.y = SegmentQuadratic.solve(this._p0.y, this._cp0.y, this._p1.y, t, t1);
                     }
                     return out;
                 };
@@ -2479,9 +2418,6 @@ var cc;
                             y: this._p1.y
                         }
                     });
-                    if (this._flattened) {
-                        segment.flatten(this._cachedContourPoints.length);
-                    }
                     segment._length = this._length;
                     return segment;
                 };
@@ -2509,11 +2445,11 @@ var cc;
                  * No action for Arcs.
                  * @method cc.math.path.ContainerSegment#setDirty
                  */
-                SegmentQuadratic.prototype.setDirty = function () {
-                    this._dirty = true;
+                SegmentQuadratic.prototype.setDirty = function (d) {
+                    this._dirty = d;
                     var p = this._parent;
                     while (p) {
-                        p.setDirty();
+                        p.setDirty(d);
                         p = p._parent;
                     }
                 };
@@ -2521,7 +2457,7 @@ var cc;
                 };
                 return SegmentQuadratic;
             })();
-            _path.SegmentQuadratic = SegmentQuadratic;
+            path.SegmentQuadratic = SegmentQuadratic;
         })(path = math.path || (math.path = {}));
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
@@ -2540,7 +2476,7 @@ var cc;
     var math;
     (function (math) {
         var path;
-        (function (_path) {
+        (function (path) {
             var Vector = cc.math.Vector;
             var __v0 = new Vector();
             /**
@@ -2616,20 +2552,6 @@ var cc;
                      * @private
                      */
                     this._length = 0;
-                    /**
-                     * Whether the Cubic is internally treated as a polyline.
-                     * @member cc.math.path.SegmentBezier#_flattened
-                     * @type {boolean}
-                     * @private
-                     */
-                    this._flattened = false;
-                    /**
-                     * A cache of points on the curve. This is approximation with which the length is calculated.
-                     * @member cc.math.path.SegmentBezier#_cachedContourPoints
-                     * @type {Array<cc.math.Vector>}
-                     * @private
-                     */
-                    this._cachedContourPoints = null;
                     if (data) {
                         this.initialize(data.p0, data.p1, data.p2, data.p3);
                     }
@@ -2646,71 +2568,17 @@ var cc;
                     this._cp0 = new Vector(p1.x, p1.y);
                     this._cp1 = new Vector(p2.x, p2.y);
                     this._p1 = new Vector(p3.x, p3.y);
-                    this.__update();
                     this._dirty = false;
-                };
-                /**
-                 * Flatten this Segment and consider it a polyline with equidistant points.
-                 * @param numPoints {number=} Number of points (meaning numPoints-1 line segments). If not set, the number of
-                 *        points will be exactly the same resulting from tracing the Cubic segment. (you are good by not
-                 *        supplying a value).
-                 * @returns {cc.math.path.SegmentBezier}
-                 */
-                SegmentBezier.prototype.flatten = function (numPoints) {
-                    // already flattened and with the same amount of points ? do nothing dude.
-                    if (!this._dirty && this._flattened && numPoints === this._cachedContourPoints.length) {
-                        return;
-                    }
-                    // trace this Cubic segment
-                    var points = cc.math.path.traceBezier(this._p0, this._cp0, this._cp1, this._p1);
-                    // build a polyline of the specified number of points, or as much as twice the traced contour.
-                    // twice, since after all, we are approximating a curve to lines. and this is just preprocess, won't hurt
-                    // the long term.
-                    numPoints = numPoints || points.length * 2;
-                    // now path is a polyline which is not proportionally sampled.
-                    var path = cc.math.Path.createFromPoints(points);
-                    // sample the path and get another polyline with each point at a regular distance.
-                    points = [];
-                    path.trace(numPoints, points);
-                    // signal flattened data
-                    this._flattened = true;
-                    // save data for later usage
-                    this._cachedContourPoints = points;
-                    // update segment length
-                    this.__calculateLength();
-                    // not dirty, caches and length are freshly calculated
-                    this._dirty = false;
-                    return this;
-                };
-                /**
-                 * Update the Cubic Segment info.
-                 * @param numPoints {number=}
-                 * @private
-                 */
-                SegmentBezier.prototype.__update = function (numPoints) {
-                    this._dirty = false;
-                    numPoints = numPoints || (this._cachedContourPoints && this._cachedContourPoints.length) || cc.math.path.DEFAULT_TRACE_LENGTH;
-                    // and was flattened
-                    if (this._flattened) {
-                        // recalculate polyline of equally distributed points
-                        this.flatten();
-                    }
-                    else {
-                        // was not flattened
-                        this._cachedContourPoints = [];
-                        for (var i = 0; i <= numPoints; i++) {
-                            this._cachedContourPoints.push(this.getValueAt(i / numPoints, new Vector()));
-                        }
-                    }
                     this.__calculateLength();
                 };
                 SegmentBezier.prototype.__calculateLength = function () {
-                    var points = this._cachedContourPoints;
+                    var points = this.trace(null, cc.math.path.DEFAULT_TRACE_LENGTH);
                     // calculate distance
                     this._length = 0;
                     for (var i = 0; i < points.length - 1; i++) {
                         this._length += points[i].distance(points[i + 1]);
                     }
+                    this._dirty = false;
                 };
                 /**
                  * Get the Segment's parent Segment.
@@ -2736,7 +2604,7 @@ var cc;
                  */
                 SegmentBezier.prototype.getLength = function () {
                     if (this._dirty) {
-                        this.__update();
+                        this.__calculateLength();
                     }
                     return this._length;
                 };
@@ -2748,17 +2616,9 @@ var cc;
                  * @param dstArray {Array<cc.math.Vector>=} array where to add the traced points.
                  * @returns {Array<Vector>} returns the supplied array of points, or a new array of points if not set.
                  */
-                SegmentBezier.prototype.trace = function (numPoints, dstArray) {
-                    if (this._dirty) {
-                        this.__update(numPoints);
-                    }
+                SegmentBezier.prototype.trace = function (dstArray, numPoints) {
                     dstArray = dstArray || [];
-                    // copy flattened polyline to dst array.
-                    if (this._cachedContourPoints !== dstArray) {
-                        for (var i = 0; i < this._cachedContourPoints.length; i++) {
-                            dstArray.push(this._cachedContourPoints[i]);
-                        }
-                    }
+                    cc.math.path.traceBezier(this._p0, this._cp0, this._cp1, this._p1, dstArray);
                     return dstArray;
                 };
                 /**
@@ -2773,12 +2633,8 @@ var cc;
                  * successive calls to getValue will return the same point instance.
                  */
                 SegmentBezier.prototype.getValueAt = function (normalizedPos, out) {
-                    // if dirty, update curve info
-                    if (this._dirty) {
-                        this.__update();
-                    }
                     // no out point, use a spare internal one. WARNING, will be continuously reused.
-                    out = out || __v0;
+                    out = out || new cc.math.Vector();
                     // fix normalization values, just in case.
                     if (normalizedPos > 1 || normalizedPos < -1) {
                         normalizedPos %= 1;
@@ -2786,29 +2642,19 @@ var cc;
                     if (normalizedPos < 0) {
                         normalizedPos += 1;
                     }
-                    if (this._flattened) {
-                        var fp = this._cachedContourPoints;
-                        var segment = normalizedPos * (fp.length - 1);
-                        normalizedPos = (segment - (segment | 0)) / (1 / (fp.length - 1));
-                        segment |= 0;
-                        out.x = fp[segment].x + (fp[segment + 1].x - fp[segment].x) * normalizedPos;
-                        out.y = fp[segment].y + (fp[segment + 1].y - fp[segment].y) * normalizedPos;
+                    if (normalizedPos === 1) {
+                        out.set(this._p1.x, this._p1.y);
+                    }
+                    else if (normalizedPos === 0) {
+                        out.set(this._p0.x, this._p0.y);
                     }
                     else {
-                        if (normalizedPos === 1) {
-                            out.set(this._p1.x, this._p1.y);
-                        }
-                        else if (normalizedPos === 0) {
-                            out.set(this._p0.x, this._p0.y);
-                        }
-                        else {
-                            var t = normalizedPos;
-                            var t2 = t * t;
-                            var t3 = t * t2;
-                            // solve cubic bezier for nomalized time.
-                            out.x = SegmentBezier.solve(this._p0.x, this._cp0.x, this._cp1.x, this._p1.x, t, t2, t3);
-                            out.y = SegmentBezier.solve(this._p0.y, this._cp0.y, this._cp1.y, this._p1.y, t, t2, t3);
-                        }
+                        var t = normalizedPos;
+                        var t2 = t * t;
+                        var t3 = t * t2;
+                        // solve cubic bezier for nomalized time.
+                        out.x = SegmentBezier.solve(this._p0.x, this._cp0.x, this._cp1.x, this._p1.x, t, t2, t3);
+                        out.y = SegmentBezier.solve(this._p0.y, this._cp0.y, this._cp1.y, this._p1.y, t, t2, t3);
                     }
                     return out;
                 };
@@ -2867,9 +2713,6 @@ var cc;
                             y: this._p1.y
                         }
                     });
-                    if (this._flattened) {
-                        segment.flatten(this._cachedContourPoints.length);
-                    }
                     segment._length = this._length;
                     return segment;
                 };
@@ -2898,11 +2741,11 @@ var cc;
                  * No action for Arcs.
                  * @method cc.math.path.ContainerSegment#setDirty
                  */
-                SegmentBezier.prototype.setDirty = function () {
-                    this._dirty = true;
+                SegmentBezier.prototype.setDirty = function (d) {
+                    this._dirty = d;
                     var p = this._parent;
                     while (p) {
-                        p.setDirty();
+                        p.setDirty(d);
                         p = p._parent;
                     }
                 };
@@ -2910,7 +2753,7 @@ var cc;
                 };
                 return SegmentBezier;
             })();
-            _path.SegmentBezier = SegmentBezier;
+            path.SegmentBezier = SegmentBezier;
         })(path = math.path || (math.path = {}));
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
@@ -2998,7 +2841,11 @@ var cc;
                     this._endingPoint = new Vector();
                     this._endingPoint.x = s.x;
                     this._endingPoint.y = s.y;
+                    this.__calculateLength();
+                };
+                SegmentArc.prototype.__calculateLength = function () {
                     this._length = Math.abs(this._radius * (this._endAngle - this._startAngle));
+                    this._dirty = false;
                 };
                 /**
                  * Return the Segment's starting point reference. It is the stored one, not a copy.
@@ -3022,6 +2869,9 @@ var cc;
                  * @returns {number}
                  */
                 SegmentArc.prototype.getLength = function () {
+                    if (this._dirty) {
+                        this.__calculateLength();
+                    }
                     return this._length;
                 };
                 /**
@@ -3033,7 +2883,7 @@ var cc;
                  */
                 SegmentArc.prototype.getValueAt = function (v, out) {
                     var diffAngle = (this._endAngle - this._startAngle) * v;
-                    out = out || __v0;
+                    out = out || new cc.math.Vector();
                     out.x = this._x + this._radius * Math.cos(this._startAngle + diffAngle);
                     out.y = this._y + this._radius * Math.sin(this._startAngle + diffAngle);
                     return out;
@@ -3045,7 +2895,7 @@ var cc;
                  * @param dstArray {Array<cc.math.Vector>=} optional output array of points. If not set, a new one will be created.
                  * @returns {Array<Vector>} An array where the traced points have been added.
                  */
-                SegmentArc.prototype.trace = function (numPoints, dstArray) {
+                SegmentArc.prototype.trace = function (dstArray, numPoints) {
                     numPoints = numPoints || cc.math.path.DEFAULT_TRACE_LENGTH;
                     dstArray = dstArray || [];
                     if (this._startAngle === this._endAngle || this._radius === 0) {
@@ -3105,11 +2955,11 @@ var cc;
                  * No action for Arcs.
                  * @method cc.math.path.ContainerSegment#setDirty
                  */
-                SegmentArc.prototype.setDirty = function () {
-                    this._dirty = true;
+                SegmentArc.prototype.setDirty = function (d) {
+                    this._dirty = d;
                     var p = this._parent;
                     while (p) {
-                        p.setDirty();
+                        p.setDirty(d);
                         p = p._parent;
                     }
                 };
@@ -3135,7 +2985,7 @@ var cc;
     var math;
     (function (math) {
         var path;
-        (function (_path) {
+        (function (path) {
             var Vector = cc.math.Vector;
             var __v0 = new Vector();
             /**
@@ -3244,7 +3094,7 @@ var cc;
                     this._cp0 = new Vector(cp0.x, cp0.y);
                     this._cp1 = new Vector(cp1.x, cp1.y);
                     this._p1 = new Vector(p1.x, p1.y);
-                    this.__update();
+                    this.__calculateLength();
                     this._dirty = false;
                 };
                 /**
@@ -3255,76 +3105,20 @@ var cc;
                 SegmentCardinalSpline.prototype.setTension = function (t) {
                     if (t !== this._tension) {
                         this._tension = t;
-                        this.setDirty();
+                        this.__calculateLength();
+                        if (this._parent) {
+                            this._parent.setDirty(true);
+                        }
                     }
-                };
-                /**
-                 * Flatten this Segment and consider it a polyline with equidistant points.
-                 * @param numPoints {number=} Number of points (meaning numPoints-1 line segments). If not set, the number of
-                 *        points will be a default value. (you are good by not supplying a value).
-                 * @returns {cc.math.path.SegmentCardinalSpline}
-                 */
-                SegmentCardinalSpline.prototype.flatten = function (numPoints) {
-                    // already flattened and with the same amount of points ? do nothing dude.
-                    if (!this._dirty && this._flattened && numPoints === this._cachedContourPoints.length) {
-                        return;
-                    }
-                    numPoints = numPoints || cc.math.path.DEFAULT_TRACE_LENGTH;
-                    // trace this quadratic segment
-                    var points = this.__trace(null, numPoints);
-                    // build a polyline of the specified number of points, or as much as twice the traced contour.
-                    // twice, since after all, we are approximating a curve to lines. and this is just preprocess, won't hurt
-                    // the long term.
-                    numPoints = numPoints || points.length * 2;
-                    // now path is a polyline which is not proportionally sampled.
-                    var path = cc.math.Path.createFromPoints(points);
-                    // sample the path and get another polyline with each point at a regular distance.
-                    points = [];
-                    path.trace(numPoints, points);
-                    // signal flattened data
-                    this._flattened = true;
-                    // save data for later usage
-                    this._cachedContourPoints = points;
-                    // update segment length
-                    this.__calculateLength();
-                    // not dirty, caches and length are freshly calculated
-                    this._dirty = false;
-                    return this;
-                };
-                SegmentCardinalSpline.prototype.__trace = function (points, numPoints) {
-                    points = points || [];
-                    for (var i = 0; i <= numPoints; i++) {
-                        points.push(this.getValueAt(i / numPoints, new Vector()));
-                    }
-                    return points;
-                };
-                /**
-                 * Update the Quadratic Segment info.
-                 * @param numPoints {number=}
-                 * @private
-                 */
-                SegmentCardinalSpline.prototype.__update = function (numPoints) {
-                    this._dirty = false;
-                    numPoints = numPoints || (this._cachedContourPoints && this._cachedContourPoints.length) || cc.math.path.DEFAULT_TRACE_LENGTH;
-                    // and was flattened
-                    if (this._flattened) {
-                        // recalculate polyline of equally distributed points
-                        this.flatten();
-                    }
-                    else {
-                        // was not flattened
-                        this._cachedContourPoints = [];
-                        this.__trace(this._cachedContourPoints, numPoints);
-                    }
-                    this.__calculateLength();
                 };
                 SegmentCardinalSpline.prototype.__calculateLength = function () {
-                    var points = this._cachedContourPoints;
+                    var points = this.trace(null, cc.math.path.DEFAULT_TRACE_LENGTH);
                     // calculate distance
                     this._length = 0;
                     for (var i = 0; i < points.length - 1; i++) {
                         this._length += points[i].distance(points[i + 1]);
                     }
+                    this._dirty = false;
                 };
                 /**
                  * Get the Segment's parent Segment.
@@ -3350,7 +3144,7 @@ var cc;
                  */
                 SegmentCardinalSpline.prototype.getLength = function () {
                     if (this._dirty) {
-                        this.__update();
+                        this.__calculateLength();
                     }
                     return this._length;
                 };
@@ -3362,16 +3156,11 @@ var cc;
                  * @param dstArray {Array<cc.math.Vector>=} array where to add the traced points.
                  * @returns {Array<Vector>} returns the supplied array of points, or a new array of points if not set.
                  */
-                SegmentCardinalSpline.prototype.trace = function (numPoints, dstArray) {
-                    if (this._dirty && this._flattened) {
-                        this.__update(numPoints);
-                    }
+                SegmentCardinalSpline.prototype.trace = function (dstArray, numPoints) {
+                    numPoints = numPoints || cc.math.path.DEFAULT_TRACE_LENGTH;
                     dstArray = dstArray || [];
-                    // copy flattened polyline to dst array.
-                    if (this._cachedContourPoints !== dstArray) {
-                        for (var i = 0; i < this._cachedContourPoints.length; i++) {
-                            dstArray.push(this._cachedContourPoints[i]);
-                        }
+                    for (var i = 0; i <= numPoints; i++) {
+                        dstArray.push(this.getValueAt(i / numPoints));
                     }
                     return dstArray;
                 };
@@ -3386,12 +3175,8 @@ var cc;
                  * successive calls to getValue will return the same point instance.
                  */
                 SegmentCardinalSpline.prototype.getValueAt = function (normalizedPos, out) {
-                    // if dirty, update curve info
-                    if (this._dirty) {
-                        this.__update();
-                    }
                     // no out point, use a spare internal one. WARNING, will be continuously reused.
-                    out = out || __v0;
+                    out = out || new cc.math.Vector();
                     // fix normalization values, just in case.
                     if (normalizedPos > 1 || normalizedPos < -1) {
                         normalizedPos %= 1;
@@ -3399,35 +3184,25 @@ var cc;
                     if (normalizedPos < 0) {
                         normalizedPos += 1;
                     }
-                    if (this._flattened) {
-                        var fp = this._cachedContourPoints;
-                        var segment = (normalizedPos * fp.length - 1);
-                        normalizedPos = (segment - (segment | 0)) / (1 / (fp.length - 1));
-                        segment |= 0;
-                        out.x = fp[segment].x + (fp[segment + 1].x - fp[segment].x) * normalizedPos;
-                        out.y = fp[segment].y + (fp[segment + 1].y - fp[segment].y) * normalizedPos;
+                    if (normalizedPos === 1) {
+                        var lp = this.getEndingPoint();
+                        out.set(lp.x, lp.y);
+                    }
+                    else if (normalizedPos === 0) {
+                        var fp_ = this.getStartingPoint();
+                        out.set(fp_.x, fp_.y);
                     }
                     else {
-                        if (normalizedPos === 1) {
-                            var lp = this.getEndingPoint();
-                            out.set(lp.x, lp.y);
-                        }
-                        else if (normalizedPos === 0) {
-                            var fp_ = this.getStartingPoint();
-                            out.set(fp_.x, fp_.y);
-                        }
-                        else {
-                            var t = normalizedPos;
-                            var t2 = t * t;
-                            var t3 = t2 * t;
-                            var s = (1 - this._tension) / 2;
-                            var b1 = s * ((-t3 + (2 * t2)) - t); // s(-t3 + 2 t2 - t)P1
-                            var b2 = s * (-t3 + t2) + (2 * t3 - 3 * t2 + 1); // s(-t3 + t2)P2 + (2 t3 - 3 t2 + 1)P2
-                            var b3 = s * (t3 - 2 * t2 + t) + (-2 * t3 + 3 * t2); // s(t3 - 2 t2 + t)P3 + (-2 t3 + 3 t2)P3
-                            var b4 = s * (t3 - t2); // s(t3 - t2)P4
-                            out.x = this._p0.x * b1 + this._cp0.x * b2 + this._cp1.x * b3 + this._p1.x * b4;
-                            out.y = this._p0.y * b1 + this._cp0.y * b2 + this._cp1.y * b3 + this._p1.y * b4;
-                        }
+                        var t = normalizedPos;
+                        var t2 = t * t;
+                        var t3 = t2 * t;
+                        var s = (1.0 - this._tension) / 2.0;
+                        var b1 = s * ((-t3 + (2.0 * t2)) - t); // s(-t3 + 2 t2 - t)P1
+                        var b2 = s * (-t3 + t2) + (2.0 * t3 - 3.0 * t2 + 1.0); // s(-t3 + t2)P2 + (2 t3 - 3 t2 + 1)P2
+                        var b3 = s * (t3 - 2.0 * t2 + t) + (-2.0 * t3 + 3.0 * t2); // s(t3 - 2 t2 + t)P3 + (-2 t3 + 3 t2)P3
+                        var b4 = s * (t3 - t2); // s(t3 - t2)P4
+                        out.x = this._p0.x * b1 + this._cp0.x * b2 + this._cp1.x * b3 + this._p1.x * b4;
+                        out.y = this._p0.y * b1 + this._cp0.y * b2 + this._cp1.y * b3 + this._p1.y * b4;
                     }
                     return out;
                 };
@@ -3460,9 +3235,6 @@ var cc;
                         p1: this._p1,
                         tension: this._tension
                     });
-                    if (this._flattened) {
-                        segment.flatten(this._cachedContourPoints.length);
-                    }
                     segment._length = this._length;
                     return segment;
                 };
@@ -3491,25 +3263,26 @@ var cc;
                  * No action for Arcs.
                  * @method cc.math.path.ContainerSegment#setDirty
                  */
-                SegmentCardinalSpline.prototype.setDirty = function () {
-                    this._dirty = true;
+                SegmentCardinalSpline.prototype.setDirty = function (d) {
+                    this._dirty = d;
                     var p = this._parent;
                     while (p) {
-                        p.setDirty();
+                        p.setDirty(d);
                         p = p._parent;
                     }
                 };
                 SegmentCardinalSpline.prototype.paint = function (ctx) {
+                    var c = this.trace(null, 50);
                     ctx.beginPath();
-                    ctx.moveTo(this._cachedContourPoints[0].x, this._cachedContourPoints[0].y);
-                    for (var i = 1; i < this._cachedContourPoints.length; i++) {
-                        ctx.lineTo(this._cachedContourPoints[i].x, this._cachedContourPoints[i].y);
+                    ctx.moveTo(c[0].x, c[0].y);
+                    for (var i = 1; i < c.length; i++) {
+                        ctx.lineTo(c[i].x, c[i].y);
                     }
                     ctx.stroke();
                 };
                 return SegmentCardinalSpline;
             })();
-            _path.SegmentCardinalSpline = SegmentCardinalSpline;
+            path.SegmentCardinalSpline = SegmentCardinalSpline;
         })(path = math.path || (math.path = {}));
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
@@ -3601,7 +3374,7 @@ var cc;
                         this.__calculateLength();
                         this._dirty = false;
                     }
-                    out = out || __v0;
+                    out = out || new cc.math.Vector();
                     // BUGBUG change for binary search
                     var pos = normalizedPos * this._length;
                     var search = 0;
@@ -3625,7 +3398,7 @@ var cc;
                  * @param dstArray {Array<cc.math.Vector>=}
                  * @returns {Array<cc.math.Vector>} the supplied array or a newly created one with the traced points .
                  */
-                ContainerSegment.prototype.trace = function (numPoints, dstArray) {
+                ContainerSegment.prototype.trace = function (dstArray, numPoints) {
                     dstArray = dstArray || [];
                     numPoints = numPoints || cc.math.path.DEFAULT_TRACE_LENGTH;
                     for (var i = 0; i <= numPoints; i++) {
@@ -3696,11 +3469,11 @@ var cc;
                  * No action for Arcs.
                  * @method cc.math.path.ContainerSegment#setDirty
                  */
-                ContainerSegment.prototype.setDirty = function () {
-                    this._dirty = true;
+                ContainerSegment.prototype.setDirty = function (b) {
+                    this._dirty = b;
                     var p = this._parent;
                     while (p) {
-                        p.setDirty();
+                        p.setDirty(b);
                         p = p._parent;
                     }
                 };
@@ -4504,10 +4277,12 @@ var cc;
                 return path;
             };
             Path.prototype.paint = function (ctx) {
-                ctx.setTransform(1.0, 0, 0, 1.0, 0, 0);
                 for (var i = 0; i < this._segments.length; i++) {
                     this._segments[i].paint(ctx);
                 }
+            };
+            Path.prototype.getStrokeGeometry = function () {
+                return [];
             };
             return Path;
         })(ContainerSegment);
@@ -5945,7 +5720,7 @@ var cc;
              */
             Node.prototype.draw = function (ctx) {
                 if (this._color !== DEFAULT_COLOR) {
-                    ctx.globalAlpha = this._frameAlpha;
+                    ctx.setGlobalAlpha(this._frameAlpha);
                     ctx.setTintColor(cc.math.Color.WHITE);
                     ctx.setFillStyleColor(this._color);
                     ctx.fillRect(0, 0, this._contentSize.width, this._contentSize.height);
@@ -10071,15 +9846,7 @@ var cc;
                     // current node position will be the first control point of the Segment.
                     // all other segment points will have node's position substracted.
                     var points = this._segment.getControlPoints();
-                    /*
-                                    if ( points.length ) {
-                                        for (var i = 0; i < points.length; i++) {
-                                            points[i].x -= node.x;
-                                            points[i].y -= node.y;
-                                        }
-                                    }
-                    */
-                    this._segment.setDirty();
+                    this._segment.setDirty(true);
                     this._segment.getLength();
                     // if tangential rotation is enabled, calculate initial rotation angle.
                     if (this._adjustTangentialRotation && node.setFlippedX) {
@@ -13149,17 +12916,21 @@ var cc;
                  * This method takes care of drawing the Frame with the correct rotation and Sprite's status of flip axis values.
                  * @method cc.node.sprite.SpriteFrame#draw
                  * @param ctx {cc.render.RenderingContext}
-                 * @param sprite {cc.node.Sprite}
+                 * @param w {number}
+                 * @param h {number}
                  */
                 SpriteFrame.prototype.draw = function (ctx, w, h) {
-                    if (ctx.type === "webgl") {
+                    if (ctx.type === cc.render.RENDERER_TYPE_WEBGL) {
                         if (!this._texture.isWebGLEnabled()) {
                             cc.Debug.warn(cc.locale.SPRITEFRAME_WARN_TEXTURE_NOT_WEBGL_INITIALIZED, "SpriteFrame.draw");
                             this._texture.__setAsGLTexture(ctx._webglState);
                             this.__calculateNormalizedRect();
                         }
+                        ctx.drawTexture(this._texture, this._rect.x, this._rect.y, this._rect.w, this._rect.h, 0, 0, w, h);
                     }
-                    ctx.drawTexture(this._texture, this._rect.x, this._rect.y, this._rect.w, this._rect.h, 0, 0, w, h);
+                    else {
+                        ctx.drawTextureUnsafe(this._texture, this._rect.x, this._rect.y, this._rect.w, this._rect.h, 0, 0, w, h);
+                    }
                 };
                 /**
                  * Create a set of new SpriteFrames from this SpriteFrame area, and defined by a JSON object.
@@ -13606,7 +13377,7 @@ var cc;
              */
             Sprite.prototype.draw = function (ctx) {
                 if (this._spriteFrame) {
-                    ctx.globalAlpha = this._frameAlpha;
+                    ctx.setGlobalAlpha(this._frameAlpha);
                     ctx.setTintColor(this._color);
                     this._spriteFrame.draw(ctx, this.width, this.height);
                 }
@@ -13625,39 +13396,107 @@ var cc;
                     this._spriteMatrixDirty = true;
                 }
             };
+            /**
+             *
+             *           cc.math.Matrix3.identity( this._spriteMatrix );
+    
+                         if (this._flippedX && this._flippedY) {
+                             cc.math.Matrix3.translateBy(this._spriteMatrix, w, h);
+                             cc.math.Matrix3.scaleBy(this._spriteMatrix, -1, -1);
+                             this._spriteMatrixSet= true;
+                         } else if (this._flippedX) {
+                             cc.math.Matrix3.translateBy(this._spriteMatrix, w, 0);
+                             cc.math.Matrix3.scaleBy(this._spriteMatrix, -1, 1);
+                             this._spriteMatrixSet= true;
+                         } else if (this._flippedY) {
+                             cc.math.Matrix3.translateBy(this._spriteMatrix, 0, h);
+                             cc.math.Matrix3.scaleBy(this._spriteMatrix, 1, -1);
+                             this._spriteMatrixSet= true;
+                         }
+    
+                         if ( this._spriteFrame.needsSpecialMatrix() ) {
+                             cc.math.Matrix3.translateBy(this._spriteMatrix,
+                                 this._spriteFrame._offsetFromCenter.x,
+                                 this._spriteFrame._offsetFromCenter.y);
+    
+                             if (this._spriteFrame._rotated) {
+                                 cc.math.Matrix3.translateBy(this._spriteMatrix, w / 2, h / 2);
+                                 cc.math.Matrix3.rotateBy(this._spriteMatrix, Math.PI / 2);
+                                 cc.math.Matrix3.translateBy(this._spriteMatrix, -w / 2, -h / 2);
+                             }
+    
+                             this._spriteMatrixSet = true;
+                         }
+    
+             *
+             * @private
+             */
             Sprite.prototype.__createMatrix = function () {
                 var w = this.width;
                 var h = this.height;
                 this._spriteMatrixSet = false;
-                cc.math.Matrix3.identity(this._spriteMatrix);
+                var mat = this._spriteMatrix;
                 if (this._flippedX && this._flippedY) {
-                    cc.math.Matrix3.translateBy(this._spriteMatrix, w, h);
-                    cc.math.Matrix3.scaleBy(this._spriteMatrix, -1, -1);
+                    cc.math.Matrix3.set(mat, -1.0, 0.0, 0.0, -1.0, w, h);
                     this._spriteMatrixSet = true;
                 }
                 else if (this._flippedX) {
-                    cc.math.Matrix3.translateBy(this._spriteMatrix, w, 0);
-                    cc.math.Matrix3.scaleBy(this._spriteMatrix, -1, 1);
+                    cc.math.Matrix3.set(mat, -1.0, 0.0, 0.0, 1.0, w, 0.0);
                     this._spriteMatrixSet = true;
                 }
                 else if (this._flippedY) {
-                    cc.math.Matrix3.translateBy(this._spriteMatrix, 0, h);
-                    cc.math.Matrix3.scaleBy(this._spriteMatrix, 1, -1);
+                    cc.math.Matrix3.set(mat, 1.0, 0.0, 0.0, -1.0, 0.0, h);
                     this._spriteMatrixSet = true;
                 }
-                if (this._spriteFrame.needsSpecialMatrix()) {
-                    cc.math.Matrix3.translateBy(this._spriteMatrix, this._spriteFrame._offsetFromCenter.x, this._spriteFrame._offsetFromCenter.y);
-                    if (this._spriteFrame._rotated) {
-                        cc.math.Matrix3.translateBy(this._spriteMatrix, w / 2, h / 2);
-                        cc.math.Matrix3.rotateBy(this._spriteMatrix, Math.PI / 2);
-                        cc.math.Matrix3.translateBy(this._spriteMatrix, -w / 2, -h / 2);
+                else {
+                    cc.math.Matrix3.identity(mat);
+                }
+                var sf = this._spriteFrame;
+                if (sf.needsSpecialMatrix()) {
+                    mat[2] += mat[0] * sf._offsetFromCenter.x;
+                    mat[5] += mat[4] * sf._offsetFromCenter.y;
+                    if (sf._rotated) {
+                        mat[2] += mat[0] * w / 2.0;
+                        mat[5] += mat[4] * h / 2.0;
+                        var t = mat[0];
+                        mat[0] = mat[1];
+                        mat[1] = -t;
+                        t = mat[3];
+                        mat[3] = mat[4];
+                        mat[4] = -t;
+                        cc.math.Matrix3.translateBy(mat, -w / 2.0, -h / 2.0);
                     }
                     this._spriteMatrixSet = true;
                 }
                 this._spriteMatrixDirty = false;
             };
             Sprite.prototype.__setLocalTransform = function () {
-                _super.prototype.__setLocalTransform.call(this);
+                //super.__setLocalTransform();
+                if (this._rotation.x !== this.rotationAngle || (this.rotationAngle % 360) !== 0 || this.__isFlagSet(4 /* REQUEST_TRANSFORM */)) {
+                    this.__setLocalTransformRotate();
+                }
+                else if (this.scaleX !== this._scale.x || this._scale.y !== this.scaleY || this._scale.x !== 1 || this._scale.y !== 1) {
+                    this.__setLocalTransformScale();
+                }
+                else if (this.x !== this._position.x || this.y !== this._position.y) {
+                    var mm = this._modelViewMatrix;
+                    var pa = this._positionAnchor;
+                    var cs = this._contentSize;
+                    var x = this.x - pa.x * cs.width;
+                    var y = this.y - pa.y * cs.height;
+                    mm[2] = x;
+                    mm[5] = y;
+                    mm[0] = 1.0;
+                    mm[1] = 0.0;
+                    mm[3] = 0.0;
+                    mm[4] = 1.0;
+                    mm[6] = 0.0;
+                    mm[7] = 0.0;
+                    mm[8] = 1.0;
+                    this._position.x = this.x;
+                    this._position.y = this.y;
+                    this.__setFlag(2 /* TRANSFORMATION_DIRTY */);
+                }
                 if (this.__isFlagSet(2 /* TRANSFORMATION_DIRTY */)) {
                     if (this._spriteMatrixDirty) {
                         this.__createMatrix();
@@ -13781,7 +13620,7 @@ var cc;
                 if (this._spriteFrame) {
                     //ctx.globalAlpha = this._frameAlpha;
                     //ctx.setTintColor(this._color);
-                    if (ctx.type === "webgl") {
+                    if (ctx.type === cc.render.RENDERER_TYPE_WEBGL) {
                         ctx.batchGeometryWithSpriteFast(this);
                     }
                     else {
@@ -13899,7 +13738,7 @@ var cc;
             Button.prototype.draw = function (ctx) {
                 var sf = this.__getCurrentFrame();
                 if (sf) {
-                    ctx.globalAlpha = this._frameAlpha;
+                    ctx.setGlobalAlpha(this._frameAlpha);
                     ctx.setTintColor(this._color);
                     sf.draw(ctx, this.width, this.height);
                 }
@@ -15813,9 +15652,8 @@ var cc;
                 SolidColorShader.prototype.flushBuffersWithContent = function (rcs) {
                     this.__updateUniformValues();
                     var gl = this._webglState;
-                    gl.vertexAttribPointer(this._attributePosition._location, 2, gl._gl.FLOAT, false, 8 * 4, 0);
-                    gl.vertexAttribPointer(this._attributeColor._location, 4, gl._gl.FLOAT, false, 8 * 4, 2 * 4);
-                    //            gl.vertexAttribPointer(this._attributeTexture._location, 2, gl.FLOAT, false, 8*4, 6*4 );
+                    gl.vertexAttribPointer(this._attributePosition._location, 2, gl._gl.FLOAT, false, 12, 0);
+                    gl.vertexAttribPointer(this._attributeColor._location, 4, gl._gl.UNSIGNED_BYTE, true, 12, 2 * 4);
                 };
                 /**
                  * Spare matrix
@@ -15861,15 +15699,11 @@ var cc;
                 __extends(TextureShader, _super);
                 function TextureShader(gl) {
                     _super.call(this, gl, {
-                        vertexShader: "" + "attribute vec2 aPosition; \n" + "attribute vec4 aColor; \n" + "attribute vec2 aTexture; \n" + "uniform mat4 uProjection; \n" + "uniform mat4 uTransform; \n" + "varying vec2 vTextureCoord; \n" + "varying vec4 vAttrColor; \n" + "void main(void) { \n" + "gl_Position = uProjection * uTransform * vec4( aPosition.x, aPosition.y, 0.0, 1.0 );\n" + "vTextureCoord = aTexture;\n" + "vAttrColor = aColor;\n" + "}\n",
+                        vertexShader: "" + "attribute vec2 aPosition; \n" + "attribute vec4 aColor; \n" + "attribute vec2 aTexture; \n" + "uniform mat4 uProjection; \n" + "varying vec2 vTextureCoord; \n" + "varying vec4 vAttrColor; \n" + "void main(void) { \n" + "gl_Position = uProjection * vec4( aPosition.x, aPosition.y, 0.0, 1.0 );\n" + "vTextureCoord = aTexture;\n" + "vAttrColor = aColor;\n" + "}\n",
                         fragmentShader: "" + "precision mediump float; \n" + "varying vec2 vTextureCoord; \n" + "uniform sampler2D uTextureSampler; \n" + "varying vec4 vAttrColor;\n" + "void main(void) { \n" + "  vec4 textureColor= texture2D(uTextureSampler, vec2(vTextureCoord)); \n" + "  gl_FragColor = textureColor * vAttrColor; \n" + "}\n",
                         attributes: ["aPosition", "aColor", "aTexture"],
                         uniforms: {
                             "uProjection": {
-                                type: "m4v",
-                                value: [1.0, 0, 0, 0, 0, 1.0, 0, 0, 0, 0, 1.0, 0, 0, 0, 0, 1.0]
-                            },
-                            "uTransform": {
                                 type: "m4v",
                                 value: [1.0, 0, 0, 0, 0, 1.0, 0, 0, 0, 0, 1.0, 0, 0, 0, 0, 1.0]
                             },
@@ -15916,7 +15750,6 @@ var cc;
                     this._attributeColor = null;
                     this._uniformTextureSampler = this.findUniform("uTextureSampler");
                     this._uniformProjection = this.findUniform("uProjection");
-                    this._uniformTransform = this.findUniform("uTransform");
                     this._attributePosition = this.findAttribute("aPosition");
                     this._attributeColor = this.findAttribute("aColor");
                     this._attributeTexture = this.findAttribute("aTexture");
@@ -15929,9 +15762,9 @@ var cc;
                 TextureShader.prototype.flushBuffersWithContent = function (rcs) {
                     this.__updateUniformValues();
                     var gl = this._webglState;
-                    gl.vertexAttribPointer(this._attributePosition._location, 2, gl._gl.FLOAT, false, 8 * 4, 0);
-                    gl.vertexAttribPointer(this._attributeColor._location, 4, gl._gl.FLOAT, false, 8 * 4, 2 * 4);
-                    gl.vertexAttribPointer(this._attributeTexture._location, 2, gl._gl.FLOAT, false, 8 * 4, 6 * 4);
+                    gl.vertexAttribPointer(this._attributePosition._location, 2, gl._gl.FLOAT, false, 5 * 4, 0);
+                    gl.vertexAttribPointer(this._attributeColor._location, 4, gl._gl.UNSIGNED_BYTE, true, 5 * 4, 2 * 4);
+                    gl.vertexAttribPointer(this._attributeTexture._location, 2, gl._gl.FLOAT, false, 5 * 4, 3 * 4);
                 };
                 /**
                  * Spare matrix
@@ -15942,6 +15775,102 @@ var cc;
                 return TextureShader;
             })(AbstractShader);
             shader.TextureShader = TextureShader;
+            /**
+             * @class cc.render.shader.MeshShader
+             * @extends AbstractShader
+             * @classdesc
+             *
+             * This shader fills rects with an image. It is expected to be invoked by calls to drawImage.
+             *
+             */
+            var MeshShader = (function (_super) {
+                __extends(MeshShader, _super);
+                function MeshShader(gl) {
+                    _super.call(this, gl, {
+                        vertexShader: "" + "attribute vec2 aPosition; \n" + "attribute vec2 aTexture; \n" + "uniform mat4 uProjection; \n" + "uniform mat4 uTransform; \n" + "varying vec2 vTextureCoord; \n" + "void main(void) { \n" + "gl_Position = uProjection * uTransform * vec4( aPosition.x, aPosition.y, 0.0, 1.0 );\n" + "vTextureCoord = aTexture;\n" + "}\n",
+                        fragmentShader: "" + "precision mediump float; \n" + "varying vec2 vTextureCoord; \n" + "uniform sampler2D uTextureSampler; \n" + "uniform vec4 uColor; \n" + "void main(void) { \n" + "  vec4 textureColor= texture2D(uTextureSampler, vec2(vTextureCoord)); \n" + "  gl_FragColor = textureColor * (uColor/255.0); \n" + "}\n",
+                        attributes: ["aPosition", "aTexture"],
+                        uniforms: {
+                            "uProjection": {
+                                type: "m4v",
+                                value: [1.0, 0, 0, 0, 0, 1.0, 0, 0, 0, 0, 1.0, 0, 0, 0, 0, 1.0]
+                            },
+                            "uTransform": {
+                                type: "m4v",
+                                value: [1.0, 0, 0, 0, 0, 1.0, 0, 0, 0, 0, 1.0, 0, 0, 0, 0, 1.0]
+                            },
+                            "uTextureSampler": {
+                                type: "t",
+                                value: null
+                            },
+                            "uColor": {
+                                type: "4fv",
+                                value: [1.0, 1.0, 1.0, 1.0]
+                            }
+                        }
+                    });
+                    /**
+                     * Shader Uniform transformation matrix.
+                     * @member cc.render.shader.MeshShader#_uniformTransform
+                     * @type {any}
+                     * @private
+                     */
+                    this._uniformTransform = null;
+                    /**
+                     * Shader Uniform for texture.
+                     * @member cc.render.shader.MeshShader#_uniformTextureSampler
+                     * @type {any}
+                     * @private
+                     */
+                    this._uniformTextureSampler = null;
+                    /**
+                     * Shader geometry attribute.
+                     * @member cc.render.shader.MeshShader#_attributePosition
+                     * @type {any}
+                     * @private
+                     */
+                    this._attributePosition = null;
+                    /**
+                     * Shader geometry attribute.
+                     * @member cc.render.shader.MeshShader#_attributeTexture
+                     * @type {any}
+                     * @private
+                     */
+                    this._attributeTexture = null;
+                    /**
+                     * Shader geometry color attribute.
+                     * @member cc.render.shader.MeshShader#_uniformColor
+                     * @type {any}
+                     * @private
+                     */
+                    this._uniformColor = null;
+                    this._uniformTextureSampler = this.findUniform("uTextureSampler");
+                    this._uniformProjection = this.findUniform("uProjection");
+                    this._uniformTransform = this.findUniform("uTransform");
+                    this._uniformColor = this.findUniform("uColor");
+                    this._attributePosition = this.findAttribute("aPosition");
+                    this._attributeTexture = this.findAttribute("aTexture");
+                    TextureShader.mat[0] = 1.0;
+                    TextureShader.mat[5] = 1.0;
+                    TextureShader.mat[10] = 1.0;
+                    TextureShader.mat[15] = 1.0;
+                    return this;
+                }
+                MeshShader.prototype.flushBuffersWithContent = function (rcs) {
+                    this.__updateUniformValues();
+                    var gl = this._webglState;
+                    gl.vertexAttribPointer(this._attributePosition._location, 2, gl._gl.FLOAT, false, 4 * 4, 0);
+                    gl.vertexAttribPointer(this._attributeTexture._location, 2, gl._gl.FLOAT, false, 4 * 4, 2 * 4);
+                };
+                /**
+                 * Spare matrix
+                 * @member cc.render.shader.TextureShader.mat
+                 * @type {Float32Array}
+                 */
+                MeshShader.mat = new Float32Array(16);
+                return MeshShader;
+            })(AbstractShader);
+            shader.MeshShader = MeshShader;
         })(shader = render.shader || (render.shader = {}));
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
@@ -16064,8 +15993,8 @@ var cc;
                 TexturePatternShader.prototype.flushBuffersWithContent = function (rcs) {
                     this.__updateUniformValues();
                     var gl = this._webglState;
-                    gl.vertexAttribPointer(this._attributePosition._location, 2, gl._gl.FLOAT, false, 8 * 4, 0);
-                    gl.vertexAttribPointer(this._attributeColor._location, 4, gl._gl.FLOAT, false, 8 * 4, 2 * 4);
+                    gl.vertexAttribPointer(this._attributePosition._location, 2, gl._gl.FLOAT, false, 3 * 4, 0);
+                    gl.vertexAttribPointer(this._attributeColor._location, 4, gl._gl.FLOAT, false, 3 * 4, 2 * 4);
                 };
                 TexturePatternShader.mat = new Float32Array(16);
                 return TexturePatternShader;
@@ -16199,12 +16128,12 @@ var cc;
             })();
             var Buffer = (function () {
                 function Buffer(_gl, _type, initialValue, usage) {
-                    //this._usage= usage;
                     this._gl = _gl;
                     this._type = _type;
                     this._buffer = null;
                     this._prevValue = null;
-                    this._usage = _gl.STATIC_DRAW;
+                    this._usage = usage;
+                    //this._usage= _gl.STATIC_DRAW;
                     this._buffer = _gl.createBuffer();
                     if (initialValue) {
                         this._gl.bindBuffer(_type, this._buffer);
@@ -16219,15 +16148,18 @@ var cc;
                 Buffer.prototype.enableWithValue = function (v) {
                     this._gl.bindBuffer(this._type, this._buffer);
                     //if ( this._prevValue!==v ) {
-                    this._gl.bufferData(this._type, v, this._usage);
-                    //this._gl.bufferSubData( this._type, 0, v );
+                    //    this._gl.bufferData( this._type, v, this._usage );
+                    this._gl.bufferSubData(this._type, 0, v);
                     //this._prevValue= v;
                     //}
                 };
                 Buffer.prototype.forceEnableWithValue = function (v) {
                     this._gl.bindBuffer(this._type, this._buffer);
-                    this._gl.bufferData(this._type, v, this._usage);
-                    //this._gl.bufferSubData( this._type, 0, v );
+                    //this._gl.bufferData( this._type, v, this._usage );
+                    this._gl.bufferSubData(this._type, 0, v);
+                };
+                Buffer.prototype.bind = function (type) {
+                    this._gl.bindBuffer(type, this._buffer);
                 };
                 return Buffer;
             })();
@@ -16572,7 +16504,7 @@ var cc;
                 this._dimension.height = h;
             };
             Renderer.prototype.getType = function () {
-                return "";
+                return cc.render.RENDERER_TYPE_CANVAS;
             };
             return Renderer;
         })();
@@ -16580,16 +16512,19 @@ var cc;
         function dc2d(renderer) {
             var canvas = renderer._surface;
             var c2d = canvas.getContext("2d");
+            var globalAlpha = 1;
+            var globalCompositeOperation = 0 /* source_over */;
             c2d.flush = function () {
                 this.setTransform(1, 0, 0, 1, 0, 0);
             };
-            Object.defineProperty(c2d, "type", {
-                get: function () {
-                    return "canvas";
-                },
-                enumerable: true,
-                configurable: true
-            });
+            c2d.type = cc.render.RENDERER_TYPE_CANVAS;
+            //Object.defineProperty(c2d, "type", {
+            //    get: function () {
+            //        return cc.render.RENDERER_TYPE_CANVAS;
+            //    },
+            //    enumerable: true,
+            //    configurable: true
+            //});
             c2d.setFillStyleColor = function (color) {
                 this.fillStyle = color.getFillStyle();
             };
@@ -16618,22 +16553,53 @@ var cc;
                 return this.canvas.height;
             };
             c2d.setCompositeOperation = function (o) {
+                if (o === globalCompositeOperation) {
+                    return;
+                }
+                globalCompositeOperation = o;
                 this.globalCompositeOperation = cc.render.CompositeOperationToCanvas[o];
             };
             c2d.getCompositeOperation = function () {
-                return cc.render.CanvasToComposite[this.globalCompositeOperation];
+                return globalCompositeOperation;
             };
+            c2d.setGlobalAlpha = function (alpha) {
+                if (alpha === globalAlpha) {
+                    return;
+                }
+                globalAlpha = alpha;
+                this.globalAlpha = alpha;
+            };
+            c2d.getGlobalAlpha = function () {
+                return globalAlpha;
+            };
+            /**
+             * this.transform(1,0,0,-1,0,h);
+               //this.translate(0, h);
+               //this.scale(1, -1);
+               this.drawImage(texture._image, sx, sy, sw, sh, dx, 0, dw, dh);
+               //this.scale(1, -1);
+               //this.translate(0, -h);
+               this.transform(1,0,0,-1,0,-h);
+    
+             * @param texture
+             * @param sx
+             * @param sy
+             * @param sw
+             * @param sh
+             * @param dx
+             * @param dy
+             * @param dw
+             * @param dh
+             */
             c2d.drawTexture = function (texture, sx, sy, sw, sh, dx, dy, dw, dh) {
                 "use strict";
                 var h;
                 if (arguments.length === 3) {
                     if (cc.render.RENDER_ORIGIN === cc.render.ORIGIN_BOTTOM) {
-                        h = sy + texture._image.height;
-                        this.translate(0, h);
-                        this.scale(1, -1);
+                        h = texture._image.height + sy;
+                        this.transform(1, 0, 0, -1, 0, h);
                         this.drawImage(texture._image, sx, 0);
-                        this.scale(1, -1);
-                        this.translate(0, -h);
+                        this.transform(1, 0, 0, -1, 0, h);
                     }
                     else {
                         this.drawImage(texture._image, sx, sy);
@@ -16641,12 +16607,9 @@ var cc;
                 }
                 else if (arguments.length === 5) {
                     if (cc.render.RENDER_ORIGIN === cc.render.ORIGIN_BOTTOM) {
-                        h = sy + sh;
-                        this.translate(0, h);
-                        this.scale(1, -1);
+                        this.transform(1, 0, 0, -1, 0, sh + sy);
                         this.drawImage(texture._image, sx, 0, sw, sh);
-                        this.scale(1, -1);
-                        this.translate(0, -h);
+                        this.transform(1, 0, 0, -1, 0, sh + sy);
                     }
                     else {
                         this.drawImage(texture._image, sx, sy, sw, sh);
@@ -16654,16 +16617,68 @@ var cc;
                 }
                 else {
                     if (cc.render.RENDER_ORIGIN === cc.render.ORIGIN_BOTTOM) {
-                        h = dy + dh;
-                        this.translate(0, h);
-                        this.scale(1, -1);
+                        this.transform(1, 0, 0, -1, 0, dy + dh);
                         this.drawImage(texture._image, sx, sy, sw, sh, dx, 0, dw, dh);
-                        this.scale(1, -1);
-                        this.translate(0, -h);
+                        this.transform(1, 0, 0, -1, 0, dy + dh);
                     }
                     else {
                         this.drawImage(texture._image, sx, sy, sw, sh, dx, dy, dw, dh);
                     }
+                }
+            };
+            /**
+             * draw a texture, but not preserving transformation homogeneity.
+             * For most cases will work, but not for custom drawing nodes.
+             * This method is used in Sprite, where you only want to draw the associated SpriteFrame.
+             *
+             * @param texture
+             * @param sx
+             * @param sy
+             * @param sw
+             * @param sh
+             * @param dx
+             * @param dy
+             * @param dw
+             * @param dh
+             */
+            c2d.drawTextureUnsafe = function (texture, sx, sy, sw, sh, dx, dy, dw, dh) {
+                "use strict";
+                if (arguments.length === 3) {
+                    if (cc.render.RENDER_ORIGIN === cc.render.ORIGIN_BOTTOM) {
+                        this.transform(1, 0, 0, -1, 0, texture._image.height);
+                    }
+                    this.drawImage(texture._image, sx, sy);
+                }
+                else if (arguments.length === 5) {
+                    if (cc.render.RENDER_ORIGIN === cc.render.ORIGIN_BOTTOM) {
+                        this.transform(1, 0, 0, -1, 0, sh);
+                    }
+                    this.drawImage(texture._image, sx, sy, sw, sh);
+                }
+                else {
+                    if (cc.render.RENDER_ORIGIN === cc.render.ORIGIN_BOTTOM) {
+                        this.transform(1, 0, 0, -1, 0, dh);
+                    }
+                    this.drawImage(texture._image, sx, sy, sw, sh, dx, dy, dw, dh);
+                }
+            };
+            c2d.drawMesh = function (geometry, uv, indices, colorRGBA, texture) {
+                var r = (colorRGBA >> 24) & 0xff;
+                var g = (colorRGBA >> 16) & 0xff;
+                var b = (colorRGBA >> 8) & 0xff;
+                var a = colorRGBA & 0xff;
+                this.strokeStyle = "rgba(" + r + "," + g + "," + b + "," + (a / 255) + ")";
+                this.lineWidth = .05;
+                for (var i = 0; i < indices.length; i += 3) {
+                    var indexVertex0 = indices[i + 0] * 3;
+                    var indexVertex1 = indices[i + 1] * 3;
+                    var indexVertex2 = indices[i + 2] * 3;
+                    this.beginPath();
+                    this.moveTo(geometry[indexVertex0], geometry[indexVertex0 + 1]);
+                    this.lineTo(geometry[indexVertex1], geometry[indexVertex1 + 1]);
+                    this.lineTo(geometry[indexVertex2], geometry[indexVertex2 + 1]);
+                    this.closePath();
+                    this.stroke();
                 }
             };
             return c2d;
@@ -16720,7 +16735,7 @@ var cc;
                 this._renderingContext = dc2d(this);
             };
             CanvasRenderer.prototype.getType = function () {
-                return "canvas";
+                return cc.render.RENDERER_TYPE_CANVAS;
             };
             return CanvasRenderer;
         })(Renderer);
@@ -16790,7 +16805,7 @@ var cc;
                 this._webglState = this._renderingContext._webglState;
             };
             WebGLRenderer.prototype.getType = function () {
-                return "webgl";
+                return cc.render.RENDERER_TYPE_WEBGL;
             };
             return WebGLRenderer;
         })(Renderer);
@@ -16836,6 +16851,7 @@ var cc;
                 var spriteMiddleHeight = sf.getHeight() - paddingH;
                 var spriteMiddleWidth = sf.getWidth() - paddingW;
                 var spriteLeftWidth = patchData.left;
+                var spriteRightWidth = patchData.right;
                 var scaleFactor = ctx.getUnitsFactor();
                 var topy = cc.render.RENDER_ORIGIN === cc.render.ORIGIN_TOP ? y : y + h - spriteTopHeight / scaleFactor;
                 var bottomy = cc.render.RENDER_ORIGIN === cc.render.ORIGIN_TOP ? y + h - spriteBottomHeight / scaleFactor : y;
@@ -16854,13 +16870,13 @@ var cc;
                 if (patchData.right) {
                     // top left
                     if (patchData.top) {
-                        ctx.drawTexture(sf.getTexture(), sf.getWidth() - patchData.right, 0, spriteLeftWidth, spriteTopHeight, x + w - patchData.right / scaleFactor, topy, spriteLeftWidth / scaleFactor, spriteTopHeight / scaleFactor);
+                        ctx.drawTexture(sf.getTexture(), sf.getWidth() - patchData.right, 0, spriteRightWidth, spriteTopHeight, x + w - patchData.right / scaleFactor, topy, spriteRightWidth / scaleFactor, spriteTopHeight / scaleFactor);
                     }
                     // bottom left
                     if (patchData.bottom) {
-                        ctx.drawTexture(sf.getTexture(), sf.getWidth() - patchData.right, spriteBottomY, spriteLeftWidth, spriteBottomHeight, x + w - patchData.right / scaleFactor, bottomy, spriteLeftWidth / scaleFactor, spriteBottomHeight / scaleFactor);
+                        ctx.drawTexture(sf.getTexture(), sf.getWidth() - patchData.right, spriteBottomY, spriteRightWidth, spriteBottomHeight, x + w - patchData.right / scaleFactor, bottomy, spriteRightWidth / scaleFactor, spriteBottomHeight / scaleFactor);
                     }
-                    ctx.drawTexture(sf.getTexture(), sf.getWidth() - patchData.right, patchData.top, spriteLeftWidth, spriteMiddleHeight, x + w - patchData.right / scaleFactor, middley, spriteLeftWidth / scaleFactor, h - paddingH / scaleFactor);
+                    ctx.drawTexture(sf.getTexture(), sf.getWidth() - patchData.right, patchData.top, spriteRightWidth, spriteMiddleHeight, x + w - patchData.right / scaleFactor, middley, spriteRightWidth / scaleFactor, h - paddingH / scaleFactor);
                 }
                 // top left
                 if (patchData.top) {
@@ -16886,6 +16902,8 @@ var cc;
     var render;
     (function (render) {
         "use strict";
+        render.RENDERER_TYPE_CANVAS = 1;
+        render.RENDERER_TYPE_WEBGL = 0;
         /**
          * @class cc.render.Pattern
          * @classdesc
@@ -17218,6 +17236,11 @@ var cc;
                  * @private
                  */
                 this._indexBufferIndex = 0;
+                this._indexBufferMesh = null;
+                this._indexBufferMeshIndex = 0;
+                this._indicesChanged = false;
+                this._glIndexMeshBuffers = [];
+                this._glIndexMeshBuffer = null;
                 /**
                  * The canvas WebGLRenderingContext
                  * @member cc.render.GeometryBatcher#_gl
@@ -17230,6 +17253,7 @@ var cc;
                 this._dataBufferByte = new Uint8Array(this._dataArrayBuffer);
                 this._dataBufferUint = new Uint32Array(this._dataArrayBuffer);
                 this._indexBuffer = new Uint16Array(GeometryBatcher.MAX_QUADS * 6);
+                this._indexBufferMesh = new Uint16Array(GeometryBatcher.MAX_QUADS * 6);
                 // preset geometry indices.
                 var indexBufferIndex = 0;
                 var elementIndex = 0;
@@ -17252,22 +17276,23 @@ var cc;
                 this._glIndexBuffers.push(new Buffer(this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer, this._gl.STATIC_DRAW));
                 this._glIndexBuffers.push(new Buffer(this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer, this._gl.STATIC_DRAW));
                 this._glIndexBuffers.push(new Buffer(this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer, this._gl.STATIC_DRAW));
+                this._glIndexMeshBuffers.push(new Buffer(this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer, this._gl.DYNAMIC_DRAW));
+                this._glIndexMeshBuffers.push(new Buffer(this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer, this._gl.DYNAMIC_DRAW));
+                this._glIndexMeshBuffers.push(new Buffer(this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer, this._gl.DYNAMIC_DRAW));
+                this._glIndexMeshBuffers.push(new Buffer(this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer, this._gl.DYNAMIC_DRAW));
                 this._glDataBuffer = this._glDataBuffers[0];
                 this._glIndexBuffer = this._glIndexBuffers[0];
+                this._glIndexMeshBuffer = this._glIndexMeshBuffers[0];
             }
             GeometryBatcher.prototype.batchRectGeometryWithTexture = function (vertices, u0, v0, u1, v1, rcs) {
-                var tint = rcs._tintColor;
-                var r = tint[0];
-                var g = tint[1];
-                var b = tint[2];
-                var a = tint[3] * rcs._globalAlpha;
-                this.batchVertex(vertices[0], r, g, b, a, u0, v0);
-                this.batchVertex(vertices[1], r, g, b, a, u1, v0);
-                this.batchVertex(vertices[2], r, g, b, a, u1, v1);
-                this.batchVertex(vertices[3], r, g, b, a, u0, v1);
+                var cc = this.__uintColor(rcs);
+                this.batchVertex(vertices[0], cc, u0, v0);
+                this.batchVertex(vertices[1], cc, u1, v0);
+                this.batchVertex(vertices[2], cc, u1, v1);
+                this.batchVertex(vertices[3], cc, u0, v1);
                 // add two triangles * 3 values each.
                 this._indexBufferIndex += 6;
-                return this._dataBufferIndex + 32 >= this._dataBufferFloat.length;
+                return this._indexBufferIndex + 6 >= this._indexBuffer.length;
             };
             /**
              * Batch a rectangle with texture info and tint color.
@@ -17284,27 +17309,23 @@ var cc;
              * @param v1 {number}
              */
             GeometryBatcher.prototype.batchRectWithTexture = function (x, y, w, h, rcs, u0, v0, u1, v1) {
-                var tint = rcs._tintColor;
-                var r = tint[0];
-                var g = tint[1];
-                var b = tint[2];
-                var a = tint[3] * rcs._globalAlpha;
                 var cm = rcs._currentMatrix;
+                var cc = this.__uintColor(rcs);
                 __vv.x = x;
                 __vv.y = y;
-                this.batchVertex(Matrix3.transformPoint(cm, __vv), r, g, b, a, u0, v0);
+                this.batchVertex(Matrix3.transformPoint(cm, __vv), cc, u0, v0);
                 __vv.x = x + w;
                 __vv.y = y;
-                this.batchVertex(Matrix3.transformPoint(cm, __vv), r, g, b, a, u1, v0);
+                this.batchVertex(Matrix3.transformPoint(cm, __vv), cc, u1, v0);
                 __vv.x = x + w;
                 __vv.y = y + h;
-                this.batchVertex(Matrix3.transformPoint(cm, __vv), r, g, b, a, u1, v1);
+                this.batchVertex(Matrix3.transformPoint(cm, __vv), cc, u1, v1);
                 __vv.x = x;
                 __vv.y = y + h;
-                this.batchVertex(Matrix3.transformPoint(cm, __vv), r, g, b, a, u0, v1);
+                this.batchVertex(Matrix3.transformPoint(cm, __vv), cc, u0, v1);
                 // add two triangles * 3 values each.
                 this._indexBufferIndex += 6;
-                return this._dataBufferIndex + 32 >= this._dataBufferFloat.length;
+                return this._indexBufferIndex + 6 >= this._indexBuffer.length;
             };
             /**
              * Batch a rect with the current rendering info. The rect color will be tinted. Resulting transparency value will
@@ -17319,26 +17340,39 @@ var cc;
             GeometryBatcher.prototype.batchRect = function (x, y, w, h, rcs) {
                 var color = rcs._fillStyleColor;
                 var tint = rcs._tintColor;
-                var r = color[0] * tint[0];
-                var g = color[1] * tint[1];
-                var b = color[2] * tint[2];
-                var a = color[3] * tint[3] * rcs._globalAlpha;
+                var r = ((color[0] * tint[0]) * 255) | 0;
+                var g = ((color[1] * tint[1]) * 255) | 0;
+                var b = ((color[2] * tint[2]) * 255) | 0;
+                var a = ((color[3] * tint[3] * rcs._globalAlpha) * 255) | 0;
+                var cc = (r) | (g << 8) | (b << 16) | (a << 24);
                 var cm = rcs._currentMatrix;
                 __vv.x = x;
                 __vv.y = y;
-                this.batchVertex(Matrix3.transformPoint(cm, __vv), r, g, b, a, 0, 0);
+                Matrix3.transformPoint(cm, __vv);
+                this._dataBufferFloat[this._dataBufferIndex++] = __vv.x;
+                this._dataBufferFloat[this._dataBufferIndex++] = __vv.y;
+                this._dataBufferUint[this._dataBufferIndex++] = cc;
                 __vv.x = x + w;
                 __vv.y = y;
-                this.batchVertex(Matrix3.transformPoint(cm, __vv), r, g, b, a, 0, 0);
+                Matrix3.transformPoint(cm, __vv);
+                this._dataBufferFloat[this._dataBufferIndex++] = __vv.x;
+                this._dataBufferFloat[this._dataBufferIndex++] = __vv.y;
+                this._dataBufferUint[this._dataBufferIndex++] = cc;
                 __vv.x = x + w;
                 __vv.y = y + h;
-                this.batchVertex(Matrix3.transformPoint(cm, __vv), r, g, b, a, 0, 0);
+                Matrix3.transformPoint(cm, __vv);
+                this._dataBufferFloat[this._dataBufferIndex++] = __vv.x;
+                this._dataBufferFloat[this._dataBufferIndex++] = __vv.y;
+                this._dataBufferUint[this._dataBufferIndex++] = cc;
                 __vv.x = x;
                 __vv.y = y + h;
-                this.batchVertex(Matrix3.transformPoint(cm, __vv), r, g, b, a, 0, 0);
+                Matrix3.transformPoint(cm, __vv);
+                this._dataBufferFloat[this._dataBufferIndex++] = __vv.x;
+                this._dataBufferFloat[this._dataBufferIndex++] = __vv.y;
+                this._dataBufferUint[this._dataBufferIndex++] = cc;
                 // add two triangles * 3 values each.
                 this._indexBufferIndex += 6;
-                return this._dataBufferIndex + 32 >= this._dataBufferFloat.length;
+                return this._indexBufferIndex + 6 >= this._indexBuffer.length;
             };
             /**
              * Batch a vertex with color and texture.
@@ -17351,13 +17385,10 @@ var cc;
              * @param u {number}
              * @param v {number}
              */
-            GeometryBatcher.prototype.batchVertex = function (p, r, g, b, a, u, v) {
+            GeometryBatcher.prototype.batchVertex = function (p, cc, u, v) {
                 this._dataBufferFloat[this._dataBufferIndex++] = p.x;
                 this._dataBufferFloat[this._dataBufferIndex++] = p.y;
-                this._dataBufferFloat[this._dataBufferIndex++] = r;
-                this._dataBufferFloat[this._dataBufferIndex++] = g;
-                this._dataBufferFloat[this._dataBufferIndex++] = b;
-                this._dataBufferFloat[this._dataBufferIndex++] = a;
+                this._dataBufferUint[this._dataBufferIndex++] = cc;
                 this._dataBufferFloat[this._dataBufferIndex++] = u;
                 this._dataBufferFloat[this._dataBufferIndex++] = v;
             };
@@ -17368,24 +17399,39 @@ var cc;
              * @param rcs {cc.render.RenderingContextSnapshot}
              */
             GeometryBatcher.prototype.flush = function (shader, rcs) {
-                if (!this._indexBufferIndex) {
-                    return;
+                var trianglesCount;
+                if (this._indicesChanged) {
+                    trianglesCount = this._indexBufferMeshIndex;
+                    if (!trianglesCount) {
+                        return;
+                    }
+                    this._glIndexMeshBuffer.bind(this._gl.ELEMENT_ARRAY_BUFFER);
+                    this._glIndexMeshBuffer.forceEnableWithValue(this._indexBufferMesh.subarray(0, this._indexBufferMeshIndex));
                 }
-                // simply rebind the buffer, not modify its contents.
-                this._gl.bindBuffer(this._gl.ELEMENT_ARRAY_BUFFER, this._glIndexBuffer._buffer);
+                else {
+                    trianglesCount = this._indexBufferIndex;
+                    if (!trianglesCount) {
+                        return;
+                    }
+                    // simply rebind the buffer, not modify its contents.
+                    this._glIndexBuffer.bind(this._gl.ELEMENT_ARRAY_BUFFER);
+                }
                 //this._glDataBuffer.forceEnableWithValue(this._dataBufferFloat);
                 this._glDataBuffer.forceEnableWithValue(this._dataBufferFloat.subarray(0, this._dataBufferIndex));
                 //this._glDataBuffer.enableWithValue(this._dataBufferFloat.subarray(0, this._dataBufferIndex));
                 shader.flushBuffersWithContent(rcs);
-                this._gl.drawElements(this._gl.TRIANGLES, this._indexBufferIndex, this._gl.UNSIGNED_SHORT, 0);
+                this._gl.drawElements(this._gl.TRIANGLES, trianglesCount, this._gl.UNSIGNED_SHORT, 0);
                 //this._gl.drawArrays(this._gl.TRIANGLE_STRIP, 0, 4);
                 // reset buffer data index.
                 this._dataBufferIndex = 0;
                 this._indexBufferIndex = 0;
+                this._indexBufferMeshIndex = 0;
                 // ping pong rendering buffer.
                 this._currentBuffersIndex = (this._currentBuffersIndex + 1) & 3;
                 this._glDataBuffer = this._glDataBuffers[this._currentBuffersIndex];
                 this._glIndexBuffer = this._glIndexBuffers[this._currentBuffersIndex];
+                this._glIndexMeshBuffer = this._glIndexMeshBuffers[this._currentBuffersIndex];
+                this._indicesChanged = false;
             };
             GeometryBatcher.prototype.__uintColor = function (rcs) {
                 var tint = rcs._tintColor;
@@ -17436,12 +17482,33 @@ var cc;
                 this._dataBufferIndex += 40;
                 return this._dataBufferIndex + 40 >= this._dataBufferFloat.length;
             };
+            GeometryBatcher.prototype.batchMesh = function (geometry, uv, indices, color, rcs) {
+                this._indicesChanged = true;
+                for (var i = 0; i < indices.length; i += 3) {
+                    var indexVertex0 = indices[i + 0] * 3;
+                    var indexVertexUV0 = indices[i + 0] * 2;
+                    this.batchMeshVertex(geometry[indexVertex0], geometry[indexVertex0 + 1], uv[indexVertexUV0], uv[indexVertexUV0 + 1], i, rcs);
+                    var indexVertex1 = indices[i + 1] * 3;
+                    var indexVertexUV1 = indices[i + 1] * 2;
+                    this.batchMeshVertex(geometry[indexVertex1], geometry[indexVertex1 + 1], uv[indexVertexUV1], uv[indexVertexUV1 + 1], i + 1, rcs);
+                    var indexVertex2 = indices[i + 2] * 3;
+                    var indexVertexUV2 = indices[i + 2] * 2;
+                    this.batchMeshVertex(geometry[indexVertex2], geometry[indexVertex2 + 1], uv[indexVertexUV2], uv[indexVertexUV2 + 1], i + 2, rcs);
+                }
+            };
+            GeometryBatcher.prototype.batchMeshVertex = function (x, y, u, v, index, rcs) {
+                this._dataBufferFloat[this._dataBufferIndex++] = x;
+                this._dataBufferFloat[this._dataBufferIndex++] = y;
+                this._dataBufferFloat[this._dataBufferIndex++] = u;
+                this._dataBufferFloat[this._dataBufferIndex++] = v;
+                this._indexBufferMesh[this._indexBufferMeshIndex++] = index;
+            };
             /**
              * Max bufferable quads.
              * @member cc.render.GeometryBatcher.MAX_QUADS
              * @type {number}
              */
-            GeometryBatcher.MAX_QUADS = 26214; // 1Mb/40
+            GeometryBatcher.MAX_QUADS = 16383;
             return GeometryBatcher;
         })();
         render.GeometryBatcher = GeometryBatcher;
@@ -17489,6 +17556,7 @@ var cc;
             FillStyleType[FillStyleType["IMAGE"] = 1] = "IMAGE";
             FillStyleType[FillStyleType["IMAGEFAST"] = 2] = "IMAGEFAST";
             FillStyleType[FillStyleType["PATTERN_REPEAT"] = 3] = "PATTERN_REPEAT";
+            FillStyleType[FillStyleType["MESH"] = 4] = "MESH";
         })(render.FillStyleType || (render.FillStyleType = {}));
         var FillStyleType = render.FillStyleType;
         /**
@@ -17500,6 +17568,7 @@ var cc;
             ShaderType[ShaderType["IMAGE"] = 1] = "IMAGE";
             ShaderType[ShaderType["IMAGEFAST"] = 2] = "IMAGEFAST";
             ShaderType[ShaderType["PATTERN_REPEAT"] = 3] = "PATTERN_REPEAT";
+            ShaderType[ShaderType["MESH"] = 4] = "MESH";
         })(render.ShaderType || (render.ShaderType = {}));
         var ShaderType = render.ShaderType;
         /**
@@ -17513,6 +17582,24 @@ var cc;
         })(render.WEBGL_FLAGS || (render.WEBGL_FLAGS = {}));
         var WEBGL_FLAGS = render.WEBGL_FLAGS;
         var __mat3 = new Float32Array([1.0, 0, 0, 0, 1.0, 0, 0, 0, 1.0]);
+        var __mat4 = new Float32Array([
+            1.0,
+            0,
+            0,
+            0,
+            0,
+            1.0,
+            0,
+            0,
+            0,
+            0,
+            1.0,
+            0,
+            0,
+            0,
+            0,
+            1.0
+        ]);
         /**
          * @class cc.render.DecoratedWebGLRenderingContext
          * @classdesc
@@ -17600,6 +17687,12 @@ var cc;
                  * @private
                  */
                 this._canvas = null;
+                /**
+                 * Get RenderingContext type.
+                 * @member cc.render.DecoratedWebGLRenderingContext#get:type
+                 * @returns {number} cc.render.RENDERER_TYPE_WEBGL or cc.render.RENDERER_TYPE_CANVAS
+                 */
+                this.type = cc.render.RENDERER_TYPE_WEBGL;
                 this._renderer = r;
                 this._canvas = r._surface;
                 this.__initContext();
@@ -17699,6 +17792,7 @@ var cc;
                 this._shaders.push(new TextureShader(this._webglState));
                 this._shaders.push(new FastTextureShader(this._webglState));
                 this._shaders.push(new TexturePatternShader(this._webglState));
+                this._shaders.push(new cc.render.shader.MeshShader(this._webglState));
                 this.__setShadersProjection(w, h);
                 this._shaders[0].useProgram();
             };
@@ -17706,15 +17800,19 @@ var cc;
                 var opms = this.__createProjection(w, h);
                 var opm = opms[0];
                 var opm_inverse = opms[1];
-                this._shaders[0]._uniformProjection.setValue(opm);
-                this._shaders[1]._uniformProjection.setValue(opm);
-                /**
-                 * FastShader needs different projection matrices because quad coordinates are calculated in the shader,
-                 * and not in the client. Thus it is mandatory to send the correct projection matrix based on the
-                 * y-axis rendering origin.
-                 */
-                this._shaders[2]._uniformProjection.setValue(cc.render.RENDER_ORIGIN === cc.render.ORIGIN_TOP ? opm : opm_inverse);
-                this._shaders[3]._uniformProjection.setValue(opm);
+                for (var i = 0; i < this._shaders.length; i++) {
+                    if (i !== 2) {
+                        this._shaders[i]._uniformProjection.setValue(opm);
+                    }
+                    else {
+                        /**
+                         * FastShader needs different projection matrices because quad coordinates are calculated in the shader,
+                         * and not in the client. Thus it is mandatory to send the correct projection matrix based on the
+                         * y-axis rendering origin.
+                         */
+                        this._shaders[2]._uniformProjection.setValue(cc.render.RENDER_ORIGIN === cc.render.ORIGIN_TOP ? opm : opm_inverse);
+                    }
+                }
             };
             Object.defineProperty(DecoratedWebGLRenderingContext.prototype, "canvas", {
                 /**
@@ -17743,16 +17841,12 @@ var cc;
                 enumerable: true,
                 configurable: true
             });
-            Object.defineProperty(DecoratedWebGLRenderingContext.prototype, "globalAlpha", {
-                get: function () {
-                    return this._currentContextSnapshot._globalAlpha;
-                },
-                set: function (v) {
-                    this._currentContextSnapshot._globalAlpha = v;
-                },
-                enumerable: true,
-                configurable: true
-            });
+            DecoratedWebGLRenderingContext.prototype.setGlobalAlpha = function (v) {
+                this._currentContextSnapshot._globalAlpha = v;
+            };
+            DecoratedWebGLRenderingContext.prototype.getGlobalAlpha = function () {
+                return this._currentContextSnapshot._globalAlpha;
+            };
             /**
              * Set the current rendering composite operation (blend mode).
              * The value is any of:
@@ -17873,6 +17967,8 @@ var cc;
                 if (this._batcher.batchRect(x, y, w, h, this._currentContextSnapshot)) {
                     this.flush();
                 }
+            };
+            DecoratedWebGLRenderingContext.prototype.drawTextureUnsafe = function (texture, sx, sy, sw, sh, dx, dy, dw, dh) {
             };
             DecoratedWebGLRenderingContext.prototype.drawTexture = function (texture, sx, sy, sw, sh, dx, dy, dw, dh) {
                 var ti = texture;
@@ -18020,18 +18116,6 @@ var cc;
             DecoratedWebGLRenderingContext.prototype.getUnitsFactor = function () {
                 return this._renderer.getUnitsFactor();
             };
-            Object.defineProperty(DecoratedWebGLRenderingContext.prototype, "type", {
-                /**
-                 * Get RenderingContext type.
-                 * @member cc.render.DecoratedWebGLRenderingContext#get:type
-                 * @returns {string} "webgl" or "canvas" (lowercase)
-                 */
-                get: function () {
-                    return "webgl";
-                },
-                enumerable: true,
-                configurable: true
-            });
             /**
              * @method cc.render.DecoratedWebGLRenderingContext#__drawImageFlushIfNeeded
              * @param textureId {WebGLTexture}
@@ -18113,6 +18197,31 @@ var cc;
             DecoratedWebGLRenderingContext.prototype.moveTo = function (x, y) {
             };
             DecoratedWebGLRenderingContext.prototype.lineTo = function (x, y) {
+            };
+            DecoratedWebGLRenderingContext.prototype.save = function () {
+            };
+            DecoratedWebGLRenderingContext.prototype.restore = function () {
+            };
+            DecoratedWebGLRenderingContext.prototype.drawMesh = function (geometry, uv, indices, color, texture) {
+                this.__checkMeshFlushConditions(texture._glId, color);
+                this._batcher.batchMesh(geometry, uv, indices, color, this._currentContextSnapshot);
+                this.flush();
+            };
+            DecoratedWebGLRenderingContext.prototype.__checkMeshFlushConditions = function (textureId, color) {
+                if (this._currentContextSnapshot._currentFillStyleType !== 4 /* MESH */) {
+                    this.flush();
+                    this.__setCurrentFillStyleType(4 /* MESH */);
+                }
+                var shader = this._shaders[4 /* MESH */];
+                shader.mat4_from_mat3(this._currentContextSnapshot._currentMatrix, __mat4);
+                var r = (color >> 24) & 0xff;
+                var g = (color >> 16) & 0xff;
+                var b = (color >> 8) & 0xff;
+                var a = (color) & 0xff;
+                shader._uniformTransform.setValue(__mat4);
+                shader._uniformTextureSampler.setValue(0);
+                shader._uniformColor.setValue([r, g, b, a]);
+                this._webglState.setTexture(0, textureId);
             };
             /**
              * Enable UNPACK_PREMULTIPLY_ALPHA_WEBGL for textures. False by default.
@@ -19179,6 +19288,7 @@ var cc;
                      * @type {string}
                      */
                     this.url = null;
+                    this._progress = null;
                     var url_and_id = _url.split("@");
                     var url = url_and_id[0];
                     var id = url_and_id.length > 1 ? url_and_id[1] : null;
@@ -19220,7 +19330,7 @@ var cc;
                         }, function () {
                             _this.__setError();
                             error(_this);
-                        });
+                        }, this._progress);
                     }
                     else {
                         cc.Debug.warn(cc.locale.WARN_RESOURCE_OF_UNKNOWN_TYPE, this.id);
@@ -19260,6 +19370,9 @@ var cc;
                  */
                 Resource.prototype.getId = function () {
                     return this.id;
+                };
+                Resource.prototype.setProgress = function (progress) {
+                    this._progress = progress;
                 };
                 return Resource;
             })();
@@ -19424,7 +19537,7 @@ var cc;
                  * @param loaded {cc.plugin.loader.ResourceLoaderResourceOkCallback} callback invoked when the resource is successfully loaded.
                  * @param error {cc.plugin.loader.ResourceLoaderResourceErrorCallback} callback invoked when the resource is not successfully loaded.
                  */
-                ResourceLoaderJSON.prototype.load = function (loaded, error) {
+                ResourceLoaderJSON.prototype.load = function (loaded, error, progress) {
                     var me = this;
                     var req = null;
                     if (typeof XMLHttpRequest !== "undefined" && typeof ActiveXObject === "undefined") {
@@ -19450,6 +19563,14 @@ var cc;
                     }
                     if (req) {
                         req.open("GET", me._url, true);
+                        if (progress) {
+                            req.onprogress = function (evt) {
+                                if (evt.lengthComputable) {
+                                    var percentComplete = (evt.loaded / evt.total) * 100;
+                                    progress(percentComplete);
+                                }
+                            };
+                        }
                         req.onload = function (e) {
                             if (req.status != 200) {
                                 error();
@@ -19457,13 +19578,7 @@ var cc;
                             }
                             var text = e.currentTarget ? e.currentTarget.responseText : e.target.responseText;
                             if (text !== "") {
-                                try {
-                                    loaded(me.getValue(text));
-                                }
-                                catch (e) {
-                                    cc.Debug.warn(cc.locale.LOADER_JSON_PARSE_ERROR);
-                                    loaded({});
-                                }
+                                loaded(me.getValue(text));
                             }
                         };
                         req.send();
@@ -19856,6 +19971,13 @@ var cc;
                         this.addResource(resources[i]);
                     }
                     return this;
+                };
+                Loader.prototype.setProgressLoadForResource = function (id, progress) {
+                    for (var i = 0; i < this._resources.length; i++) {
+                        if (this._resources[i].id === id) {
+                            this._resources[i].setProgress(progress);
+                        }
+                    }
                 };
                 /**
                  * Start loading all resources in this loader.
@@ -26857,6 +26979,11 @@ var cc;
 /**
  * License: see license.txt file.
  */
+/// <reference path="../node/Node.ts"/>
+/// <reference path="../node/Sprite.ts"/>
+/// <reference path="../node/FastSprite.ts"/>
+/// <reference path="../node/Scene.ts"/>
+/// <reference path="../action/Action.ts"/>
 var cc;
 (function (cc) {
     var initializing = false;
@@ -26929,6 +27056,7 @@ var cc;
     };
     cc.node.Node.extend = _Class.extend;
     cc.node.Sprite.extend = _Class.extend;
+    cc.node.FastSprite.extend = _Class.extend;
     cc.node.SpriteBatchNode.extend = _Class.extend;
     cc.node.Scene.extend = _Class.extend;
     cc.action.Action.extend = _Class.extend;

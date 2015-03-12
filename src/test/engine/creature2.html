@@ -1,0 +1,168 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Cocos2d-htm5 - Creature animation tool exaple (II)</title>
+
+    <link rel="stylesheet" href="../css/genericons.css">
+    <link rel="stylesheet" href="../css/templatestyles.css">
+    <link rel="stylesheet" href="../stylesheets/pygment_trac.css">
+    <link rel="stylesheet" id="open-sans-css"
+          href="//fonts.googleapis.com/css?family=Open+Sans%3A300italic%2C400italic%2C600italic%2C300%2C400%2C600&amp;subset=latin%2Clatin-ext&amp;ver=4.1.1"
+          type="text/css" media="all">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-17485141-5', 'auto');
+      ga('send', 'pageview');
+
+    </script>
+</head>
+<body>
+
+<button class="toggle" id="menutoggle">
+</button>
+<div class="wrapper">
+<header>
+
+    <div class="site-title">
+        <div class="site-title-info">
+            <h1>Cocos2d-html5</h1>
+        </div>
+        <div id="menu" class="site-menu">
+            <div id="menuclose" class="close-button"><span class="icon-close"></span></div>
+            <p class="demos-menu-title">Demos list</p>
+            <ul id="site-menu" >
+
+            </ul>
+        </div>
+    </div>
+</header>
+
+    <section>
+        <div><span id="loader"></span></div>
+        <div><canvas id="c"></canvas></div>
+    </section>
+    <footer>
+        <p>This project is maintained by <a href="https://github.com/hyperandroid">hyperandroid</a></p>
+    </footer>
+</div>
+<script src="../../../javascripts/scale.fix.js"></script>
+<script src="menu.js"></script>
+<script src="../../../dist/all.js"></script>
+<script src="creature/glmatrix.js"></script>
+<script src="creature/CreatureMeshBone.js"></script>
+<script src="creature/CreatureRenderer.js"></script>
+
+
+<script>
+    (function() {
+
+
+        document.getElementById("menutoggle").addEventListener("click", function (e) {
+            e.preventDefault();
+            document.getElementById("menu").style["display"] = "block";
+        }, false);
+        document.getElementById("menuclose").addEventListener("click", function (e) {
+            e.preventDefault();
+            document.getElementById("menu").style["display"] = "none";
+        }, false);
+
+
+        var AssetManager= cc.plugin.asset.AssetManager;
+
+        function loadResources() {
+
+            var loader= new cc.plugin.loader.Loader({
+                        prefix : "../res/creature/",
+                        resources: [
+                            "cham.json@dragon",
+                            "cham.png@skin"
+                        ] });
+            loader.setProgressLoadForResource( "dragon", function(p) {
+                var c= document.getElementById("loader");
+                c.innerHTML="Loading "+(((p*100)>>0)/100.0)+"%";
+            });
+            loader.startLoading(
+                    function onEnd(resources) {
+                        initialize(resources);
+                    }
+            );
+        }
+
+        /**
+         *
+         * @param resources {Array<cc.plugin.loader.Resource}
+         */
+        function initialize( resources ) {
+            var c= document.getElementById("loader").style.display="none";
+
+            cc.plugin.asset.AssetManager.addImage( resources['skin'], 'skin' );
+
+            var actual_JSON= resources['dragon'];
+            var new_creature = new Creature(actual_JSON);
+
+            var new_animation_1 = new CreatureAnimation(actual_JSON, "default", new_creature);
+
+            var new_manager = new CreatureManager(new_creature);
+            new_manager.AddAnimation(new_animation_1);
+            new_manager.SetActiveAnimationName("default", false);
+            new_manager.SetShouldLoop(true);
+            new_manager.SetIsPlaying(true);
+            new_manager.RunAtTime(0);
+
+
+            var target_creature = new_manager.target_creature;
+            var read_pts = target_creature.render_pts;
+           	var read_uvs = target_creature.global_uvs;
+
+            //////
+            ////// Adjust uv for POT
+            //////
+            var texture= cc.plugin.asset.AssetManager.getTexture("skin");
+            for( var i=0; i<read_uvs.length; i+=2 ) {
+                read_uvs[i  ]/= texture._textureWidth/texture.getPixelsWide();
+                read_uvs[i+1]/= texture._textureHeight/texture.getPixelsHigh();
+            }
+
+            var indices= target_creature.global_indices;
+
+            var renderer= new cc.render.WebGLRenderer(800,600,document.getElementById("c"));
+            var director= new cc.node.Director().setRenderer( renderer );
+            var scene= director.createScene();
+
+            scene.update= function( delta ) {
+                new_manager.Update(delta);
+            };
+
+            scene.draw= function( ctx ) {
+
+                ctx.clear();
+                ctx.setFillStyleColorArray([1,1,1,1]);
+                ctx.fillRect(0,0,800,600);
+                ctx.save();
+                ctx.translate(400, 300);
+                ctx.scale(13, 13);
+                ctx.drawMesh(read_pts, read_uvs, indices, 0xffffffff, texture);
+                ctx.restore();
+            };
+
+            scene.scheduleUpdate();
+
+            director.runScene( scene );
+        }
+
+        window.addEventListener("DOMContentLoaded", loadResources, false);
+
+    })();
+</script>
+</body>
+</html>
