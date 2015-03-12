@@ -19569,6 +19569,9 @@ var cc;
                                     var percentComplete = (evt.loaded / evt.total) * 100;
                                     progress(percentComplete);
                                 }
+                                else {
+                                    progress(-1);
+                                }
                             };
                         }
                         req.onload = function (e) {

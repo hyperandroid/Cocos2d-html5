@@ -89,11 +89,18 @@
                         ] });
             loader.setProgressLoadForResource( "dragon", function(p) {
                 var c= document.getElementById("loader");
-                c.innerHTML="Loading "+(((p*100)>>0)/100.0)+"%";
+                if ( -1===p ) {
+                    c.innerHTML = "Loading "+("|/-|\\".substr( (Math.random()*5)>>0, 1 ) );
+                } else {
+                    c.innerHTML = "Loading " + (((p * 100) >> 0) / 100.0) + "%";
+                }
             });
             loader.startLoading(
                     function onEnd(resources) {
-                        initialize(resources);
+                        document.getElementById("loader").innerHTML="Building models and meshes";
+                        setTimeout( function() {
+                            initialize(resources);
+                        }, 0 );
                     }
             );
         }
@@ -135,6 +142,7 @@
 
             var indices= target_creature.global_indices;
 
+            document.getElementById("loader").style.display="none";
             var renderer= new cc.render.WebGLRenderer(800,600,document.getElementById("c"));
             var director= new cc.node.Director().setRenderer( renderer );
             var scene= director.createScene();
