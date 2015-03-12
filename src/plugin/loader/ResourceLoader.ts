@@ -87,7 +87,9 @@ module cc.plugin.loader {
          * @param loaded {cc.plugin.loader.ResourceLoaderResourceOkCallback}
          * @param error {cc.plugin.loader.ResourceLoaderResourceErrorCallback}
          */
-        load( loaded:ResourceLoaderResourceOkCallback, error:ResourceLoaderResourceErrorCallback ) : void;
+        load( loaded:ResourceLoaderResourceOkCallback,
+              error:ResourceLoaderResourceErrorCallback,
+                progress? : (p:number) => void ) : void;
     }
 
 }

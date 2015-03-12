@@ -219,6 +219,14 @@ module cc.plugin.loader {
             return this;
         }
 
+        setProgressLoadForResource( id:string, progress: (percentage:number) => void ) {
+            for( var i=0; i<this._resources.length; i++ ) {
+                if ( this._resources[i].id===id ) {
+                    this._resources[i].setProgress( progress );
+                }
+            }
+        }
+
         /**
          * Start loading all resources in this loader.
          * @param onEnd {cc.plugin.loader.LoaderFinishedCallback} callback invoked when all asset are loaded. If no resources

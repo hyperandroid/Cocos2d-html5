@@ -139,6 +139,12 @@ module cc.render {
          */
         _indexBufferIndex : number = 0;
 
+        _indexBufferMesh : Uint16Array = null;
+        _indexBufferMeshIndex : number = 0;
+        _indicesChanged: boolean= false;
+        _glIndexMeshBuffers : Buffer[] = [];
+        _glIndexMeshBuffer : Buffer = null;
+
         /**
          * The canvas WebGLRenderingContext
          * @member cc.render.GeometryBatcher#_gl
@@ -160,6 +166,7 @@ module cc.render {
             this._dataBufferByte= new Uint8Array(this._dataArrayBuffer);
             this._dataBufferUint= new Uint32Array(this._dataArrayBuffer);
             this._indexBuffer= new Uint16Array( GeometryBatcher.MAX_QUADS*6 );
+            this._indexBufferMesh= new Uint16Array( GeometryBatcher.MAX_QUADS*6 );
 
             // preset geometry indices.
             var indexBufferIndex= 0;
@@ -176,7 +183,6 @@ module cc.render {
                 indexBuffer[ indexBufferIndex+5 ]= elementIndex+3;
                 indexBufferIndex += 6;
                 elementIndex+= 4;
-
             }
 
             this._glDataBuffers.push( new Buffer( this._gl, this._gl.ARRAY_BUFFER, this._dataBufferFloat, this._gl.DYNAMIC_DRAW ) );
@@ -189,8 +195,14 @@ module cc.render {
             this._glIndexBuffers.push( new Buffer( this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer, this._gl.STATIC_DRAW ) );
             this._glIndexBuffers.push( new Buffer( this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer, this._gl.STATIC_DRAW ) );
 
+            this._glIndexMeshBuffers.push( new Buffer( this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer, this._gl.DYNAMIC_DRAW ) );
+            this._glIndexMeshBuffers.push( new Buffer( this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer, this._gl.DYNAMIC_DRAW ) );
+            this._glIndexMeshBuffers.push( new Buffer( this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer, this._gl.DYNAMIC_DRAW ) );
+            this._glIndexMeshBuffers.push( new Buffer( this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer, this._gl.DYNAMIC_DRAW ) );
+
             this._glDataBuffer= this._glDataBuffers[0];
             this._glIndexBuffer= this._glIndexBuffers[0];
+            this._glIndexMeshBuffer= this._glIndexMeshBuffers[0];
 
 
         }
@@ -332,12 +344,23 @@ module cc.render {
          */
         flush( shader: AbstractShader, rcs:cc.render.RenderingContextSnapshot ) : void {
 
-            if (!this._indexBufferIndex) {
-                return;
-            }
+            var trianglesCount;
 
-            // simply rebind the buffer, not modify its contents.
-            this._gl.bindBuffer( this._gl.ELEMENT_ARRAY_BUFFER, this._glIndexBuffer._buffer );
+            if ( this._indicesChanged ) {
+                trianglesCount= this._indexBufferMeshIndex;
+                if ( !trianglesCount ) {
+                    return;
+                }
+                this._glIndexMeshBuffer.bind(this._gl.ELEMENT_ARRAY_BUFFER);
+                this._glIndexMeshBuffer.forceEnableWithValue( this._indexBufferMesh.subarray( 0, this._indexBufferMeshIndex) );
+            } else {
+                trianglesCount= this._indexBufferIndex;
+                if ( !trianglesCount ) {
+                    return;
+                }
+                // simply rebind the buffer, not modify its contents.
+                this._glIndexBuffer.bind(this._gl.ELEMENT_ARRAY_BUFFER);
+            }
 
             //this._glDataBuffer.forceEnableWithValue(this._dataBufferFloat);
             this._glDataBuffer.forceEnableWithValue(this._dataBufferFloat.subarray(0, this._dataBufferIndex));
@@ -345,18 +368,21 @@ module cc.render {
 
             shader.flushBuffersWithContent( rcs );
 
-            this._gl.drawElements(this._gl.TRIANGLES, this._indexBufferIndex, this._gl.UNSIGNED_SHORT, 0);
+            this._gl.drawElements(this._gl.TRIANGLES, trianglesCount, this._gl.UNSIGNED_SHORT, 0);
             //this._gl.drawArrays(this._gl.TRIANGLE_STRIP, 0, 4);
 
             // reset buffer data index.
             this._dataBufferIndex= 0;
             this._indexBufferIndex= 0;
+            this._indexBufferMeshIndex= 0;
 
             // ping pong rendering buffer.
             this._currentBuffersIndex= (this._currentBuffersIndex+1) & 3;
             this._glDataBuffer= this._glDataBuffers[ this._currentBuffersIndex ];
             this._glIndexBuffer= this._glIndexBuffers[ this._currentBuffersIndex ];
+            this._glIndexMeshBuffer= this._glIndexMeshBuffers[ this._currentBuffersIndex ];
 
+            this._indicesChanged= false;
         }
 
         __uintColor( rcs:RenderingContextSnapshot ) : number {
@@ -423,6 +449,47 @@ module cc.render {
             this._dataBufferIndex+= 40;
 
             return this._dataBufferIndex+40 >= this._dataBufferFloat.length;
+        }
+
+        batchMesh( geometry:Float32Array, uv:Float32Array, indices:Uint32Array, color:number, rcs:RenderingContextSnapshot  ) {
+
+            this._indicesChanged= true;
+
+            for( var i=0; i<indices.length; i+=3 ) {
+
+                var indexVertex0= indices[i+0]*3;
+                var indexVertexUV0= indices[i+0]*2;
+                this.batchMeshVertex(
+                    geometry[ indexVertex0 ], geometry[ indexVertex0+1 ],
+                    uv[ indexVertexUV0 ], uv[ indexVertexUV0+1 ],
+                    i,
+                    rcs);
+
+                var indexVertex1= indices[i+1]*3;
+                var indexVertexUV1= indices[i+1]*2;
+                this.batchMeshVertex(
+                    geometry[ indexVertex1 ], geometry[ indexVertex1+1 ],
+                    uv[ indexVertexUV1 ], uv[ indexVertexUV1+1 ],
+                    i+1,
+                    rcs);
+
+                var indexVertex2= indices[i+2]*3;
+                var indexVertexUV2= indices[i+2]*2;
+                this.batchMeshVertex(
+                    geometry[ indexVertex2 ], geometry[ indexVertex2+1 ],
+                    uv[ indexVertexUV2 ], uv[ indexVertexUV2+1 ],
+                    i+2,
+                    rcs );
+            }
+
+        }
+
+        batchMeshVertex( x:number, y:number, u:number, v:number, index:number, rcs:RenderingContextSnapshot ) : void {
+            this._dataBufferFloat[ this._dataBufferIndex++ ] = x;
+            this._dataBufferFloat[ this._dataBufferIndex++ ] = y;
+            this._dataBufferFloat[ this._dataBufferIndex++ ] = u;
+            this._dataBufferFloat[ this._dataBufferIndex++ ] = v;
+            this._indexBufferMesh[ this._indexBufferMeshIndex++ ]= index;
         }
     }
 

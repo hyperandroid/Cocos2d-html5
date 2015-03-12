@@ -49,6 +49,10 @@ module cc.render.shader {
             this._gl.bufferSubData( this._type, 0, v );
         }
 
+        bind( type ) {
+            this._gl.bindBuffer( type, this._buffer);
+        }
+
     }
 
 }

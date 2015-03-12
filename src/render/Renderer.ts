@@ -584,6 +584,36 @@ module cc.render {
             }
         };
 
+        c2d.drawMesh= function( geometry:Float32Array, uv:Float32Array, indices:Uint32Array, colorRGBA:number, texture:Texture2D ) {
+
+            var r= (colorRGBA>>24)&0xff;
+            var g= (colorRGBA>>16)&0xff;
+            var b= (colorRGBA>>8)&0xff;
+            var a= colorRGBA&0xff;
+
+            this.strokeStyle= "rgba("+r+","+g+","+b+","+(a/255)+")";
+
+            this.lineWidth= .05;
+            for( var i=0; i<indices.length; i+=3 ) {
+
+                var indexVertex0= indices[i+0]*3;
+                var indexVertex1= indices[i+1]*3;
+                var indexVertex2= indices[i+2]*3;
+
+                this.beginPath();
+                this.moveTo( geometry[ indexVertex0 ], geometry[ indexVertex0+1 ] );
+                this.lineTo( geometry[ indexVertex1 ], geometry[ indexVertex1+1 ] );
+                this.lineTo( geometry[ indexVertex2 ], geometry[ indexVertex2+1 ] );
+                this.closePath();
+                this.stroke();
+
+                //this.fillRect( geometry[ indexVertex0 ], geometry[ indexVertex0+1 ], .1, .1 );
+                //this.fillRect( geometry[ indexVertex1 ], geometry[ indexVertex1+1 ], .1, .1 );
+                //this.fillRect( geometry[ indexVertex2 ], geometry[ indexVertex2+1 ], .1, .1 );
+            }
+
+        };
+
         return <RenderingContext>c2d;
     }
 

@@ -203,6 +203,9 @@ module cc.render {
 
         type : number;
 
+        save() : void;
+        restore() : void;
+
         beginPath();
 
         stroke();
@@ -222,6 +225,7 @@ module cc.render {
         setCompositeOperation( o:cc.render.CompositeOperation );
         getCompositeOperation() : cc.render.CompositeOperation;
 
+        drawMesh( geometry:Float32Array, uv:Float32Array, indices:Uint32Array, color:number, texture:Texture2D );
     }
 
 }

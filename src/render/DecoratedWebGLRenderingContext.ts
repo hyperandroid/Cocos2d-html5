@@ -47,7 +47,8 @@ module cc.render {
         COLOR = 0,
         IMAGE = 1,
         IMAGEFAST = 2,
-        PATTERN_REPEAT= 3
+        PATTERN_REPEAT= 3,
+        MESH = 4
     }
 
     /**
@@ -58,7 +59,8 @@ module cc.render {
         COLOR = 0,
         IMAGE = 1,
         IMAGEFAST = 2,
-        PATTERN_REPEAT= 3
+        PATTERN_REPEAT= 3,
+        MESH = 4
     }
 
     /**
@@ -72,6 +74,12 @@ module cc.render {
     }
 
     var __mat3 : Float32Array = new Float32Array([1.0,0,0, 0,1.0,0, 0,0,1.0]);
+    var __mat4 : Float32Array= new Float32Array( [
+        1.0, 0, 0, 0,
+        0, 1.0, 0, 0,
+        0, 0, 1.0, 0,
+        0, 0, 0, 1.0 ] );
+
 
     /**
      * @class cc.render.DecoratedWebGLRenderingContext
@@ -332,6 +340,7 @@ module cc.render {
             this._shaders.push( new TextureShader( this._webglState ) );
             this._shaders.push( new FastTextureShader( this._webglState ) );
             this._shaders.push( new TexturePatternShader( this._webglState ) );
+            this._shaders.push( new cc.render.shader.MeshShader( this._webglState ) );
 
             this.__setShadersProjection(w,h);
 
@@ -343,17 +352,20 @@ module cc.render {
             var opm= opms[0];
             var opm_inverse= opms[1];
 
-            this._shaders[0]._uniformProjection.setValue(opm);
-            this._shaders[1]._uniformProjection.setValue(opm);
+            for( var i=0; i<this._shaders.length; i++ ) {
+                if ( i!==2 ) {
 
-            /**
-             * FastShader needs different projection matrices because quad coordinates are calculated in the shader,
-             * and not in the client. Thus it is mandatory to send the correct projection matrix based on the
-             * y-axis rendering origin.
-             */
-            this._shaders[2]._uniformProjection.setValue( cc.render.RENDER_ORIGIN===cc.render.ORIGIN_TOP ? opm : opm_inverse );
+                    this._shaders[i]._uniformProjection.setValue(opm);
+                } else {
 
-            this._shaders[3]._uniformProjection.setValue(opm);
+                    /**
+                     * FastShader needs different projection matrices because quad coordinates are calculated in the shader,
+                     * and not in the client. Thus it is mandatory to send the correct projection matrix based on the
+                     * y-axis rendering origin.
+                     */
+                    this._shaders[2]._uniformProjection.setValue( cc.render.RENDER_ORIGIN===cc.render.ORIGIN_TOP ? opm : opm_inverse );
+                }
+            }
         }
 
         /**
@@ -830,5 +842,42 @@ module cc.render {
 
         }
 
+        save() {
+
+        }
+
+        restore() {
+
+        }
+
+        drawMesh( geometry:Float32Array, uv:Float32Array, indices:Uint32Array, color:number, texture:Texture2D ) {
+
+            this.__checkMeshFlushConditions( texture._glId, color );
+            this._batcher.batchMesh( geometry, uv, indices, color, this._currentContextSnapshot );
+            this.flush();
+        }
+
+        __checkMeshFlushConditions( textureId:WebGLTexture, color:number ) {
+
+            if ( this._currentContextSnapshot._currentFillStyleType!==FillStyleType.MESH ) {
+                this.flush();
+                this.__setCurrentFillStyleType( FillStyleType.MESH );
+            }
+
+            var shader= this._shaders[ShaderType.MESH];
+
+            shader.mat4_from_mat3( this._currentContextSnapshot._currentMatrix, __mat4 );
+
+            var r= (color>>24)&0xff;
+            var g= (color>>16)&0xff;
+            var b= (color>>8)&0xff;
+            var a= (color)&0xff;
+
+            (<any>shader)._uniformTransform.setValue( __mat4 );
+            (<any>shader)._uniformTextureSampler.setValue( 0 );
+            (<any>shader)._uniformColor.setValue( [r,g,b,a] );
+            this._webglState.setTexture( 0, textureId );
+
+        }
     }
 }
