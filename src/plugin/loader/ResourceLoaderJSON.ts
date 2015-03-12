@@ -54,7 +54,7 @@ module cc.plugin.loader {
          * @param loaded {cc.plugin.loader.ResourceLoaderResourceOkCallback} callback invoked when the resource is successfully loaded.
          * @param error {cc.plugin.loader.ResourceLoaderResourceErrorCallback} callback invoked when the resource is not successfully loaded.
          */
-        load( loaded:ResourceLoaderResourceOkCallback, error:ResourceLoaderResourceErrorCallback ) : void {
+        load( loaded:ResourceLoaderResourceOkCallback, error:ResourceLoaderResourceErrorCallback, progress?:(p:number) => void ) : void {
 
             var me = this;
 
@@ -80,6 +80,18 @@ module cc.plugin.loader {
             if (req) {
 
                 req.open("GET", me._url, true);
+
+                if ( progress ) {
+                    req.onprogress = function(evt) {
+                        if (evt.lengthComputable) {
+                            var percentComplete = (evt.loaded / evt.total) * 100;
+                            progress( percentComplete );
+                        } else {
+                            progress( -1 );
+                        }
+                    };
+                }
+
                 req.onload = function (e) {
                     if (req.status != 200) {
                         error();
@@ -88,12 +100,7 @@ module cc.plugin.loader {
 
                     var text = e.currentTarget ? e.currentTarget.responseText : e.target.responseText;
                     if (text!=="") {
-                        try {
-                            loaded( me.getValue(text) );
-                        } catch (e) {
-                            cc.Debug.warn(cc.locale.LOADER_JSON_PARSE_ERROR);
-                            loaded({});
-                        }
+                        loaded( me.getValue(text) );
                     }
 
                 };

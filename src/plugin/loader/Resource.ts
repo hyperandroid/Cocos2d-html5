@@ -105,6 +105,8 @@ module cc.plugin.loader {
          */
         url : string = null;
 
+        _progress : (p:number) => void = null;
+
         /**
          * Create a new Resource instance.
          * Resources are automatically built from a list of resource url/uri passed to a
@@ -165,7 +167,8 @@ module cc.plugin.loader {
                     () => {
                         this.__setError();
                         error(this);
-                    });
+                    },
+                    this._progress );
 
             } else {
                 cc.Debug.warn( cc.locale.WARN_RESOURCE_OF_UNKNOWN_TYPE, this.id );
@@ -209,6 +212,10 @@ module cc.plugin.loader {
          */
         getId() : string {
             return this.id;
+        }
+
+        setProgress( progress : (p:number)=> void ) {
+            this._progress= progress;
         }
     }
 

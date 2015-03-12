@@ -15699,15 +15699,11 @@ var cc;
                 __extends(TextureShader, _super);
                 function TextureShader(gl) {
                     _super.call(this, gl, {
-                        vertexShader: "" + "attribute vec2 aPosition; \n" + "attribute vec4 aColor; \n" + "attribute vec2 aTexture; \n" + "uniform mat4 uProjection; \n" + "uniform mat4 uTransform; \n" + "varying vec2 vTextureCoord; \n" + "varying vec4 vAttrColor; \n" + "void main(void) { \n" + "gl_Position = uProjection * uTransform * vec4( aPosition.x, aPosition.y, 0.0, 1.0 );\n" + "vTextureCoord = aTexture;\n" + "vAttrColor = aColor;\n" + "}\n",
+                        vertexShader: "" + "attribute vec2 aPosition; \n" + "attribute vec4 aColor; \n" + "attribute vec2 aTexture; \n" + "uniform mat4 uProjection; \n" + "varying vec2 vTextureCoord; \n" + "varying vec4 vAttrColor; \n" + "void main(void) { \n" + "gl_Position = uProjection * vec4( aPosition.x, aPosition.y, 0.0, 1.0 );\n" + "vTextureCoord = aTexture;\n" + "vAttrColor = aColor;\n" + "}\n",
                         fragmentShader: "" + "precision mediump float; \n" + "varying vec2 vTextureCoord; \n" + "uniform sampler2D uTextureSampler; \n" + "varying vec4 vAttrColor;\n" + "void main(void) { \n" + "  vec4 textureColor= texture2D(uTextureSampler, vec2(vTextureCoord)); \n" + "  gl_FragColor = textureColor * vAttrColor; \n" + "}\n",
                         attributes: ["aPosition", "aColor", "aTexture"],
                         uniforms: {
                             "uProjection": {
-                                type: "m4v",
-                                value: [1.0, 0, 0, 0, 0, 1.0, 0, 0, 0, 0, 1.0, 0, 0, 0, 0, 1.0]
-                            },
-                            "uTransform": {
                                 type: "m4v",
                                 value: [1.0, 0, 0, 0, 0, 1.0, 0, 0, 0, 0, 1.0, 0, 0, 0, 0, 1.0]
                             },
@@ -15754,7 +15750,6 @@ var cc;
                     this._attributeColor = null;
                     this._uniformTextureSampler = this.findUniform("uTextureSampler");
                     this._uniformProjection = this.findUniform("uProjection");
-                    this._uniformTransform = this.findUniform("uTransform");
                     this._attributePosition = this.findAttribute("aPosition");
                     this._attributeColor = this.findAttribute("aColor");
                     this._attributeTexture = this.findAttribute("aTexture");
@@ -15780,6 +15775,102 @@ var cc;
                 return TextureShader;
             })(AbstractShader);
             shader.TextureShader = TextureShader;
+            /**
+             * @class cc.render.shader.MeshShader
+             * @extends AbstractShader
+             * @classdesc
+             *
+             * This shader fills rects with an image. It is expected to be invoked by calls to drawImage.
+             *
+             */
+            var MeshShader = (function (_super) {
+                __extends(MeshShader, _super);
+                function MeshShader(gl) {
+                    _super.call(this, gl, {
+                        vertexShader: "" + "attribute vec2 aPosition; \n" + "attribute vec2 aTexture; \n" + "uniform mat4 uProjection; \n" + "uniform mat4 uTransform; \n" + "varying vec2 vTextureCoord; \n" + "void main(void) { \n" + "gl_Position = uProjection * uTransform * vec4( aPosition.x, aPosition.y, 0.0, 1.0 );\n" + "vTextureCoord = aTexture;\n" + "}\n",
+                        fragmentShader: "" + "precision mediump float; \n" + "varying vec2 vTextureCoord; \n" + "uniform sampler2D uTextureSampler; \n" + "uniform vec4 uColor; \n" + "void main(void) { \n" + "  vec4 textureColor= texture2D(uTextureSampler, vec2(vTextureCoord)); \n" + "  gl_FragColor = textureColor * (uColor/255.0); \n" + "}\n",
+                        attributes: ["aPosition", "aTexture"],
+                        uniforms: {
+                            "uProjection": {
+                                type: "m4v",
+                                value: [1.0, 0, 0, 0, 0, 1.0, 0, 0, 0, 0, 1.0, 0, 0, 0, 0, 1.0]
+                            },
+                            "uTransform": {
+                                type: "m4v",
+                                value: [1.0, 0, 0, 0, 0, 1.0, 0, 0, 0, 0, 1.0, 0, 0, 0, 0, 1.0]
+                            },
+                            "uTextureSampler": {
+                                type: "t",
+                                value: null
+                            },
+                            "uColor": {
+                                type: "4fv",
+                                value: [1.0, 1.0, 1.0, 1.0]
+                            }
+                        }
+                    });
+                    /**
+                     * Shader Uniform transformation matrix.
+                     * @member cc.render.shader.MeshShader#_uniformTransform
+                     * @type {any}
+                     * @private
+                     */
+                    this._uniformTransform = null;
+                    /**
+                     * Shader Uniform for texture.
+                     * @member cc.render.shader.MeshShader#_uniformTextureSampler
+                     * @type {any}
+                     * @private
+                     */
+                    this._uniformTextureSampler = null;
+                    /**
+                     * Shader geometry attribute.
+                     * @member cc.render.shader.MeshShader#_attributePosition
+                     * @type {any}
+                     * @private
+                     */
+                    this._attributePosition = null;
+                    /**
+                     * Shader geometry attribute.
+                     * @member cc.render.shader.MeshShader#_attributeTexture
+                     * @type {any}
+                     * @private
+                     */
+                    this._attributeTexture = null;
+                    /**
+                     * Shader geometry color attribute.
+                     * @member cc.render.shader.MeshShader#_uniformColor
+                     * @type {any}
+                     * @private
+                     */
+                    this._uniformColor = null;
+                    this._uniformTextureSampler = this.findUniform("uTextureSampler");
+                    this._uniformProjection = this.findUniform("uProjection");
+                    this._uniformTransform = this.findUniform("uTransform");
+                    this._uniformColor = this.findUniform("uColor");
+                    this._attributePosition = this.findAttribute("aPosition");
+                    this._attributeTexture = this.findAttribute("aTexture");
+                    TextureShader.mat[0] = 1.0;
+                    TextureShader.mat[5] = 1.0;
+                    TextureShader.mat[10] = 1.0;
+                    TextureShader.mat[15] = 1.0;
+                    return this;
+                }
+                MeshShader.prototype.flushBuffersWithContent = function (rcs) {
+                    this.__updateUniformValues();
+                    var gl = this._webglState;
+                    gl.vertexAttribPointer(this._attributePosition._location, 2, gl._gl.FLOAT, false, 4 * 4, 0);
+                    gl.vertexAttribPointer(this._attributeTexture._location, 2, gl._gl.FLOAT, false, 4 * 4, 2 * 4);
+                };
+                /**
+                 * Spare matrix
+                 * @member cc.render.shader.TextureShader.mat
+                 * @type {Float32Array}
+                 */
+                MeshShader.mat = new Float32Array(16);
+                return MeshShader;
+            })(AbstractShader);
+            shader.MeshShader = MeshShader;
         })(shader = render.shader || (render.shader = {}));
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
@@ -16066,6 +16157,9 @@ var cc;
                     this._gl.bindBuffer(this._type, this._buffer);
                     //this._gl.bufferData( this._type, v, this._usage );
                     this._gl.bufferSubData(this._type, 0, v);
+                };
+                Buffer.prototype.bind = function (type) {
+                    this._gl.bindBuffer(type, this._buffer);
                 };
                 return Buffer;
             })();
@@ -16566,6 +16660,25 @@ var cc;
                         this.transform(1, 0, 0, -1, 0, dh);
                     }
                     this.drawImage(texture._image, sx, sy, sw, sh, dx, dy, dw, dh);
+                }
+            };
+            c2d.drawMesh = function (geometry, uv, indices, colorRGBA, texture) {
+                var r = (colorRGBA >> 24) & 0xff;
+                var g = (colorRGBA >> 16) & 0xff;
+                var b = (colorRGBA >> 8) & 0xff;
+                var a = colorRGBA & 0xff;
+                this.strokeStyle = "rgba(" + r + "," + g + "," + b + "," + (a / 255) + ")";
+                this.lineWidth = .05;
+                for (var i = 0; i < indices.length; i += 3) {
+                    var indexVertex0 = indices[i + 0] * 3;
+                    var indexVertex1 = indices[i + 1] * 3;
+                    var indexVertex2 = indices[i + 2] * 3;
+                    this.beginPath();
+                    this.moveTo(geometry[indexVertex0], geometry[indexVertex0 + 1]);
+                    this.lineTo(geometry[indexVertex1], geometry[indexVertex1 + 1]);
+                    this.lineTo(geometry[indexVertex2], geometry[indexVertex2 + 1]);
+                    this.closePath();
+                    this.stroke();
                 }
             };
             return c2d;
@@ -17123,6 +17236,11 @@ var cc;
                  * @private
                  */
                 this._indexBufferIndex = 0;
+                this._indexBufferMesh = null;
+                this._indexBufferMeshIndex = 0;
+                this._indicesChanged = false;
+                this._glIndexMeshBuffers = [];
+                this._glIndexMeshBuffer = null;
                 /**
                  * The canvas WebGLRenderingContext
                  * @member cc.render.GeometryBatcher#_gl
@@ -17135,6 +17253,7 @@ var cc;
                 this._dataBufferByte = new Uint8Array(this._dataArrayBuffer);
                 this._dataBufferUint = new Uint32Array(this._dataArrayBuffer);
                 this._indexBuffer = new Uint16Array(GeometryBatcher.MAX_QUADS * 6);
+                this._indexBufferMesh = new Uint16Array(GeometryBatcher.MAX_QUADS * 6);
                 // preset geometry indices.
                 var indexBufferIndex = 0;
                 var elementIndex = 0;
@@ -17157,8 +17276,13 @@ var cc;
                 this._glIndexBuffers.push(new Buffer(this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer, this._gl.STATIC_DRAW));
                 this._glIndexBuffers.push(new Buffer(this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer, this._gl.STATIC_DRAW));
                 this._glIndexBuffers.push(new Buffer(this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer, this._gl.STATIC_DRAW));
+                this._glIndexMeshBuffers.push(new Buffer(this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer, this._gl.DYNAMIC_DRAW));
+                this._glIndexMeshBuffers.push(new Buffer(this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer, this._gl.DYNAMIC_DRAW));
+                this._glIndexMeshBuffers.push(new Buffer(this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer, this._gl.DYNAMIC_DRAW));
+                this._glIndexMeshBuffers.push(new Buffer(this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer, this._gl.DYNAMIC_DRAW));
                 this._glDataBuffer = this._glDataBuffers[0];
                 this._glIndexBuffer = this._glIndexBuffers[0];
+                this._glIndexMeshBuffer = this._glIndexMeshBuffers[0];
             }
             GeometryBatcher.prototype.batchRectGeometryWithTexture = function (vertices, u0, v0, u1, v1, rcs) {
                 var cc = this.__uintColor(rcs);
@@ -17275,24 +17399,39 @@ var cc;
              * @param rcs {cc.render.RenderingContextSnapshot}
              */
             GeometryBatcher.prototype.flush = function (shader, rcs) {
-                if (!this._indexBufferIndex) {
-                    return;
+                var trianglesCount;
+                if (this._indicesChanged) {
+                    trianglesCount = this._indexBufferMeshIndex;
+                    if (!trianglesCount) {
+                        return;
+                    }
+                    this._glIndexMeshBuffer.bind(this._gl.ELEMENT_ARRAY_BUFFER);
+                    this._glIndexMeshBuffer.forceEnableWithValue(this._indexBufferMesh.subarray(0, this._indexBufferMeshIndex));
                 }
-                // simply rebind the buffer, not modify its contents.
-                this._gl.bindBuffer(this._gl.ELEMENT_ARRAY_BUFFER, this._glIndexBuffer._buffer);
+                else {
+                    trianglesCount = this._indexBufferIndex;
+                    if (!trianglesCount) {
+                        return;
+                    }
+                    // simply rebind the buffer, not modify its contents.
+                    this._glIndexBuffer.bind(this._gl.ELEMENT_ARRAY_BUFFER);
+                }
                 //this._glDataBuffer.forceEnableWithValue(this._dataBufferFloat);
                 this._glDataBuffer.forceEnableWithValue(this._dataBufferFloat.subarray(0, this._dataBufferIndex));
                 //this._glDataBuffer.enableWithValue(this._dataBufferFloat.subarray(0, this._dataBufferIndex));
                 shader.flushBuffersWithContent(rcs);
-                this._gl.drawElements(this._gl.TRIANGLES, this._indexBufferIndex, this._gl.UNSIGNED_SHORT, 0);
+                this._gl.drawElements(this._gl.TRIANGLES, trianglesCount, this._gl.UNSIGNED_SHORT, 0);
                 //this._gl.drawArrays(this._gl.TRIANGLE_STRIP, 0, 4);
                 // reset buffer data index.
                 this._dataBufferIndex = 0;
                 this._indexBufferIndex = 0;
+                this._indexBufferMeshIndex = 0;
                 // ping pong rendering buffer.
                 this._currentBuffersIndex = (this._currentBuffersIndex + 1) & 3;
                 this._glDataBuffer = this._glDataBuffers[this._currentBuffersIndex];
                 this._glIndexBuffer = this._glIndexBuffers[this._currentBuffersIndex];
+                this._glIndexMeshBuffer = this._glIndexMeshBuffers[this._currentBuffersIndex];
+                this._indicesChanged = false;
             };
             GeometryBatcher.prototype.__uintColor = function (rcs) {
                 var tint = rcs._tintColor;
@@ -17342,6 +17481,27 @@ var cc;
                 this._indexBufferIndex += 6;
                 this._dataBufferIndex += 40;
                 return this._dataBufferIndex + 40 >= this._dataBufferFloat.length;
+            };
+            GeometryBatcher.prototype.batchMesh = function (geometry, uv, indices, color, rcs) {
+                this._indicesChanged = true;
+                for (var i = 0; i < indices.length; i += 3) {
+                    var indexVertex0 = indices[i + 0] * 3;
+                    var indexVertexUV0 = indices[i + 0] * 2;
+                    this.batchMeshVertex(geometry[indexVertex0], geometry[indexVertex0 + 1], uv[indexVertexUV0], uv[indexVertexUV0 + 1], i, rcs);
+                    var indexVertex1 = indices[i + 1] * 3;
+                    var indexVertexUV1 = indices[i + 1] * 2;
+                    this.batchMeshVertex(geometry[indexVertex1], geometry[indexVertex1 + 1], uv[indexVertexUV1], uv[indexVertexUV1 + 1], i + 1, rcs);
+                    var indexVertex2 = indices[i + 2] * 3;
+                    var indexVertexUV2 = indices[i + 2] * 2;
+                    this.batchMeshVertex(geometry[indexVertex2], geometry[indexVertex2 + 1], uv[indexVertexUV2], uv[indexVertexUV2 + 1], i + 2, rcs);
+                }
+            };
+            GeometryBatcher.prototype.batchMeshVertex = function (x, y, u, v, index, rcs) {
+                this._dataBufferFloat[this._dataBufferIndex++] = x;
+                this._dataBufferFloat[this._dataBufferIndex++] = y;
+                this._dataBufferFloat[this._dataBufferIndex++] = u;
+                this._dataBufferFloat[this._dataBufferIndex++] = v;
+                this._indexBufferMesh[this._indexBufferMeshIndex++] = index;
             };
             /**
              * Max bufferable quads.
@@ -17396,6 +17556,7 @@ var cc;
             FillStyleType[FillStyleType["IMAGE"] = 1] = "IMAGE";
             FillStyleType[FillStyleType["IMAGEFAST"] = 2] = "IMAGEFAST";
             FillStyleType[FillStyleType["PATTERN_REPEAT"] = 3] = "PATTERN_REPEAT";
+            FillStyleType[FillStyleType["MESH"] = 4] = "MESH";
         })(render.FillStyleType || (render.FillStyleType = {}));
         var FillStyleType = render.FillStyleType;
         /**
@@ -17407,6 +17568,7 @@ var cc;
             ShaderType[ShaderType["IMAGE"] = 1] = "IMAGE";
             ShaderType[ShaderType["IMAGEFAST"] = 2] = "IMAGEFAST";
             ShaderType[ShaderType["PATTERN_REPEAT"] = 3] = "PATTERN_REPEAT";
+            ShaderType[ShaderType["MESH"] = 4] = "MESH";
         })(render.ShaderType || (render.ShaderType = {}));
         var ShaderType = render.ShaderType;
         /**
@@ -17420,6 +17582,24 @@ var cc;
         })(render.WEBGL_FLAGS || (render.WEBGL_FLAGS = {}));
         var WEBGL_FLAGS = render.WEBGL_FLAGS;
         var __mat3 = new Float32Array([1.0, 0, 0, 0, 1.0, 0, 0, 0, 1.0]);
+        var __mat4 = new Float32Array([
+            1.0,
+            0,
+            0,
+            0,
+            0,
+            1.0,
+            0,
+            0,
+            0,
+            0,
+            1.0,
+            0,
+            0,
+            0,
+            0,
+            1.0
+        ]);
         /**
          * @class cc.render.DecoratedWebGLRenderingContext
          * @classdesc
@@ -17612,6 +17792,7 @@ var cc;
                 this._shaders.push(new TextureShader(this._webglState));
                 this._shaders.push(new FastTextureShader(this._webglState));
                 this._shaders.push(new TexturePatternShader(this._webglState));
+                this._shaders.push(new cc.render.shader.MeshShader(this._webglState));
                 this.__setShadersProjection(w, h);
                 this._shaders[0].useProgram();
             };
@@ -17619,15 +17800,19 @@ var cc;
                 var opms = this.__createProjection(w, h);
                 var opm = opms[0];
                 var opm_inverse = opms[1];
-                this._shaders[0]._uniformProjection.setValue(opm);
-                this._shaders[1]._uniformProjection.setValue(opm);
-                /**
-                 * FastShader needs different projection matrices because quad coordinates are calculated in the shader,
-                 * and not in the client. Thus it is mandatory to send the correct projection matrix based on the
-                 * y-axis rendering origin.
-                 */
-                this._shaders[2]._uniformProjection.setValue(cc.render.RENDER_ORIGIN === cc.render.ORIGIN_TOP ? opm : opm_inverse);
-                this._shaders[3]._uniformProjection.setValue(opm);
+                for (var i = 0; i < this._shaders.length; i++) {
+                    if (i !== 2) {
+                        this._shaders[i]._uniformProjection.setValue(opm);
+                    }
+                    else {
+                        /**
+                         * FastShader needs different projection matrices because quad coordinates are calculated in the shader,
+                         * and not in the client. Thus it is mandatory to send the correct projection matrix based on the
+                         * y-axis rendering origin.
+                         */
+                        this._shaders[2]._uniformProjection.setValue(cc.render.RENDER_ORIGIN === cc.render.ORIGIN_TOP ? opm : opm_inverse);
+                    }
+                }
             };
             Object.defineProperty(DecoratedWebGLRenderingContext.prototype, "canvas", {
                 /**
@@ -18012,6 +18197,31 @@ var cc;
             DecoratedWebGLRenderingContext.prototype.moveTo = function (x, y) {
             };
             DecoratedWebGLRenderingContext.prototype.lineTo = function (x, y) {
+            };
+            DecoratedWebGLRenderingContext.prototype.save = function () {
+            };
+            DecoratedWebGLRenderingContext.prototype.restore = function () {
+            };
+            DecoratedWebGLRenderingContext.prototype.drawMesh = function (geometry, uv, indices, color, texture) {
+                this.__checkMeshFlushConditions(texture._glId, color);
+                this._batcher.batchMesh(geometry, uv, indices, color, this._currentContextSnapshot);
+                this.flush();
+            };
+            DecoratedWebGLRenderingContext.prototype.__checkMeshFlushConditions = function (textureId, color) {
+                if (this._currentContextSnapshot._currentFillStyleType !== 4 /* MESH */) {
+                    this.flush();
+                    this.__setCurrentFillStyleType(4 /* MESH */);
+                }
+                var shader = this._shaders[4 /* MESH */];
+                shader.mat4_from_mat3(this._currentContextSnapshot._currentMatrix, __mat4);
+                var r = (color >> 24) & 0xff;
+                var g = (color >> 16) & 0xff;
+                var b = (color >> 8) & 0xff;
+                var a = (color) & 0xff;
+                shader._uniformTransform.setValue(__mat4);
+                shader._uniformTextureSampler.setValue(0);
+                shader._uniformColor.setValue([r, g, b, a]);
+                this._webglState.setTexture(0, textureId);
             };
             /**
              * Enable UNPACK_PREMULTIPLY_ALPHA_WEBGL for textures. False by default.
@@ -19078,6 +19288,7 @@ var cc;
                      * @type {string}
                      */
                     this.url = null;
+                    this._progress = null;
                     var url_and_id = _url.split("@");
                     var url = url_and_id[0];
                     var id = url_and_id.length > 1 ? url_and_id[1] : null;
@@ -19119,7 +19330,7 @@ var cc;
                         }, function () {
                             _this.__setError();
                             error(_this);
-                        });
+                        }, this._progress);
                     }
                     else {
                         cc.Debug.warn(cc.locale.WARN_RESOURCE_OF_UNKNOWN_TYPE, this.id);
@@ -19159,6 +19370,9 @@ var cc;
                  */
                 Resource.prototype.getId = function () {
                     return this.id;
+                };
+                Resource.prototype.setProgress = function (progress) {
+                    this._progress = progress;
                 };
                 return Resource;
             })();
@@ -19323,7 +19537,7 @@ var cc;
                  * @param loaded {cc.plugin.loader.ResourceLoaderResourceOkCallback} callback invoked when the resource is successfully loaded.
                  * @param error {cc.plugin.loader.ResourceLoaderResourceErrorCallback} callback invoked when the resource is not successfully loaded.
                  */
-                ResourceLoaderJSON.prototype.load = function (loaded, error) {
+                ResourceLoaderJSON.prototype.load = function (loaded, error, progress) {
                     var me = this;
                     var req = null;
                     if (typeof XMLHttpRequest !== "undefined" && typeof ActiveXObject === "undefined") {
@@ -19349,6 +19563,17 @@ var cc;
                     }
                     if (req) {
                         req.open("GET", me._url, true);
+                        if (progress) {
+                            req.onprogress = function (evt) {
+                                if (evt.lengthComputable) {
+                                    var percentComplete = (evt.loaded / evt.total) * 100;
+                                    progress(percentComplete);
+                                }
+                                else {
+                                    progress(-1);
+                                }
+                            };
+                        }
                         req.onload = function (e) {
                             if (req.status != 200) {
                                 error();
@@ -19356,13 +19581,7 @@ var cc;
                             }
                             var text = e.currentTarget ? e.currentTarget.responseText : e.target.responseText;
                             if (text !== "") {
-                                try {
-                                    loaded(me.getValue(text));
-                                }
-                                catch (e) {
-                                    cc.Debug.warn(cc.locale.LOADER_JSON_PARSE_ERROR);
-                                    loaded({});
-                                }
+                                loaded(me.getValue(text));
                             }
                         };
                         req.send();
@@ -19755,6 +19974,13 @@ var cc;
                         this.addResource(resources[i]);
                     }
                     return this;
+                };
+                Loader.prototype.setProgressLoadForResource = function (id, progress) {
+                    for (var i = 0; i < this._resources.length; i++) {
+                        if (this._resources[i].id === id) {
+                            this._resources[i].setProgress(progress);
+                        }
+                    }
                 };
                 /**
                  * Start loading all resources in this loader.
