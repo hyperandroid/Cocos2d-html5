@@ -64,6 +64,7 @@
 /// <reference path="render/DecoratedWebGLRenderingContext.ts"/>
 
 /// <reference path="render/RenderUtil.ts"/>
+/// <reference path="render/mesh/Mesh.ts"/>
 
 /// <reference path="widget/Button.ts"/>
 /// <reference path="widget/Label.ts"/>

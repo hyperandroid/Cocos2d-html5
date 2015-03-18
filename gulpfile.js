@@ -75,6 +75,7 @@ var scripts= [
         "js/render/DecoratedWebGLRenderingContext.js",
         "js/render/ScaleManager.js",
         "js/render/RenderUtil.js",
+        "js/render/mesh/Mesh.js",
 
         "js/util/util.js",
 
