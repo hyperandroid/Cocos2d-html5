@@ -141,7 +141,9 @@ module cc.render {
 
         _indexBufferMesh : Uint16Array = null;
         _indexBufferMeshIndex : number = 0;
+
         _indicesChanged: boolean= false;
+
         _glIndexMeshBuffers : Buffer[] = [];
         _glIndexMeshBuffer : Buffer = null;
 
@@ -183,6 +185,8 @@ module cc.render {
                 indexBuffer[ indexBufferIndex+5 ]= elementIndex+3;
                 indexBufferIndex += 6;
                 elementIndex+= 4;
+
+                this._indexBufferMesh[i]= i;
             }
 
             this._glDataBuffers.push( new Buffer( this._gl, this._gl.ARRAY_BUFFER, this._dataBufferFloat, this._gl.DYNAMIC_DRAW ) );
@@ -195,16 +199,14 @@ module cc.render {
             this._glIndexBuffers.push( new Buffer( this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer, this._gl.STATIC_DRAW ) );
             this._glIndexBuffers.push( new Buffer( this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer, this._gl.STATIC_DRAW ) );
 
-            this._glIndexMeshBuffers.push( new Buffer( this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer, this._gl.DYNAMIC_DRAW ) );
-            this._glIndexMeshBuffers.push( new Buffer( this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer, this._gl.DYNAMIC_DRAW ) );
-            this._glIndexMeshBuffers.push( new Buffer( this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer, this._gl.DYNAMIC_DRAW ) );
-            this._glIndexMeshBuffers.push( new Buffer( this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer, this._gl.DYNAMIC_DRAW ) );
+            this._glIndexMeshBuffers.push( new Buffer( this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBufferMesh, this._gl.STATIC_DRAW ) );
+            this._glIndexMeshBuffers.push( new Buffer( this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBufferMesh, this._gl.STATIC_DRAW ) );
+            this._glIndexMeshBuffers.push( new Buffer( this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBufferMesh, this._gl.STATIC_DRAW ) );
+            this._glIndexMeshBuffers.push( new Buffer( this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBufferMesh, this._gl.STATIC_DRAW ) );
 
             this._glDataBuffer= this._glDataBuffers[0];
             this._glIndexBuffer= this._glIndexBuffers[0];
             this._glIndexMeshBuffer= this._glIndexMeshBuffers[0];
-
-
         }
 
         batchRectGeometryWithTexture( vertices:Point[], u0:number, v0:number, u1:number, v1:number, rcs:RenderingContextSnapshot ) {
@@ -352,7 +354,7 @@ module cc.render {
                     return;
                 }
                 this._glIndexMeshBuffer.bind(this._gl.ELEMENT_ARRAY_BUFFER);
-                this._glIndexMeshBuffer.forceEnableWithValue( this._indexBufferMesh.subarray( 0, this._indexBufferMeshIndex) );
+
             } else {
                 trianglesCount= this._indexBufferIndex;
                 if ( !trianglesCount ) {
@@ -461,35 +463,29 @@ module cc.render {
                 var indexVertexUV0= indices[i+0]*2;
                 this.batchMeshVertex(
                     geometry[ indexVertex0 ], geometry[ indexVertex0+1 ],
-                    uv[ indexVertexUV0 ], uv[ indexVertexUV0+1 ],
-                    i,
-                    rcs);
+                    uv[ indexVertexUV0 ], uv[ indexVertexUV0+1 ] );
 
                 var indexVertex1= indices[i+1]*3;
                 var indexVertexUV1= indices[i+1]*2;
                 this.batchMeshVertex(
                     geometry[ indexVertex1 ], geometry[ indexVertex1+1 ],
-                    uv[ indexVertexUV1 ], uv[ indexVertexUV1+1 ],
-                    i+1,
-                    rcs);
+                    uv[ indexVertexUV1 ], uv[ indexVertexUV1+1 ] );
 
                 var indexVertex2= indices[i+2]*3;
                 var indexVertexUV2= indices[i+2]*2;
                 this.batchMeshVertex(
                     geometry[ indexVertex2 ], geometry[ indexVertex2+1 ],
-                    uv[ indexVertexUV2 ], uv[ indexVertexUV2+1 ],
-                    i+2,
-                    rcs );
+                    uv[ indexVertexUV2 ], uv[ indexVertexUV2+1 ] );
             }
 
         }
 
-        batchMeshVertex( x:number, y:number, u:number, v:number, index:number, rcs:RenderingContextSnapshot ) : void {
+        batchMeshVertex( x:number, y:number, u:number, v:number ) : void {
             this._dataBufferFloat[ this._dataBufferIndex++ ] = x;
             this._dataBufferFloat[ this._dataBufferIndex++ ] = y;
             this._dataBufferFloat[ this._dataBufferIndex++ ] = u;
             this._dataBufferFloat[ this._dataBufferIndex++ ] = v;
-            this._indexBufferMesh[ this._indexBufferMeshIndex++ ]= index;
+            this._indexBufferMeshIndex++;
         }
     }
 
