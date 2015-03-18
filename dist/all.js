@@ -1,6 +1,12 @@
 /**
  * License: see license.txt file.
  */
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
 /**
  * @name cc
  * @namespace
@@ -150,7 +156,6 @@ var cc;
         win.cancelAnimationFrame = win.cancelAnimationFrame || win.cancelRequestAnimationFrame || win.msCancelRequestAnimationFrame || win.mozCancelRequestAnimationFrame || win.oCancelRequestAnimationFrame || win.webkitCancelRequestAnimationFrame || win.msCancelAnimationFrame || win.mozCancelAnimationFrame || win.webkitCancelAnimationFrame || win.oCancelAnimationFrame || ctTime;
     })();
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -263,7 +268,6 @@ var cc;
         Debug.info = info;
     })(Debug = cc.Debug || (cc.Debug = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -398,7 +402,6 @@ var cc;
         locale.ERR_SOUND_POOL_EMPTY = "Can't play, sound pool is empty.";
     })(locale = cc.locale || (cc.locale = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -768,7 +771,6 @@ var cc;
         math.Color = Color;
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -1161,7 +1163,6 @@ var cc;
         var _workingMatrix = cc.math.Matrix3.create();
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -1178,7 +1179,6 @@ var cc;
         math.Matrix4 = Matrix4;
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -1348,7 +1348,6 @@ var cc;
         math.Vector = Vector;
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -1577,7 +1576,6 @@ var cc;
         math.Rectangle = Rectangle;
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
@@ -1642,7 +1640,6 @@ var cc;
         math.Dimension = Dimension;
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  * Created by ibon on 11/20/14.
  */
@@ -1682,7 +1679,6 @@ var cc;
         })(path = math.path || (math.path = {}));
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
@@ -1882,7 +1878,6 @@ var cc;
         })(path = math.path || (math.path = {}));
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
@@ -2193,7 +2188,6 @@ var cc;
         })(path = math.path || (math.path = {}));
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -2461,7 +2455,6 @@ var cc;
         })(path = math.path || (math.path = {}));
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -2757,7 +2750,6 @@ var cc;
         })(path = math.path || (math.path = {}));
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  * Created by ibon on 11/23/14.
  */
@@ -2971,7 +2963,6 @@ var cc;
         })(path = math.path || (math.path = {}));
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
@@ -3286,7 +3277,6 @@ var cc;
         })(path = math.path || (math.path = {}));
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  * Created by ibon on 11/22/14.
  */
@@ -3485,16 +3475,9 @@ var cc;
         })(path = math.path || (math.path = {}));
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="../Point.ts"/>
 /// <reference path="./Segment.ts"/>
 /// <reference path="./SegmentLine.ts"/>
@@ -3833,16 +3816,9 @@ var cc;
         })(path = math.path || (math.path = {}));
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="./path/Segment.ts"/>
 /// <reference path="./path/ContainerSegment.ts"/>
 /// <reference path="./path/SubPath.ts"/>
@@ -4289,7 +4265,6 @@ var cc;
         math.Path = Path;
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -6171,7 +6146,6 @@ var cc;
         _node.Node = Node;
     })(node = cc.node || (cc.node = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -7280,7 +7254,6 @@ var cc;
         _action.Action = Action;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -7887,19 +7860,12 @@ var cc;
         action.Interpolator = Interpolator;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
 /// <reference path="../node/Node.ts"/>
 /// <reference path="./Action.ts"/>
 "use strict";
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 var cc;
 (function (cc) {
     var action;
@@ -8055,16 +8021,9 @@ var cc;
         action.AlphaAction = AlphaAction;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="../math/Point.ts"/>
 /// <reference path="../node/Node.ts"/>
 /// <reference path="./Action.ts"/>
@@ -8248,16 +8207,9 @@ var cc;
         action.MoveAction = MoveAction;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="../node/Node.ts"/>
 /// <reference path="../action/Action.ts"/>
 var cc;
@@ -8575,16 +8527,9 @@ var cc;
         action.PropertyAction = PropertyAction;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="../node/Node.ts"/>
 /// <reference path="./Action.ts"/>
 var cc;
@@ -8738,16 +8683,9 @@ var cc;
         action.RotateAction = RotateAction;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="./Action.ts"/>
 /// <reference path="../math/Point.ts"/>
 /// <reference path="../node/Node.ts"/>
@@ -8925,16 +8863,9 @@ var cc;
         action.ScaleAction = ScaleAction;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="../node/Node.ts"/>
 /// <reference path="./Action.ts"/>
 /// <reference path="./MoveAction.ts"/>
@@ -9249,16 +9180,9 @@ var cc;
         _action.SequenceAction = SequenceAction;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="../node/Node.ts"/>
 /// <reference path="../math/Point.ts"/>
 /// <reference path="./Action.ts"/>
@@ -9433,16 +9357,9 @@ var cc;
         action.TintAction = TintAction;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="./Action.ts"/>
 /// <reference path="../node/sprite/Animation.ts"/>
 /// <reference path="../node/sprite/SpriteFrame.ts"/>
@@ -9632,16 +9549,9 @@ var cc;
         action.AnimateAction = AnimateAction;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="../math/Point.ts"/>
 /// <reference path="../math/path/Segment.ts"/>
 /// <reference path="../node/Node.ts"/>
@@ -9946,7 +9856,6 @@ var cc;
         action.PathAction = PathAction;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
@@ -9954,12 +9863,6 @@ var cc;
 /// <reference path="../node/Node.ts"/>
 /// <reference path="./Action.ts"/>
 "use strict";
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 var cc;
 (function (cc) {
     var action;
@@ -10109,7 +10012,6 @@ var cc;
         action.JumpAction = JumpAction;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -10366,16 +10268,9 @@ var cc;
         __action.ActionManager = ActionManager;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="./Action.ts"/>
 /// <reference path="../node/Node.ts"/>
 var cc;
@@ -10876,7 +10771,6 @@ var cc;
         action.SchedulerQueue = SchedulerQueue;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
@@ -11318,16 +11212,9 @@ var cc;
         _action.ActionChainContext = ActionChainContext;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 var cc;
 (function (cc) {
     var Performance;
@@ -11439,16 +11326,9 @@ var cc;
         _Performance.Performance = Performance;
     })(Performance = cc.Performance || (cc.Performance = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="../action/Action.ts"/>
 /// <reference path="../action/SchedulerQueue.ts"/>
 /// <reference path="./Node.ts"/>
@@ -11915,16 +11795,9 @@ var cc;
         _node.Scene = Scene;
     })(node = cc.node || (cc.node = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="./Node.ts"/>
 /// <reference path="./Scene.ts"/>
 /// <reference path="../math/Dimension.ts"/>
@@ -12449,7 +12322,6 @@ var cc;
         node.Director = Director;
     })(node = cc.node || (cc.node = {}));
 })(cc || (cc = {}));
-
 /**
  * Created by ibon on 11/17/14.
  */
@@ -12659,7 +12531,6 @@ var cc;
         render.Texture2D = Texture2D;
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * Created by ibon on 11/26/14.
  */
@@ -13005,7 +12876,6 @@ var cc;
         })(sprite = node.sprite || (node.sprite = {}));
     })(node = cc.node || (cc.node = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -13215,16 +13085,9 @@ var cc;
         })(sprite = node.sprite || (node.sprite = {}));
     })(node = cc.node || (cc.node = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="Node.ts"/>
 /// <reference path="./sprite/SpriteFrame.ts"/>
 /// <reference path="../math/Color.ts"/>
@@ -13568,16 +13431,9 @@ var cc;
         node.SpriteBatchNode = SpriteBatchNode;
     })(node = cc.node || (cc.node = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="./Node.ts"/>
 /// <reference path="./Sprite.ts"/>
 /// <reference path="../render/RenderingContext.ts"/>
@@ -13633,16 +13489,9 @@ var cc;
         node.FastSprite = FastSprite;
     })(node = cc.node || (cc.node = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="../node/Node.ts"/>
 /// <reference path="../node/sprite/SpriteFrame.ts"/>
 /// <reference path="../input/InputManager.ts"/>
@@ -14089,16 +13938,9 @@ var cc;
     })(cc.node.Node);
     cc.MenuItemToggle = MenuItemToggle;
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="../math/Dimension.ts"/>
 /// <reference path="../node/Node.ts"/>
 /// <reference path="../node/Sprite.ts"/>
@@ -14471,7 +14313,6 @@ var cc;
         widget.LabelTTF = LabelTTF;
     })(widget = cc.widget || (cc.widget = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
@@ -14739,16 +14580,9 @@ var cc;
         render.WebGLState = WebGLState;
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="../node/Node.ts"/>
 /// <reference path="../node/Scene.ts"/>
 /// <reference path="../node/Director.ts"/>
@@ -15071,16 +14905,9 @@ var cc;
         _transition.TransitionSlideInB = TransitionSlideInB;
     })(transition = cc.transition || (cc.transition = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="../WebGLState.ts"/>
 var cc;
 (function (cc) {
@@ -15268,7 +15095,6 @@ var cc;
         })(shader = render.shader || (render.shader = {}));
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -15329,7 +15155,6 @@ var cc;
         })(shader = render.shader || (render.shader = {}));
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -15562,16 +15387,9 @@ var cc;
         })(shader = render.shader || (render.shader = {}));
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="./AbstractShader.ts"/>
 /// <reference path="../webGLState.ts"/>
 /// <reference path="../../util/util.ts"/>
@@ -15667,16 +15485,9 @@ var cc;
         })(shader = render.shader || (render.shader = {}));
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * Created by ibon on 11/17/14.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="./AbstractShader.ts"/>
 /// <reference path="../WebGLState.ts"/>
 /// <reference path="../RenderingContextSnapshot.ts"/>
@@ -15874,16 +15685,9 @@ var cc;
         })(shader = render.shader || (render.shader = {}));
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="./AbstractShader.ts"/>
 /// <reference path="../webGLState.ts"/>
 /// <reference path="../../util/util.ts"/>
@@ -16003,16 +15807,9 @@ var cc;
         })(shader = render.shader || (render.shader = {}));
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="./AbstractShader.ts"/>
 /// <reference path="../RenderingContextSnapshot.ts"/>
 var cc;
@@ -16113,7 +15910,6 @@ var cc;
         })(shader = render.shader || (render.shader = {}));
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * Created by ibon on 11/19/14.
  */
@@ -16167,16 +15963,9 @@ var cc;
         })(shader = render.shader || (render.shader = {}));
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="../math/Dimension.ts"/>
 /// <reference path="../math/Color.ts"/>
 /// <reference path="../math/Matrix3.ts"/>
@@ -16891,7 +16680,6 @@ var cc;
         };
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -16989,7 +16777,6 @@ var cc;
         ];
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -17132,7 +16919,6 @@ var cc;
         render.RenderingContextSnapshot = RenderingContextSnapshot;
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -17267,6 +17053,7 @@ var cc;
                     indexBuffer[indexBufferIndex + 5] = elementIndex + 3;
                     indexBufferIndex += 6;
                     elementIndex += 4;
+                    this._indexBufferMesh[i] = i;
                 }
                 this._glDataBuffers.push(new Buffer(this._gl, this._gl.ARRAY_BUFFER, this._dataBufferFloat, this._gl.DYNAMIC_DRAW));
                 this._glDataBuffers.push(new Buffer(this._gl, this._gl.ARRAY_BUFFER, this._dataBufferFloat, this._gl.DYNAMIC_DRAW));
@@ -17276,10 +17063,10 @@ var cc;
                 this._glIndexBuffers.push(new Buffer(this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer, this._gl.STATIC_DRAW));
                 this._glIndexBuffers.push(new Buffer(this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer, this._gl.STATIC_DRAW));
                 this._glIndexBuffers.push(new Buffer(this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer, this._gl.STATIC_DRAW));
-                this._glIndexMeshBuffers.push(new Buffer(this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer, this._gl.DYNAMIC_DRAW));
-                this._glIndexMeshBuffers.push(new Buffer(this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer, this._gl.DYNAMIC_DRAW));
-                this._glIndexMeshBuffers.push(new Buffer(this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer, this._gl.DYNAMIC_DRAW));
-                this._glIndexMeshBuffers.push(new Buffer(this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer, this._gl.DYNAMIC_DRAW));
+                this._glIndexMeshBuffers.push(new Buffer(this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBufferMesh, this._gl.STATIC_DRAW));
+                this._glIndexMeshBuffers.push(new Buffer(this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBufferMesh, this._gl.STATIC_DRAW));
+                this._glIndexMeshBuffers.push(new Buffer(this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBufferMesh, this._gl.STATIC_DRAW));
+                this._glIndexMeshBuffers.push(new Buffer(this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBufferMesh, this._gl.STATIC_DRAW));
                 this._glDataBuffer = this._glDataBuffers[0];
                 this._glIndexBuffer = this._glIndexBuffers[0];
                 this._glIndexMeshBuffer = this._glIndexMeshBuffers[0];
@@ -17406,7 +17193,6 @@ var cc;
                         return;
                     }
                     this._glIndexMeshBuffer.bind(this._gl.ELEMENT_ARRAY_BUFFER);
-                    this._glIndexMeshBuffer.forceEnableWithValue(this._indexBufferMesh.subarray(0, this._indexBufferMeshIndex));
                 }
                 else {
                     trianglesCount = this._indexBufferIndex;
@@ -17487,21 +17273,21 @@ var cc;
                 for (var i = 0; i < indices.length; i += 3) {
                     var indexVertex0 = indices[i + 0] * 3;
                     var indexVertexUV0 = indices[i + 0] * 2;
-                    this.batchMeshVertex(geometry[indexVertex0], geometry[indexVertex0 + 1], uv[indexVertexUV0], uv[indexVertexUV0 + 1], i, rcs);
+                    this.batchMeshVertex(geometry[indexVertex0], geometry[indexVertex0 + 1], uv[indexVertexUV0], uv[indexVertexUV0 + 1]);
                     var indexVertex1 = indices[i + 1] * 3;
                     var indexVertexUV1 = indices[i + 1] * 2;
-                    this.batchMeshVertex(geometry[indexVertex1], geometry[indexVertex1 + 1], uv[indexVertexUV1], uv[indexVertexUV1 + 1], i + 1, rcs);
+                    this.batchMeshVertex(geometry[indexVertex1], geometry[indexVertex1 + 1], uv[indexVertexUV1], uv[indexVertexUV1 + 1]);
                     var indexVertex2 = indices[i + 2] * 3;
                     var indexVertexUV2 = indices[i + 2] * 2;
-                    this.batchMeshVertex(geometry[indexVertex2], geometry[indexVertex2 + 1], uv[indexVertexUV2], uv[indexVertexUV2 + 1], i + 2, rcs);
+                    this.batchMeshVertex(geometry[indexVertex2], geometry[indexVertex2 + 1], uv[indexVertexUV2], uv[indexVertexUV2 + 1]);
                 }
             };
-            GeometryBatcher.prototype.batchMeshVertex = function (x, y, u, v, index, rcs) {
+            GeometryBatcher.prototype.batchMeshVertex = function (x, y, u, v) {
                 this._dataBufferFloat[this._dataBufferIndex++] = x;
                 this._dataBufferFloat[this._dataBufferIndex++] = y;
                 this._dataBufferFloat[this._dataBufferIndex++] = u;
                 this._dataBufferFloat[this._dataBufferIndex++] = v;
-                this._indexBufferMesh[this._indexBufferMeshIndex++] = index;
+                this._indexBufferMeshIndex++;
             };
             /**
              * Max bufferable quads.
@@ -17514,7 +17300,6 @@ var cc;
         render.GeometryBatcher = GeometryBatcher;
     })(render = _cc.render || (_cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -18246,7 +18031,6 @@ var cc;
         render.DecoratedWebGLRenderingContext = DecoratedWebGLRenderingContext;
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
@@ -19030,7 +18814,6 @@ var cc;
         render.ScaleManager = ScaleManager;
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -19091,7 +18874,96 @@ var cc;
         })(util = render.util || (render.util = {}));
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
-
+/**
+ * License: see license.txt file
+ */
+/// <reference path="../../node/sprite/SpriteFrame.ts"/>
+/// <reference path="../RenderingContext.ts"/>
+/// <reference path="../../math/Rectangle.ts"/>
+var cc;
+(function (cc) {
+    var render;
+    (function (render) {
+        var mesh;
+        (function (mesh) {
+            /**
+             * A mesh is a grid composed of geometry and u,v information.
+             */
+            var Mesh = (function () {
+                function Mesh() {
+                    this._originalGeometry = null;
+                    this._geometry = null;
+                    this._uv = null;
+                    this._workuv = null;
+                    this._indices = null;
+                    this._initialized = false;
+                    this._rectgl = null;
+                }
+                Mesh.prototype.Mesh = function () {
+                };
+                Mesh.prototype.initialize = function (pointsWidth, pointsHeight, width, height) {
+                    var numPointsInMesh = pointsWidth * pointsHeight;
+                    this._geometry = new Float32Array(numPointsInMesh * 3);
+                    this._originalGeometry = new Float32Array(numPointsInMesh * 3);
+                    this._uv = new Float32Array(numPointsInMesh * 2);
+                    this._workuv = new Float32Array(numPointsInMesh * 2);
+                    this._indices = new Uint16Array((pointsWidth - 1) * (pointsHeight - 1) * 6);
+                    for (var i = 0; i < pointsHeight; i++) {
+                        for (var j = 0; j < pointsWidth; j++) {
+                            var pointIndex = j + i * pointsWidth;
+                            this._geometry[pointIndex * 3] = j / (pointsWidth - 1) * width; // x
+                            this._geometry[pointIndex * 3 + 1] = i / (pointsHeight - 1) * height; // y
+                            this._geometry[pointIndex * 3 + 2] = 0; // z
+                            this._originalGeometry[pointIndex * 3] = this._geometry[pointIndex * 3];
+                            this._originalGeometry[pointIndex * 3 + 1] = this._geometry[pointIndex * 3 + 1];
+                            this._originalGeometry[pointIndex * 3 + 2] = this._geometry[pointIndex * 3 + 2];
+                            this._uv[pointIndex * 2] = j / (pointsWidth - 1); // normalized u
+                            this._uv[pointIndex * 2 + 1] = i / (pointsHeight - 1); // normalized v
+                            this._workuv[pointIndex * 2] = j / (pointsWidth - 1); // normalized u
+                            this._workuv[pointIndex * 2 + 1] = i / (pointsHeight - 1); // normalized v
+                        }
+                    }
+                    var index = 0;
+                    for (var i = 0; i < pointsHeight - 1; i++) {
+                        for (var j = 0; j < pointsWidth - 1; j++) {
+                            var indexindex = j + i * pointsWidth;
+                            this._indices[index] = indexindex;
+                            this._indices[index + 1] = indexindex + 1;
+                            this._indices[index + 2] = indexindex + pointsWidth;
+                            this._indices[index + 3] = indexindex + pointsWidth;
+                            this._indices[index + 4] = indexindex + 1;
+                            this._indices[index + 5] = indexindex + pointsWidth + 1;
+                            index += 6;
+                        }
+                    }
+                    this._initialized = true;
+                };
+                Mesh.prototype.draw = function (ctx, sf, color) {
+                    if (!this._initialized) {
+                        return;
+                    }
+                    color = typeof color === "undefined" ? 0xffffffff : color;
+                    if (this._rectgl !== sf._normalizedRect) {
+                        this._rectgl = sf._normalizedRect;
+                        var offx = this._rectgl.x;
+                        var offy = this._rectgl.y;
+                        var diffx = this._rectgl.x1 - this._rectgl.x;
+                        var diffy = this._rectgl.y1 - this._rectgl.y;
+                        for (var i = 0; i < this._uv.length; i += 2) {
+                            this._workuv[i] = this._uv[i] * diffx + offx;
+                            this._workuv[i] = this._uv[i] * diffy + offy;
+                        }
+                    }
+                    ctx.drawMesh(this._geometry, this._workuv, this._indices, color, sf._texture);
+                };
+                Mesh.prototype.deform = function (segment) {
+                };
+                return Mesh;
+            })();
+            mesh.Mesh = Mesh;
+        })(mesh = render.mesh || (render.mesh = {}));
+    })(render = cc.render || (cc.render = {}));
+})(cc || (cc = {}));
 /**
  * License: see license.txt file.
  */
@@ -19192,7 +19064,6 @@ var cc;
         util.fromPosixRegularExpression = fromPosixRegularExpression;
     })(util = cc.util || (cc.util = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
@@ -19380,7 +19251,6 @@ var cc;
         })(loader = plugin.loader || (plugin.loader = {}));
     })(plugin = cc.plugin || (cc.plugin = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
@@ -19414,7 +19284,6 @@ var cc;
         })(loader = plugin.loader || (plugin.loader = {}));
     })(plugin = cc.plugin || (cc.plugin = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
@@ -19479,16 +19348,9 @@ var cc;
         })(loader = plugin.loader || (plugin.loader = {}));
     })(plugin = cc.plugin || (cc.plugin = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="./ResourceLoader.ts"/>
 /// <reference path="../../util/Debug.ts"/>
 /// <reference path="../../locale/Locale.ts"/>
@@ -19731,7 +19593,6 @@ var cc;
         })(loader = plugin.loader || (plugin.loader = {}));
     })(plugin = cc.plugin || (cc.plugin = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
@@ -19829,7 +19690,6 @@ var cc;
         })(loader = plugin.loader || (plugin.loader = {}));
     })(plugin = cc.plugin || (cc.plugin = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
@@ -20032,7 +19892,6 @@ var cc;
         })(loader = plugin.loader || (plugin.loader = {}));
     })(plugin = cc.plugin || (cc.plugin = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -20553,7 +20412,6 @@ var cc;
         })(texture = plugin.texture || (plugin.texture = {}));
     })(plugin = cc.plugin || (cc.plugin = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -21180,7 +21038,6 @@ var cc;
         })(font = plugin.font || (plugin.font = {}));
     })(plugin = cc.plugin || (cc.plugin = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
@@ -21322,7 +21179,6 @@ var cc;
         })(font = plugin.font || (plugin.font = {}));
     })(plugin = cc.plugin || (cc.plugin = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
@@ -21656,7 +21512,6 @@ var cc;
         })(asset = plugin.asset || (plugin.asset = {}));
     })(plugin = cc.plugin || (cc.plugin = {}));
 })(cc || (cc = {}));
-
 /**
  *
  */
@@ -22674,16 +22529,9 @@ var cc;
         })(audio = plugin.audio || (plugin.audio = {}));
     })(plugin = cc.plugin || (cc.plugin = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="../../math/Rectangle.ts"/>
 /// <reference path="../../math/Dimension.ts"/>
 var cc;
@@ -23652,7 +23500,6 @@ var cc;
         })(layout = plugin.layout || (plugin.layout = {}));
     })(plugin = cc.plugin || (cc.plugin = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -24019,16 +23866,9 @@ var cc;
         input.SceneGraphInputTreeNode = SceneGraphInputTreeNode;
     })(input = cc.input || (cc.input = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="../math/Point.ts"/>
 /// <reference path="../node/Node.ts"/>
 /// <reference path="../node/Scene.ts"/>
@@ -24699,7 +24539,6 @@ var cc;
         input.MouseInputManager = MouseInputManager;
     })(input = cc.input || (cc.input = {}));
 })(cc || (cc = {}));
-
 /**
  * Created by ibon on 1/6/15.
  */
@@ -25438,7 +25277,6 @@ var cc;
         input.KeyboardInputManager = KeyboardInputManager;
     })(input = cc.input || (cc.input = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -25629,7 +25467,6 @@ var cc;
         _game.Game = Game;
     })(game = cc.game || (cc.game = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -26369,7 +26206,6 @@ var cc;
     }
     cc.easeQuinticActionInOut = easeQuinticActionInOut;
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -26642,7 +26478,6 @@ var cc;
         Blink.create = cc.blink;
     })(Blink = cc.Blink || (cc.Blink = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
@@ -26860,7 +26695,6 @@ var cc;
     cc.ONE_MINUS_CONSTANT_ALPHA = 0x8004;
     cc.ONE_MINUS_CONSTANT_COLOR = 0x8002;
 })(cc || (cc = {}));
-
 /// <reference path="./AssetManager.ts"/>
 /// <reference path="../loader/Resource.ts"/>
 /// <reference path="../asset/AssetManager.ts"/>
@@ -26978,7 +26812,6 @@ var cc;
     })();
     cc.animationCache = animationCache;
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */

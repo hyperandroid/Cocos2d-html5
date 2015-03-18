@@ -4,7 +4,7 @@
 ./js
 ./doc-js/*
 ./doc-ts/*
-./dist/*
+./dist/all.ts
 ./src/test/retina
 ./src/test/retina/*
 node_modules

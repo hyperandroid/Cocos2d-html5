@@ -2,9 +2,88 @@
 <html>
 <head lang="en">
     <meta charset="UTF-8">
-    <title></title>
+    <title>CocosJS - Mesh test.</title>
+    <link rel="stylesheet" type="text/css" href="demos.css"/>
+    <script src="../../../dist/all.js"></script>
+    <script src="creature/glmatrix.js"></script>
+    <script src="creature/CreatureMeshBone.js"></script>
+    <script src="creature/CreatureRenderer.js"></script>
+
 </head>
 <body>
+
+<script>
+    (function() {
+
+        var AssetManager= cc.plugin.asset.AssetManager;
+
+        function loadResources() {
+
+            var loader= new cc.plugin.loader.Loader({
+                        prefix : "../res/",
+                        resources: [
+                            "map.png@skin"
+                        ] });
+            loader.startLoading(
+                    function onEnd(resources) {
+                        initialize(resources);
+                    }
+            );
+        }
+
+        /**
+         *
+         * @param resources {Array<cc.plugin.loader.Resource}
+         */
+        function initialize( resources ) {
+
+            cc.plugin.asset.AssetManager.addImage( resources['skin'], 'skin' );
+
+            var mesh= new cc.render.mesh.Mesh();
+            mesh.initialize( 20,20, 200, 200 );
+
+            var renderer= new cc.render.WebGLRenderer(800,600,document.getElementById("c"));
+            var director= new cc.node.Director().setRenderer( renderer );
+            var scene= director.createScene();
+
+            scene.draw= function( ctx ) {
+
+                ctx.clear();
+                ctx.setFillStyleColorArray([1,1,1,1]);
+                ctx.fillRect(0,0,800,600);
+                ctx.save();
+                ctx.translate(100, 100);
+                ctx.scale(1, 1);
+                mesh.draw( ctx, cc.plugin.asset.AssetManager.getSpriteFrame("skin"), 0xffffffff );
+                ctx.restore();
+            };
+
+            scene.scheduleUpdate();
+
+            director.runScene( scene );
+        }
+
+        window.addEventListener("DOMContentLoaded", loadResources, false);
+
+    })();
+</script>
+
+<div>
+    <div>
+        <div><span id="loader"></span></div>
+        <div>
+            <canvas id="c"></canvas>
+        </div>
+        <div>
+            <span id="span"></span>
+        </div>
+    </div>
+    <div>
+        <p>
+            This demos shows Kreatures integration
+        </p>
+    </div>
+</div>
 
 </body>
 </html>

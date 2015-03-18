@@ -65,7 +65,7 @@ var Cocos = (function () {
     Cocos.cmd = function () {
         console.log('');
         console.log('Cocos v' + nodePackage.version);
-        console.log('(c) 2014 Chukong inc.');
+        console.log('(c) 2014,2015 Chukong inc.');
         console.log('');
 
         if (argv.doc) {
@@ -79,14 +79,44 @@ var Cocos = (function () {
         } else if (argv.compile) {
             compile('js', true );
         } else if (argv.build || argv['build-release'] || argv['build-debug']) {
-            compile('js', false );
-            compileTest();
-            dist();
+            //compile('js', false );
+            //compileTest();
+            //dist();
+
+            // new build process:
+            // concat all ts into one single file
+            // compile all.ts to all.js and get an all.d.ts file.
+            // uglify all.js to all.min.js
+            genericExecSync( "gulp concat-ts", "Concat all ts files into all.ts." );
+            genericExecSync( "tsc -d -t ES5 dist/all.ts ./lib/webaudio/webaudio.d.ts", "Transpiling to js." );
+            genericExecSync( "gulp uglify-js", "Minimizing all.js." );
         }
         else {
             help();
         }
     };
+
+    function genericExecSync( command, msg ) {
+
+        Exec.execSync(command,
+            { cwd: getCocosPath() },
+            function (error, stdout, stderr) {
+                if (stdout !== ""){
+                    console.log(stdout);
+                }
+                if (stderr !== "") {
+                    console.log(stderr);
+                }
+
+                if ( typeof msg!=="undefined" ) {
+                    console.log(msg);
+                }
+
+                if (error !== null) {
+                    console.log('exec error: ' + error);
+                }
+            });
+    }
 
     function dist() {
 
@@ -249,8 +279,8 @@ var Cocos = (function () {
         ];
 
         if (oneFile) {
-            jsonParams.push('--out');
             jsonParams.push('-d');
+            jsonParams.push('--out');
             jsonParams.push('dist/all.js');
         } else {
             jsonParams.push('-d');

@@ -111,6 +111,39 @@ var scripts= [
 
     ];
 
+function toTS( scripts ) {
+    var ret= [];
+    scripts.map( function(v) {
+
+        // replace js with src and .js with .ts.
+        ret.push(v.replace( /\.js$/, ".ts").replace( /^js/, "src"));
+    });
+
+    return ret;
+}
+
+/**
+ * Create a single all.ts file for compilation.
+ */
+gulp.task('concat-ts', function() {
+    return gulp.src( toTS(scripts), {base: 'src/' })
+        .pipe(concat('all.ts'))
+        .pipe(gulp.dest('dist'));
+});
+
+gulp.task('uglify-js', function() {
+    return gulp.src( ["dist/all.js"], {base: 'dist/'} )
+        .pipe(uglify("all.min.js",
+            {
+                outSourceMap: true,
+                mangle : false,
+                basePath : "dist"
+            }))
+        .pipe(gulp.dest('dist'));
+});
+
+
+
 gulp.task('scripts', function() {
     return gulp.src( scripts, {base: 'js/' })
         .pipe(concat('all.js'))
