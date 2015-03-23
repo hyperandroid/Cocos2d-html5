@@ -260,6 +260,20 @@ module cc.action {
 
     }
 
+    /**
+     * @class cc.action.SchedulerQueueUpdateTask
+     * @classdesc
+     * @extends SchedulerQueueTask
+     *
+     * This object represents a scheduler task which calls the update method for a given Object, does not have to be
+     * a <code>cc.node.Node</code> object.
+     *
+     * This task type extends a <code>cc.action.SchedulerQueueTask</code> object and only calls the update method,
+     * that is, there must be a target object (mandatory at construction) and the callback parameter is omitted.
+     * <p>
+     * This object makes calling <code>cc.node.Node#scheduleUpdate</code> and then changing the update method safe.
+     *
+     */
     export class SchedulerQueueUpdateTask extends SchedulerQueueTask {
 
         constructor() {
@@ -376,6 +390,16 @@ module cc.action {
             return task;
         }
 
+        /**
+         * Create a schedulable task to call the update method on a cc.node.Node instance.
+         * This special factory method prevents errors when calling scheduleUpdate and then changing the update function.
+         *
+         * @param target {object} this object will be supplied as context to the callback function.
+         * @param interval {number} interval time to elapse between scheduler calls. Can't be less than 16ms. If the
+         *   value is less, it will be fired at every frame anyway.
+         * @param repeat {number} multi-shot task. Should this event repeat over time ?
+         * @param delay {boolean} schedule the task and wait this time before firing the event.
+         */
         static createSchedulerUpdateTask( target:any, interval:number, repeat:number, delay:number ) {
 
             var task : SchedulerQueueUpdateTask = new SchedulerQueueUpdateTask();

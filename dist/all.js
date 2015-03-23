@@ -5298,6 +5298,11 @@ var cc;
             Node.prototype.getScene = function () {
                 return this._scene;
             };
+            /**
+             * Get the path of nodes to the top node, normally a <code>cc.node.Director</node> object.
+             * @method cc.node.Node#getPathToRoot
+             * @returns {Array<cc.node.Node>}
+             */
             Node.prototype.getPathToRoot = function () {
                 var node = this;
                 var ret = [];
@@ -5305,6 +5310,28 @@ var cc;
                     ret.push(node);
                     node = node.getParent();
                 } while (node);
+                return ret;
+            };
+            /**
+             * Get the path of nodes to the cc.node.Scene containing this Node.
+             * This method is called by <code>cc.node.Node#enableEventsForNode</code> because
+             * the input manager captures input based on a Scene.
+             * @method cc.node.Node#getPathToScene
+             * @returns {Array<cc.node.Node>}
+             */
+            Node.prototype.getPathToScene = function () {
+                if (!this._scene) {
+                    return [];
+                }
+                var node = this;
+                var ret = [];
+                do {
+                    ret.push(node);
+                    if (node === this._scene) {
+                        break;
+                    }
+                    node = node.getParent();
+                } while (node !== null);
                 return ret;
             };
             /**
@@ -10470,6 +10497,31 @@ var cc;
         })();
         action.SchedulerQueueTask = SchedulerQueueTask;
         /**
+         * @class cc.action.SchedulerQueueUpdateTask
+         * @classdesc
+         * @extends SchedulerQueueTask
+         *
+         * This object represents a scheduler task which calls the update method for a given Object, does not have to be
+         * a <code>cc.node.Node</code> object.
+         *
+         * This task type extends a <code>cc.action.SchedulerQueueTask</code> object and only calls the update method,
+         * that is, there must be a target object (mandatory at construction) and the callback parameter is omitted.
+         * <p>
+         * This object makes calling <code>cc.node.Node#scheduleUpdate</code> and then changing the update method safe.
+         *
+         */
+        var SchedulerQueueUpdateTask = (function (_super) {
+            __extends(SchedulerQueueUpdateTask, _super);
+            function SchedulerQueueUpdateTask() {
+                _super.call(this);
+            }
+            SchedulerQueueUpdateTask.prototype.__doCallCallback = function (elapsedTime) {
+                this._target.update.call(this._target, elapsedTime / cc.action.TIMEUNITS, this._target);
+            };
+            return SchedulerQueueUpdateTask;
+        })(SchedulerQueueTask);
+        action.SchedulerQueueUpdateTask = SchedulerQueueUpdateTask;
+        /**
          * @class cc.action.SchedulerQueue
          * @extends cc.action.Action
          * @classdesc
@@ -10568,6 +10620,25 @@ var cc;
                 task._target = target;
                 task._delay = (delay || 0) * cc.action.TIMEUNITS;
                 task._callback = callback;
+                task._interval = (interval || 0) * cc.action.TIMEUNITS;
+                task._repeat = typeof repeat !== "undefined" ? repeat : Number.MAX_VALUE;
+                task._status = 0 /* RUNNING */;
+                return task;
+            };
+            /**
+             * Create a schedulable task to call the update method on a cc.node.Node instance.
+             * This special factory method prevents errors when calling scheduleUpdate and then changing the update function.
+             *
+             * @param target {object} this object will be supplied as context to the callback function.
+             * @param interval {number} interval time to elapse between scheduler calls. Can't be less than 16ms. If the
+             *   value is less, it will be fired at every frame anyway.
+             * @param repeat {number} multi-shot task. Should this event repeat over time ?
+             * @param delay {boolean} schedule the task and wait this time before firing the event.
+             */
+            SchedulerQueue.createSchedulerUpdateTask = function (target, interval, repeat, delay) {
+                var task = new SchedulerQueueUpdateTask();
+                task._target = target;
+                task._delay = (delay || 0) * cc.action.TIMEUNITS;
                 task._interval = (interval || 0) * cc.action.TIMEUNITS;
                 task._repeat = typeof repeat !== "undefined" ? repeat : Number.MAX_VALUE;
                 task._status = 0 /* RUNNING */;
@@ -11457,8 +11528,11 @@ var cc;
              * @param node {cc.node.Node}
              */
             Scene.prototype.enableEventsForNode = function (node) {
-                this._sceneGraphPriorityTree.insert(node.getPathToRoot());
+                this._sceneGraphPriorityTree.insert(node.getPathToScene());
                 return this;
+            };
+            Scene.prototype.getPathToScene = function () {
+                return [this];
             };
             /**
              * Enable events in priority order for a node.
@@ -11699,7 +11773,7 @@ var cc;
                 this._scheduler.scheduleTask(task);
             };
             Scene.prototype.scheduleUpdateWithPriority = function (priority) {
-                var task = cc.action.SchedulerQueue.createSchedulerTask(this, this.update, 0, Number.MAX_VALUE, 0);
+                var task = cc.action.SchedulerQueue.createSchedulerUpdateTask(this, 0, Number.MAX_VALUE, 0);
                 task._priority = priority;
                 this._scheduler.scheduleTask(task);
             };
@@ -11710,7 +11784,7 @@ var cc;
              * @deprecated
              */
             Scene.prototype.scheduleUpdate = function () {
-                var task = cc.action.SchedulerQueue.createSchedulerTask(this, this.update, 0, Number.MAX_VALUE, 0);
+                var task = cc.action.SchedulerQueue.createSchedulerUpdateTask(this, 0, Number.MAX_VALUE, 0);
                 this._scheduler.scheduleTask(task);
             };
             Scene.prototype.unscheduleUpate = function () {
@@ -12326,6 +12400,7 @@ var cc;
  * Created by ibon on 11/17/14.
  */
 /// <reference path="./WebGLState.ts"/>
+/// <reference path="./Renderer.ts"/>
 var cc;
 (function (cc) {
     var render;
@@ -23508,6 +23583,7 @@ var cc;
 /// <reference path="../locale/Locale.ts"/>
 /// <reference path="../util/Debug.ts"/>
 /// <reference path="./KeyboardInputManager.ts"/>
+/// <reference path="./MouseInputManager.ts"/>
 var cc;
 (function (cc) {
     var input;
