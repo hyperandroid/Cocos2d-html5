@@ -26,6 +26,7 @@ var scripts= [
         "js/math/path/SegmentCardinalSpline.js",
         "js/math/path/ContainerSegment.js",
         "js/math/path/Subpath.js",
+        "js/math/path/geometry/StrokeGeometry.js",
         "js/math/Path.js",
         "js/node/Node.js",
 
