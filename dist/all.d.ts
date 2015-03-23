@@ -3215,7 +3215,20 @@ declare module cc.node {
          * @returns {cc.node.Scene}
          */
         getScene(): Scene;
+        /**
+         * Get the path of nodes to the top node, normally a <code>cc.node.Director</node> object.
+         * @method cc.node.Node#getPathToRoot
+         * @returns {Array<cc.node.Node>}
+         */
         getPathToRoot(): Node[];
+        /**
+         * Get the path of nodes to the cc.node.Scene containing this Node.
+         * This method is called by <code>cc.node.Node#enableEventsForNode</code> because
+         * the input manager captures input based on a Scene.
+         * @method cc.node.Node#getPathToScene
+         * @returns {Array<cc.node.Node>}
+         */
+        getPathToScene(): Node[];
         /**
          * Register a callback for an event type.
          * @method cc.node.Node#addEventListener
@@ -6483,6 +6496,24 @@ declare module cc.action {
         adjustTime(time: number): void;
     }
     /**
+     * @class cc.action.SchedulerQueueUpdateTask
+     * @classdesc
+     * @extends SchedulerQueueTask
+     *
+     * This object represents a scheduler task which calls the update method for a given Object, does not have to be
+     * a <code>cc.node.Node</code> object.
+     *
+     * This task type extends a <code>cc.action.SchedulerQueueTask</code> object and only calls the update method,
+     * that is, there must be a target object (mandatory at construction) and the callback parameter is omitted.
+     * <p>
+     * This object makes calling <code>cc.node.Node#scheduleUpdate</code> and then changing the update method safe.
+     *
+     */
+    class SchedulerQueueUpdateTask extends SchedulerQueueTask {
+        constructor();
+        __doCallCallback(elapsedTime: number): void;
+    }
+    /**
      * @class cc.action.SchedulerQueue
      * @extends cc.action.Action
      * @classdesc
@@ -6562,6 +6593,17 @@ declare module cc.action {
          * @param delay {boolean} schedule the task and wait this time before firing the event.
          */
         static createSchedulerTask(target: any, callback: SchedulerTaskCallback, interval: number, repeat: number, delay: number): SchedulerQueueTask;
+        /**
+         * Create a schedulable task to call the update method on a cc.node.Node instance.
+         * This special factory method prevents errors when calling scheduleUpdate and then changing the update function.
+         *
+         * @param target {object} this object will be supplied as context to the callback function.
+         * @param interval {number} interval time to elapse between scheduler calls. Can't be less than 16ms. If the
+         *   value is less, it will be fired at every frame anyway.
+         * @param repeat {number} multi-shot task. Should this event repeat over time ?
+         * @param delay {boolean} schedule the task and wait this time before firing the event.
+         */
+        static createSchedulerUpdateTask(target: any, interval: number, repeat: number, delay: number): SchedulerQueueUpdateTask;
         /**
          * Schedule a task.
          * @method cc.action.SchedulerQueue#scheduleTask
@@ -7085,6 +7127,7 @@ declare module cc.node {
          * @param node {cc.node.Node}
          */
         enableEventsForNode(node: Node): Scene;
+        getPathToScene(): Node[];
         /**
          * Enable events in priority order for a node.
          * The priority is something external to the Node,
