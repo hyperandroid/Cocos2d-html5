@@ -7,6 +7,7 @@
 /// <reference path="../locale/Locale.ts"/>
 /// <reference path="../util/Debug.ts"/>
 /// <reference path="./KeyboardInputManager.ts"/>
+/// <reference path="./MouseInputManager.ts"/>
 
 module cc.input {
 

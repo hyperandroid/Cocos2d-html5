@@ -161,8 +161,12 @@ module cc.node {
          * @param node {cc.node.Node}
          */
         enableEventsForNode( node:Node ) : Scene {
-            this._sceneGraphPriorityTree.insert( node.getPathToRoot() );
+            this._sceneGraphPriorityTree.insert( node.getPathToScene() );
             return this;
+        }
+
+        getPathToScene() : Node[] {
+            return [this];
         }
 
         /**

@@ -1150,6 +1150,11 @@ module cc.node {
             return this._scene;
         }
 
+        /**
+         * Get the path of nodes to the top node, normally a <code>cc.node.Director</node> object.
+         * @method cc.node.Node#getPathToRoot
+         * @returns {Array<cc.node.Node>}
+         */
         getPathToRoot() : Node[] {
             var node:Node= this;
             var ret: Node[]= [];
@@ -1161,6 +1166,34 @@ module cc.node {
 
             return ret;
         }
+
+        /**
+         * Get the path of nodes to the cc.node.Scene containing this Node.
+         * This method is called by <code>cc.node.Node#enableEventsForNode</code> because
+         * the input manager captures input based on a Scene.
+         * @method cc.node.Node#getPathToScene
+         * @returns {Array<cc.node.Node>}
+         */
+        getPathToScene() : Node[] {
+
+            if (!this._scene ) {
+                return [];
+            }
+
+            var node:Node= this;
+            var ret: Node[]= [];
+
+            do {
+                ret.push(node);
+                if (node===this._scene) {
+                    break;
+                }
+                node= node.getParent();
+            } while( node!==null );
+
+            return ret;
+        }
+
 
         /**
          * Register a callback for an event type.

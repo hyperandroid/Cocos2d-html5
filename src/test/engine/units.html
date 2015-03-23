@@ -136,7 +136,8 @@
                 createFish(e.target, e.localPoint.x, e.localPoint.y );
             });
 
-            scene.addChild(createFullScreen(director));
+            var boton= createFullScreen(director);
+            scene.addChild(boton);
 
 //            scene.addChild(
 //                    new cc.node.Sprite( { frameName:"dude" }).setContentSize(DW,DH)
@@ -144,6 +145,9 @@
 
             // run the scene.
             director.runScene(scene);
+
+
+            boton.enableEvents(true);
         }
 
         function createFullScreen(director) {
@@ -176,7 +180,7 @@
                 }
             });
 
-            boton.enablePriorityEvents(true,-10);
+//            boton.enablePriorityEvents(true,-10);
 
             return boton;
 
