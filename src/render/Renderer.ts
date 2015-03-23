@@ -774,123 +774,115 @@ module cc.render {
      */
     export var RendererUtil= {
 
-        /**
-         * Draw a 9 patch from a SpriteFrame.
-         * It assumes that the 9 patch frame size is divisible by 3 horizontal and vertically.
-         * @param ctx {cc.render.RenderingContext}
-         * @param frameName {string}
-         * @param x {number}
-         * @param y {number}
-         * @param w {number}
-         * @param h {number}
-         * @param patchData {cc.render.PatchData?}
-         */
         draw9Patch : function(ctx:RenderingContext,
-                              frameName:string,
-                              x:number, y:number,
-                              w:number, h:number,
-                              patchData? : PatchData
-        ) {
+                                  frameName:string,
+                                  x:number, y:number,
+                                  w:number, h:number,
+                                  patchData? : PatchData
+            ) {
 
-            var sf:cc.node.sprite.SpriteFrame= cc.plugin.asset.AssetManager.getSpriteFrame(frameName);
-            if (null===sf) {
+            var sf:cc.node.sprite.SpriteFrame = cc.plugin.asset.AssetManager.getSpriteFrame(frameName);
+            if (null === sf) {
                 return;
             }
 
             // no patchdata, or destination size just scale the image.
-            if ( typeof patchData==="undefined") {
-                ctx.drawTexture( sf.getTexture(), 0,0,sf.getWidth(),sf.getHeight(),x,y,w,h);
+            if (typeof patchData === "undefined") {
+                ctx.drawTexture(sf.getTexture(), 0, 0, sf.getWidth(), sf.getHeight(), x, y, w, h);
                 return;
             }
 
-            patchData.left=     patchData.left || 0;
-            patchData.top=      patchData.top || 0;
-            patchData.right=    patchData.right || 0;
-            patchData.bottom=   patchData.bottom || 0;
+            var tx = sf.getX();
+            var ty = sf.getY();
+
+            patchData.left = patchData.left || 0;
+            patchData.top = patchData.top || 0;
+            patchData.right = patchData.right || 0;
+            patchData.bottom = patchData.bottom || 0;
 
             var paddingW = patchData.left + patchData.right;
             var paddingH = patchData.bottom + patchData.top;
 
-            var spriteBottomHeight= patchData.bottom;
-            var spriteTopHeight= patchData.top;
-            var spriteBottomY= sf.getHeight() - spriteBottomHeight;
-            var spriteMiddleHeight= sf.getHeight()-paddingH;
-            var spriteMiddleWidth= sf.getWidth()-paddingW;
+            var spriteBottomHeight = patchData.bottom;
+            var spriteTopHeight = patchData.top;
+            var spriteBottomY = sf.getHeight() - spriteBottomHeight;
+            var spriteMiddleHeight = sf.getHeight() - paddingH;
+            var spriteMiddleWidth = sf.getWidth() - paddingW;
 
-            var spriteLeftWidth= patchData.left;
-            var spriteRightWidth= patchData.right;
+            var spriteLeftWidth = patchData.left;
+            var spriteRightWidth = patchData.right;
 
-            var scaleFactor= ctx.getUnitsFactor();
+            var scaleFactor = ctx.getUnitsFactor();
 
-            var topy=       cc.render.RENDER_ORIGIN===cc.render.ORIGIN_TOP ? y :
-                                y+h-spriteTopHeight/scaleFactor;
-            var bottomy=    cc.render.RENDER_ORIGIN===cc.render.ORIGIN_TOP ? y+h-spriteBottomHeight/scaleFactor :
-                                y;
-            var middley=    cc.render.RENDER_ORIGIN===cc.render.ORIGIN_TOP ? y + spriteTopHeight/scaleFactor :
-                                y+spriteBottomHeight/scaleFactor;
+            var topy = cc.render.RENDER_ORIGIN === cc.render.ORIGIN_TOP ? y :
+            y + h - spriteTopHeight / scaleFactor;
+            var bottomy = cc.render.RENDER_ORIGIN === cc.render.ORIGIN_TOP ? y + h - spriteBottomHeight / scaleFactor :
+                y;
+            var middley = cc.render.RENDER_ORIGIN === cc.render.ORIGIN_TOP ? y + spriteTopHeight / scaleFactor :
+            y + spriteBottomHeight / scaleFactor;
 
-            if ( patchData.left ) {
+            if (patchData.left) {
 
                 // top left
-                if ( patchData.top ) {
+                if (patchData.top) {
                     ctx.drawTexture(sf.getTexture(),
-                        0, 0, spriteLeftWidth, spriteTopHeight,
-                        x, topy, spriteLeftWidth/scaleFactor, spriteTopHeight/scaleFactor );
+                        tx, ty, spriteLeftWidth, spriteTopHeight,
+                        x, topy, spriteLeftWidth / scaleFactor, spriteTopHeight / scaleFactor);
                 }
 
                 // bottom left
-                if ( patchData.bottom ) {
+                if (patchData.bottom) {
                     ctx.drawTexture(sf.getTexture(),
-                        0, spriteBottomY, spriteLeftWidth, spriteBottomHeight,
-                        x, bottomy , spriteLeftWidth/scaleFactor, spriteBottomHeight/scaleFactor );
+                        tx, ty + spriteBottomY, spriteLeftWidth, spriteBottomHeight,
+                        x, bottomy, spriteLeftWidth / scaleFactor, spriteBottomHeight / scaleFactor);
                 }
 
                 ctx.drawTexture(sf.getTexture(),
-                    0, patchData.top, spriteLeftWidth, spriteMiddleHeight,
-                    x, middley, spriteLeftWidth/scaleFactor, h - paddingH/scaleFactor );
+                    tx, ty + patchData.top, spriteLeftWidth, spriteMiddleHeight,
+                    x, middley, spriteLeftWidth / scaleFactor, h - paddingH / scaleFactor);
 
             }
 
-            if ( patchData.right ) {
+            if (patchData.right) {
 
                 // top left
-                if ( patchData.top ) {
+                if (patchData.top) {
                     ctx.drawTexture(sf.getTexture(),
-                        sf.getWidth()-patchData.right, 0, spriteRightWidth, spriteTopHeight,
-                        x + w - patchData.right/scaleFactor, topy, spriteRightWidth/scaleFactor, spriteTopHeight/scaleFactor );
+                        tx + sf.getWidth() - patchData.right, ty, spriteRightWidth, spriteTopHeight,
+                        x + w - patchData.right / scaleFactor, topy, spriteRightWidth / scaleFactor, spriteTopHeight / scaleFactor);
                 }
 
                 // bottom left
-                if ( patchData.bottom ) {
+                if (patchData.bottom) {
                     ctx.drawTexture(sf.getTexture(),
-                        sf.getWidth()-patchData.right, spriteBottomY, spriteRightWidth, spriteBottomHeight,
-                        x + w - patchData.right/scaleFactor, bottomy , spriteRightWidth/scaleFactor, spriteBottomHeight/scaleFactor );
+                        tx + sf.getWidth() - patchData.right, ty + spriteBottomY, spriteRightWidth, spriteBottomHeight,
+                        x + w - patchData.right / scaleFactor, bottomy, spriteRightWidth / scaleFactor, spriteBottomHeight / scaleFactor);
                 }
 
                 ctx.drawTexture(sf.getTexture(),
-                    sf.getWidth()-patchData.right, patchData.top, spriteRightWidth, spriteMiddleHeight,
-                    x + w - patchData.right/scaleFactor, middley, spriteRightWidth/scaleFactor, h - paddingH/scaleFactor );
+                    tx + sf.getWidth() - patchData.right, ty + patchData.top, spriteRightWidth, spriteMiddleHeight,
+                    x + w - patchData.right / scaleFactor, middley, spriteRightWidth / scaleFactor, h - paddingH / scaleFactor);
 
             }
 
 
             // top left
-            if ( patchData.top ) {
+            if (patchData.top) {
                 ctx.drawTexture(sf.getTexture(),
-                    patchData.left, 0, spriteMiddleWidth, spriteTopHeight,
-                    x + patchData.left/scaleFactor, topy, w - paddingW/scaleFactor, spriteTopHeight/scaleFactor );
+                    tx + patchData.left, ty, spriteMiddleWidth, spriteTopHeight,
+                    x + patchData.left / scaleFactor, topy, w - paddingW / scaleFactor, spriteTopHeight / scaleFactor);
             }
 
             // bottom left
-            if ( patchData.bottom ) {
+            if (patchData.bottom) {
                 ctx.drawTexture(sf.getTexture(),
-                    patchData.left, spriteBottomY, spriteMiddleWidth, spriteBottomHeight,
-                    x + patchData.left/scaleFactor, bottomy , w - paddingW/scaleFactor, spriteBottomHeight/scaleFactor );
+                    tx + patchData.left, ty + spriteBottomY, spriteMiddleWidth, spriteBottomHeight,
+                    x + patchData.left / scaleFactor, bottomy, w - paddingW / scaleFactor, spriteBottomHeight / scaleFactor);
             }
 
             ctx.drawTexture(sf.getTexture(),
-                patchData.left, patchData.top, spriteMiddleWidth, spriteMiddleHeight,
-                x + patchData.left/scaleFactor, middley, w - paddingW/scaleFactor, h - paddingH/scaleFactor );
+                tx + patchData.left, ty + patchData.top, spriteMiddleWidth, spriteMiddleHeight,
+                x + patchData.left / scaleFactor, middley, w - paddingW / scaleFactor, h - paddingH / scaleFactor);
 
 
         }
