@@ -451,7 +451,7 @@ module cc.node {
         }
 
         scheduleUpdateWithPriority( priority : number ) {
-            var task:SchedulerQueueTask= cc.action.SchedulerQueue.createSchedulerTask(this,this.update,0,Number.MAX_VALUE,0);
+            var task:cc.action.SchedulerQueueUpdateTask= cc.action.SchedulerQueue.createSchedulerUpdateTask(this,0,Number.MAX_VALUE,0);
             task._priority= priority;
             this._scheduler.scheduleTask(task);
         }
@@ -463,7 +463,7 @@ module cc.node {
          * @deprecated
          */
         scheduleUpdate() {
-            var task:SchedulerQueueTask= cc.action.SchedulerQueue.createSchedulerTask(this,this.update,0,Number.MAX_VALUE,0);
+            var task:cc.action.SchedulerQueueUpdateTask= cc.action.SchedulerQueue.createSchedulerUpdateTask(this,0,Number.MAX_VALUE,0);
             this._scheduler.scheduleTask(task);
         }
 

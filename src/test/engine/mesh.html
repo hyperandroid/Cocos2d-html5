@@ -77,6 +77,7 @@
             var director= new cc.node.Director().setRenderer( renderer );
             var scene= director.createScene();
 
+            scene.scheduleUpdate();
             scene.update= function( delta ) {
                 new_manager.Update(delta);
             };
@@ -93,7 +94,6 @@
                 ctx.restore();
             };
 
-            scene.scheduleUpdate();
 
             director.runScene( scene );
         }
