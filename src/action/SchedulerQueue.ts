@@ -260,6 +260,17 @@ module cc.action {
 
     }
 
+    export class SchedulerQueueUpdateTask extends SchedulerQueueTask {
+
+        constructor() {
+            super();
+        }
+
+        __doCallCallback(elapsedTime:number) {
+            this._target.update.call(this._target, elapsedTime/cc.action.TIMEUNITS, this._target );
+        }
+    }
+
     /**
      * @class cc.action.SchedulerQueue
      * @extends cc.action.Action
@@ -358,6 +369,18 @@ module cc.action {
             task._target= target;
             task._delay= (delay || 0) * cc.action.TIMEUNITS;
             task._callback= callback;
+            task._interval= (interval || 0) * cc.action.TIMEUNITS;
+            task._repeat = typeof repeat!=="undefined" ? repeat : Number.MAX_VALUE;
+            task._status = SchedulerQueueTaskStatus.RUNNING;
+
+            return task;
+        }
+
+        static createSchedulerUpdateTask( target:any, interval:number, repeat:number, delay:number ) {
+
+            var task : SchedulerQueueUpdateTask = new SchedulerQueueUpdateTask();
+            task._target= target;
+            task._delay= (delay || 0) * cc.action.TIMEUNITS;
             task._interval= (interval || 0) * cc.action.TIMEUNITS;
             task._repeat = typeof repeat!=="undefined" ? repeat : Number.MAX_VALUE;
             task._status = SchedulerQueueTaskStatus.RUNNING;

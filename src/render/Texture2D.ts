@@ -3,6 +3,7 @@
  */
 
 /// <reference path="./WebGLState.ts"/>
+/// <reference path="./Renderer.ts"/>
 
 module cc.render {
 
