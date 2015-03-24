@@ -162,7 +162,7 @@ module cc.math.path {
 
             dstArray= dstArray || [];
 
-            dstArray.push( this._start );
+            //dstArray.push( this._start );
             dstArray.push( this._end );
 
             return dstArray;

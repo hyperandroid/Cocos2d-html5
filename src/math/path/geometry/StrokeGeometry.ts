@@ -7,6 +7,7 @@
  */
 
 /// <reference path="../../Point.ts"/>
+/// <reference path="../../../render/RenderingContext.ts"/>
 
 module cc.math.path.geometry {
 
@@ -14,8 +15,8 @@ module cc.math.path.geometry {
 
     export interface StrokeGeometryAttributes {
         width? : number;        // 1 if not defined
-        cap? : string;          // butt, round, square
-        join?: string;          // bevel, round, miter
+        cap? : cc.render.LineCap;          // butt, round, square
+        join?: cc.render.LineJoin;          // bevel, round, miter
         miterLimit? : number   // for join miter, the maximum angle value to use the miter
     }
 
@@ -28,37 +29,37 @@ module cc.math.path.geometry {
      *
      * @returns {Array<number> | Float32Array} Array with pairs of numbers (x,y)
      */
-    export function getStrokeGeometry(points:cc.math.Vector[], attrs:StrokeGeometryAttributes) : Float32Array {
+    export function getStrokeGeometry(points:cc.math.Point[], attrs:StrokeGeometryAttributes) : Float32Array {
 
         // trivial reject
         if (points.length < 2) {
             return new Float32Array([]);
         }
 
-        var cap:string =                attrs.cap || "butt";
-        var join:string =               attrs.join || "bevel";
+        var cap:cc.render.LineCap =     attrs.cap || cc.render.LineCap.BUTT;
+        var join:cc.render.LineJoin=    attrs.join || cc.render.LineJoin.BEVEL;
         var lineWidth:number =          (attrs.width || 1) / 2;
         var miterLimit:number =         attrs.miterLimit || 10;
         var vertices:Array<number> =    [];
-        var middlePoints:Vector[] =     [];  // middle points per each line segment.
+        var middlePoints:Point[] =      [];  // middle points per each line segment.
         var closed:boolean =            false;
 
         if (points.length === 2) {
-            join = "bevel";
+            join = cc.render.LineJoin.BEVEL;
             createTriangles(points[0], cc.math.Vector.middlePoint(points[0], points[1]), points[1], vertices, lineWidth, join, miterLimit);
 
         } else {
 
-             if (points[0] === points[points.length - 1] ||
+            if (points[0] === points[points.length - 1] ||
                  (  points[0].x === points[points.length - 1].x &&
                     points[0].y === points[points.length - 1].y )   ) {
 
-                 var p0 = points.shift();
-                 p0 = cc.math.Vector.middlePoint(p0, points[0]);
-                 points.unshift(p0);
-                 points.push(p0);
-                 closed= true;
-             }
+                var p0 = points.shift();
+                p0 = cc.math.Vector.middlePoint(p0, points[0]);
+                points.unshift(p0);
+                points.push(p0);
+                closed = true;
+            }
 
             var i;
             for (i = 0; i < points.length - 1; i++) {
@@ -78,7 +79,7 @@ module cc.math.path.geometry {
 
         if ( !closed ) {
 
-            if (cap === "round") {
+            if (cap === cc.render.LineCap.ROUND) {
 
                 var p00 = new cc.math.Vector(vertices[0],vertices[1]);
                 var p01 = new cc.math.Vector(vertices[2],vertices[3]);
@@ -90,7 +91,7 @@ module cc.math.path.geometry {
                 createRoundCap(points[0], p00, p01, p02, vertices);
                 createRoundCap(points[points.length - 1], p10, p11, p12, vertices);
 
-            } else if (cap === "square") {
+            } else if (cap === cc.render.LineCap.SQUARE ) {
 
                 var p00 = new cc.math.Vector( vertices[vertices.length - 2], vertices[vertices.length - 1]);
                 var p01 = new cc.math.Vector( vertices[vertices.length - 6], vertices[vertices.length - 5]);
@@ -227,9 +228,24 @@ module cc.math.path.geometry {
 
 
     function createTriangles(
-        p0:cc.math.Vector, p1:cc.math.Vector, p2:cc.math.Vector,
+        p0:cc.math.Point, p1:cc.math.Point, p2:cc.math.Point,
         verts:Array<number>,
-        width:number, join:string, miterLimit:number) {
+        width:number,
+        join:cc.render.LineJoin,
+        miterLimit:number) {
+
+        if ( cc.math.Vector.equals(p0,p1) ) {
+            p1.x= p0.x + (p2.x-p0.x)/2;
+            p1.y= p0.y + (p2.y-p0.y)/2;
+        } else if ( cc.math.Vector.equals(p1,p2) ) {
+            p2= new cc.math.Vector( p1.x, p1.y );
+            p1.x= p0.x + (p2.x-p0.x)/2;
+            p1.y= p0.y + (p2.y-p0.y)/2;
+        }
+
+        if ( cc.math.Vector.equals(p0,p1) && cc.math.Vector.equals(p1,p2) ) {
+            return;
+        }
 
         var t0:cc.math.Vector = cc.math.Vector.sub(p1, p0);
         var t2:cc.math.Vector = cc.math.Vector.sub(p2, p1);
@@ -282,17 +298,17 @@ module cc.math.path.geometry {
             __pushVert( verts, p1.x+t0.x, p1.y+t0.y );              // p1+t0
             __pushVert( verts, p1.x-t0.x, p1.y-t0.y );              // p1-t0
 
-            if ( join === "round" ) {
+            if ( join === cc.render.LineJoin.ROUND ) {
 
                 createRoundCap(p1, cc.math.Vector.add(p1,t0), cc.math.Vector.add(p1,t2), p2, verts);
 
-            } else if ( join==="bevel" || (join==="miter" && dd>=miterLimit) ) {
+            } else if ( join===cc.render.LineJoin.BEVEL || (join===cc.render.LineJoin.MITER && dd>=miterLimit) ) {
 
                 __pushVert( verts, p1.x, p1.y );                    // p1
                 __pushVert( verts, p1.x+t0.x, p1.y+t0.y );          // p1+t0
                 __pushVert( verts, p1.x+t2.x, p1.y+t2.y );          // p1+t2
 
-            } else if (join === 'miter' && dd<miterLimit && pintersect) {
+            } else if (join === cc.render.LineJoin.MITER && dd<miterLimit && pintersect) {
 
                 __pushVert( verts, p1.x+t0.x, p1.y+t0.y );          // p1+t0
                 __pushVert( verts, p1.x, p1.y );                    // p1
@@ -321,7 +337,7 @@ module cc.math.path.geometry {
             __pushVert( verts, p1.x-anchor.x, p1.y-anchor.y );      // p1-anchor
             __pushVert( verts, p1.x+t0.x, p1.y+t0.y );              // p1+t0
 
-            if (join === "round") {
+            if (join === cc.render.LineJoin.ROUND) {
 
                 var _p0 = cc.math.Vector.add(p1, t0);
                 var _p1 = cc.math.Vector.add(p1, t2);
@@ -341,16 +357,20 @@ module cc.math.path.geometry {
 
             } else {
 
-                if (join === "bevel" || (join === "miter" && dd >= miterLimit)) {
+                if (join === cc.render.LineJoin.BEVEL || (join === cc.render.LineJoin.MITER && dd >= miterLimit)) {
 
                     __pushVert( verts, p1.x+t0.x, p1.y+t0.y );      // p1+t0
                     __pushVert( verts, p1.x+t2.x, p1.y+t2.y );      // p1+t2
                     __pushVert( verts, p1.x-anchor.x, p1.y-anchor.y ); // p1-anchor
                 }
 
-                if (join === 'miter' && dd < miterLimit) {
+                if (join === cc.render.LineJoin.MITER && dd < miterLimit) {
 
                     __pushVert( verts, pintersect.x, pintersect.y );// pintersect
+                    __pushVert( verts, p1.x+t0.x, p1.y+t0.y );      // p1+t0
+                    __pushVert( verts, p1.x+t2.x, p1.y+t2.y );      // p1+t2
+
+                    __pushVert( verts, p1.x-anchor.x, p1.y-anchor.y );      // p1-anchor
                     __pushVert( verts, p1.x+t0.x, p1.y+t0.y );      // p1+t0
                     __pushVert( verts, p1.x+t2.x, p1.y+t2.y );      // p1+t2
                 }

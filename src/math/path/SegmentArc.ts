@@ -238,7 +238,7 @@ module cc.math.path {
                 return dstArray;
             }
 
-            for( var i=0; i<numPoints; i++ ) {
+            for( var i=0; i<=numPoints; i++ ) {
                 dstArray.push( this.getValueAt(i/numPoints, new Vector()) );
             }
 

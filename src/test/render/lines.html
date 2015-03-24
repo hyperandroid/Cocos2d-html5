@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Cocos2h-html5 - Render - lines test.</title>
+    <link rel="stylesheet" type="text/css" href="demos.css"/>
+    <script src="../../../dist/all.js"></script>
+</head>
+<body>
+
+<script>
+    (function() {
+
+        var W= 800;
+        var H= 600;
+
+        /**
+         *
+         */
+        function initialize( ) {
+
+            // the renderer will setup pre-loaded textures for the renderer type.
+            // it will also create necessary SpriteFrames for each texture, in this case a frame for the image dude.png
+            var renderer= new cc.render.WebGLRenderer( W, H, document.getElementById("c"));
+
+            var ctx= renderer.getRenderingContext();
+
+            ctx.setFillStyleColor(cc.math.Color.WHITE);
+            ctx.fillRect(0, 0, W, H);
+ctx.flush();
+            var lw= 5;
+
+            ctx.setFillStyleColor(cc.math.Color.RED);
+            ctx.beginPath();
+            ctx.strokeStyle = "#00F";
+            ctx.lineWidth = lw;
+            ctx.moveTo(100, 50);
+            ctx.lineTo(200, 150);
+            ctx.lineTo(300, 50);
+            ctx.lineTo(400, 150);
+            ctx.lineTo(500, 50);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.setFillStyleColor(cc.math.Color.BLUE);
+            ctx.lineWidth = lw;
+            ctx.lineJoin = 'round';
+            ctx.lineCap = "round";
+            ctx.moveTo(100, 300);
+            ctx.lineTo(200, 200);
+            ctx.lineTo(300, 300);
+            ctx.lineTo(400, 200);
+            ctx.lineTo(500, 300);
+
+            ctx.moveTo(100, 200);
+            ctx.lineTo(200, 300);
+            ctx.lineTo(300, 200);
+            ctx.lineTo(400, 300);
+            ctx.lineTo(500, 200);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.setFillStyleColorArray([1,0,1,1]);
+            ctx.lineWidth = lw;
+            ctx.lineJoin = 'miter';
+            ctx.lineCap = "square";
+            ctx.moveTo(100, 350);
+            ctx.lineTo(200, 450);
+            ctx.lineTo(300, 350);
+            ctx.lineTo(400, 450);
+            ctx.lineTo(500, 350);
+            ctx.stroke();
+
+            ctx.setFillStyleColorArray([1,1,0,1]);
+            ctx.beginPath();
+            ctx.moveTo(0,0);
+            ctx.bezierCurveTo( W,0, 0,H, W,H );
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(0,0);
+            ctx.quadraticCurveTo( 0,H, W,H );
+            ctx.stroke();
+
+
+            ctx.setFillStyleColorArray([0,1,1,1]);
+            ctx.rotate( Math.PI/12 );
+            ctx.scale(5,5);
+            ctx.beginPath();
+            ctx.lineJoin= "round";
+            ctx.rect( 10,10,50,50 );
+            ctx.stroke();
+
+            ctx.lineJoin = 'bevel';
+            ctx.lineCap = "butt";
+
+            ctx.setFillStyleColorArray([.5,.5,1,1]);
+            ctx.beginPath();
+            ctx.arc( 50,50, 50, 0, Math.PI/2, true );
+            ctx.stroke();
+
+            ctx.scale(1.05,1.05);
+            ctx.setFillStyleColorArray([1,.5,1,1]);
+            ctx.beginPath();
+            ctx.arc( 50,50, 50, 0, Math.PI/2, false );
+            ctx.stroke();
+
+            ctx.flush();
+        }
+
+        window.addEventListener("DOMContentLoaded", initialize, false);
+
+    })();
+</script>
+
+<div>
+    <div>
+        <div>
+            <canvas id="c"></canvas>
+        </div>
+        <div>
+            <span id="span"></span>
+        </div>
+    </div>
+    <div>
+        <p>
+            This demos shows anchoring for different affine transformation operations.
+        </p>
+    </div>
+</div>
+
+</body>
+</html>

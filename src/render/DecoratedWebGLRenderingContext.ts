@@ -122,6 +122,10 @@ module cc.render {
          */
         static CTX_ALPHA : boolean = false;
 
+        _currentLineJoin:cc.render.LineJoin= cc.render.LineJoin.BEVEL;
+        _currentLineCap:cc.render.LineCap= cc.render.LineCap.BUTT;
+        _currentLineWidth:number = 1;
+
         /**
          * Current rendering context data.
          * @member cc.render.DecoratedWebGLRenderingContext#_currentContextSnapshot
@@ -827,19 +831,125 @@ module cc.render {
         }
 
         beginPath() {
+            this._currentContextSnapshot.beginPath();
+        }
 
+        closePath() {
+            this._currentContextSnapshot.closePath();
         }
 
         stroke() {
+            this._currentContextSnapshot.setupStroke( this._currentLineWidth, this._currentLineJoin, this._currentLineCap );
+            var geometry:Float32Array= this._currentContextSnapshot._currentPathStrokeGeometry;
 
+            this.__checkStrokeFlushConditions();
+
+            this._currentContextSnapshot._fillStyleColor= this._currentFillStyleColor;
+            this._batcher.batchPath( geometry, this._currentContextSnapshot );
+        }
+
+        __checkStrokeFlushConditions() {
+
+            if ( this._currentContextSnapshot._currentFillStyleType!==FillStyleType.COLOR ) {
+                this.flush();
+                this.__setCurrentFillStyleType( FillStyleType.COLOR );
+            }
+        }
+
+        set lineWidth( w:number ) {
+            this.setLineWidth(w);
+        }
+
+        get lineWidth() : number {
+            return this._currentLineWidth;
+        }
+
+        set lineCap( s:string ) {
+            s= s.toLowerCase();
+
+            if ( s==="square" ) {
+                this.setLineCap( cc.render.LineCap.SQUARE );
+            } else if ( s==="round" ) {
+                this.setLineCap( cc.render.LineCap.ROUND );
+            } else {
+                this.setLineCap( cc.render.LineCap.BUTT );
+            }
+        }
+
+        get lineCap() : string {
+            switch( this._currentLineCap ) {
+                case cc.render.LineCap.SQUARE: return "square";
+                case cc.render.LineCap.ROUND: return "round";
+                default: return "butt";
+            }
+        }
+
+        set lineJoin( s:string ) {
+            s= s.toLowerCase();
+
+            if ( s==="miter" ) {
+                this.setLineJoin( cc.render.LineJoin.MITER );
+            } else if ( s==="round" ) {
+                this.setLineJoin( cc.render.LineJoin.ROUND );
+            } else {
+                this.setLineJoin( cc.render.LineJoin.BEVEL );
+            }
+        }
+
+        get lineJoin() : string {
+            switch( this._currentLineJoin ) {
+                case cc.render.LineJoin.MITER: return "miter";
+                case cc.render.LineJoin.ROUND: return "round";
+                default: return "bevel";
+            }
+        }
+
+        setLineWidth( w : number ) {
+            this._currentLineWidth= w;
+        }
+
+        getLineWidth() : number {
+            return this._currentLineWidth;
+        }
+
+        setLineCap( cap:cc.render.LineCap ) {
+            this._currentLineCap= cap;
+        }
+
+        getLineCap() : cc.render.LineCap {
+            return this._currentLineCap;
+        }
+
+        setLineJoin( join:cc.render.LineJoin ) {
+            this._currentLineJoin= join;
+        }
+
+        getLineJoin() : cc.render.LineJoin {
+            return this._currentLineJoin;
         }
 
         moveTo(x:number, y:number) {
-
+            this._currentContextSnapshot.moveTo( x, y );
         }
 
         lineTo(x:number, y:number) {
+            this._currentContextSnapshot.lineTo( x, y );
+        }
 
+        bezierCurveTo( cp0x:number, cp0y:number, cp1x:number, cp1y:number, p2x:number, p2y:number ) {
+            this._currentContextSnapshot.bezierCurveTo( cp0x, cp0y, cp1x, cp1y, p2x, p2y );
+        }
+
+        quadraticCurveTo( cp0x:number, cp0y:number, p2x:number, p2y:number ) {
+            this._currentContextSnapshot.quadraticCurveTo( cp0x, cp0y, p2x, p2y );
+        }
+
+        rect( x:number, y:number, width:number, height:number ) {
+            this._currentContextSnapshot.rect( x, y, width, height );
+        }
+
+        arc( x:number, y:number, radius:number, startAngle:number, endAngle:number, counterClockWise:boolean ) {
+            this._currentContextSnapshot.arc( x, y, radius, startAngle, endAngle, counterClockWise );
         }
 
         save() {

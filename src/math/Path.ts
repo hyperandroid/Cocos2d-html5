@@ -52,6 +52,8 @@ module cc.math {
          */
         _currentSubPath : SubPath = null;
 
+        _strokeGeometry : Float32Array = null;
+
         /**
          * Build a new Path instance.
          * @method cc.math.Path#constructor
@@ -208,7 +210,7 @@ module cc.math {
             return this;
         }
 
-        quadraticTo( x1:number, y1:number, x2:number, y2:number, matrix?:Float32Array ) : Path {
+        quadraticCurveTo( x1:number, y1:number, x2:number, y2:number, matrix?:Float32Array ) : Path {
 
             __v0.set(x1,y1);
             __v1.set(x2,y2);
@@ -223,7 +225,7 @@ module cc.math {
             return this;
         }
 
-        bezierTo( x0:number, y0:number, x1:number, y1:number, x2:number, y2:number, matrix?:Float32Array ) : Path {
+        bezierCurveTo( x0:number, y0:number, x1:number, y1:number, x2:number, y2:number, matrix?:Float32Array ) : Path {
 
             __v0.set(x0,y0);
             __v1.set(x1,y1);
@@ -350,7 +352,6 @@ module cc.math {
          */
         moveTo( x: number, y : number, matrix? : Float32Array ) : Path {
 
-
             if ( matrix ) {
                 __v0.set(x,y);
                 Matrix3.transformPoint( matrix, __v0 );
@@ -359,6 +360,9 @@ module cc.math {
             }
 
             this.__ensureSubPath(x,y);
+            if (!this._currentSubPath.isEmpty()) {
+                this.__newSubPath();
+            }
             this._currentSubPath.moveTo(x,y);
 
             return this;
@@ -503,11 +507,11 @@ module cc.math {
             // calculate start angle based on current matrix
             if ( matrix ) {
 
-                Matrix3.copy( __m0, matrix );
+                Matrix3.copy( matrix, __m0 );
                 Matrix3.setRotate( __m1, startAngle );
                 Matrix3.multiply(__m0, __m1);
 
-                startAngle= cc.math.path.getDistanceVector(1,matrix).angle();
+                startAngle= cc.math.path.getDistanceVector(1,__m0).angle();
             }
 
             this._currentSubPath.arc( x,y,radius,startAngle,startAngle+diffAngle,anticlockwise,addLine );
@@ -535,10 +539,39 @@ module cc.math {
             }
         }
 
-        getStrokeGeometry() : number[] {
+        getStrokeGeometry( attributes : cc.math.path.geometry.StrokeGeometryAttributes ) {
 
+            if ( this._dirty ) {
 
-            return [];
+                var size : number = 0;
+                var buffers : Float32Array[] = [];
+
+                for( var i=0; i<this._segments.length; i++ ) {
+
+                    var subPath = this._segments[i];
+                    var contourPoints = subPath.trace();
+
+                    // based on the type of segment, the stroking attributes may change.
+                    // i.e. an arc, does not honor line cap/join/miterLimit
+                    var buffer:Float32Array = cc.math.path.geometry.getStrokeGeometry( subPath.trace(), attributes );
+
+                    size+=buffer.length;
+                    buffers.push( buffer );
+                };
+
+                this._strokeGeometry= new Float32Array( size );
+
+                var offset= 0;
+                for( var i=0; i<buffers.length; i++ ) {
+                    this._strokeGeometry.set( buffers[i], offset );
+                    offset+= buffers[i].length;
+                }
+
+                this._dirty = false;
+            }
+
+            return this._strokeGeometry;
         }
+
     }
 }

@@ -487,6 +487,35 @@ module cc.render {
             this._dataBufferFloat[ this._dataBufferIndex++ ] = v;
             this._indexBufferMeshIndex++;
         }
+
+        /**
+         * Batch a path geometry.
+         * Requires sequential indices.
+         * Geometry already in screen space.
+         *
+         * @param geometry {Float32Array}
+         * @param rcs {cc.render.RenderingContextSnapshot}
+         */
+        batchPath( geometry:Float32Array, rcs:RenderingContextSnapshot ) {
+
+            this._indicesChanged= true;
+
+            var color:Float32Array= rcs._fillStyleColor;
+            var tint:Float32Array= rcs._tintColor;
+
+            var r= ((color[0] * tint[0])*255)|0;
+            var g= ((color[1] * tint[1])*255)|0;
+            var b= ((color[2] * tint[2])*255)|0;
+            var a= ((color[3] * tint[3] * rcs._globalAlpha)*255)|0;
+            var cc= (r)|(g<<8)|(b<<16)|(a<<24);
+
+            for( var i=0; i<geometry.length; i+=2 ) {
+                this._dataBufferFloat[ this._dataBufferIndex++ ] = geometry[i];
+                this._dataBufferFloat[ this._dataBufferIndex++ ] = geometry[i+1];
+                this._dataBufferUint [ this._dataBufferIndex++ ] = cc;
+                this._indexBufferMeshIndex++
+            }
+        }
     }
 
 }

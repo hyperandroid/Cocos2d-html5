@@ -188,6 +188,10 @@ module cc.math {
             return new Vector(x,y);
         }
 
+        static equals( p0:Point, p1:Point ) {
+            return p0.x===p1.x && p0.y===p1.y;
+        }
+
         /**
          * Compare the vector with another vector for equality.
          * @param v {cc.math.Vector}

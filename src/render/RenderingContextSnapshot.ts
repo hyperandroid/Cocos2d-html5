@@ -2,14 +2,14 @@
  * License: see license.txt file.
  */
 
+/// <reference path="../math/Point.ts"/>
 /// <reference path="../math/Matrix3.ts"/>
 /// <reference path="../math/Color.ts"/>
+/// <reference path="../math/Path.ts"/>
+/// <reference path="../math/path/geometry/StrokeGeometry.ts"/>
 /// <reference path="./RenderingContext.ts"/>
 
 module cc.render {
-
-    import Matrix3 = cc.math.Matrix3;
-    import Color = cc.math.Color;
 
     /**
      * @class cc.render.RenderingContextSnapshot
@@ -83,6 +83,10 @@ module cc.render {
          */
         _lineWidth : number = 1.0;
 
+        _lineCap : cc.render.LineCap = cc.render.LineCap.BUTT;
+
+        _lineJoin: cc.render.LineJoin= cc.render.LineJoin.BEVEL;
+
         /**
          * Current font data.
          * @member cc.render.RenderingContextSnapshot#_fontDefinition
@@ -107,7 +111,6 @@ module cc.render {
          */
         _textAlign : string = "left";
 
-
         /**
          * Current path tracing data.
          * @member cc.render.RenderingContextSnapshot#_currentPath
@@ -115,6 +118,9 @@ module cc.render {
          * @private
          */
         _currentPath : any = null;
+
+        _currentPathStrokeGeometry : Float32Array= null;
+        _currentPathStrokeContour : cc.math.Point[]= null;
 
         /**
          * Current clipping paths stack
@@ -130,6 +136,7 @@ module cc.render {
          */
         constructor() {
 
+            this._currentPath= new cc.math.Path();
         }
 
         /**
@@ -143,7 +150,7 @@ module cc.render {
 
             rcs._globalCompositeOperation = this._globalCompositeOperation;
             rcs._globalAlpha = this._globalAlpha;
-            Matrix3.copy( rcs._currentMatrix, this._currentMatrix );
+            cc.math.Matrix3.copy( rcs._currentMatrix, this._currentMatrix );
             rcs._fillStyleColor= this._fillStyleColor;
             rcs._fillStylePattern= this._fillStylePattern;
             rcs._currentFillStyleType= this._currentFillStyleType;
@@ -154,10 +161,65 @@ module cc.render {
             rcs._textBaseline= this._textBaseline;
             rcs._textAlign= this._textAlign;
 
-            //rcs._currentPath = this._currentPath.clone();
+            rcs._currentPath = this._currentPath.clone();
+            if ( this._currentPathStrokeGeometry ) {
+                rcs._currentPathStrokeGeometry = new Float32Array( this._currentPathStrokeGeometry.length );
+                rcs._currentPathStrokeGeometry.set( this._currentPathStrokeGeometry );
+            }
             rcs._clippingStack = this._clippingStack;
 
             return rcs;
+        }
+
+        beginPath() {
+            this._currentPath.beginPath();
+        }
+
+        closePath() {
+            this._currentPath.closePath();
+        }
+
+        moveTo( x:number, y:number ) {
+            this._currentPath.moveTo(x,y,this._currentMatrix);
+        }
+
+        lineTo( x:number, y:number ) {
+            this._currentPath.lineTo(x,y,this._currentMatrix);
+        }
+
+        bezierCurveTo( cp0x:number, cp0y:number, cp1x:number, cp1y:number, p2x:number, p2y:number ) {
+            this._currentPath.bezierCurveTo( cp0x, cp0y, cp1x, cp1y, p2x, p2y,this._currentMatrix );
+        }
+
+        quadraticCurveTo( cp0x:number, cp0y:number, p2x:number, p2y:number ) {
+            this._currentPath.quadraticCurveTo( cp0x, cp0y, p2x, p2y,this._currentMatrix );
+        }
+
+        rect( x:number, y:number, width:number, height:number ) {
+            this._currentPath.rect( x, y, width, height, this._currentMatrix );
+        }
+
+        arc( x:number, y:number, radius:number, startAngle:number, endAngle:number, counterClockWise:boolean ) {
+            this._currentPath.arc( x, y, radius, startAngle, endAngle, counterClockWise, this._currentMatrix );
+        }
+
+        setupStroke( lineWidth:number, join:cc.render.LineJoin, cap:cc.render.LineCap ) {
+            if ( this._currentPath._dirty || this._lineWidth!==lineWidth || this._lineCap!==cap || this._lineJoin!==join ) {
+
+                lineWidth= cc.math.path.getDistanceVector(lineWidth, this._currentMatrix).length();
+
+                this._lineCap= cap;
+                this._lineJoin= join;
+                this._lineWidth= lineWidth;
+
+                this._currentPathStrokeGeometry= this._currentPath.getStrokeGeometry({
+                    width: lineWidth,
+                    cap: this._lineCap,
+                    join: this._lineJoin,
+                    miterLimit: this._miterLimit
+                });
+
+            }
         }
     }
 

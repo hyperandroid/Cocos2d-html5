@@ -94,6 +94,14 @@ module cc.render {
         "lighter"   // should be add, but does not exist.
     ];
 
+    export enum LineCap {
+        BUTT, SQUARE, ROUND
+    }
+
+    export enum LineJoin {
+        BEVEL, MITER, ROUND
+    }
+
     /**
      * @class cc.render.RenderingContext
      * @interface
@@ -207,12 +215,20 @@ module cc.render {
         restore() : void;
 
         beginPath();
-
         stroke();
-
         moveTo(x:number, y:number);
-
         lineTo(x:number, y:number);
+        bezierCurveTo( cp0x:number, cp0y:number, cp1x:number, cp1y:number, p2x:number, p2y:number );
+        quadraticCurveTo( cp0x:number, cp0y:number, p2x:number, p2y:number );
+        rect( x:number, y:number, width:number, height:number );
+        arc( x:number, y:number, radius:number, startAngle:number, endAngle:number, counterClockWise:boolean );
+        closePath();
+        setLineCap( cap:LineCap );
+        getLineCap() : LineCap;
+        setLineJoin( join:LineJoin );
+        getLineJoin() : LineJoin;
+        setLineWidth( w:number );
+        getLineWidth() : number;
 
         setFillStyleColor( color:Color );
         setFillStyleColorArray( colorArray:Float32Array );
