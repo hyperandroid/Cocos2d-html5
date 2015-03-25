@@ -59,4 +59,8 @@ module cc.render.util {
 
         return ret;
     }
+
+    export function parseColor( c:string ) : Float32Array {
+        return new Float32Array([1,0,0,1]);
+    }
 }

@@ -53,6 +53,10 @@ module cc.math {
         _currentSubPath : SubPath = null;
 
         _strokeGeometry : Float32Array = null;
+        _fillGeometry : Float32Array = null;
+
+        _strokeDirty= true;
+        _fillDirty= true;
 
         /**
          * Build a new Path instance.
@@ -205,7 +209,7 @@ module cc.math {
             this._segments= [];
             this._length= 0;
             this._currentSubPath= null;
-            this._dirty= true;
+            this.setDirty();
 
             return this;
         }
@@ -221,6 +225,8 @@ module cc.math {
 
             this.__ensureSubPath();
             this._currentSubPath.quadraticTo( __v0.x, __v0.y, __v1.x, __v1.y );
+
+            this.setDirty();
 
             return this;
         }
@@ -238,6 +244,8 @@ module cc.math {
 
             this.__ensureSubPath();
             this._currentSubPath.bezierTo( __v0.x, __v0.y, __v1.x, __v1.y, __v2.x, __v2.y );
+
+            this.setDirty();
 
             return this;
         }
@@ -295,6 +303,8 @@ module cc.math {
                 console.log("invalid signature Path.catmullRomTo");
             }
 
+            this.setDirty();
+
             return this;
         }
 
@@ -321,6 +331,8 @@ module cc.math {
 
             this.__ensureSubPath();
             this._currentSubPath.catmullRomTo(__v0.x, __v0.y, __v1.x, __v1.y, __v2.x, __v2.y, tension );
+
+            this.setDirty();
         }
 
         /**
@@ -330,7 +342,7 @@ module cc.math {
          */
         closePath() : Path {
             this._currentSubPath.closePath();
-            this._dirty= true;
+            this.setDirty();
             return this;
         }
         
@@ -392,7 +404,7 @@ module cc.math {
 
             this._currentSubPath.lineTo(x, y);
 
-            this._dirty = true;
+            this.setDirty();
 
             return this;
         }
@@ -436,7 +448,7 @@ module cc.math {
 
             this.__newSubPath();
             this._currentSubPath.moveTo( __v0.x, __v0.y );
-            this._dirty= true;
+            this.setDirty();
 
             return this;
         }
@@ -515,7 +527,7 @@ module cc.math {
             }
 
             this._currentSubPath.arc( x,y,radius,startAngle,startAngle+diffAngle,anticlockwise,addLine );
-            this._dirty= true;
+            this.setDirty();
 
             return this;
         }
@@ -533,6 +545,12 @@ module cc.math {
             return path;
         }
 
+        setDirty() {
+            this._dirty= true;
+            this._fillDirty= true;
+            this._strokeDirty= true;
+        }
+
         paint( ctx:cc.render.RenderingContext ) {
             for( var i=0; i<this._segments.length; i++ ) {
                 this._segments[i].paint(ctx);
@@ -541,7 +559,7 @@ module cc.math {
 
         getStrokeGeometry( attributes : cc.math.path.geometry.StrokeGeometryAttributes ) {
 
-            if ( this._dirty ) {
+            if ( this._dirty || this._strokeDirty ) {
 
                 var size : number = 0;
                 var buffers : Float32Array[] = [];
@@ -551,12 +569,12 @@ module cc.math {
                     var subPath = this._segments[i];
                     var contourPoints = subPath.trace();
 
-                    // based on the type of segment, the stroking attributes may change.
-                    // i.e. an arc, does not honor line cap/join/miterLimit
                     var buffer:Float32Array = cc.math.path.geometry.getStrokeGeometry( subPath.trace(), attributes );
 
-                    size+=buffer.length;
-                    buffers.push( buffer );
+                    if ( null!==buffer ) {
+                        size += buffer.length;
+                        buffers.push(buffer);
+                    }
                 };
 
                 this._strokeGeometry= new Float32Array( size );
@@ -568,9 +586,48 @@ module cc.math {
                 }
 
                 this._dirty = false;
+                this._strokeDirty= false;
             }
 
             return this._strokeGeometry;
+        }
+
+        getFillGeometry( ) {
+
+            if ( this._dirty || this._fillDirty ) {
+
+                var size : number = 0;
+                var buffers : Float32Array[] = [];
+
+                for( var i=0; i<this._segments.length; i++ ) {
+
+                    var subPath = this._segments[i];
+                    var contourPoints = subPath.trace();
+
+                    var contour= subPath.trace();
+
+                    var buffer:Float32Array = cc.math.path.geometry.tessellate( contour );
+
+
+                    if ( null!==buffer ) {
+                        size += buffer.length;
+                        buffers.push(buffer);
+                    }
+                };
+
+                this._fillGeometry= new Float32Array( size );
+
+                var offset= 0;
+                for( var i=0; i<buffers.length; i++ ) {
+                    this._fillGeometry.set( buffers[i], offset );
+                    offset+= buffers[i].length;
+                }
+
+                this._dirty = false;
+                this._fillDirty= false;
+            }
+
+            return this._fillGeometry;
         }
 
     }

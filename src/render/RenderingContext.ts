@@ -214,8 +214,10 @@ module cc.render {
         save() : void;
         restore() : void;
 
-        beginPath();
         stroke();
+        fill();
+
+        beginPath();
         moveTo(x:number, y:number);
         lineTo(x:number, y:number);
         bezierCurveTo( cp0x:number, cp0y:number, cp1x:number, cp1y:number, p2x:number, p2y:number );
@@ -233,6 +235,10 @@ module cc.render {
         setFillStyleColor( color:Color );
         setFillStyleColorArray( colorArray:Float32Array );
         setFillStylePattern( pattern:cc.render.Pattern );
+
+        setStrokeStyleColor( color:Color );
+        setStrokeStyleColorArray( colorArray:Float32Array );
+        setStrokeStylePattern( pattern:cc.render.Pattern );
 
         resize();
 

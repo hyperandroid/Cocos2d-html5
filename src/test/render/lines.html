@@ -11,7 +11,7 @@
 <script>
     (function() {
 
-        var W= 800;
+        var W= 600;
         var H= 600;
 
         /**
@@ -21,18 +21,23 @@
 
             // the renderer will setup pre-loaded textures for the renderer type.
             // it will also create necessary SpriteFrames for each texture, in this case a frame for the image dude.png
-            var renderer= new cc.render.WebGLRenderer( W, H, document.getElementById("c"));
+            var renderer = new cc.render.WebGLRenderer(W, H, document.getElementById("c"));
+            var ctx = renderer.getRenderingContext();
+            paint( ctx );
 
-            var ctx= renderer.getRenderingContext();
+            var renderer2 = new cc.render.CanvasRenderer(W, H, document.getElementById("c1"));
+            var ctx2 = renderer2.getRenderingContext();
+            paint( ctx2 );
+        }
 
+        function paint(ctx) {
             ctx.setFillStyleColor(cc.math.Color.WHITE);
             ctx.fillRect(0, 0, W, H);
-ctx.flush();
-            var lw= 5;
 
-            ctx.setFillStyleColor(cc.math.Color.RED);
+            var lw= 10;
+
+            ctx.setStrokeStyleColor(cc.math.Color.RED);
             ctx.beginPath();
-            ctx.strokeStyle = "#00F";
             ctx.lineWidth = lw;
             ctx.moveTo(100, 50);
             ctx.lineTo(200, 150);
@@ -42,7 +47,7 @@ ctx.flush();
             ctx.stroke();
 
             ctx.beginPath();
-            ctx.setFillStyleColor(cc.math.Color.BLUE);
+            ctx.setStrokeStyleColor(cc.math.Color.BLUE);
             ctx.lineWidth = lw;
             ctx.lineJoin = 'round';
             ctx.lineCap = "round";
@@ -60,9 +65,9 @@ ctx.flush();
             ctx.stroke();
 
             ctx.beginPath();
-            ctx.setFillStyleColorArray([1,0,1,1]);
+            ctx.setStrokeStyleColorArray([1,0,1,1]);
             ctx.lineWidth = lw;
-            ctx.lineJoin = 'miter';
+            ctx.lineJoin = 'bevel';
             ctx.lineCap = "square";
             ctx.moveTo(100, 350);
             ctx.lineTo(200, 450);
@@ -71,39 +76,42 @@ ctx.flush();
             ctx.lineTo(500, 350);
             ctx.stroke();
 
-            ctx.setFillStyleColorArray([1,1,0,1]);
+            ctx.setStrokeStyleColorArray([1,1,0,1]);
             ctx.beginPath();
             ctx.moveTo(0,0);
             ctx.bezierCurveTo( W,0, 0,H, W,H );
+            ctx.quadraticCurveTo( 0,H, 0,0 );
+            ctx.closePath();
             ctx.stroke();
-
-            ctx.beginPath();
-            ctx.moveTo(0,0);
-            ctx.quadraticCurveTo( 0,H, W,H );
-            ctx.stroke();
+            ctx.setFillStyleColorArray([0,0,1,1]);
+            ctx.fill();
 
 
-            ctx.setFillStyleColorArray([0,1,1,1]);
+            ctx.setStrokeStyleColorArray([0,1,1,1]);
             ctx.rotate( Math.PI/12 );
             ctx.scale(5,5);
             ctx.beginPath();
             ctx.lineJoin= "round";
             ctx.rect( 10,10,50,50 );
             ctx.stroke();
+            ctx.setFillStyleColorArray([1,0,1,1]);
+            ctx.fill();
 
             ctx.lineJoin = 'bevel';
             ctx.lineCap = "butt";
 
-            ctx.setFillStyleColorArray([.5,.5,1,1]);
+            ctx.setStrokeStyleColorArray([.5,.5,1,1]);
             ctx.beginPath();
             ctx.arc( 50,50, 50, 0, Math.PI/2, true );
             ctx.stroke();
 
             ctx.scale(1.05,1.05);
-            ctx.setFillStyleColorArray([1,.5,1,1]);
+            ctx.setStrokeStyleColorArray([1,.5,1,1]);
             ctx.beginPath();
             ctx.arc( 50,50, 50, 0, Math.PI/2, false );
             ctx.stroke();
+            ctx.setFillStyleColorArray([1,.2,.2,.5]);
+            ctx.fill();
 
             ctx.flush();
         }
@@ -117,6 +125,7 @@ ctx.flush();
     <div>
         <div>
             <canvas id="c"></canvas>
+            <canvas id="c1"></canvas>
         </div>
         <div>
             <span id="span"></span>

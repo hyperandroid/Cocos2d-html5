@@ -55,7 +55,7 @@ module cc.render {
          */
         _miterLimit : number= 10;
 
-        _currentFillStyleType : cc.render.FillStyleType= cc.render.FillStyleType.COLOR;
+        _currentFillStyleType : cc.render.FillStyleType= cc.render.FillStyleType.MESHCOLOR;
 
         /**
          * Current fill style.
@@ -85,7 +85,7 @@ module cc.render {
 
         _lineCap : cc.render.LineCap = cc.render.LineCap.BUTT;
 
-        _lineJoin: cc.render.LineJoin= cc.render.LineJoin.BEVEL;
+        _lineJoin: cc.render.LineJoin= cc.render.LineJoin.MITER;
 
         /**
          * Current font data.
@@ -120,6 +120,7 @@ module cc.render {
         _currentPath : any = null;
 
         _currentPathStrokeGeometry : Float32Array= null;
+        _currentPathFillGeometry : Float32Array= null;
         _currentPathStrokeContour : cc.math.Point[]= null;
 
         /**
@@ -212,7 +213,7 @@ module cc.render {
                 this._lineJoin= join;
                 this._lineWidth= lineWidth;
 
-                this._currentPathStrokeGeometry= this._currentPath.getStrokeGeometry({
+                this._currentPath.getStrokeGeometry({
                     width: lineWidth,
                     cap: this._lineCap,
                     join: this._lineJoin,
@@ -220,7 +221,15 @@ module cc.render {
                 });
 
             }
+
+            return this._currentPath._strokeGeometry;
         }
+
+        setupFill( ) {
+            return this._currentPath.getFillGeometry();
+        }
+
+
     }
 
 }

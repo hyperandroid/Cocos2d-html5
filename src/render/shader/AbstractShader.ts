@@ -322,6 +322,9 @@ module cc.render.shader {
             return __mat4;
         }
 
+        useMeshIndex() : boolean {
+            return false;
+        }
     }
 
 }

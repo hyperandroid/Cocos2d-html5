@@ -182,6 +182,7 @@ module cc.math.path.geometry {
         // calculate points, and make the cap.
         var nsegments = (Math.abs(angleDiff * radius) / 7) >> 0;
         nsegments++;
+        nsegments= Math.max( nsegments, 8 );
 
         var angleInc = angleDiff / nsegments;
 
@@ -201,8 +202,8 @@ module cc.math.path.geometry {
     }
 
 
-    function signedArea(p0:cc.math.Point, p1:cc.math.Point, p2:cc.math.Point) {
-        return (p1.x - p0.x) * (p2.y - p0.y) - (p2.x - p0.x) * (p1.y - p0.y);
+    export function signedArea(p0x:number, p0y:number, p1x:number, p1y:number, p2x:number, p2y:number ) : number {
+        return (p1x - p0x) * (p2y - p0y) - (p2x - p0x) * (p1y - p0y);
     }
 
     function lineIntersection(p0:cc.math.Point, p1:cc.math.Point, p2:cc.math.Point, p3:cc.math.Point) {
@@ -256,7 +257,7 @@ module cc.math.path.geometry {
         // triangle composed by the 3 points if clockwise or couterclockwise.
         // if counterclockwise, we must invert the line threshold points, otherwise the intersection point
         // could be erroneous and lead to odd results.
-        if (signedArea(p0, p1, p2) > 0) {
+        if (signedArea(p0.x, p0.y, p1.x, p1.y, p2.x, p2.y) > 0) {
             t0.invert();
             t2.invert();
         }
@@ -385,4 +386,124 @@ module cc.math.path.geometry {
             __pushVert( verts, p2.x-t2.x, p2.y-t2.y );              // p2-t2
         }
     }
+
+    /**
+     * ripped from http://www.blackpawn.com/texts/pointinpoly/default.html ;)
+     *
+     * @param p
+     * @param ax
+     * @param ay
+     * @param bx
+     * @param by
+     * @param cx
+     * @param cy
+     * @returns {boolean}
+     */
+    export function isPointInTriangle(
+        p:cc.math.Point,
+        ax:number, ay:number,
+        bx:number, by:number,
+        cx:number, cy:number ) : boolean {
+
+        var v0x = cx - ax;
+        var v0y = cy - ay;
+        var v1x = bx - ax;
+        var v1y = by - ay;
+        var v2x = p.x - ax;
+        var v2y = p.y - ay;
+
+        // Compute dot products
+        var dot00 = Math.sqrt(v0x*v0x + v0y*v0y);
+        var dot01 = Math.sqrt(v0x*v1x + v0y*v1y);
+        var dot02 = Math.sqrt(v0x*v2x + v0y*v2y);
+        var dot11 = Math.sqrt(v1x*v1x + v1y*v1y);
+        var dot12 = Math.sqrt(v1x*v2x + v1y*v2y);
+
+        // Compute barycentric coordinates
+        var invDenom = 1 / (dot00 * dot11 - dot01 * dot01);
+        var u = (dot11 * dot02 - dot01 * dot12) * invDenom;
+        var v = (dot00 * dot12 - dot01 * dot02) * invDenom;
+
+        // Check if point is in triangle
+        return (u >= 0) && (v >= 0) && (u + v < 1)
+
+    }
+
+    /**
+     * Based from Ivank.polyk: http://polyk.ivank.net/polyk.js
+     * @param contour
+     * @param verts
+     * @returns {Array}
+     */
+    export function tessellate( contour:cc.math.Point[] ) {
+
+        var n = contour.length;
+
+        if (n < 3) {
+            return null;;
+        }
+
+        var triangles = [];
+
+        var available = [];
+        for (var i = 0; i < n; i++) {
+            available.push(i);
+        }
+
+        var i = 0;
+        var numPointsToTessellate = n;
+
+        while (numPointsToTessellate > 3) {
+
+            var i0:number = available[(i    ) % numPointsToTessellate];
+            var i1:number = available[(i + 1) % numPointsToTessellate];
+            var i2:number = available[(i + 2) % numPointsToTessellate];
+
+            var ax = contour[i0].x;
+            var ay = contour[i0].y;
+            var bx = contour[i1].x;
+            var by = contour[i1].y;
+            var cx = contour[i2].x;
+            var cy = contour[i2].y;
+
+            var earFound = false;
+
+            if (signedArea(ax, ay, bx, by, cx, cy)>=0) {
+                earFound = true;
+                for (var j = 0; j < numPointsToTessellate; j++) {
+                    var vi = available[j];
+
+                    if (vi === i0 || vi === i1 || vi === i2) {
+                        continue;
+                    }
+
+                    if (isPointInTriangle(contour[vi], ax, ay, bx, by, cx, cy)) {
+                        earFound = false;
+                        break;
+                    }
+                }
+            }
+
+            if (earFound) {
+                triangles.push(i0, i1, i2);
+                available.splice((i + 1) % numPointsToTessellate, 1);
+                numPointsToTessellate--;
+                i = 0;
+            } else if (i++ > 3 * numPointsToTessellate) {
+                break;
+            }
+        }
+
+        triangles.push(available[0], available[1], available[2]);
+
+        var trianglesData= new Float32Array( triangles.length*2 );
+        for( var i=0; i<triangles.length; i++ ) {
+            var p:cc.math.Point= contour[ triangles[i] ];
+            trianglesData[i*2  ]=p.x;
+            trianglesData[i*2+1]=p.y;
+        }
+
+        return new Float32Array(trianglesData);
+    }
+
 }

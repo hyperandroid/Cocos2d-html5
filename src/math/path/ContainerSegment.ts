@@ -146,6 +146,15 @@ module cc.math.path {
             return dstArray;
         }
 
+        isClosed() {
+            var sp= this.getStartingPoint();
+            var ep= this.getEndingPoint();
+
+            if ( sp===ep || sp.equals(ep) ) {
+                return;
+            }
+        }
+
         /**
          * @see {cc.math.path.Segment#getStartingPoint}
          * @returns {cc.math.Vector}

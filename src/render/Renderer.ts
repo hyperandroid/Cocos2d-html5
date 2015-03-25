@@ -419,13 +419,18 @@ module cc.render {
         };
 
         c2d.type= cc.render.RENDERER_TYPE_CANVAS;
-        //Object.defineProperty(c2d, "type", {
-        //    get: function () {
-        //        return cc.render.RENDERER_TYPE_CANVAS;
-        //    },
-        //    enumerable: true,
-        //    configurable: true
-        //});
+
+        c2d.setStrokeStyleColor= function( color:cc.math.Color ) {
+            this.strokeStyle= (<cc.math.Color>color).getFillStyle();
+        }
+
+        c2d.setStrokeStyleColorArray= function( colorArray:Float32Array ) {
+            this.strokeStyle = new cc.math.Color(colorArray[0], colorArray[1], colorArray[2], colorArray[3]).getFillStyle();
+        };
+
+        c2d.setStrokeStylePattern = function( pattern:cc.render.Pattern ) {
+
+        };
 
         c2d.setFillStyleColor= function( color:cc.math.Color ) {
             this.fillStyle = (<cc.math.Color>color).getFillStyle();

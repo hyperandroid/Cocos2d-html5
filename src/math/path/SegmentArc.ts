@@ -157,6 +157,12 @@ module cc.math.path {
                 this._startAngle += 2 * Math.PI;
             }
 
+            if ( this._startAngle>this._endAngle ) {
+                var tmp= this._startAngle;
+                this._startAngle= this._endAngle;
+                this._endAngle= tmp;
+            }
+
             var s:Vector = this.getValueAt(0);
             this._startingPoint = new Vector();
             this._startingPoint.x = s.x;
