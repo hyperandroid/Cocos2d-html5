@@ -1,12 +1,6 @@
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /**
  * @name cc
  * @namespace
@@ -156,6 +150,7 @@ var cc;
         win.cancelAnimationFrame = win.cancelAnimationFrame || win.cancelRequestAnimationFrame || win.msCancelRequestAnimationFrame || win.mozCancelRequestAnimationFrame || win.oCancelRequestAnimationFrame || win.webkitCancelRequestAnimationFrame || win.msCancelAnimationFrame || win.mozCancelAnimationFrame || win.webkitCancelAnimationFrame || win.oCancelAnimationFrame || ctTime;
     })();
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file.
  */
@@ -268,6 +263,7 @@ var cc;
         Debug.info = info;
     })(Debug = cc.Debug || (cc.Debug = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file.
  */
@@ -402,6 +398,7 @@ var cc;
         locale.ERR_SOUND_POOL_EMPTY = "Can't play, sound pool is empty.";
     })(locale = cc.locale || (cc.locale = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file.
  */
@@ -771,6 +768,7 @@ var cc;
         math.Color = Color;
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file.
  */
@@ -1163,6 +1161,7 @@ var cc;
         var _workingMatrix = cc.math.Matrix3.create();
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file.
  */
@@ -1179,6 +1178,7 @@ var cc;
         math.Matrix4 = Matrix4;
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file.
  */
@@ -1243,7 +1243,7 @@ var cc;
              * @returns {number}
              */
             Vector.prototype.length = function () {
-                return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
+                return Math.sqrt(this.x * this.x + this.y * this.y);
             };
             /**
              * get the vector angle.
@@ -1304,7 +1304,7 @@ var cc;
              * @param v1 {cc.math.Vector}
              * @returns {Vector}
              */
-            Vector.sub = function (v0, v1) {
+            Vector.sub = function (v1, v0) {
                 return new Vector(v1.x - v0.x, v1.y - v0.y);
             };
             /**
@@ -1328,6 +1328,9 @@ var cc;
                 var y = (p1.y + p0.y) / 2;
                 return new Vector(x, y);
             };
+            Vector.equals = function (p0, p1) {
+                return p0.x === p1.x && p0.y === p1.y;
+            };
             /**
              * Compare the vector with another vector for equality.
              * @param v {cc.math.Vector}
@@ -1343,11 +1346,23 @@ var cc;
             Vector.prototype.clone = function () {
                 return new Vector(this.x, this.y, this.z);
             };
+            Vector.prototype.perpendicular = function () {
+                var x = this.x;
+                this.x = -this.y;
+                this.y = x;
+                return this;
+            };
+            Vector.prototype.invert = function () {
+                this.x = -this.x;
+                this.y = -this.y;
+                return this;
+            };
             return Vector;
         })();
         math.Vector = Vector;
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file.
  */
@@ -1576,6 +1591,7 @@ var cc;
         math.Rectangle = Rectangle;
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file
  */
@@ -1640,6 +1656,7 @@ var cc;
         math.Dimension = Dimension;
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
+
 /**
  * Created by ibon on 11/20/14.
  */
@@ -1679,6 +1696,7 @@ var cc;
         })(path = math.path || (math.path = {}));
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file
  */
@@ -1782,7 +1800,7 @@ var cc;
                  */
                 SegmentLine.prototype.trace = function (dstArray, numPoints) {
                     dstArray = dstArray || [];
-                    dstArray.push(this._start);
+                    //dstArray.push( this._start );
                     dstArray.push(this._end);
                     return dstArray;
                 };
@@ -1878,6 +1896,7 @@ var cc;
         })(path = math.path || (math.path = {}));
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file
  */
@@ -2188,6 +2207,7 @@ var cc;
         })(path = math.path || (math.path = {}));
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file.
  */
@@ -2455,6 +2475,7 @@ var cc;
         })(path = math.path || (math.path = {}));
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file.
  */
@@ -2750,6 +2771,7 @@ var cc;
         })(path = math.path || (math.path = {}));
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
+
 /**
  * Created by ibon on 11/23/14.
  */
@@ -2825,6 +2847,11 @@ var cc;
                     else if (this._ccw && this._startAngle <= this._endAngle) {
                         this._startAngle += 2 * Math.PI;
                     }
+                    if (this._startAngle > this._endAngle) {
+                        var tmp = this._startAngle;
+                        this._startAngle = this._endAngle;
+                        this._endAngle = tmp;
+                    }
                     var s = this.getValueAt(0);
                     this._startingPoint = new Vector();
                     this._startingPoint.x = s.x;
@@ -2893,7 +2920,7 @@ var cc;
                     if (this._startAngle === this._endAngle || this._radius === 0) {
                         return dstArray;
                     }
-                    for (var i = 0; i < numPoints; i++) {
+                    for (var i = 0; i <= numPoints; i++) {
                         dstArray.push(this.getValueAt(i / numPoints, new Vector()));
                     }
                     return dstArray;
@@ -2963,6 +2990,7 @@ var cc;
         })(path = math.path || (math.path = {}));
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file
  */
@@ -3277,6 +3305,7 @@ var cc;
         })(path = math.path || (math.path = {}));
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
+
 /**
  * Created by ibon on 11/22/14.
  */
@@ -3391,10 +3420,19 @@ var cc;
                 ContainerSegment.prototype.trace = function (dstArray, numPoints) {
                     dstArray = dstArray || [];
                     numPoints = numPoints || cc.math.path.DEFAULT_TRACE_LENGTH;
-                    for (var i = 0; i <= numPoints; i++) {
-                        dstArray.push(this.getValueAt(i / numPoints, new math.Vector()));
+                    this.getLength();
+                    dstArray.push(this.getStartingPoint());
+                    for (var i = 0; i < this._segments.length; i++) {
+                        this._segments[i].trace(dstArray, numPoints);
                     }
                     return dstArray;
+                };
+                ContainerSegment.prototype.isClosed = function () {
+                    var sp = this.getStartingPoint();
+                    var ep = this.getEndingPoint();
+                    if (sp === ep || sp.equals(ep)) {
+                        return;
+                    }
                 };
                 /**
                  * @see {cc.math.path.Segment#getStartingPoint}
@@ -3475,9 +3513,16 @@ var cc;
         })(path = math.path || (math.path = {}));
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file.
  */
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
 /// <reference path="../Point.ts"/>
 /// <reference path="./Segment.ts"/>
 /// <reference path="./SegmentLine.ts"/>
@@ -3816,9 +3861,400 @@ var cc;
         })(path = math.path || (math.path = {}));
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
+
+/**
+ *
+ * License: see license.txt file.
+ *
+ * (c) 2014-2015 @hyperandroid
+ *
+ */
+/// <reference path="../../Point.ts"/>
+/// <reference path="../../../render/RenderingContext.ts"/>
+var cc;
+(function (cc) {
+    var math;
+    (function (math) {
+        var path;
+        (function (path) {
+            var geometry;
+            (function (geometry) {
+                var EPSILON = 0.0001;
+                /**
+                 * Get Stroke geometry for an array of Vector objects.
+                 * The array is the result of calling 'trace' for a Path object.
+                 *
+                 * @param points {Array.<cc.math.Vector>} contour of the points to trace.
+                 * @param attrs {cc.math.path.StrokeGeometryAttributes}
+                 *
+                 * @returns {Array<number> | Float32Array} Array with pairs of numbers (x,y)
+                 */
+                function getStrokeGeometry(points, attrs) {
+                    // trivial reject
+                    if (points.length < 2) {
+                        return new Float32Array([]);
+                    }
+                    var cap = attrs.cap || 0 /* BUTT */;
+                    var join = attrs.join || 0 /* BEVEL */;
+                    var lineWidth = (attrs.width || 1) / 2;
+                    var miterLimit = attrs.miterLimit || 10;
+                    var vertices = [];
+                    var middlePoints = []; // middle points per each line segment.
+                    var closed = false;
+                    if (points.length === 2) {
+                        join = 0 /* BEVEL */;
+                        createTriangles(points[0], cc.math.Vector.middlePoint(points[0], points[1]), points[1], vertices, lineWidth, join, miterLimit);
+                    }
+                    else {
+                        if (points[0] === points[points.length - 1] || (points[0].x === points[points.length - 1].x && points[0].y === points[points.length - 1].y)) {
+                            var p0 = points.shift();
+                            p0 = cc.math.Vector.middlePoint(p0, points[0]);
+                            points.unshift(p0);
+                            points.push(p0);
+                            closed = true;
+                        }
+                        var i;
+                        for (i = 0; i < points.length - 1; i++) {
+                            if (i === 0) {
+                                middlePoints.push(points[0]);
+                            }
+                            else if (i === points.length - 2) {
+                                middlePoints.push(points[points.length - 1]);
+                            }
+                            else {
+                                middlePoints.push(cc.math.Vector.middlePoint(points[i], points[i + 1]));
+                            }
+                        }
+                        for (i = 1; i < middlePoints.length; i++) {
+                            createTriangles(middlePoints[i - 1], points[i], middlePoints[i], vertices, lineWidth, join, miterLimit);
+                        }
+                    }
+                    if (!closed) {
+                        if (cap === 2 /* ROUND */) {
+                            var p00 = new cc.math.Vector(vertices[0], vertices[1]);
+                            var p01 = new cc.math.Vector(vertices[2], vertices[3]);
+                            var p02 = points[1];
+                            var p10 = new cc.math.Vector(vertices[vertices.length - 2], vertices[vertices.length - 1]);
+                            var p11 = new cc.math.Vector(vertices[vertices.length - 6], vertices[vertices.length - 5]);
+                            var p12 = points[points.length - 2];
+                            createRoundCap(points[0], p00, p01, p02, vertices);
+                            createRoundCap(points[points.length - 1], p10, p11, p12, vertices);
+                        }
+                        else if (cap === 1 /* SQUARE */) {
+                            var p00 = new cc.math.Vector(vertices[vertices.length - 2], vertices[vertices.length - 1]);
+                            var p01 = new cc.math.Vector(vertices[vertices.length - 6], vertices[vertices.length - 5]);
+                            createSquareCap(new cc.math.Vector(vertices[0], vertices[1]), new cc.math.Vector(vertices[2], vertices[3]), cc.math.Vector.sub(points[0], points[1]).normalize().mult(cc.math.Vector.sub(points[0], new cc.math.Vector(vertices[0], vertices[1])).length()), vertices);
+                            createSquareCap(p00, p01, cc.math.Vector.sub(points[points.length - 1], points[points.length - 2]).normalize().mult(cc.math.Vector.sub(p01, points[points.length - 1]).length()), vertices);
+                        }
+                    }
+                    return new Float32Array(vertices);
+                }
+                geometry.getStrokeGeometry = getStrokeGeometry;
+                function __pushVert(v, x, y) {
+                    v.push(x);
+                    v.push(y);
+                }
+                function createSquareCap(p0, p1, dir, verts) {
+                    //p0
+                    __pushVert(verts, p0.x, p0.y);
+                    //Point.Add(p0, dir);
+                    __pushVert(verts, p0.x + dir.x, p0.y + dir.y);
+                    //Point.Add(p1, dir);
+                    __pushVert(verts, p1.x + dir.x, p1.y + dir.y);
+                    //p1;
+                    __pushVert(verts, p1.x, p1.y);
+                    //Point.Add(p1, dir);
+                    __pushVert(verts, p1.x + dir.x, p1.y + dir.y);
+                    //p0
+                    __pushVert(verts, p0.x, p0.y);
+                }
+                function createRoundCap(center, _p0, _p1, nextPointInLine, verts) {
+                    var radius = cc.math.Vector.sub(center, _p0).length();
+                    var angle0 = Math.atan2((_p1.y - center.y), (_p1.x - center.x));
+                    var angle1 = Math.atan2((_p0.y - center.y), (_p0.x - center.x));
+                    var orgAngle0 = angle0;
+                    // make the round caps point in the right direction.
+                    // calculate minimum angle between two given angles.
+                    // for example: -Math.PI, Math.PI = 0, -Math.PI/2, Math.PI= Math.PI/2, etc.
+                    if (angle1 > angle0) {
+                        while (angle1 - angle0 >= Math.PI - EPSILON) {
+                            angle1 = angle1 - 2 * Math.PI;
+                        }
+                    }
+                    else {
+                        while (angle0 - angle1 >= Math.PI - EPSILON) {
+                            angle0 = angle0 - 2 * Math.PI;
+                        }
+                    }
+                    var angleDiff = angle1 - angle0;
+                    // for angles equal Math.PI, make the round point in the right direction.
+                    if (Math.abs(angleDiff) >= Math.PI - EPSILON && Math.abs(angleDiff) <= Math.PI + EPSILON) {
+                        var r1 = cc.math.Vector.sub(center, nextPointInLine);
+                        if (r1.x === 0) {
+                            if (r1.y > 0) {
+                                angleDiff = -angleDiff;
+                            }
+                        }
+                        else if (r1.x >= -EPSILON) {
+                            angleDiff = -angleDiff;
+                        }
+                    }
+                    // calculate points, and make the cap.
+                    var nsegments = (Math.abs(angleDiff * radius) / 7) >> 0;
+                    nsegments++;
+                    nsegments = Math.max(nsegments, 8);
+                    var angleInc = angleDiff / nsegments;
+                    for (var i = 0; i < nsegments; i++) {
+                        __pushVert(verts, center.x, center.y);
+                        __pushVert(verts, center.x + radius * Math.cos(orgAngle0 + angleInc * i), center.y + radius * Math.sin(orgAngle0 + angleInc * i));
+                        __pushVert(verts, center.x + radius * Math.cos(orgAngle0 + angleInc * (1 + i)), center.y + radius * Math.sin(orgAngle0 + angleInc * (1 + i)));
+                    }
+                }
+                function signedArea(p0x, p0y, p1x, p1y, p2x, p2y) {
+                    return (p1x - p0x) * (p2y - p0y) - (p2x - p0x) * (p1y - p0y);
+                }
+                geometry.signedArea = signedArea;
+                function lineIntersection(p0, p1, p2, p3) {
+                    var a0 = p1.y - p0.y;
+                    var b0 = p0.x - p1.x;
+                    var a1 = p3.y - p2.y;
+                    var b1 = p2.x - p3.x;
+                    var det = a0 * b1 - a1 * b0;
+                    if (det > -EPSILON && det < EPSILON) {
+                        return null;
+                    }
+                    else {
+                        var c0 = a0 * p0.x + b0 * p0.y;
+                        var c1 = a1 * p2.x + b1 * p2.y;
+                        var x = (b1 * c0 - b0 * c1) / det;
+                        var y = (a0 * c1 - a1 * c0) / det;
+                        return new cc.math.Vector(x, y);
+                    }
+                }
+                function createTriangles(p0, p1, p2, verts, width, join, miterLimit) {
+                    if (cc.math.Vector.equals(p0, p1)) {
+                        p1.x = p0.x + (p2.x - p0.x) / 2;
+                        p1.y = p0.y + (p2.y - p0.y) / 2;
+                    }
+                    else if (cc.math.Vector.equals(p1, p2)) {
+                        p2 = new cc.math.Vector(p1.x, p1.y);
+                        p1.x = p0.x + (p2.x - p0.x) / 2;
+                        p1.y = p0.y + (p2.y - p0.y) / 2;
+                    }
+                    if (cc.math.Vector.equals(p0, p1) && cc.math.Vector.equals(p1, p2)) {
+                        return;
+                    }
+                    var t0 = cc.math.Vector.sub(p1, p0);
+                    var t2 = cc.math.Vector.sub(p2, p1);
+                    t0.perpendicular().normalize().mult(width);
+                    t2.perpendicular().normalize().mult(width);
+                    // triangle composed by the 3 points if clockwise or couterclockwise.
+                    // if counterclockwise, we must invert the line threshold points, otherwise the intersection point
+                    // could be erroneous and lead to odd results.
+                    if (signedArea(p0.x, p0.y, p1.x, p1.y, p2.x, p2.y) > 0) {
+                        t0.invert();
+                        t2.invert();
+                    }
+                    var pintersect = lineIntersection(cc.math.Vector.add(p0, t0), cc.math.Vector.add(p1, t0), cc.math.Vector.add(p2, t2), cc.math.Vector.add(p1, t2));
+                    var anchor = null;
+                    var anchorLength = Number.MAX_VALUE;
+                    if (pintersect) {
+                        anchor = cc.math.Vector.sub(pintersect, p1);
+                        anchorLength = anchor.length();
+                    }
+                    var dd = (anchorLength / width) | 0;
+                    var p0p1 = cc.math.Vector.sub(p0, p1);
+                    var p0p1Length = p0p1.length();
+                    var p1p2 = cc.math.Vector.sub(p1, p2);
+                    var p1p2Length = p1p2.length();
+                    /**
+                     * the cross point exceeds any of the segments dimension.
+                     * do not use cross point as reference.
+                     * This case deserves more attention to avoid redraw, currently works by overdrawing large parts.
+                     */
+                    if (anchorLength > p0p1Length || anchorLength > p1p2Length) {
+                        __pushVert(verts, p0.x + t0.x, p0.y + t0.y); // p0+t0
+                        __pushVert(verts, p0.x - t0.x, p0.y - t0.y); // p0-t0
+                        __pushVert(verts, p1.x + t0.x, p1.y + t0.y); // p1+t0
+                        __pushVert(verts, p0.x - t0.x, p0.y - t0.y); // p0-t0
+                        __pushVert(verts, p1.x + t0.x, p1.y + t0.y); // p1+t0
+                        __pushVert(verts, p1.x - t0.x, p1.y - t0.y); // p1-t0
+                        if (join === 2 /* ROUND */) {
+                            createRoundCap(p1, cc.math.Vector.add(p1, t0), cc.math.Vector.add(p1, t2), p2, verts);
+                        }
+                        else if (join === 0 /* BEVEL */ || (join === 1 /* MITER */ && dd >= miterLimit)) {
+                            __pushVert(verts, p1.x, p1.y); // p1
+                            __pushVert(verts, p1.x + t0.x, p1.y + t0.y); // p1+t0
+                            __pushVert(verts, p1.x + t2.x, p1.y + t2.y); // p1+t2
+                        }
+                        else if (join === 1 /* MITER */ && dd < miterLimit && pintersect) {
+                            __pushVert(verts, p1.x + t0.x, p1.y + t0.y); // p1+t0
+                            __pushVert(verts, p1.x, p1.y); // p1
+                            __pushVert(verts, pintersect.x, pintersect.y); // pintersect
+                            __pushVert(verts, p1.x + t2.x, p1.y + t2.y); // p1+t2
+                            __pushVert(verts, p1.x, p1.y); // p1
+                            __pushVert(verts, pintersect.x, pintersect.y); // pintersect
+                        }
+                        __pushVert(verts, p2.x + t2.x, p2.y + t2.y); // p2+t2
+                        __pushVert(verts, p1.x - t2.x, p1.y - t2.y); // p1-t2
+                        __pushVert(verts, p1.x + t2.x, p1.y + t2.y); // p1+t2
+                        __pushVert(verts, p2.x + t2.x, p2.y + t2.y); // p2+t2
+                        __pushVert(verts, p1.x - t2.x, p1.y - t2.y); // p1-t2
+                        __pushVert(verts, p2.x - t2.x, p2.y - t2.y); // p2-t2
+                    }
+                    else {
+                        __pushVert(verts, p0.x + t0.x, p0.y + t0.y); // p0+t0
+                        __pushVert(verts, p0.x - t0.x, p0.y - t0.y); // p0-t0
+                        __pushVert(verts, p1.x - anchor.x, p1.y - anchor.y); // p1-anchor
+                        __pushVert(verts, p0.x + t0.x, p0.y + t0.y); // p0+t0
+                        __pushVert(verts, p1.x - anchor.x, p1.y - anchor.y); // p1-anchor
+                        __pushVert(verts, p1.x + t0.x, p1.y + t0.y); // p1+t0
+                        if (join === 2 /* ROUND */) {
+                            var _p0 = cc.math.Vector.add(p1, t0);
+                            var _p1 = cc.math.Vector.add(p1, t2);
+                            var _p2 = cc.math.Vector.sub(p1, anchor);
+                            var center = p1;
+                            __pushVert(verts, _p0.x, _p0.y); // _p0
+                            __pushVert(verts, center.x, center.y); // center
+                            __pushVert(verts, _p2.x, _p2.y); // _p2
+                            createRoundCap(center, _p0, _p1, _p2, verts);
+                            __pushVert(verts, center.x, center.y); // center
+                            __pushVert(verts, _p1.x, _p1.y); // _p1
+                            __pushVert(verts, _p2.x, _p2.y); // _p2
+                        }
+                        else {
+                            if (join === 0 /* BEVEL */ || (join === 1 /* MITER */ && dd >= miterLimit)) {
+                                __pushVert(verts, p1.x + t0.x, p1.y + t0.y); // p1+t0
+                                __pushVert(verts, p1.x + t2.x, p1.y + t2.y); // p1+t2
+                                __pushVert(verts, p1.x - anchor.x, p1.y - anchor.y); // p1-anchor
+                            }
+                            if (join === 1 /* MITER */ && dd < miterLimit) {
+                                __pushVert(verts, pintersect.x, pintersect.y); // pintersect
+                                __pushVert(verts, p1.x + t0.x, p1.y + t0.y); // p1+t0
+                                __pushVert(verts, p1.x + t2.x, p1.y + t2.y); // p1+t2
+                                __pushVert(verts, p1.x - anchor.x, p1.y - anchor.y); // p1-anchor
+                                __pushVert(verts, p1.x + t0.x, p1.y + t0.y); // p1+t0
+                                __pushVert(verts, p1.x + t2.x, p1.y + t2.y); // p1+t2
+                            }
+                        }
+                        __pushVert(verts, p2.x + t2.x, p2.y + t2.y); // p2+t2
+                        __pushVert(verts, p1.x - anchor.x, p1.y - anchor.y); // p1-anchor
+                        __pushVert(verts, p1.x + t2.x, p1.y + t2.y); // p1+t2
+                        __pushVert(verts, p2.x + t2.x, p2.y + t2.y); // p2+t2
+                        __pushVert(verts, p1.x - anchor.x, p1.y - anchor.y); // p1-anchor
+                        __pushVert(verts, p2.x - t2.x, p2.y - t2.y); // p2-t2
+                    }
+                }
+                /**
+                 * ripped from http://www.blackpawn.com/texts/pointinpoly/default.html ;)
+                 *
+                 * @param p
+                 * @param ax
+                 * @param ay
+                 * @param bx
+                 * @param by
+                 * @param cx
+                 * @param cy
+                 * @returns {boolean}
+                 */
+                function isPointInTriangle(p, ax, ay, bx, by, cx, cy) {
+                    var v0x = cx - ax;
+                    var v0y = cy - ay;
+                    var v1x = bx - ax;
+                    var v1y = by - ay;
+                    var v2x = p.x - ax;
+                    var v2y = p.y - ay;
+                    // Compute dot products
+                    var dot00 = Math.sqrt(v0x * v0x + v0y * v0y);
+                    var dot01 = Math.sqrt(v0x * v1x + v0y * v1y);
+                    var dot02 = Math.sqrt(v0x * v2x + v0y * v2y);
+                    var dot11 = Math.sqrt(v1x * v1x + v1y * v1y);
+                    var dot12 = Math.sqrt(v1x * v2x + v1y * v2y);
+                    // Compute barycentric coordinates
+                    var invDenom = 1 / (dot00 * dot11 - dot01 * dot01);
+                    var u = (dot11 * dot02 - dot01 * dot12) * invDenom;
+                    var v = (dot00 * dot12 - dot01 * dot02) * invDenom;
+                    // Check if point is in triangle
+                    return (u >= 0) && (v >= 0) && (u + v < 1);
+                }
+                geometry.isPointInTriangle = isPointInTriangle;
+                /**
+                 * Based from Ivank.polyk: http://polyk.ivank.net/polyk.js
+                 * @param contour
+                 * @param verts
+                 * @returns {Array}
+                 */
+                function tessellate(contour) {
+                    var n = contour.length;
+                    if (n < 3) {
+                        return null;
+                        ;
+                    }
+                    var triangles = [];
+                    var available = [];
+                    for (var i = 0; i < n; i++) {
+                        available.push(i);
+                    }
+                    var i = 0;
+                    var numPointsToTessellate = n;
+                    while (numPointsToTessellate > 3) {
+                        var i0 = available[(i) % numPointsToTessellate];
+                        var i1 = available[(i + 1) % numPointsToTessellate];
+                        var i2 = available[(i + 2) % numPointsToTessellate];
+                        var ax = contour[i0].x;
+                        var ay = contour[i0].y;
+                        var bx = contour[i1].x;
+                        var by = contour[i1].y;
+                        var cx = contour[i2].x;
+                        var cy = contour[i2].y;
+                        var earFound = false;
+                        if (signedArea(ax, ay, bx, by, cx, cy) >= 0) {
+                            earFound = true;
+                            for (var j = 0; j < numPointsToTessellate; j++) {
+                                var vi = available[j];
+                                if (vi === i0 || vi === i1 || vi === i2) {
+                                    continue;
+                                }
+                                if (isPointInTriangle(contour[vi], ax, ay, bx, by, cx, cy)) {
+                                    earFound = false;
+                                    break;
+                                }
+                            }
+                        }
+                        if (earFound) {
+                            triangles.push(i0, i1, i2);
+                            available.splice((i + 1) % numPointsToTessellate, 1);
+                            numPointsToTessellate--;
+                            i = 0;
+                        }
+                        else if (i++ > 3 * numPointsToTessellate) {
+                            break;
+                        }
+                    }
+                    triangles.push(available[0], available[1], available[2]);
+                    var trianglesData = new Float32Array(triangles.length * 2);
+                    for (var i = 0; i < triangles.length; i++) {
+                        var p = contour[triangles[i]];
+                        trianglesData[i * 2] = p.x;
+                        trianglesData[i * 2 + 1] = p.y;
+                    }
+                    return new Float32Array(trianglesData);
+                }
+                geometry.tessellate = tessellate;
+            })(geometry = path.geometry || (path.geometry = {}));
+        })(path = math.path || (math.path = {}));
+    })(math = cc.math || (cc.math = {}));
+})(cc || (cc = {}));
+
 /**
  * License: see license.txt file.
  */
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
 /// <reference path="./path/Segment.ts"/>
 /// <reference path="./path/ContainerSegment.ts"/>
 /// <reference path="./path/SubPath.ts"/>
@@ -3871,6 +4307,10 @@ var cc;
                  * @private
                  */
                 this._currentSubPath = null;
+                this._strokeGeometry = null;
+                this._fillGeometry = null;
+                this._strokeDirty = true;
+                this._fillDirty = true;
             }
             /**
              * Get the Path's number of SubPaths.
@@ -3994,10 +4434,10 @@ var cc;
                 this._segments = [];
                 this._length = 0;
                 this._currentSubPath = null;
-                this._dirty = true;
+                this.setDirty();
                 return this;
             };
-            Path.prototype.quadraticTo = function (x1, y1, x2, y2, matrix) {
+            Path.prototype.quadraticCurveTo = function (x1, y1, x2, y2, matrix) {
                 __v0.set(x1, y1);
                 __v1.set(x2, y2);
                 if (matrix) {
@@ -4006,9 +4446,10 @@ var cc;
                 }
                 this.__ensureSubPath();
                 this._currentSubPath.quadraticTo(__v0.x, __v0.y, __v1.x, __v1.y);
+                this.setDirty();
                 return this;
             };
-            Path.prototype.bezierTo = function (x0, y0, x1, y1, x2, y2, matrix) {
+            Path.prototype.bezierCurveTo = function (x0, y0, x1, y1, x2, y2, matrix) {
                 __v0.set(x0, y0);
                 __v1.set(x1, y1);
                 __v2.set(x2, y2);
@@ -4019,6 +4460,7 @@ var cc;
                 }
                 this.__ensureSubPath();
                 this._currentSubPath.bezierTo(__v0.x, __v0.y, __v1.x, __v1.y, __v2.x, __v2.y);
+                this.setDirty();
                 return this;
             };
             Path.prototype.catmullRomTo = function (p0) {
@@ -4059,6 +4501,7 @@ var cc;
                 else {
                     console.log("invalid signature Path.catmullRomTo");
                 }
+                this.setDirty();
                 return this;
             };
             /**
@@ -4082,6 +4525,7 @@ var cc;
                 }
                 this.__ensureSubPath();
                 this._currentSubPath.catmullRomTo(__v0.x, __v0.y, __v1.x, __v1.y, __v2.x, __v2.y, tension);
+                this.setDirty();
             };
             /**
              * Close the current SubPath.
@@ -4090,7 +4534,7 @@ var cc;
              */
             Path.prototype.closePath = function () {
                 this._currentSubPath.closePath();
-                this._dirty = true;
+                this.setDirty();
                 return this;
             };
             /**
@@ -4117,6 +4561,9 @@ var cc;
                     y = __v0.y;
                 }
                 this.__ensureSubPath(x, y);
+                if (!this._currentSubPath.isEmpty()) {
+                    this.__newSubPath();
+                }
                 this._currentSubPath.moveTo(x, y);
                 return this;
             };
@@ -4140,7 +4587,7 @@ var cc;
                 this.__ensureSubPath(x, y);
                 this.__chainSubPathIfCurrentIsClosed();
                 this._currentSubPath.lineTo(x, y);
-                this._dirty = true;
+                this.setDirty();
                 return this;
             };
             /**
@@ -4176,7 +4623,7 @@ var cc;
                 this.closePath();
                 this.__newSubPath();
                 this._currentSubPath.moveTo(__v0.x, __v0.y);
-                this._dirty = true;
+                this.setDirty();
                 return this;
             };
             /**
@@ -4234,13 +4681,13 @@ var cc;
                 }
                 // calculate start angle based on current matrix
                 if (matrix) {
-                    Matrix3.copy(__m0, matrix);
+                    Matrix3.copy(matrix, __m0);
                     Matrix3.setRotate(__m1, startAngle);
                     Matrix3.multiply(__m0, __m1);
-                    startAngle = cc.math.path.getDistanceVector(1, matrix).angle();
+                    startAngle = cc.math.path.getDistanceVector(1, __m0).angle();
                 }
                 this._currentSubPath.arc(x, y, radius, startAngle, startAngle + diffAngle, anticlockwise, addLine);
-                this._dirty = true;
+                this.setDirty();
                 return this;
             };
             Path.prototype.clone = function () {
@@ -4252,19 +4699,73 @@ var cc;
                 path._length = this._length;
                 return path;
             };
+            Path.prototype.setDirty = function () {
+                this._dirty = true;
+                this._fillDirty = true;
+                this._strokeDirty = true;
+            };
             Path.prototype.paint = function (ctx) {
                 for (var i = 0; i < this._segments.length; i++) {
                     this._segments[i].paint(ctx);
                 }
             };
-            Path.prototype.getStrokeGeometry = function () {
-                return [];
+            Path.prototype.getStrokeGeometry = function (attributes) {
+                if (this._dirty || this._strokeDirty) {
+                    var size = 0;
+                    var buffers = [];
+                    for (var i = 0; i < this._segments.length; i++) {
+                        var subPath = this._segments[i];
+                        var contourPoints = subPath.trace();
+                        var buffer = cc.math.path.geometry.getStrokeGeometry(subPath.trace(), attributes);
+                        if (null !== buffer) {
+                            size += buffer.length;
+                            buffers.push(buffer);
+                        }
+                    }
+                    ;
+                    this._strokeGeometry = new Float32Array(size);
+                    var offset = 0;
+                    for (var i = 0; i < buffers.length; i++) {
+                        this._strokeGeometry.set(buffers[i], offset);
+                        offset += buffers[i].length;
+                    }
+                    this._dirty = false;
+                    this._strokeDirty = false;
+                }
+                return this._strokeGeometry;
+            };
+            Path.prototype.getFillGeometry = function () {
+                if (this._dirty || this._fillDirty) {
+                    var size = 0;
+                    var buffers = [];
+                    for (var i = 0; i < this._segments.length; i++) {
+                        var subPath = this._segments[i];
+                        var contourPoints = subPath.trace();
+                        var contour = subPath.trace();
+                        var buffer = cc.math.path.geometry.tessellate(contour);
+                        if (null !== buffer) {
+                            size += buffer.length;
+                            buffers.push(buffer);
+                        }
+                    }
+                    ;
+                    this._fillGeometry = new Float32Array(size);
+                    var offset = 0;
+                    for (var i = 0; i < buffers.length; i++) {
+                        this._fillGeometry.set(buffers[i], offset);
+                        offset += buffers[i].length;
+                    }
+                    this._dirty = false;
+                    this._fillDirty = false;
+                }
+                return this._fillGeometry;
             };
             return Path;
         })(ContainerSegment);
         math.Path = Path;
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file.
  */
@@ -6173,6 +6674,7 @@ var cc;
         _node.Node = Node;
     })(node = cc.node || (cc.node = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file.
  */
@@ -7281,6 +7783,7 @@ var cc;
         _action.Action = Action;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file.
  */
@@ -7887,12 +8390,19 @@ var cc;
         action.Interpolator = Interpolator;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file.
  */
 /// <reference path="../node/Node.ts"/>
 /// <reference path="./Action.ts"/>
 "use strict";
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
 var cc;
 (function (cc) {
     var action;
@@ -8048,9 +8558,16 @@ var cc;
         action.AlphaAction = AlphaAction;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file.
  */
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
 /// <reference path="../math/Point.ts"/>
 /// <reference path="../node/Node.ts"/>
 /// <reference path="./Action.ts"/>
@@ -8234,9 +8751,16 @@ var cc;
         action.MoveAction = MoveAction;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file.
  */
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
 /// <reference path="../node/Node.ts"/>
 /// <reference path="../action/Action.ts"/>
 var cc;
@@ -8554,9 +9078,16 @@ var cc;
         action.PropertyAction = PropertyAction;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file.
  */
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
 /// <reference path="../node/Node.ts"/>
 /// <reference path="./Action.ts"/>
 var cc;
@@ -8710,9 +9241,16 @@ var cc;
         action.RotateAction = RotateAction;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file.
  */
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
 /// <reference path="./Action.ts"/>
 /// <reference path="../math/Point.ts"/>
 /// <reference path="../node/Node.ts"/>
@@ -8890,9 +9428,16 @@ var cc;
         action.ScaleAction = ScaleAction;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file.
  */
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
 /// <reference path="../node/Node.ts"/>
 /// <reference path="./Action.ts"/>
 /// <reference path="./MoveAction.ts"/>
@@ -9207,9 +9752,16 @@ var cc;
         _action.SequenceAction = SequenceAction;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file.
  */
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
 /// <reference path="../node/Node.ts"/>
 /// <reference path="../math/Point.ts"/>
 /// <reference path="./Action.ts"/>
@@ -9384,9 +9936,16 @@ var cc;
         action.TintAction = TintAction;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file
  */
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
 /// <reference path="./Action.ts"/>
 /// <reference path="../node/sprite/Animation.ts"/>
 /// <reference path="../node/sprite/SpriteFrame.ts"/>
@@ -9576,9 +10135,16 @@ var cc;
         action.AnimateAction = AnimateAction;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file
  */
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
 /// <reference path="../math/Point.ts"/>
 /// <reference path="../math/path/Segment.ts"/>
 /// <reference path="../node/Node.ts"/>
@@ -9883,6 +10449,7 @@ var cc;
         action.PathAction = PathAction;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file
  */
@@ -9890,6 +10457,12 @@ var cc;
 /// <reference path="../node/Node.ts"/>
 /// <reference path="./Action.ts"/>
 "use strict";
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
 var cc;
 (function (cc) {
     var action;
@@ -10039,6 +10612,7 @@ var cc;
         action.JumpAction = JumpAction;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file.
  */
@@ -10295,9 +10869,16 @@ var cc;
         __action.ActionManager = ActionManager;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file
  */
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
 /// <reference path="./Action.ts"/>
 /// <reference path="../node/Node.ts"/>
 var cc;
@@ -10842,6 +11423,7 @@ var cc;
         action.SchedulerQueue = SchedulerQueue;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file
  */
@@ -11283,9 +11865,16 @@ var cc;
         _action.ActionChainContext = ActionChainContext;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file
  */
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
 var cc;
 (function (cc) {
     var Performance;
@@ -11397,9 +11986,16 @@ var cc;
         _Performance.Performance = Performance;
     })(Performance = cc.Performance || (cc.Performance = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file.
  */
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
 /// <reference path="../action/Action.ts"/>
 /// <reference path="../action/SchedulerQueue.ts"/>
 /// <reference path="./Node.ts"/>
@@ -11869,9 +12465,16 @@ var cc;
         _node.Scene = Scene;
     })(node = cc.node || (cc.node = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file.
  */
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
 /// <reference path="./Node.ts"/>
 /// <reference path="./Scene.ts"/>
 /// <reference path="../math/Dimension.ts"/>
@@ -12396,6 +12999,7 @@ var cc;
         node.Director = Director;
     })(node = cc.node || (cc.node = {}));
 })(cc || (cc = {}));
+
 /**
  * Created by ibon on 11/17/14.
  */
@@ -12606,6 +13210,7 @@ var cc;
         render.Texture2D = Texture2D;
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
+
 /**
  * Created by ibon on 11/26/14.
  */
@@ -12951,6 +13556,7 @@ var cc;
         })(sprite = node.sprite || (node.sprite = {}));
     })(node = cc.node || (cc.node = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file.
  */
@@ -13160,9 +13766,16 @@ var cc;
         })(sprite = node.sprite || (node.sprite = {}));
     })(node = cc.node || (cc.node = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file.
  */
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
 /// <reference path="Node.ts"/>
 /// <reference path="./sprite/SpriteFrame.ts"/>
 /// <reference path="../math/Color.ts"/>
@@ -13506,9 +14119,16 @@ var cc;
         node.SpriteBatchNode = SpriteBatchNode;
     })(node = cc.node || (cc.node = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file.
  */
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
 /// <reference path="./Node.ts"/>
 /// <reference path="./Sprite.ts"/>
 /// <reference path="../render/RenderingContext.ts"/>
@@ -13564,9 +14184,16 @@ var cc;
         node.FastSprite = FastSprite;
     })(node = cc.node || (cc.node = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file.
  */
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
 /// <reference path="../node/Node.ts"/>
 /// <reference path="../node/sprite/SpriteFrame.ts"/>
 /// <reference path="../input/InputManager.ts"/>
@@ -14013,9 +14640,16 @@ var cc;
     })(cc.node.Node);
     cc.MenuItemToggle = MenuItemToggle;
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file
  */
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
 /// <reference path="../math/Dimension.ts"/>
 /// <reference path="../node/Node.ts"/>
 /// <reference path="../node/Sprite.ts"/>
@@ -14388,6 +15022,7 @@ var cc;
         widget.LabelTTF = LabelTTF;
     })(widget = cc.widget || (cc.widget = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file
  */
@@ -14655,9 +15290,16 @@ var cc;
         render.WebGLState = WebGLState;
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file.
  */
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
 /// <reference path="../node/Node.ts"/>
 /// <reference path="../node/Scene.ts"/>
 /// <reference path="../node/Director.ts"/>
@@ -14980,9 +15622,16 @@ var cc;
         _transition.TransitionSlideInB = TransitionSlideInB;
     })(transition = cc.transition || (cc.transition = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file.
  */
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
 /// <reference path="../WebGLState.ts"/>
 var cc;
 (function (cc) {
@@ -15170,6 +15819,7 @@ var cc;
         })(shader = render.shader || (render.shader = {}));
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file.
  */
@@ -15230,6 +15880,7 @@ var cc;
         })(shader = render.shader || (render.shader = {}));
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file.
  */
@@ -15456,15 +16107,25 @@ var cc;
                     __mat4[13] = mat3[5];
                     return __mat4;
                 };
+                AbstractShader.prototype.useMeshIndex = function () {
+                    return false;
+                };
                 return AbstractShader;
             })();
             _shader.AbstractShader = AbstractShader;
         })(shader = render.shader || (render.shader = {}));
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file.
  */
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
 /// <reference path="./AbstractShader.ts"/>
 /// <reference path="../webGLState.ts"/>
 /// <reference path="../../util/util.ts"/>
@@ -15548,6 +16209,9 @@ var cc;
                     gl.vertexAttribPointer(this._attributePosition._location, 2, gl._gl.FLOAT, false, 12, 0);
                     gl.vertexAttribPointer(this._attributeColor._location, 4, gl._gl.UNSIGNED_BYTE, true, 12, 2 * 4);
                 };
+                SolidColorShader.prototype.useMeshIndex = function () {
+                    return true;
+                };
                 /**
                  * Spare matrix
                  * @member cc.render.shader.SolidColorShader.mat
@@ -15560,9 +16224,16 @@ var cc;
         })(shader = render.shader || (render.shader = {}));
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
+
 /**
  * Created by ibon on 11/17/14.
  */
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
 /// <reference path="./AbstractShader.ts"/>
 /// <reference path="../WebGLState.ts"/>
 /// <reference path="../RenderingContextSnapshot.ts"/>
@@ -15748,6 +16419,9 @@ var cc;
                     gl.vertexAttribPointer(this._attributePosition._location, 2, gl._gl.FLOAT, false, 4 * 4, 0);
                     gl.vertexAttribPointer(this._attributeTexture._location, 2, gl._gl.FLOAT, false, 4 * 4, 2 * 4);
                 };
+                MeshShader.prototype.useMeshIndex = function () {
+                    return true;
+                };
                 /**
                  * Spare matrix
                  * @member cc.render.shader.TextureShader.mat
@@ -15760,9 +16434,16 @@ var cc;
         })(shader = render.shader || (render.shader = {}));
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file.
  */
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
 /// <reference path="./AbstractShader.ts"/>
 /// <reference path="../webGLState.ts"/>
 /// <reference path="../../util/util.ts"/>
@@ -15882,9 +16563,16 @@ var cc;
         })(shader = render.shader || (render.shader = {}));
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file.
  */
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
 /// <reference path="./AbstractShader.ts"/>
 /// <reference path="../RenderingContextSnapshot.ts"/>
 var cc;
@@ -15985,6 +16673,7 @@ var cc;
         })(shader = render.shader || (render.shader = {}));
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
+
 /**
  * Created by ibon on 11/19/14.
  */
@@ -16038,9 +16727,16 @@ var cc;
         })(shader = render.shader || (render.shader = {}));
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file.
  */
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
 /// <reference path="../math/Dimension.ts"/>
 /// <reference path="../math/Color.ts"/>
 /// <reference path="../math/Matrix3.ts"/>
@@ -16382,13 +17078,14 @@ var cc;
                 this.setTransform(1, 0, 0, 1, 0, 0);
             };
             c2d.type = cc.render.RENDERER_TYPE_CANVAS;
-            //Object.defineProperty(c2d, "type", {
-            //    get: function () {
-            //        return cc.render.RENDERER_TYPE_CANVAS;
-            //    },
-            //    enumerable: true,
-            //    configurable: true
-            //});
+            c2d.setStrokeStyleColor = function (color) {
+                this.strokeStyle = color.getFillStyle();
+            };
+            c2d.setStrokeStyleColorArray = function (colorArray) {
+                this.strokeStyle = new cc.math.Color(colorArray[0], colorArray[1], colorArray[2], colorArray[3]).getFillStyle();
+            };
+            c2d.setStrokeStylePattern = function (pattern) {
+            };
             c2d.setFillStyleColor = function (color) {
                 this.fillStyle = color.getFillStyle();
             };
@@ -16682,17 +17379,6 @@ var cc;
          *
          */
         render.RendererUtil = {
-            /**
-             * Draw a 9 patch from a SpriteFrame.
-             * It assumes that the 9 patch frame size is divisible by 3 horizontal and vertically.
-             * @param ctx {cc.render.RenderingContext}
-             * @param frameName {string}
-             * @param x {number}
-             * @param y {number}
-             * @param w {number}
-             * @param h {number}
-             * @param patchData {cc.render.PatchData?}
-             */
             draw9Patch: function (ctx, frameName, x, y, w, h, patchData) {
                 var sf = cc.plugin.asset.AssetManager.getSpriteFrame(frameName);
                 if (null === sf) {
@@ -16703,6 +17389,8 @@ var cc;
                     ctx.drawTexture(sf.getTexture(), 0, 0, sf.getWidth(), sf.getHeight(), x, y, w, h);
                     return;
                 }
+                var tx = sf.getX();
+                var ty = sf.getY();
                 patchData.left = patchData.left || 0;
                 patchData.top = patchData.top || 0;
                 patchData.right = patchData.right || 0;
@@ -16723,38 +17411,39 @@ var cc;
                 if (patchData.left) {
                     // top left
                     if (patchData.top) {
-                        ctx.drawTexture(sf.getTexture(), 0, 0, spriteLeftWidth, spriteTopHeight, x, topy, spriteLeftWidth / scaleFactor, spriteTopHeight / scaleFactor);
+                        ctx.drawTexture(sf.getTexture(), tx, ty, spriteLeftWidth, spriteTopHeight, x, topy, spriteLeftWidth / scaleFactor, spriteTopHeight / scaleFactor);
                     }
                     // bottom left
                     if (patchData.bottom) {
-                        ctx.drawTexture(sf.getTexture(), 0, spriteBottomY, spriteLeftWidth, spriteBottomHeight, x, bottomy, spriteLeftWidth / scaleFactor, spriteBottomHeight / scaleFactor);
+                        ctx.drawTexture(sf.getTexture(), tx, ty + spriteBottomY, spriteLeftWidth, spriteBottomHeight, x, bottomy, spriteLeftWidth / scaleFactor, spriteBottomHeight / scaleFactor);
                     }
-                    ctx.drawTexture(sf.getTexture(), 0, patchData.top, spriteLeftWidth, spriteMiddleHeight, x, middley, spriteLeftWidth / scaleFactor, h - paddingH / scaleFactor);
+                    ctx.drawTexture(sf.getTexture(), tx, ty + patchData.top, spriteLeftWidth, spriteMiddleHeight, x, middley, spriteLeftWidth / scaleFactor, h - paddingH / scaleFactor);
                 }
                 if (patchData.right) {
                     // top left
                     if (patchData.top) {
-                        ctx.drawTexture(sf.getTexture(), sf.getWidth() - patchData.right, 0, spriteRightWidth, spriteTopHeight, x + w - patchData.right / scaleFactor, topy, spriteRightWidth / scaleFactor, spriteTopHeight / scaleFactor);
+                        ctx.drawTexture(sf.getTexture(), tx + sf.getWidth() - patchData.right, ty, spriteRightWidth, spriteTopHeight, x + w - patchData.right / scaleFactor, topy, spriteRightWidth / scaleFactor, spriteTopHeight / scaleFactor);
                     }
                     // bottom left
                     if (patchData.bottom) {
-                        ctx.drawTexture(sf.getTexture(), sf.getWidth() - patchData.right, spriteBottomY, spriteRightWidth, spriteBottomHeight, x + w - patchData.right / scaleFactor, bottomy, spriteRightWidth / scaleFactor, spriteBottomHeight / scaleFactor);
+                        ctx.drawTexture(sf.getTexture(), tx + sf.getWidth() - patchData.right, ty + spriteBottomY, spriteRightWidth, spriteBottomHeight, x + w - patchData.right / scaleFactor, bottomy, spriteRightWidth / scaleFactor, spriteBottomHeight / scaleFactor);
                     }
-                    ctx.drawTexture(sf.getTexture(), sf.getWidth() - patchData.right, patchData.top, spriteRightWidth, spriteMiddleHeight, x + w - patchData.right / scaleFactor, middley, spriteRightWidth / scaleFactor, h - paddingH / scaleFactor);
+                    ctx.drawTexture(sf.getTexture(), tx + sf.getWidth() - patchData.right, ty + patchData.top, spriteRightWidth, spriteMiddleHeight, x + w - patchData.right / scaleFactor, middley, spriteRightWidth / scaleFactor, h - paddingH / scaleFactor);
                 }
                 // top left
                 if (patchData.top) {
-                    ctx.drawTexture(sf.getTexture(), patchData.left, 0, spriteMiddleWidth, spriteTopHeight, x + patchData.left / scaleFactor, topy, w - paddingW / scaleFactor, spriteTopHeight / scaleFactor);
+                    ctx.drawTexture(sf.getTexture(), tx + patchData.left, ty, spriteMiddleWidth, spriteTopHeight, x + patchData.left / scaleFactor, topy, w - paddingW / scaleFactor, spriteTopHeight / scaleFactor);
                 }
                 // bottom left
                 if (patchData.bottom) {
-                    ctx.drawTexture(sf.getTexture(), patchData.left, spriteBottomY, spriteMiddleWidth, spriteBottomHeight, x + patchData.left / scaleFactor, bottomy, w - paddingW / scaleFactor, spriteBottomHeight / scaleFactor);
+                    ctx.drawTexture(sf.getTexture(), tx + patchData.left, ty + spriteBottomY, spriteMiddleWidth, spriteBottomHeight, x + patchData.left / scaleFactor, bottomy, w - paddingW / scaleFactor, spriteBottomHeight / scaleFactor);
                 }
-                ctx.drawTexture(sf.getTexture(), patchData.left, patchData.top, spriteMiddleWidth, spriteMiddleHeight, x + patchData.left / scaleFactor, middley, w - paddingW / scaleFactor, h - paddingH / scaleFactor);
+                ctx.drawTexture(sf.getTexture(), tx + patchData.left, ty + patchData.top, spriteMiddleWidth, spriteMiddleHeight, x + patchData.left / scaleFactor, middley, w - paddingW / scaleFactor, h - paddingH / scaleFactor);
             }
         };
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file.
  */
@@ -16850,19 +17539,34 @@ var cc;
             "xor",
             "lighter"
         ];
+        (function (LineCap) {
+            LineCap[LineCap["BUTT"] = 0] = "BUTT";
+            LineCap[LineCap["SQUARE"] = 1] = "SQUARE";
+            LineCap[LineCap["ROUND"] = 2] = "ROUND";
+        })(render.LineCap || (render.LineCap = {}));
+        var LineCap = render.LineCap;
+        (function (LineJoin) {
+            LineJoin[LineJoin["BEVEL"] = 0] = "BEVEL";
+            LineJoin[LineJoin["MITER"] = 1] = "MITER";
+            LineJoin[LineJoin["ROUND"] = 2] = "ROUND";
+        })(render.LineJoin || (render.LineJoin = {}));
+        var LineJoin = render.LineJoin;
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file.
  */
+/// <reference path="../math/Point.ts"/>
 /// <reference path="../math/Matrix3.ts"/>
 /// <reference path="../math/Color.ts"/>
+/// <reference path="../math/Path.ts"/>
+/// <reference path="../math/path/geometry/StrokeGeometry.ts"/>
 /// <reference path="./RenderingContext.ts"/>
 var cc;
 (function (cc) {
     var render;
     (function (render) {
-        var Matrix3 = cc.math.Matrix3;
         /**
          * @class cc.render.RenderingContextSnapshot
          * @classdesc
@@ -16907,7 +17611,7 @@ var cc;
                  * @private
                  */
                 this._miterLimit = 10;
-                this._currentFillStyleType = 0 /* COLOR */;
+                this._currentFillStyleType = 0 /* MESHCOLOR */;
                 /**
                  * Current fill style.
                  * @member cc.render.RenderingContextSnapshot#_fillStyle
@@ -16930,6 +17634,8 @@ var cc;
                  * @private
                  */
                 this._lineWidth = 1.0;
+                this._lineCap = 0 /* BUTT */;
+                this._lineJoin = 1 /* MITER */;
                 /**
                  * Current font data.
                  * @member cc.render.RenderingContextSnapshot#_fontDefinition
@@ -16958,6 +17664,9 @@ var cc;
                  * @private
                  */
                 this._currentPath = null;
+                this._currentPathStrokeGeometry = null;
+                this._currentPathFillGeometry = null;
+                this._currentPathStrokeContour = null;
                 /**
                  * Current clipping paths stack
                  * @member cc.render.RenderingContextSnapshot#_clippingStack
@@ -16965,6 +17674,7 @@ var cc;
                  * @private
                  */
                 this._clippingStack = [];
+                this._currentPath = new cc.math.Path();
             }
             /**
              * Clone this snapshot and create a new one.
@@ -16975,7 +17685,7 @@ var cc;
                 var rcs = new RenderingContextSnapshot();
                 rcs._globalCompositeOperation = this._globalCompositeOperation;
                 rcs._globalAlpha = this._globalAlpha;
-                Matrix3.copy(rcs._currentMatrix, this._currentMatrix);
+                cc.math.Matrix3.copy(rcs._currentMatrix, this._currentMatrix);
                 rcs._fillStyleColor = this._fillStyleColor;
                 rcs._fillStylePattern = this._fillStylePattern;
                 rcs._currentFillStyleType = this._currentFillStyleType;
@@ -16985,15 +17695,62 @@ var cc;
                 rcs._fontDefinition = this._fontDefinition;
                 rcs._textBaseline = this._textBaseline;
                 rcs._textAlign = this._textAlign;
-                //rcs._currentPath = this._currentPath.clone();
+                rcs._currentPath = this._currentPath.clone();
+                if (this._currentPathStrokeGeometry) {
+                    rcs._currentPathStrokeGeometry = new Float32Array(this._currentPathStrokeGeometry.length);
+                    rcs._currentPathStrokeGeometry.set(this._currentPathStrokeGeometry);
+                }
                 rcs._clippingStack = this._clippingStack;
                 return rcs;
+            };
+            RenderingContextSnapshot.prototype.beginPath = function () {
+                this._currentPath.beginPath();
+            };
+            RenderingContextSnapshot.prototype.closePath = function () {
+                this._currentPath.closePath();
+            };
+            RenderingContextSnapshot.prototype.moveTo = function (x, y) {
+                this._currentPath.moveTo(x, y, this._currentMatrix);
+            };
+            RenderingContextSnapshot.prototype.lineTo = function (x, y) {
+                this._currentPath.lineTo(x, y, this._currentMatrix);
+            };
+            RenderingContextSnapshot.prototype.bezierCurveTo = function (cp0x, cp0y, cp1x, cp1y, p2x, p2y) {
+                this._currentPath.bezierCurveTo(cp0x, cp0y, cp1x, cp1y, p2x, p2y, this._currentMatrix);
+            };
+            RenderingContextSnapshot.prototype.quadraticCurveTo = function (cp0x, cp0y, p2x, p2y) {
+                this._currentPath.quadraticCurveTo(cp0x, cp0y, p2x, p2y, this._currentMatrix);
+            };
+            RenderingContextSnapshot.prototype.rect = function (x, y, width, height) {
+                this._currentPath.rect(x, y, width, height, this._currentMatrix);
+            };
+            RenderingContextSnapshot.prototype.arc = function (x, y, radius, startAngle, endAngle, counterClockWise) {
+                this._currentPath.arc(x, y, radius, startAngle, endAngle, counterClockWise, this._currentMatrix);
+            };
+            RenderingContextSnapshot.prototype.setupStroke = function (lineWidth, join, cap) {
+                if (this._currentPath._dirty || this._lineWidth !== lineWidth || this._lineCap !== cap || this._lineJoin !== join) {
+                    lineWidth = cc.math.path.getDistanceVector(lineWidth, this._currentMatrix).length();
+                    this._lineCap = cap;
+                    this._lineJoin = join;
+                    this._lineWidth = lineWidth;
+                    this._currentPath.getStrokeGeometry({
+                        width: lineWidth,
+                        cap: this._lineCap,
+                        join: this._lineJoin,
+                        miterLimit: this._miterLimit
+                    });
+                }
+                return this._currentPath._strokeGeometry;
+            };
+            RenderingContextSnapshot.prototype.setupFill = function () {
+                return this._currentPath.getFillGeometry();
             };
             return RenderingContextSnapshot;
         })();
         render.RenderingContextSnapshot = RenderingContextSnapshot;
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file.
  */
@@ -17013,6 +17770,7 @@ var cc;
         var Matrix3 = cc.math.Matrix3;
         var Buffer = cc.render.shader.Buffer;
         var __vv = { x: 0, y: 0 };
+        var __vv0 = { x: 0, y: 0 };
         var __color = new Uint8Array([0, 0, 0, 0]);
         /**
          * @class cc.render.GeometryBatcher
@@ -17099,7 +17857,6 @@ var cc;
                 this._indexBufferIndex = 0;
                 this._indexBufferMesh = null;
                 this._indexBufferMeshIndex = 0;
-                this._indicesChanged = false;
                 this._glIndexMeshBuffers = [];
                 this._glIndexMeshBuffer = null;
                 /**
@@ -17128,6 +17885,8 @@ var cc;
                     indexBuffer[indexBufferIndex + 5] = elementIndex + 3;
                     indexBufferIndex += 6;
                     elementIndex += 4;
+                }
+                for (var i = 0; i < GeometryBatcher.MAX_QUADS * 6; i++) {
                     this._indexBufferMesh[i] = i;
                 }
                 this._glDataBuffers.push(new Buffer(this._gl, this._gl.ARRAY_BUFFER, this._dataBufferFloat, this._gl.DYNAMIC_DRAW));
@@ -17208,11 +17967,12 @@ var cc;
                 var a = ((color[3] * tint[3] * rcs._globalAlpha) * 255) | 0;
                 var cc = (r) | (g << 8) | (b << 16) | (a << 24);
                 var cm = rcs._currentMatrix;
-                __vv.x = x;
-                __vv.y = y;
-                Matrix3.transformPoint(cm, __vv);
-                this._dataBufferFloat[this._dataBufferIndex++] = __vv.x;
-                this._dataBufferFloat[this._dataBufferIndex++] = __vv.y;
+                // 0-1-2
+                __vv0.x = x;
+                __vv0.y = y;
+                Matrix3.transformPoint(cm, __vv0);
+                this._dataBufferFloat[this._dataBufferIndex++] = __vv0.x;
+                this._dataBufferFloat[this._dataBufferIndex++] = __vv0.y;
                 this._dataBufferUint[this._dataBufferIndex++] = cc;
                 __vv.x = x + w;
                 __vv.y = y;
@@ -17223,6 +17983,13 @@ var cc;
                 __vv.x = x + w;
                 __vv.y = y + h;
                 Matrix3.transformPoint(cm, __vv);
+                this._dataBufferFloat[this._dataBufferIndex++] = __vv.x;
+                this._dataBufferFloat[this._dataBufferIndex++] = __vv.y;
+                this._dataBufferUint[this._dataBufferIndex++] = cc;
+                // 0-2-3
+                this._dataBufferFloat[this._dataBufferIndex++] = __vv0.x;
+                this._dataBufferFloat[this._dataBufferIndex++] = __vv0.y;
+                this._dataBufferUint[this._dataBufferIndex++] = cc;
                 this._dataBufferFloat[this._dataBufferIndex++] = __vv.x;
                 this._dataBufferFloat[this._dataBufferIndex++] = __vv.y;
                 this._dataBufferUint[this._dataBufferIndex++] = cc;
@@ -17233,8 +18000,8 @@ var cc;
                 this._dataBufferFloat[this._dataBufferIndex++] = __vv.y;
                 this._dataBufferUint[this._dataBufferIndex++] = cc;
                 // add two triangles * 3 values each.
-                this._indexBufferIndex += 6;
-                return this._indexBufferIndex + 6 >= this._indexBuffer.length;
+                this._indexBufferMeshIndex += 6;
+                return this._indexBufferMeshIndex + 6 >= this._indexBuffer.length;
             };
             /**
              * Batch a vertex with color and texture.
@@ -17255,6 +18022,7 @@ var cc;
                 this._dataBufferFloat[this._dataBufferIndex++] = v;
             };
             /**
+             * BUGBUG refactor. Move to AbstractShader and reimplement for each shader.
              * Flush currently batched geometry and related info with a given shader program.
              * @method cc.render.GeometryBatcher#flush
              * @param shader {cc.render.shader.AbstractShader} program shader
@@ -17262,7 +18030,7 @@ var cc;
              */
             GeometryBatcher.prototype.flush = function (shader, rcs) {
                 var trianglesCount;
-                if (this._indicesChanged) {
+                if (shader.useMeshIndex()) {
                     trianglesCount = this._indexBufferMeshIndex;
                     if (!trianglesCount) {
                         return;
@@ -17282,7 +18050,7 @@ var cc;
                 //this._glDataBuffer.enableWithValue(this._dataBufferFloat.subarray(0, this._dataBufferIndex));
                 shader.flushBuffersWithContent(rcs);
                 this._gl.drawElements(this._gl.TRIANGLES, trianglesCount, this._gl.UNSIGNED_SHORT, 0);
-                //this._gl.drawArrays(this._gl.TRIANGLE_STRIP, 0, 4);
+                //this._gl.drawArrays(this._gl.TRIANGLES, 0, trianglesCount);
                 // reset buffer data index.
                 this._dataBufferIndex = 0;
                 this._indexBufferIndex = 0;
@@ -17292,7 +18060,6 @@ var cc;
                 this._glDataBuffer = this._glDataBuffers[this._currentBuffersIndex];
                 this._glIndexBuffer = this._glIndexBuffers[this._currentBuffersIndex];
                 this._glIndexMeshBuffer = this._glIndexMeshBuffers[this._currentBuffersIndex];
-                this._indicesChanged = false;
             };
             GeometryBatcher.prototype.__uintColor = function (rcs) {
                 var tint = rcs._tintColor;
@@ -17344,7 +18111,6 @@ var cc;
                 return this._dataBufferIndex + 40 >= this._dataBufferFloat.length;
             };
             GeometryBatcher.prototype.batchMesh = function (geometry, uv, indices, color, rcs) {
-                this._indicesChanged = true;
                 for (var i = 0; i < indices.length; i += 3) {
                     var indexVertex0 = indices[i + 0] * 3;
                     var indexVertexUV0 = indices[i + 0] * 2;
@@ -17365,6 +18131,29 @@ var cc;
                 this._indexBufferMeshIndex++;
             };
             /**
+             * Batch a path geometry.
+             * Requires sequential indices.
+             * Geometry already in screen space.
+             *
+             * @param geometry {Float32Array}
+             * @param rcs {cc.render.RenderingContextSnapshot}
+             */
+            GeometryBatcher.prototype.batchPath = function (geometry, rcs) {
+                var color = rcs._fillStyleColor;
+                var tint = rcs._tintColor;
+                var r = ((color[0] * tint[0]) * 255) | 0;
+                var g = ((color[1] * tint[1]) * 255) | 0;
+                var b = ((color[2] * tint[2]) * 255) | 0;
+                var a = ((color[3] * tint[3] * rcs._globalAlpha) * 255) | 0;
+                var cc = (r) | (g << 8) | (b << 16) | (a << 24);
+                for (var i = 0; i < geometry.length; i += 2) {
+                    this._dataBufferFloat[this._dataBufferIndex++] = geometry[i];
+                    this._dataBufferFloat[this._dataBufferIndex++] = geometry[i + 1];
+                    this._dataBufferUint[this._dataBufferIndex++] = cc;
+                    this._indexBufferMeshIndex++;
+                }
+            };
+            /**
              * Max bufferable quads.
              * @member cc.render.GeometryBatcher.MAX_QUADS
              * @type {number}
@@ -17375,6 +18164,7 @@ var cc;
         render.GeometryBatcher = GeometryBatcher;
     })(render = _cc.render || (_cc.render = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file.
  */
@@ -17388,6 +18178,7 @@ var cc;
 /// <reference path="./WebGLState.ts"/>
 /// <reference path="./Texture2D.ts"/>
 /// <reference path="./GeometryBatcher.ts"/>
+/// <reference path="./RenderUtil.ts"/>
 /// <reference path="./shader/AbstractShader.ts"/>
 /// <reference path="./shader/SolidColorShader.ts"/>
 /// <reference path="./shader/TextureShader.ts"/>
@@ -17412,7 +18203,7 @@ var cc;
          * @tsenum cc.render.FillStyleType
          */
         (function (FillStyleType) {
-            FillStyleType[FillStyleType["COLOR"] = 0] = "COLOR";
+            FillStyleType[FillStyleType["MESHCOLOR"] = 0] = "MESHCOLOR";
             FillStyleType[FillStyleType["IMAGE"] = 1] = "IMAGE";
             FillStyleType[FillStyleType["IMAGEFAST"] = 2] = "IMAGEFAST";
             FillStyleType[FillStyleType["PATTERN_REPEAT"] = 3] = "PATTERN_REPEAT";
@@ -17424,7 +18215,7 @@ var cc;
          * @tsenum cc.render.ShaderType
          */
         (function (ShaderType) {
-            ShaderType[ShaderType["COLOR"] = 0] = "COLOR";
+            ShaderType[ShaderType["MESHCOLOR"] = 0] = "MESHCOLOR";
             ShaderType[ShaderType["IMAGE"] = 1] = "IMAGE";
             ShaderType[ShaderType["IMAGEFAST"] = 2] = "IMAGEFAST";
             ShaderType[ShaderType["PATTERN_REPEAT"] = 3] = "PATTERN_REPEAT";
@@ -17485,6 +18276,9 @@ var cc;
              * @param r {cc.render.Renderer}
              */
             function DecoratedWebGLRenderingContext(r) {
+                this._currentLineJoin = 1 /* MITER */;
+                this._currentLineCap = 0 /* BUTT */;
+                this._currentLineWidth = 1;
                 /**
                  * Current rendering context data.
                  * @member cc.render.DecoratedWebGLRenderingContext#_currentContextSnapshot
@@ -17506,6 +18300,7 @@ var cc;
                  * @private
                  */
                 this._currentFillStyleColor = new Float32Array([0.0, 0.0, 0.0, 1.0]);
+                this._currentStrokeStyleColor = new Float32Array([0.0, 0.0, 0.0, 1.0]);
                 this._currentFillStylePattern = null;
                 /**
                  * Current fill style type. The style type reflects what shader is currently set for rendering.
@@ -17513,7 +18308,7 @@ var cc;
                  * @type {cc.render.FillStyleType}
                  * @private
                  */
-                this._currentFillStyleType = 0 /* COLOR */;
+                this._currentFillStyleType = 0 /* MESHCOLOR */;
                 this._currentTintColor = new Float32Array([1.0, 1.0, 1.0, 1.0]);
                 /**
                  * Last global composite operation set.
@@ -17967,7 +18762,6 @@ var cc;
              */
             DecoratedWebGLRenderingContext.prototype.flush = function () {
                 this._batcher.flush(this._shaders[this._currentContextSnapshot._currentFillStyleType], this._currentContextSnapshot);
-                //            this._debugInfo._draws++;
             };
             DecoratedWebGLRenderingContext.prototype.resize = function () {
                 this.__initContext();
@@ -18039,24 +18833,161 @@ var cc;
             };
             DecoratedWebGLRenderingContext.prototype.setFillStyleColor = function (color) {
                 this._currentFillStyleColor = color._color;
-                this._currentFillStyleType = 0 /* COLOR */;
+                this._currentFillStyleType = 0 /* MESHCOLOR */;
             };
             DecoratedWebGLRenderingContext.prototype.setFillStyleColorArray = function (colorArray) {
                 this._currentFillStyleColor = colorArray;
-                this._currentFillStyleType = 0 /* COLOR */;
+                this._currentFillStyleType = 0 /* MESHCOLOR */;
             };
             DecoratedWebGLRenderingContext.prototype.setFillStylePattern = function (pattern) {
                 // BUGBUG change for actual pattern type
-                this._currentFillStyleType = 3 /* PATTERN_REPEAT */;
-                this._currentFillStylePattern = pattern;
+                //this._currentFillStyleType= cc.render.FillStyleType.PATTERN_REPEAT;
+                //this._currentFillStylePattern= pattern;
             };
+            DecoratedWebGLRenderingContext.prototype.setStrokeStyleColor = function (color) {
+                this._currentStrokeStyleColor = color._color;
+                this._currentFillStyleType = 0 /* MESHCOLOR */;
+            };
+            DecoratedWebGLRenderingContext.prototype.setStrokeStyleColorArray = function (colorArray) {
+                this._currentStrokeStyleColor = colorArray;
+                this._currentFillStyleType = 0 /* MESHCOLOR */;
+            };
+            DecoratedWebGLRenderingContext.prototype.setStrokeStylePattern = function (pattern) {
+                // BUGBUG change for actual pattern type
+                //this._currentStrokeStyleColor= cc.render.FillStyleType.PATTERN_REPEAT;
+                //this._currentFillStylePattern= pattern;
+            };
+            Object.defineProperty(DecoratedWebGLRenderingContext.prototype, "fillStyle", {
+                set: function (v) {
+                    this._currentFillStyleType = 0 /* MESHCOLOR */;
+                    this._currentFillStyleColor = cc.render.util.parseColor(v);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(DecoratedWebGLRenderingContext.prototype, "strokeStyle", {
+                set: function (v) {
+                    this._currentFillStyleType = 0 /* MESHCOLOR */;
+                    this._currentStrokeStyleColor = cc.render.util.parseColor(v);
+                },
+                enumerable: true,
+                configurable: true
+            });
             DecoratedWebGLRenderingContext.prototype.beginPath = function () {
+                this._currentContextSnapshot.beginPath();
+            };
+            DecoratedWebGLRenderingContext.prototype.closePath = function () {
+                this._currentContextSnapshot.closePath();
             };
             DecoratedWebGLRenderingContext.prototype.stroke = function () {
+                var geometry = this._currentContextSnapshot.setupStroke(this._currentLineWidth, this._currentLineJoin, this._currentLineCap);
+                this.__checkStrokeFlushConditions();
+                this._currentContextSnapshot._fillStyleColor = this._currentStrokeStyleColor;
+                this._batcher.batchPath(geometry, this._currentContextSnapshot);
+            };
+            DecoratedWebGLRenderingContext.prototype.fill = function () {
+                var geometry = this._currentContextSnapshot.setupFill();
+                this.__checkStrokeFlushConditions();
+                this._currentContextSnapshot._fillStyleColor = this._currentFillStyleColor;
+                this._batcher.batchPath(geometry, this._currentContextSnapshot);
+            };
+            DecoratedWebGLRenderingContext.prototype.__checkStrokeFlushConditions = function () {
+                if (this._currentContextSnapshot._currentFillStyleType !== 0 /* MESHCOLOR */) {
+                    this.flush();
+                    this.__setCurrentFillStyleType(0 /* MESHCOLOR */);
+                }
+            };
+            Object.defineProperty(DecoratedWebGLRenderingContext.prototype, "lineWidth", {
+                get: function () {
+                    return this._currentLineWidth;
+                },
+                set: function (w) {
+                    this.setLineWidth(w);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(DecoratedWebGLRenderingContext.prototype, "lineCap", {
+                get: function () {
+                    switch (this._currentLineCap) {
+                        case 1 /* SQUARE */: return "square";
+                        case 2 /* ROUND */: return "round";
+                        default: return "butt";
+                    }
+                },
+                set: function (s) {
+                    s = s.toLowerCase();
+                    if (s === "square") {
+                        this.setLineCap(1 /* SQUARE */);
+                    }
+                    else if (s === "round") {
+                        this.setLineCap(2 /* ROUND */);
+                    }
+                    else {
+                        this.setLineCap(0 /* BUTT */);
+                    }
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(DecoratedWebGLRenderingContext.prototype, "lineJoin", {
+                get: function () {
+                    switch (this._currentLineJoin) {
+                        case 1 /* MITER */: return "miter";
+                        case 2 /* ROUND */: return "round";
+                        default: return "bevel";
+                    }
+                },
+                set: function (s) {
+                    s = s.toLowerCase();
+                    if (s === "miter") {
+                        this.setLineJoin(1 /* MITER */);
+                    }
+                    else if (s === "round") {
+                        this.setLineJoin(2 /* ROUND */);
+                    }
+                    else {
+                        this.setLineJoin(0 /* BEVEL */);
+                    }
+                },
+                enumerable: true,
+                configurable: true
+            });
+            DecoratedWebGLRenderingContext.prototype.setLineWidth = function (w) {
+                this._currentLineWidth = w;
+            };
+            DecoratedWebGLRenderingContext.prototype.getLineWidth = function () {
+                return this._currentLineWidth;
+            };
+            DecoratedWebGLRenderingContext.prototype.setLineCap = function (cap) {
+                this._currentLineCap = cap;
+            };
+            DecoratedWebGLRenderingContext.prototype.getLineCap = function () {
+                return this._currentLineCap;
+            };
+            DecoratedWebGLRenderingContext.prototype.setLineJoin = function (join) {
+                this._currentLineJoin = join;
+            };
+            DecoratedWebGLRenderingContext.prototype.getLineJoin = function () {
+                return this._currentLineJoin;
             };
             DecoratedWebGLRenderingContext.prototype.moveTo = function (x, y) {
+                this._currentContextSnapshot.moveTo(x, y);
             };
             DecoratedWebGLRenderingContext.prototype.lineTo = function (x, y) {
+                this._currentContextSnapshot.lineTo(x, y);
+            };
+            DecoratedWebGLRenderingContext.prototype.bezierCurveTo = function (cp0x, cp0y, cp1x, cp1y, p2x, p2y) {
+                this._currentContextSnapshot.bezierCurveTo(cp0x, cp0y, cp1x, cp1y, p2x, p2y);
+            };
+            DecoratedWebGLRenderingContext.prototype.quadraticCurveTo = function (cp0x, cp0y, p2x, p2y) {
+                this._currentContextSnapshot.quadraticCurveTo(cp0x, cp0y, p2x, p2y);
+            };
+            DecoratedWebGLRenderingContext.prototype.rect = function (x, y, width, height) {
+                this._currentContextSnapshot.rect(x, y, width, height);
+            };
+            DecoratedWebGLRenderingContext.prototype.arc = function (x, y, radius, startAngle, endAngle, counterClockWise) {
+                this._currentContextSnapshot.arc(x, y, radius, startAngle, endAngle, counterClockWise);
             };
             DecoratedWebGLRenderingContext.prototype.save = function () {
             };
@@ -18106,6 +19037,7 @@ var cc;
         render.DecoratedWebGLRenderingContext = DecoratedWebGLRenderingContext;
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file
  */
@@ -18889,6 +19821,7 @@ var cc;
         render.ScaleManager = ScaleManager;
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file.
  */
@@ -18946,9 +19879,14 @@ var cc;
                 return ret;
             }
             util.extractChannel = extractChannel;
+            function parseColor(c) {
+                return new Float32Array([1, 0, 0, 1]);
+            }
+            util.parseColor = parseColor;
         })(util = render.util || (render.util = {}));
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file
  */
@@ -19039,6 +19977,7 @@ var cc;
         })(mesh = render.mesh || (render.mesh = {}));
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file.
  */
@@ -19139,6 +20078,7 @@ var cc;
         util.fromPosixRegularExpression = fromPosixRegularExpression;
     })(util = cc.util || (cc.util = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file
  */
@@ -19326,6 +20266,7 @@ var cc;
         })(loader = plugin.loader || (plugin.loader = {}));
     })(plugin = cc.plugin || (cc.plugin = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file
  */
@@ -19359,6 +20300,7 @@ var cc;
         })(loader = plugin.loader || (plugin.loader = {}));
     })(plugin = cc.plugin || (cc.plugin = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file
  */
@@ -19423,9 +20365,16 @@ var cc;
         })(loader = plugin.loader || (plugin.loader = {}));
     })(plugin = cc.plugin || (cc.plugin = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file
  */
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
 /// <reference path="./ResourceLoader.ts"/>
 /// <reference path="../../util/Debug.ts"/>
 /// <reference path="../../locale/Locale.ts"/>
@@ -19668,6 +20617,7 @@ var cc;
         })(loader = plugin.loader || (plugin.loader = {}));
     })(plugin = cc.plugin || (cc.plugin = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file
  */
@@ -19765,6 +20715,7 @@ var cc;
         })(loader = plugin.loader || (plugin.loader = {}));
     })(plugin = cc.plugin || (cc.plugin = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file
  */
@@ -19967,6 +20918,7 @@ var cc;
         })(loader = plugin.loader || (plugin.loader = {}));
     })(plugin = cc.plugin || (cc.plugin = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file.
  */
@@ -20487,6 +21439,7 @@ var cc;
         })(texture = plugin.texture || (plugin.texture = {}));
     })(plugin = cc.plugin || (cc.plugin = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file.
  */
@@ -21113,6 +22066,7 @@ var cc;
         })(font = plugin.font || (plugin.font = {}));
     })(plugin = cc.plugin || (cc.plugin = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file
  */
@@ -21254,6 +22208,7 @@ var cc;
         })(font = plugin.font || (plugin.font = {}));
     })(plugin = cc.plugin || (cc.plugin = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file
  */
@@ -21587,6 +22542,7 @@ var cc;
         })(asset = plugin.asset || (plugin.asset = {}));
     })(plugin = cc.plugin || (cc.plugin = {}));
 })(cc || (cc = {}));
+
 /**
  *
  */
@@ -22604,9 +23560,16 @@ var cc;
         })(audio = plugin.audio || (plugin.audio = {}));
     })(plugin = cc.plugin || (cc.plugin = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file.
  */
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
 /// <reference path="../../math/Rectangle.ts"/>
 /// <reference path="../../math/Dimension.ts"/>
 var cc;
@@ -23575,6 +24538,7 @@ var cc;
         })(layout = plugin.layout || (plugin.layout = {}));
     })(plugin = cc.plugin || (cc.plugin = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file.
  */
@@ -23942,9 +24906,16 @@ var cc;
         input.SceneGraphInputTreeNode = SceneGraphInputTreeNode;
     })(input = cc.input || (cc.input = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file.
  */
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
 /// <reference path="../math/Point.ts"/>
 /// <reference path="../node/Node.ts"/>
 /// <reference path="../node/Scene.ts"/>
@@ -24615,6 +25586,7 @@ var cc;
         input.MouseInputManager = MouseInputManager;
     })(input = cc.input || (cc.input = {}));
 })(cc || (cc = {}));
+
 /**
  * Created by ibon on 1/6/15.
  */
@@ -25353,6 +26325,7 @@ var cc;
         input.KeyboardInputManager = KeyboardInputManager;
     })(input = cc.input || (cc.input = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file.
  */
@@ -25543,6 +26516,7 @@ var cc;
         _game.Game = Game;
     })(game = cc.game || (cc.game = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file.
  */
@@ -26282,6 +27256,7 @@ var cc;
     }
     cc.easeQuinticActionInOut = easeQuinticActionInOut;
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file.
  */
@@ -26554,6 +27529,7 @@ var cc;
         Blink.create = cc.blink;
     })(Blink = cc.Blink || (cc.Blink = {}));
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file
  */
@@ -26771,6 +27747,7 @@ var cc;
     cc.ONE_MINUS_CONSTANT_ALPHA = 0x8004;
     cc.ONE_MINUS_CONSTANT_COLOR = 0x8002;
 })(cc || (cc = {}));
+
 /// <reference path="./AssetManager.ts"/>
 /// <reference path="../loader/Resource.ts"/>
 /// <reference path="../asset/AssetManager.ts"/>
@@ -26888,6 +27865,7 @@ var cc;
     })();
     cc.animationCache = animationCache;
 })(cc || (cc = {}));
+
 /**
  * License: see license.txt file.
  */
