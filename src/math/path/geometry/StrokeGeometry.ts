@@ -21,13 +21,17 @@ module cc.math.path.geometry {
     }
 
     /**
-     * Get Stroke geometry for an array of Vector objects.
-     * The array is the result of calling 'trace' for a Path object.
+     * Get Stroke geometry for an array of Point objects.
+     * The array could be the result of calling 'trace' for a Path object, or an arbitrary cloud of points.
+     *
      *
      * @param points {Array.<cc.math.Vector>} contour of the points to trace.
-     * @param attrs {cc.math.path.StrokeGeometryAttributes}
+     * @param attrs {cc.math.path.StrokeGeometryAttributes} this object defines stroke attributes like line cap,
+     *      line join, line width and miter limit.
      *
      * @returns {Array<number> | Float32Array} Array with pairs of numbers (x,y)
+     *
+     * @method cc.math.path.geometry.getStrokeGeometry
      */
     export function getStrokeGeometry(points:cc.math.Point[], attrs:StrokeGeometryAttributes) : Float32Array {
 
@@ -201,7 +205,19 @@ module cc.math.path.geometry {
         }
     }
 
-
+    /**
+     * Get the signed area of a triangle.
+     *
+     * @method cc.math.path.geometry.signedArea
+     *
+     * @param p0x {number}
+     * @param p0y {number}
+     * @param p1x {number}
+     * @param p1y {number}
+     * @param p2x {number}
+     * @param p2y {number}
+     * @returns {number}
+     */
     export function signedArea(p0x:number, p0y:number, p1x:number, p1y:number, p2x:number, p2y:number ) : number {
         return (p1x - p0x) * (p2y - p0y) - (p2x - p0x) * (p1y - p0y);
     }
@@ -390,13 +406,17 @@ module cc.math.path.geometry {
     /**
      * ripped from http://www.blackpawn.com/texts/pointinpoly/default.html ;)
      *
-     * @param p
-     * @param ax
-     * @param ay
-     * @param bx
-     * @param by
-     * @param cx
-     * @param cy
+     * Identify whether the <code>cc.math.Point</code> p is inside the triangle defined by the 3 point.
+     *
+     * @method cc.math.path.geometry.isPointInTriangle
+     *
+     * @param p {cc.math.Point}
+     * @param ax {number}
+     * @param ay {number}
+     * @param bx {number}
+     * @param by {number}
+     * @param cx {number}
+     * @param cy {number}
      * @returns {boolean}
      */
     export function isPointInTriangle(
@@ -431,9 +451,13 @@ module cc.math.path.geometry {
 
     /**
      * Based from Ivank.polyk: http://polyk.ivank.net/polyk.js
-     * @param contour
-     * @param verts
-     * @returns {Array}
+     *
+     * Turn a cloud of points to triangles.
+     * The result of this operation will be an array of numbers, being each two a point, and each 6 a triangle.
+     *
+     * @method cc.math.path.geometry.tessellate
+     * @param contour {Array<cc.math.Point>}
+     * @returns {Float32Array}
      */
     export function tessellate( contour:cc.math.Point[] ) {
 

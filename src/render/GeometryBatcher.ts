@@ -210,6 +210,18 @@ module cc.render {
             this._glIndexMeshBuffer= this._glIndexMeshBuffers[0];
         }
 
+        /**
+         * Batch a rectangle with texture.
+         *
+         * @method cc.render.GeometryBatcher#batchRectGeometryWithTexture
+         * @param vertices {Array<cc.math.Point>}
+         * @param u0 {number}
+         * @param v0 {number}
+         * @param u1 {number}
+         * @param v1 {number}
+         * @param rcs {cc.render.RenderingContextSnapshot}
+         * @returns {boolean}
+         */
         batchRectGeometryWithTexture( vertices:Point[], u0:number, v0:number, u1:number, v1:number, rcs:RenderingContextSnapshot ) {
             var cc= this.__uintColor( rcs );
 
@@ -400,6 +412,15 @@ module cc.render {
             this._glIndexMeshBuffer = this._glIndexMeshBuffers[this._currentBuffersIndex];
         }
 
+        /**
+         * Get a compact Uint32 representation of a color.
+         * The color is calculated as the mix or the rendering context current color multiplied the the rendering context
+         * current tint color.
+         * @method cc.render.GeometryBatcher#__uintColor
+         * @param rcs {cc.render.RenderincContextSnapshot}
+         * @returns {number}
+         * @private
+         */
         __uintColor( rcs:RenderingContextSnapshot ) : number {
             var tint:Float32Array= rcs._tintColor;
 
@@ -411,6 +432,20 @@ module cc.render {
             return (r)|(g<<8)|(b<<16)|(a<<24);
         }
 
+        /**
+         * Batch a fast sprite info. Fast sprite objects do all transformation calculations on the GPU, and as such,
+         * have some limitations.
+         *
+         * @method cc.render.GeometryBatcher#batchRectGeometryWithSpriteFast
+         *
+         * @param sprite {cc.node.Sprite}
+         * @param u0 {number}
+         * @param v0 {number}
+         * @param u1 {number}
+         * @param v1 {number}
+         * @param rcs {cc.render.RenderingContextSnapshot}
+         * @returns {boolean}
+         */
         batchRectGeometryWithSpriteFast( sprite:Sprite, u0:number, v0:number, u1:number, v1:number, rcs:RenderingContextSnapshot ) {
 
             var cc= this.__uintColor( rcs );
@@ -466,7 +501,18 @@ module cc.render {
             return this._dataBufferIndex+40 >= this._dataBufferFloat.length;
         }
 
-        batchMesh( geometry:Float32Array, uv:Float32Array, indices:Uint32Array, color:number, rcs:RenderingContextSnapshot  ) {
+        /**
+         * Batch a mesh.
+         * A mesh uses a custom shader for meshes. They expect to color-per-vertex info, but a global color for the as
+         * a uniform value.
+         *
+         * @method cc.render.GeometryBatcher#batchMesh
+         * @param geometry {Float32Array}
+         * @param uv {Float32Array}
+         * @param indices {Uint32Array}
+         * @param color {number} the result of calling __uintColor
+         */
+        batchMesh( geometry:Float32Array, uv:Float32Array, indices:Uint32Array, color:number ) {
 
             for( var i=0; i<indices.length; i+=3 ) {
 
@@ -491,6 +537,15 @@ module cc.render {
 
         }
 
+        /**
+         * Batch a vertex for a mesh.
+         *
+         * @method cc.render.GeometryBatcher#batchMeshVertex
+         * @param x {number}
+         * @param y {number}
+         * @param u {number}
+         * @param v {number}
+         */
         batchMeshVertex( x:number, y:number, u:number, v:number ) : void {
             this._dataBufferFloat[ this._dataBufferIndex++ ] = x;
             this._dataBufferFloat[ this._dataBufferIndex++ ] = y;
@@ -504,6 +559,7 @@ module cc.render {
          * Requires sequential indices.
          * Geometry already in screen space.
          *
+         * @method cc.render.GeometryBatcher#batchPath
          * @param geometry {Float32Array}
          * @param rcs {cc.render.RenderingContextSnapshot}
          */

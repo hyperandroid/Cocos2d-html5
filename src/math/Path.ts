@@ -52,10 +52,37 @@ module cc.math {
          */
         _currentSubPath : SubPath = null;
 
+        /**
+         * Cached stroke geometry.
+         * @member cc.math.Path#_strokeGeometry
+         * @type {Float32Array}
+         * @private
+         */
         _strokeGeometry : Float32Array = null;
+
+        /**
+         * Cached fill geometry.
+         * @member cc.math.Path#_fillGeometry
+         * @type {Float32Array}
+         * @private
+         */
         _fillGeometry : Float32Array = null;
 
+
+        /**
+         * Flag for stroke geometry cache invalidation.
+         * @member cc.math.Path#_strokeDirty
+         * @type {boolean}
+         * @private
+         */
         _strokeDirty= true;
+
+        /**
+         * Flag for fill geometry cache invalidation.
+         * @member cc.math.Path#_fillDirty
+         * @type {boolean}
+         * @private
+         */
         _fillDirty= true;
 
         /**
@@ -68,12 +95,18 @@ module cc.math {
 
         /**
          * Get the Path's number of SubPaths.
+         * @method cc.math.Path#numSubPaths
          * @returns {number}
          */
         numSubPaths() : number {
             return this._segments.length;
         }
 
+        /**
+         * Create a new sub path.
+         * @method cc.math.Path#__newSubPath
+         * @private
+         */
         __newSubPath() : void {
             var subpath : SubPath = new SubPath();
             this._segments.push( subpath );
@@ -83,6 +116,7 @@ module cc.math {
 
         /**
          * Test whether this Path is empty, ie has no sub paths.
+         * @method cc.math.Path#isEmpty
          * @returns {boolean}
          */
         isEmpty() : boolean {
@@ -103,6 +137,8 @@ module cc.math {
          *
          * @param x {number=}
          * @param y {number=}
+         *
+         * @method cc.math.Path#__ensureSubPath
          * @private
          */
         __ensureSubPath( x:number= 0, y:number= 0 ) : void {
@@ -114,6 +150,11 @@ module cc.math {
 
         }
 
+        /**
+         * Chain two contours (subpath) when one is closed. Necessary for closed arcs.
+         * @method cc.math.Path#__chainSubPathIfCurrentIsClosed
+         * @private
+         */
         __chainSubPathIfCurrentIsClosed() : void {
 
             if ( this._currentSubPath.isClosed() ) {
@@ -127,6 +168,8 @@ module cc.math {
         /**
          * Get the Path current position for tracing.
          * This point corresponds to the tracing position of the current SubPath.
+         *
+         * @method cc.math.Path#getCurrentTracePosition
          * @returns {cc.math.Point}
          */
         getCurrentTracePosition() : Point {
@@ -142,6 +185,8 @@ module cc.math {
          * Get the Path starting point.
          * It corresponds to the starting point of the first segment it contains, regardless of its type.
          * If there's no current SubPath, an empty Point (0,0) is returned.
+         *
+         * @method cc.math.Path#getStartingPoint
          * @returns {*}
          */
         getStartingPoint() : Vector {
@@ -157,6 +202,8 @@ module cc.math {
          * Get the Path ending point.
          * It corresponds to the ending point of the last segment it contains, regardless of its type.
          * If there's no current SubPath, an empty Point (0,0) is returned.
+         *
+         * @method cc.math.Path#getEndingPoint
          * @returns {*}
          */
         getEndingPoint() : Vector {
@@ -173,6 +220,8 @@ module cc.math {
          * Create a poli-line path from a set of Points.
          * If no points, or an empty array is passed, no Path is built and returns null.
          * @param points {Array<cc.math.Vector>}
+         *
+         * @method cc.math.Path.createFromPoints
          * @returns {cc.math.Path} Newly created path or null if the path can't be created.
          * @static
          */
@@ -214,6 +263,17 @@ module cc.math {
             return this;
         }
 
+        /**
+         * Add a quadratic curve to the path.
+         * @param x1 {number} control point x position
+         * @param y1 {number} control point y position
+         * @param x2 {number} second curve point x position
+         * @param y2 {number} second curve point y position
+         * @param matrix {Float32Array}
+         *
+         * @method cc.math.Path#quadraticCurveTo
+         * @returns {cc.math.Path} the path holding the segment
+         */
         quadraticCurveTo( x1:number, y1:number, x2:number, y2:number, matrix?:Float32Array ) : Path {
 
             __v0.set(x1,y1);
@@ -231,6 +291,17 @@ module cc.math {
             return this;
         }
 
+        /**
+         * Add a quadratic curve to the path.
+         * @param x1 {number} control point x position
+         * @param y1 {number} control point y position
+         * @param x2 {number} second curve point x position
+         * @param y2 {number} second curve point y position
+         * @param matrix {Float32Array}
+         *
+         * @method cc.math.Path#bezierCurveTo
+         * @returns {cc.math.Path} the path holding the segment
+         */
         bezierCurveTo( x0:number, y0:number, x1:number, y1:number, x2:number, y2:number, matrix?:Float32Array ) : Path {
 
             __v0.set(x0,y0);
@@ -253,6 +324,18 @@ module cc.math {
         catmullRomTo( points:Point[], closed:boolean, tension:number, matrix?:Float32Array ) : Path;
         catmullRomTo( cp0x:number,cp0y:number,cp1x:number,cp1y:number,p1x:number,p1y:number, tension:number, matrix?:Float32Array ): Path;
 
+        /**
+         * Add CatmullRom segments.
+         * The segments are defined by an array of numbers, being each two the definition of a Point, or an array of
+         * <code>cc.math.Point</code> objects.
+         *
+         * This method will create in the as much CatmullRom segments as needed based on the number of parameters supplied.
+         *
+         * @method cc.math.Path#catmullRomTo
+         * @param p0
+         * @param rest
+         * @returns {cc.math.Path}
+         */
         catmullRomTo( p0:any, ...rest:Array<any> ): Path {
 
             if ( typeof p0==="number ") {
@@ -309,7 +392,9 @@ module cc.math {
         }
 
         /**
-         * Add a catmull rom (cardinal spline
+         * Add a CatmullRom segment implementation.
+         *
+         * @method cc.math.Path#__catmullRomTo
          * @param cp0x {number}
          * @param cp0y {number}
          * @param cp1x {number}
@@ -338,6 +423,7 @@ module cc.math {
         /**
          * Close the current SubPath.
          *
+         * @method cc.math.Path#closePath
          * @returns {cc.math.Path}
          */
         closePath() : Path {
@@ -412,6 +498,8 @@ module cc.math {
         /**
          * Create a rect as a new SubPath. The rect has 4 segments which conform the rect.
          * It also created a new SubPath movedTo (x,y).
+         *
+         * @method cc.math.Path#rect
          * @param x {number}
          * @param y {number}
          * @param w {number}
@@ -461,6 +549,7 @@ module cc.math {
          * In this implementation if the radius is < 0, the radius will be set to 0.
          * If the radius is 0 or the diffangle is 0, no arc is added.
          *
+         * @method cc.math.Path#arc
          * @param x {number}
          * @param y {number}
          * @param radius {number}
@@ -532,6 +621,11 @@ module cc.math {
             return this;
         }
 
+        /**
+         * Deep clone this path, contours and segments.
+         * @method cc.math.Path#clone
+         * @return {cc.math.Path} a cloned path.
+         */
         clone() : Path {
             var path= new Path();
 
@@ -545,18 +639,35 @@ module cc.math {
             return path;
         }
 
+        /**
+         * Mark the path as dirty. Also, the cache for stroke and fill are marked as dirty.
+         * @method cc.math.Path#setDirty
+         */
         setDirty() {
             this._dirty= true;
             this._fillDirty= true;
             this._strokeDirty= true;
         }
 
+        /**
+         * Paint the path in a canvas rendering context.
+         * @method cc.math.Path#paint
+         * @param ctx {cc.render.RenderingContext}
+         */
         paint( ctx:cc.render.RenderingContext ) {
             for( var i=0; i<this._segments.length; i++ ) {
                 this._segments[i].paint(ctx);
             }
         }
 
+        /**
+         * If needed, calculate the stroke geometry for a path.
+         * The stroke mesh will be traced based of line attributes.
+         * On average, you will never interact with this method.
+         * @method cc.math.Path#getStrokeGeometry
+         * @param attributes {cc.math.path.geometry.StrokeGeometryAttributes}
+         * @returns {Float32Array}
+         */
         getStrokeGeometry( attributes : cc.math.path.geometry.StrokeGeometryAttributes ) {
 
             if ( this._dirty || this._strokeDirty ) {
@@ -592,6 +703,12 @@ module cc.math {
             return this._strokeGeometry;
         }
 
+        /**
+         * If needed, tessellate the points of the path and create a mesh.
+         * On average, you will never interact with this method.
+         * @method cc.math.Path#getFillGeometry
+         * @returns {Float32Array}
+         */
         getFillGeometry( ) {
 
             if ( this._dirty || this._fillDirty ) {

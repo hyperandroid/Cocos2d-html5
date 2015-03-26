@@ -832,23 +832,24 @@ declare module cc.math {
          * @returns {cc.math.Vector}
          */
         mult(v: number): Vector;
-        static add(v0: Vector, v1: Vector): Vector;
+        static add(v0: Point, v1: Point): Vector;
         /**
          * Create a Vector with the substraction of two vectors.
          * @param v0 {cc.math.Vector}
          * @param v1 {cc.math.Vector}
          * @returns {Vector}
          */
-        static sub(v0: Vector, v1: Vector): Vector;
+        static sub(v1: Point, v0: Point): Vector;
         /**
          * Calculate the distance between two vectors
          * @param v0 {cc.math.Vector}
          * @param v1 {cc.math.Vector}
          * @returns {number} distance between vectors.
          */
-        static distance(v0: Vector, v1: Vector): number;
+        static distance(v0: Point, v1: Point): number;
         static angleWith(p0: Point, p1: Point): number;
         static middlePoint(p0: Point, p1: Point): Vector;
+        static equals(p0: Point, p1: Point): boolean;
         /**
          * Compare the vector with another vector for equality.
          * @param v {cc.math.Vector}
@@ -2216,6 +2217,7 @@ declare module cc.math.path {
          * @returns {Array<cc.math.Vector>} the supplied array or a newly created one with the traced points .
          */
         trace(dstArray?: Array<Vector>, numPoints?: number): Vector[];
+        isClosed(): void;
         /**
          * @see {cc.math.path.Segment#getStartingPoint}
          * @returns {cc.math.Vector}
@@ -2406,6 +2408,77 @@ declare module cc.math.path {
     }
 }
 /**
+ *
+ * License: see license.txt file.
+ *
+ * (c) 2014-2015 @hyperandroid
+ *
+ */
+declare module cc.math.path.geometry {
+    interface StrokeGeometryAttributes {
+        width?: number;
+        cap?: cc.render.LineCap;
+        join?: cc.render.LineJoin;
+        miterLimit?: number;
+    }
+    /**
+     * Get Stroke geometry for an array of Point objects.
+     * The array could be the result of calling 'trace' for a Path object, or an arbitrary cloud of points.
+     *
+     *
+     * @param points {Array.<cc.math.Vector>} contour of the points to trace.
+     * @param attrs {cc.math.path.StrokeGeometryAttributes} this object defines stroke attributes like line cap,
+     *      line join, line width and miter limit.
+     *
+     * @returns {Array<number> | Float32Array} Array with pairs of numbers (x,y)
+     *
+     * @method cc.math.path.geometry.getStrokeGeometry
+     */
+    function getStrokeGeometry(points: cc.math.Point[], attrs: StrokeGeometryAttributes): Float32Array;
+    /**
+     * Get the signed area of a triangle.
+     *
+     * @method cc.math.path.geometry.signedArea
+     *
+     * @param p0x {number}
+     * @param p0y {number}
+     * @param p1x {number}
+     * @param p1y {number}
+     * @param p2x {number}
+     * @param p2y {number}
+     * @returns {number}
+     */
+    function signedArea(p0x: number, p0y: number, p1x: number, p1y: number, p2x: number, p2y: number): number;
+    /**
+     * ripped from http://www.blackpawn.com/texts/pointinpoly/default.html ;)
+     *
+     * Identify whether the <code>cc.math.Point</code> p is inside the triangle defined by the 3 point.
+     *
+     * @method cc.math.path.geometry.isPointInTriangle
+     *
+     * @param p {cc.math.Point}
+     * @param ax {number}
+     * @param ay {number}
+     * @param bx {number}
+     * @param by {number}
+     * @param cx {number}
+     * @param cy {number}
+     * @returns {boolean}
+     */
+    function isPointInTriangle(p: cc.math.Point, ax: number, ay: number, bx: number, by: number, cx: number, cy: number): boolean;
+    /**
+     * Based from Ivank.polyk: http://polyk.ivank.net/polyk.js
+     *
+     * Turn a cloud of points to triangles.
+     * The result of this operation will be an array of numbers, being each two a point, and each 6 a triangle.
+     *
+     * @method cc.math.path.geometry.tessellate
+     * @param contour {Array<cc.math.Point>}
+     * @returns {Float32Array}
+     */
+    function tessellate(contour: cc.math.Point[]): Float32Array;
+}
+/**
  * License: see license.txt file.
  */
 declare module cc.math {
@@ -2438,18 +2511,53 @@ declare module cc.math {
          */
         _currentSubPath: SubPath;
         /**
+         * Cached stroke geometry.
+         * @member cc.math.Path#_strokeGeometry
+         * @type {Float32Array}
+         * @private
+         */
+        _strokeGeometry: Float32Array;
+        /**
+         * Cached fill geometry.
+         * @member cc.math.Path#_fillGeometry
+         * @type {Float32Array}
+         * @private
+         */
+        _fillGeometry: Float32Array;
+        /**
+         * Flag for stroke geometry cache invalidation.
+         * @member cc.math.Path#_strokeDirty
+         * @type {boolean}
+         * @private
+         */
+        _strokeDirty: boolean;
+        /**
+         * Flag for fill geometry cache invalidation.
+         * @member cc.math.Path#_fillDirty
+         * @type {boolean}
+         * @private
+         */
+        _fillDirty: boolean;
+        /**
          * Build a new Path instance.
          * @method cc.math.Path#constructor
          */
         constructor();
         /**
          * Get the Path's number of SubPaths.
+         * @method cc.math.Path#numSubPaths
          * @returns {number}
          */
         numSubPaths(): number;
+        /**
+         * Create a new sub path.
+         * @method cc.math.Path#__newSubPath
+         * @private
+         */
         __newSubPath(): void;
         /**
          * Test whether this Path is empty, ie has no sub paths.
+         * @method cc.math.Path#isEmpty
          * @returns {boolean}
          */
         isEmpty(): boolean;
@@ -2467,13 +2575,22 @@ declare module cc.math {
          *
          * @param x {number=}
          * @param y {number=}
+         *
+         * @method cc.math.Path#__ensureSubPath
          * @private
          */
         __ensureSubPath(x?: number, y?: number): void;
+        /**
+         * Chain two contours (subpath) when one is closed. Necessary for closed arcs.
+         * @method cc.math.Path#__chainSubPathIfCurrentIsClosed
+         * @private
+         */
         __chainSubPathIfCurrentIsClosed(): void;
         /**
          * Get the Path current position for tracing.
          * This point corresponds to the tracing position of the current SubPath.
+         *
+         * @method cc.math.Path#getCurrentTracePosition
          * @returns {cc.math.Point}
          */
         getCurrentTracePosition(): Point;
@@ -2481,6 +2598,8 @@ declare module cc.math {
          * Get the Path starting point.
          * It corresponds to the starting point of the first segment it contains, regardless of its type.
          * If there's no current SubPath, an empty Point (0,0) is returned.
+         *
+         * @method cc.math.Path#getStartingPoint
          * @returns {*}
          */
         getStartingPoint(): Vector;
@@ -2488,6 +2607,8 @@ declare module cc.math {
          * Get the Path ending point.
          * It corresponds to the ending point of the last segment it contains, regardless of its type.
          * If there's no current SubPath, an empty Point (0,0) is returned.
+         *
+         * @method cc.math.Path#getEndingPoint
          * @returns {*}
          */
         getEndingPoint(): Vector;
@@ -2495,6 +2616,8 @@ declare module cc.math {
          * Create a poli-line path from a set of Points.
          * If no points, or an empty array is passed, no Path is built and returns null.
          * @param points {Array<cc.math.Vector>}
+         *
+         * @method cc.math.Path.createFromPoints
          * @returns {cc.math.Path} Newly created path or null if the path can't be created.
          * @static
          */
@@ -2506,12 +2629,36 @@ declare module cc.math {
          * @method cc.math.Path#beginPath
          */
         beginPath(): Path;
-        quadraticTo(x1: number, y1: number, x2: number, y2: number, matrix?: Float32Array): Path;
-        bezierTo(x0: number, y0: number, x1: number, y1: number, x2: number, y2: number, matrix?: Float32Array): Path;
+        /**
+         * Add a quadratic curve to the path.
+         * @param x1 {number} control point x position
+         * @param y1 {number} control point y position
+         * @param x2 {number} second curve point x position
+         * @param y2 {number} second curve point y position
+         * @param matrix {Float32Array}
+         *
+         * @method cc.math.Path#quadraticCurveTo
+         * @returns {cc.math.Path} the path holding the segment
+         */
+        quadraticCurveTo(x1: number, y1: number, x2: number, y2: number, matrix?: Float32Array): Path;
+        /**
+         * Add a quadratic curve to the path.
+         * @param x1 {number} control point x position
+         * @param y1 {number} control point y position
+         * @param x2 {number} second curve point x position
+         * @param y2 {number} second curve point y position
+         * @param matrix {Float32Array}
+         *
+         * @method cc.math.Path#bezierCurveTo
+         * @returns {cc.math.Path} the path holding the segment
+         */
+        bezierCurveTo(x0: number, y0: number, x1: number, y1: number, x2: number, y2: number, matrix?: Float32Array): Path;
         catmullRomTo(points: Point[], closed: boolean, tension: number, matrix?: Float32Array): Path;
         catmullRomTo(cp0x: number, cp0y: number, cp1x: number, cp1y: number, p1x: number, p1y: number, tension: number, matrix?: Float32Array): Path;
         /**
-         * Add a catmull rom (cardinal spline
+         * Add a CatmullRom segment implementation.
+         *
+         * @method cc.math.Path#__catmullRomTo
          * @param cp0x {number}
          * @param cp0y {number}
          * @param cp1x {number}
@@ -2524,6 +2671,7 @@ declare module cc.math {
         /**
          * Close the current SubPath.
          *
+         * @method cc.math.Path#closePath
          * @returns {cc.math.Path}
          */
         closePath(): Path;
@@ -2558,6 +2706,8 @@ declare module cc.math {
         /**
          * Create a rect as a new SubPath. The rect has 4 segments which conform the rect.
          * It also created a new SubPath movedTo (x,y).
+         *
+         * @method cc.math.Path#rect
          * @param x {number}
          * @param y {number}
          * @param w {number}
@@ -2574,6 +2724,7 @@ declare module cc.math {
          * In this implementation if the radius is < 0, the radius will be set to 0.
          * If the radius is 0 or the diffangle is 0, no arc is added.
          *
+         * @method cc.math.Path#arc
          * @param x {number}
          * @param y {number}
          * @param radius {number}
@@ -2583,9 +2734,39 @@ declare module cc.math {
          * @param matrix {Float32Array}
          */
         arc(x: number, y: number, radius: number, startAngle: number, endAngle: number, anticlockwise: boolean, matrix?: Float32Array): Path;
+        /**
+         * Deep clone this path, contours and segments.
+         * @method cc.math.Path#clone
+         * @return {cc.math.Path} a cloned path.
+         */
         clone(): Path;
+        /**
+         * Mark the path as dirty. Also, the cache for stroke and fill are marked as dirty.
+         * @method cc.math.Path#setDirty
+         */
+        setDirty(): void;
+        /**
+         * Paint the path in a canvas rendering context.
+         * @method cc.math.Path#paint
+         * @param ctx {cc.render.RenderingContext}
+         */
         paint(ctx: cc.render.RenderingContext): void;
-        getStrokeGeometry(): number[];
+        /**
+         * If needed, calculate the stroke geometry for a path.
+         * The stroke mesh will be traced based of line attributes.
+         * On average, you will never interact with this method.
+         * @method cc.math.Path#getStrokeGeometry
+         * @param attributes {cc.math.path.geometry.StrokeGeometryAttributes}
+         * @returns {Float32Array}
+         */
+        getStrokeGeometry(attributes: cc.math.path.geometry.StrokeGeometryAttributes): Float32Array;
+        /**
+         * If needed, tessellate the points of the path and create a mesh.
+         * On average, you will never interact with this method.
+         * @method cc.math.Path#getFillGeometry
+         * @returns {Float32Array}
+         */
+        getFillGeometry(): Float32Array;
     }
 }
 /**
@@ -8998,6 +9179,7 @@ declare module cc.render.shader {
          * @returns {Float32Array}
          */
         mat4_from_mat3(mat3: Float32Array, __mat4: Float32Array): Float32Array;
+        useMeshIndex(): boolean;
     }
 }
 /**
@@ -9054,6 +9236,7 @@ declare module cc.render.shader {
          */
         constructor(gl: cc.render.WebGLState);
         flushBuffersWithContent(rcs: cc.render.RenderingContextSnapshot): void;
+        useMeshIndex(): boolean;
     }
 }
 /**
@@ -9166,6 +9349,7 @@ declare module cc.render.shader {
         _uniformColor: any;
         constructor(gl: cc.render.WebGLState);
         flushBuffersWithContent(rcs: cc.render.RenderingContextSnapshot): void;
+        useMeshIndex(): boolean;
     }
 }
 /**
@@ -9472,6 +9656,7 @@ declare module cc.render {
     /**
      * @class cc.render.CanvasRenderer
      * @classdesc
+     * @extends Renderer
      *
      * Create a Canvas renderer.
      */
@@ -9622,14 +9807,62 @@ declare module cc.render {
         "add": number;
     };
     var CompositeOperationToCanvas: string[];
+    enum LineCap {
+        BUTT = 0,
+        SQUARE = 1,
+        ROUND = 2,
+    }
+    /**
+     * @enum
+     *
+     */
+    enum LineJoin {
+        BEVEL = 0,
+        MITER = 1,
+        ROUND = 2,
+    }
     /**
      * @class cc.render.RenderingContext
      * @interface
      * @classdesc
      *
-     * Minimum rendering context interface. All nodes when a call to draw is done, whether in canvas or webgl,
-     * will be able to use these functions.
+     * A RenderingContext is a high level API for paint code execution. Normally, this paint code will be wrapped in a
+     * <code>cc.node.Node</code>'s <code>draw</code> method. This allows arbitrary drawing capabilities per node which
+     * is a big game changer from previous engine implementations where Node specialization at drawing forced composition
+     * for custom draw.
+     * <p>
+     * While the <code>cc.render.CanvasRenderer</code> will mostly proxy to the under-laying
+     * <code>CanvasRenderingContext2D</code>, the <code>cc.render.WebGLRenderer</code> will do extra to achieve
+     * to aim at visual consistency with its canvas counterpart. This webgl implementation will allow for:
+     *   <li>stroking and filling paths with color, patterns and gradients
+     *   <li>use custom shader per quad
+     *   <li>image slicing
+     *   <li>rendering context save and restore
      *
+     * <h4>Path</h4>
+     * <p>
+     * The rendering context has support for path stroke or fill operations. Internally, these operations are backed by
+     * a path implementation <code>cc.math.Path</code>. The path, is composed by a collection of contours (basically
+     * each time <code>moveTo</code> is called a new contour is created) and each contour is a collection of
+     * <code>cc.math.path.Segment</code> objects. Calls to <code>lineTo</code> or <code>QuadraticCurveTo</code> create
+     * segments and contour creation is automatically done.
+     * <p>
+     * The segment creation operations are incremental. In order to avoid leaking, a call to <code>beginPath</code>
+     * must be performed to start with a new fresh path. The rendering context <code>cc.math.Path</code> object is not
+     * reset per frame, it is something the developer must do on its own.
+     * <p>
+     * Each segment operation will automatically be modified by the current transformation matrix.
+     * <p>
+     * The Path object can manually created and stroked/filled for later fast stroke/fill operations.
+     *
+     * <h4>Transformation</h4>
+     * At any given time, all rendering context operations can be transformed by a cumulative transformation matrix.
+     * Calls to <code>translate</code>, <code>rotate</code> and <code>scale</code>, will
+     * indistinctly affect path tracing/filling, image drawing, line width, text, pattern and gradient projection space,
+     * etc.
+     * <p>
+     * The tansformation is not reset by the system at any time. It is developers responsibility to either make a call
+     * to <code>setTransform(1,0,0,1,0,0)</code> or make appropriate <code>save</code>/<code>restore</code> calls.
      */
     interface RenderingContext {
         /**
@@ -9638,8 +9871,24 @@ declare module cc.render {
          * @type {HTMLCanvasElement}
          */
         canvas: HTMLCanvasElement;
+        /**
+         * Set draw operations tint color.
+         * The tinting only makes sense in a WebGL renderer.
+         * @param color {cc.math.Color}
+         * @method cc.render.RenderingContext#setTintColor
+         */
         setTintColor(color: Color): any;
+        /**
+         * Set a global transparency value.
+         * @param alpha {number} value between 0 and 1. 0 is full transparent and 1 is full opaque.
+         * @method cc.render.RenderingContext#setGlobalAlpha
+         */
         setGlobalAlpha(alpha: number): any;
+        /**
+         * Get the global transparency value.
+         * @method cc.render.RenderingContext#getGlobalAlpha
+         * @return number
+         */
         getGlobalAlpha(): number;
         /**
          * Set rendering context current transformation matrix.
@@ -9655,7 +9904,7 @@ declare module cc.render {
          */
         setTransform(a: number, b: number, c: number, d: number, tx: number, ty: number): any;
         /**
-         * Concatenate the matrix described by coeficcients with the current transformation matrix.
+         * Concatenate the matrix described by a,b,c,d,tx,ty with the current transformation matrix.
          * @param a {number}
          * @param b {number}
          * @param c {number}
@@ -9675,12 +9924,65 @@ declare module cc.render {
         fillRect(x: number, y: number, w: number, h: number): any;
         /**
          * Draw an image.
+         * This method can be called in 3 different ways:
+         *
+         * <li>3 parameters</li>
+         * This will draw the whole texture at its actual size at the given sx,sy position.
+         * <li>5 parameters</li>
+         * This will draw the whole texture size at the given sx,sy position but at the size specified by sw,sh.
+         * <li>9 parameters</li>
+         * This will draw a source rectangle of the texture defined by sx,sy,sw,sh in the destination rectangle defined
+         * by dx,dy,dw,dh.
+         *
+         * <p>
+         * This method honors the current transformation matrix and will be safe to perform new drawing operations after
+         * calling it.
+         *
+         * @param texture {cc.render.Texture2D}
+         * @param sx {number}
+         * @param sy {number}
+         * @param sw {number=}
+         * @param sh {number=}
+         * @param dx {number=}
+         * @param dy {number=}
+         * @param dw {number=}
+         * @param dh {number=}
+         *
          * @method cc.render.RenderingContext#drawImage
-         * @param image {HTMLImageElement|HTMLCanvasElement}
-         * @param x {number}
-         * @param y {number}
          */
         drawTexture(texture: Texture2D, sx: number, sy: number, sw?: number, sh?: number, dx?: number, dy?: number, dw?: number, dh?: number): void;
+        /**
+         * Draw an image.
+         * This method can be called in 3 different ways:
+         *
+         * <li>3 parameters</li>
+         * This will draw the whole texture at its actual size at the given sx,sy position.
+         * <li>5 parameters</li>
+         * This will draw the whole texture size at the given sx,sy position but at the size specified by sw,sh.
+         * <li>9 parameters</li>
+         * This will draw a source rectangle of the texture defined by sx,sy,sw,sh in the destination rectangle defined
+         * by dx,dy,dw,dh.
+         *
+         * <p>
+         * This method <b>does not</b> may leave the current transformation matrix in the wrong state, and you may get
+         * not the expected results after calling new drawTexture/drawTextureUnsafe operations.
+         * <p>
+         * For a webgl renderer, this method is much faster than calling <code>drawTexture</code>. In most cases,
+         * like an sprite which just needs to draw a chunk of a texture in a destination rectangle, this method will
+         * suffice.
+         *
+         * @param texture {cc.render.Texture2D}
+         * @param sx {number}
+         * @param sy {number}
+         * @param sw {number=}
+         * @param sh {number=}
+         * @param dx {number=}
+         * @param dy {number=}
+         * @param dw {number=}
+         * @param dh {number=}
+         *
+         * @method cc.render.RenderingContext#drawImageUnsafe
+         */
         drawTextureUnsafe(texture: Texture2D, sx: number, sy: number, sw?: number, sh?: number, dx?: number, dy?: number, dw?: number, dh?: number): void;
         /**
          * Clear the current renderer surface.
@@ -9690,6 +9992,7 @@ declare module cc.render {
         /**
          * Flush current renderer. This method only makes sense for WebGL, the canvas implementation is empty.
          * A call to this method must be done in a WebGL renderer to have content shown in the canvas.
+         * If running inside the engine, this method is called automatically.
          * @method cc.render.RenderingContext#flush
          */
         flush(): any;
@@ -9713,22 +10016,274 @@ declare module cc.render {
          * @param y {number}
          */
         scale(x: number, y: number): any;
+        /**
+         * Get the rendering area width in pixels.
+         * @method cc.render.RenderingContext#getWidth
+         */
         getWidth(): number;
+        /**
+         * Get the rendering area height in pixels.
+         * @method cc.render.RenderingContext#getWidth
+         */
         getHeight(): number;
+        /**
+         * Get the renderer type. A value from cc.render.RENDERER_TYPE_CANVAS | cc.render.RENDERER_TYPE_WEBGL
+         * @type {number}
+         * @member cc.render.RenderingContext#type
+         */
         type: number;
+        /**
+         * Save the current RenderingContext status. It clones the associated <code>cc.render.RenderingContextSnapshot</code>.
+         * @method cc.render.RenderingContext#save
+         */
         save(): void;
+        /**
+         * Restore a previously saved RenderingContext status.
+         * It clones the associated <code>cc.render.RenderingContextSnapshot</code>.
+         * @method cc.render.RenderingContext#restore
+         */
         restore(): void;
-        beginPath(): any;
+        /**
+         * Stroke (trace contour) of the current rendering context's state path.
+         * The path is tracked internally in a <code>cc.math.Path</code> object.
+         * The trace of the path contour is modified by:
+         *   <li>current transformation matrix
+         *   <li>line width
+         *   <li>line join
+         *   <li>line cap
+         *   <li>line join miter limit
+         *
+         * @method cc.render.RenderingContext#stroke
+         */
         stroke(): any;
+        /**
+         * Fill the current rendering context's state path.
+         * The path is tracked internally in a <code>cc.math.Path</code> object.
+         * The fill is performed by a basic tessellation process. Self intersecting path contours won't be appropriately
+         * displayed.
+         * <b>This method may not be consistent between canvas and webgl renderers</b>
+         *
+         * @method cc.render.RenderingContext#fill
+         */
+        fill(): any;
+        /**
+         * The the current rendering context to reset the internal path representation.
+         * This method should be called to start a fresh path tracing/filling operation.
+         *
+         * This operation will be affected by the current transformation matrix.
+         *
+         * @method cc.render.RenderingContext#beginPath
+         */
+        beginPath(): any;
+        /**
+         * Move the path tracer position.
+         * @param x {number}
+         * @param y {number}
+         *
+         * @method cc.render.RenderincContext#moveTo
+         */
         moveTo(x: number, y: number): any;
+        /**
+         * Add a line from the current path position to the desired position.
+         * This operation will be affected by the current transformation matrix.
+         *
+         * @param x {number}
+         * @param y {number}
+         * @method cc.render.RenderingContext#lineTo
+         */
         lineTo(x: number, y: number): any;
+        /**
+         * Add a cubic bezier from the current path position defined by the two control points and the final curve point.
+         *
+         * @param cp0x {number} first control point x position
+         * @param cp0y {number} first control point y position
+         * @param cp1x {number} second control point x position
+         * @param cp1y {number} second control point y position
+         * @param p2x {number} second curve point x position
+         * @param p2y {number} second curve point y position
+         *
+         * This operation will be affected by the current transformation matrix.
+         *
+         * @method cc.render.RenderingContext#bezierCurveTo
+         */
+        bezierCurveTo(cp0x: number, cp0y: number, cp1x: number, cp1y: number, p2x: number, p2y: number): any;
+        /**
+         * Add a quadratic bezier from the current path position defined by one control point and the final curve point.
+         *
+         * @param cp0x {number} control point x position
+         * @param cp0y {number} control point y position
+         * @param p2x {number} second curve point x position
+         * @param p2y {number} second curve point y position
+         *
+         * This operation will be affected by the current transformation matrix.
+         *
+         * @method cc.render.RenderingContext#quadraticCurveTo
+         */
+        quadraticCurveTo(cp0x: number, cp0y: number, p2x: number, p2y: number): any;
+        /**
+         * Create a new rectangular closed contour on the current path.
+         * @param x {number}
+         * @param y {number}
+         * @param width {number}
+         * @param height {number}
+         *
+         * This operation will be affected by the current transformation matrix.
+         *
+         * @method cc.render.RenderingContext#rect
+         */
+        rect(x: number, y: number, width: number, height: number): any;
+        /**
+         * Add an arc segment to the current path.
+         * The arc will be drawn as the least angle difference between startAngle and endAngle. This means that if an arc
+         * is defined from 0 to 100*PI radians, the arc will actually be from 0 to 2*PI radians.
+         *
+         *
+         * @param x {number} arc center x position
+         * @param y {number} arc center y position
+         * @param radius {number} arc radius
+         * @param startAngle {number} arc start angle
+         * @param endAngle {number} arc end angle
+         * @param counterClockWise {boolean} if true the arc will be complimentary arc from the original one.
+         *
+         * This operation will be affected by the current transformation matrix.
+         *
+         * @method cc.render.RenderingContext#arc
+         */
+        arc(x: number, y: number, radius: number, startAngle: number, endAngle: number, counterClockWise: boolean): any;
+        /**
+         * Close the current contour on the current path.
+         * Successive path operations will create a new contour.
+         *
+         * This operation will be affected by the current transformation matrix.
+         *
+         * @method cc.render.RenderingContext#closePath
+         */
+        closePath(): any;
+        /**
+         * Set the current path line cap. This call will have effect when a call to <code>stroke</code> is performed.
+         * @param cap {cc.render.LineCap}
+         *
+         * @method cc.render.RenderingContext#setLineCap
+         */
+        setLineCap(cap: LineCap): any;
+        /**
+         * Get the current line cap.
+         *
+         * @method cc.render.RenderingContext#getLineCap
+         * @return cc.render.LineCap
+         */
+        getLineCap(): LineCap;
+        /**
+         * Set the current path line join. This call will have effect when a call to <code>stroke</code> is performed.
+         * @param join {cc.render.LineJoin}
+         *
+         * @method cc.render.RenderingContext#setLineJoin
+         */
+        setLineJoin(join: LineJoin): any;
+        /**
+         * Get the current line join.
+         *
+         * @method cc.render.RenderingContext#getLineJoin
+         * @return cc.render.LineJoin
+         */
+        getLineJoin(): LineJoin;
+        /**
+         * Set the line width for stroking a path.
+         * The lineWidth will be affected by the current transformation matrix.
+         *
+         * @param w {number} desired line width. 1 by default.
+         * @method cc.render.RenderingContext#setLineWidth
+         */
+        setLineWidth(w: number): any;
+        /**
+         * Get the current line width.
+         *
+         * @method cc.render.RenderingContext#getLineWidth
+         * @return number
+         */
+        getLineWidth(): number;
+        /**
+         * Set fill operations color.
+         *
+         * @param color {cc.math.Color}
+         * @method cc.render.RenderingContext#setFillStyleColor
+         */
         setFillStyleColor(color: Color): any;
+        /**
+         * Set fill operations color.
+         *
+         * @param colorArray {Float32Array}
+         * @method cc.render.RenderingContext#setFillStyleColorArray
+         */
         setFillStyleColorArray(colorArray: Float32Array): any;
+        /**
+         * Set fill operations <code>cc.render.Pattern</code>.
+         *
+         * @param pattern {cc.render.Pattern}
+         * @method cc.render.RenderingContext#setFillStylePattern
+         */
         setFillStylePattern(pattern: cc.render.Pattern): any;
+        /**
+         * Set stroke operations color.
+         *
+         * @param color {cc.math.Color}
+         * @method cc.render.RenderingContext#setStrokeStyleColor
+         */
+        setStrokeStyleColor(color: Color): any;
+        /**
+         * Set stroke operations color.
+         *
+         * @param colorArray {Float32Array}
+         * @method cc.render.RenderingContext#setStrokeStyleColorArray
+         */
+        setStrokeStyleColorArray(colorArray: Float32Array): any;
+        /**
+         * Set stroke operations <code>cc.render.Pattern</code>.
+         *
+         * @param pattern {cc.render.Pattern}
+         * @method cc.render.RenderingContext#setStrokeStylePattern
+         */
+        setStrokeStylePattern(pattern: cc.render.Pattern): any;
+        /**
+         * Resize the rendering context.
+         * This method is internal and must never be called directly.
+         *
+         * @method cc.render.RenderingContext#resize
+         */
         resize(): any;
+        /**
+         * Get the units/pixels conversion ratio value.
+         *
+         * @method cc.render.RenderingContext#getUnitsFactor
+         */
         getUnitsFactor(): number;
+        /**
+         * Set current composite operation (blending mode).
+         *
+         * @param o {cc.render.CompositeOperation}
+         * @method cc.render.RenderingContext#setCompositeOperation
+         */
         setCompositeOperation(o: cc.render.CompositeOperation): any;
+        /**
+         * Get current composite operation (blending mode).
+         *
+         * @method cc.render.RenderingContext#getCompositeOperation
+         * @return cc.render.CompositeOperation
+         */
         getCompositeOperation(): cc.render.CompositeOperation;
+        /**
+         * Draw a mesh defined by geometry, texture coordinates and indices.
+         * This method is expected to be used only in webgl. Current canvas renderer implementation will draw the mesh
+         * itself and not the image.
+         *
+         * @param geometry {Float32Array} vertices geometry. <b>It expects 3 coords per vertex.</b>
+         * @param uv {Float32Array} texture coordinates per vertex. 2 coords per vertex.
+         * @param indices {Uint32Array} vertices indices.
+         * @param color {number} a 32 bit encoded RGBA value. This will be a tint over the texture.
+         * @param texture {cc.render.Texture2D} a texture.
+         *
+         * @method cc.render.RenderingContext#drawMesh
+         */
         drawMesh(geometry: Float32Array, uv: Float32Array, indices: Uint32Array, color: number, texture: Texture2D): any;
     }
 }
@@ -9775,6 +10330,12 @@ declare module cc.render {
          * @private
          */
         _miterLimit: number;
+        /**
+         * Current fill type info. Needed for shader selection.
+         * @member cc.render.RenderingContextSnapshot#_currentFillStyleType
+         * @type {cc.render.FillStyleType}
+         * @private
+         */
         _currentFillStyleType: cc.render.FillStyleType;
         /**
          * Current fill style.
@@ -9783,6 +10344,14 @@ declare module cc.render {
          * @private
          */
         _fillStyleColor: Float32Array;
+        /**
+         * Current pattern info when <code>_currentFillStyleType</code> is
+         * <code>cc.render.FillStyleType.PATTERN_REPEAT</code>
+         * @type {cc.render.Pattern}
+         * @member cc.render.RenderingContextSnapshot#_fillStylePattern
+         * @private
+         *
+         */
         _fillStylePattern: cc.render.Pattern;
         /**
          * Current tint color. Only makes sense in webgl renderers.
@@ -9798,6 +10367,20 @@ declare module cc.render {
          * @private
          */
         _lineWidth: number;
+        /**
+         * Line cap hint for path stroking.
+         * @type {cc.render.LineCap.BUTT}
+         * @member cc.render.RenderingContextSnapshot#_lineCap
+         * @private
+         */
+        _lineCap: cc.render.LineCap;
+        /**
+         * Line join hint for path stroking.
+         * @type {cc.render.LineCap.BUTT}
+         * @member cc.render.RenderingContextSnapshot#_lineJoin
+         * @private
+         */
+        _lineJoin: cc.render.LineJoin;
         /**
          * Current font data.
          * @member cc.render.RenderingContextSnapshot#_fontDefinition
@@ -9844,6 +10427,98 @@ declare module cc.render {
          * @returns {cc.render.RenderingContextSnapshot}
          */
         clone(): RenderingContextSnapshot;
+        /**
+         * begin path in the path tracer.
+         * @method cc.render.RenderingContextSnapshot#beginPath
+         */
+        beginPath(): void;
+        /**
+         * Close the current contour in the path tracer.
+         * A closed contour can't have any other segment added, and successive tracing operations will create a new
+         * contour.
+         * @method cc.render.RenderingContextSnapshot#closePath
+         */
+        closePath(): void;
+        /**
+         * Move the current path position based on the current transformation matrix.
+         * @param x {number}
+         * @param y {number}
+         * @method cc.render.RenderingContextSnapshot#moveTo
+         */
+        moveTo(x: number, y: number): void;
+        /**
+         * Add a line segment to the current path. Segment info must be transformed by the current transformation matrix.
+         * @param x {number}
+         * @param y {number}
+         * @method cc.render.RenderingContextSnapshot#lineTo
+         */
+        lineTo(x: number, y: number): void;
+        /**
+         * Add a bezier segment to the current path. Segment info must be transformed by the current transformation matrix.
+         * @param cp0x {number}
+         * @param cp0y {number}
+         * @param cp1x {number}
+         * @param cp1y {number}
+         * @param p2x {number}
+         * @param p2y {number}
+         * @method cc.render.RenderingContextSnapshot#bezierCurveTo
+         */
+        bezierCurveTo(cp0x: number, cp0y: number, cp1x: number, cp1y: number, p2x: number, p2y: number): void;
+        /**
+         * Add a quadratic segment to the current path. Segment info must be transformed by the current transformation matrix.
+         * @param cp0x {number}
+         * @param cp0y {number}
+         * @param p2x {number}
+         * @param p2y {number}
+         * @method cc.render.RenderingContextSnapshot#quadraticCurveTo
+         */
+        quadraticCurveTo(cp0x: number, cp0y: number, p2x: number, p2y: number): void;
+        /**
+         * Add a rectangle segment to the current path.
+         * Segment info must be transformed by the current transformation matrix.
+         * @param x {number}
+         * @param y {number}
+         * @param width {number}
+         * @param height {number}
+         * @method cc.render.RenderingContextSnapshot#rect
+         */
+        rect(x: number, y: number, width: number, height: number): void;
+        /**
+         * Add an arc segment to the current path.
+         * Segment info must be transformed by the current transformation matrix.
+         * @param x {number}
+         * @param y {number}
+         * @param radius {number}
+         * @param startAngle {number}
+         * @param endAngle {number}
+         * @param counterClockWise {boolean}
+         *
+         * @method cc.render.RenderingContextSnapshot#arc
+         */
+        arc(x: number, y: number, radius: number, startAngle: number, endAngle: number, counterClockWise: boolean): void;
+        /**
+         * Tell the current path to create geometry for its contour stroke.
+         * The stroke will different based on the line width, and contour hints line join/cap.
+         *
+         * You normally don't have to interact with this method.
+         *
+         * @param lineWidth {number}
+         * @param join {cc.render.LineJoin}
+         * @param cap {cc.render.LineCap}
+         *
+         * @method cc.render.RenderingContextSnapshot#setupStroke
+         * @returns {Float32Array}
+         */
+        setupStroke(lineWidth: number, join: cc.render.LineJoin, cap: cc.render.LineCap): any;
+        /**
+         * Tell the current path to create geometry for filling it.
+         *
+         * You normally don't have to interact with this method.
+         *
+         * @method cc.render.RenderingContextSnapshot#setupFill
+         * @returns {Float32Array}
+         */
+        setupFill(): any;
     }
 }
 /**
@@ -9955,7 +10630,6 @@ declare module cc.render {
         _indexBufferIndex: number;
         _indexBufferMesh: Uint16Array;
         _indexBufferMeshIndex: number;
-        _indicesChanged: boolean;
         _glIndexMeshBuffers: Buffer[];
         _glIndexMeshBuffer: Buffer;
         /**
@@ -9970,6 +10644,18 @@ declare module cc.render {
          * @param _gl {WebGLRenderingContext}
          */
         constructor(glstate: WebGLState);
+        /**
+         * Batch a rectangle with texture.
+         *
+         * @method cc.render.GeometryBatcher#batchRectGeometryWithTexture
+         * @param vertices {Array<cc.math.Point>}
+         * @param u0 {number}
+         * @param v0 {number}
+         * @param u1 {number}
+         * @param v1 {number}
+         * @param rcs {cc.render.RenderingContextSnapshot}
+         * @returns {boolean}
+         */
         batchRectGeometryWithTexture(vertices: Point[], u0: number, v0: number, u1: number, v1: number, rcs: RenderingContextSnapshot): boolean;
         /**
          * Batch a rectangle with texture info and tint color.
@@ -10010,16 +10696,70 @@ declare module cc.render {
          */
         batchVertex(p: Point, cc: number, u: number, v: number): void;
         /**
+         * BUGBUG refactor. Move to AbstractShader and reimplement for each shader.
          * Flush currently batched geometry and related info with a given shader program.
          * @method cc.render.GeometryBatcher#flush
          * @param shader {cc.render.shader.AbstractShader} program shader
          * @param rcs {cc.render.RenderingContextSnapshot}
          */
         flush(shader: AbstractShader, rcs: cc.render.RenderingContextSnapshot): void;
+        /**
+         * Get a compact Uint32 representation of a color.
+         * The color is calculated as the mix or the rendering context current color multiplied the the rendering context
+         * current tint color.
+         * @method cc.render.GeometryBatcher#__uintColor
+         * @param rcs {cc.render.RenderincContextSnapshot}
+         * @returns {number}
+         * @private
+         */
         __uintColor(rcs: RenderingContextSnapshot): number;
+        /**
+         * Batch a fast sprite info. Fast sprite objects do all transformation calculations on the GPU, and as such,
+         * have some limitations.
+         *
+         * @method cc.render.GeometryBatcher#batchRectGeometryWithSpriteFast
+         *
+         * @param sprite {cc.node.Sprite}
+         * @param u0 {number}
+         * @param v0 {number}
+         * @param u1 {number}
+         * @param v1 {number}
+         * @param rcs {cc.render.RenderingContextSnapshot}
+         * @returns {boolean}
+         */
         batchRectGeometryWithSpriteFast(sprite: Sprite, u0: number, v0: number, u1: number, v1: number, rcs: RenderingContextSnapshot): boolean;
-        batchMesh(geometry: Float32Array, uv: Float32Array, indices: Uint32Array, color: number, rcs: RenderingContextSnapshot): void;
+        /**
+         * Batch a mesh.
+         * A mesh uses a custom shader for meshes. They expect to color-per-vertex info, but a global color for the as
+         * a uniform value.
+         *
+         * @method cc.render.GeometryBatcher#batchMesh
+         * @param geometry {Float32Array}
+         * @param uv {Float32Array}
+         * @param indices {Uint32Array}
+         * @param color {number} the result of calling __uintColor
+         */
+        batchMesh(geometry: Float32Array, uv: Float32Array, indices: Uint32Array, color: number): void;
+        /**
+         * Batch a vertex for a mesh.
+         *
+         * @method cc.render.GeometryBatcher#batchMeshVertex
+         * @param x {number}
+         * @param y {number}
+         * @param u {number}
+         * @param v {number}
+         */
         batchMeshVertex(x: number, y: number, u: number, v: number): void;
+        /**
+         * Batch a path geometry.
+         * Requires sequential indices.
+         * Geometry already in screen space.
+         *
+         * @method cc.render.GeometryBatcher#batchPath
+         * @param geometry {Float32Array}
+         * @param rcs {cc.render.RenderingContextSnapshot}
+         */
+        batchPath(geometry: Float32Array, rcs: RenderingContextSnapshot): void;
     }
 }
 /**
@@ -10037,7 +10777,7 @@ declare module cc.render {
      * @tsenum cc.render.FillStyleType
      */
     enum FillStyleType {
-        COLOR = 0,
+        MESHCOLOR = 0,
         IMAGE = 1,
         IMAGEFAST = 2,
         PATTERN_REPEAT = 3,
@@ -10048,7 +10788,7 @@ declare module cc.render {
      * @tsenum cc.render.ShaderType
      */
     enum ShaderType {
-        COLOR = 0,
+        MESHCOLOR = 0,
         IMAGE = 1,
         IMAGEFAST = 2,
         PATTERN_REPEAT = 3,
@@ -10066,12 +10806,21 @@ declare module cc.render {
     /**
      * @class cc.render.DecoratedWebGLRenderingContext
      * @classdesc
+     * @extends RenderingContext
      *
-     * This object wraps a 3D canvas context (webgl) and exposes a canvas like 2d rendering API.
-     * The implementation should be extremely efficient by:
-     *   <li>lazily set every property.
-     *   <li>batch all drawing operations as much as possible.
-     *   <li>ping pong between buffers
+     * This object wraps a 3D canvas context (webgl) and exposes a canvas-like 2d rendering API without sacrificing
+     * flexibility to expose the internal gl context for custom drawing on developer side.
+     * <p>
+     * This object is an implementation of the <code>cc.render.RenderingContext</code> interface, and the documentation
+     * associated must be referred there. The rest of the code are just implementation details of the interface.
+     *
+     * <p>
+     * The implementation aims at performance and on-pair visual results with a canvas renderer. To achieve this,
+     * as well as highest performance, the implementation:
+     *   <li>lazily sets every property.
+     *   <li>batches all drawing operations as much as possible.
+     *   <li>ping-pongs between buffers
+     *   <li>...
      *
      * <br>
      * All this would be transparent for the developer and happen automatically. For example, is a value is set to
@@ -10080,6 +10829,8 @@ declare module cc.render {
      * is deferred until the moment when some geometry will happen, for example, a fillRect call.
      * <br>
      * This mechanism is set for every potential flushing operation like changing fillStyle, compisite, textures, etc.
+     *
+     * @see cc.render.RenderingContext
      */
     class DecoratedWebGLRenderingContext implements RenderingContext {
         /**
@@ -10101,6 +10852,27 @@ declare module cc.render {
          */
         static CTX_ALPHA: boolean;
         /**
+         * Currently set line join stroke hint.
+         * @member cc.render.DecoratedRenderingContext#_currentLineJoin
+         * @type {cc.render.LineJoin}
+         * @private
+         */
+        _currentLineJoin: cc.render.LineJoin;
+        /**
+         * Currently set line cap stroke hint.
+         * @member cc.render.DecoratedRenderingContext#_currentLineCap
+         * @type {cc.render.LineCap}
+         * @private
+         */
+        _currentLineCap: cc.render.LineCap;
+        /**
+         * Currently set line width stroke hint.
+         * @member cc.render.DecoratedRenderingContext#_currentLineWidth
+         * @type {number}
+         * @private
+         */
+        _currentLineWidth: number;
+        /**
          * Current rendering context data.
          * @member cc.render.DecoratedWebGLRenderingContext#_currentContextSnapshot
          * @type {cc.render.RenderingContextSnapshot}
@@ -10115,12 +10887,25 @@ declare module cc.render {
          */
         _contextSnapshots: Array<RenderingContextSnapshot>;
         /**
-         * if _currentFillStyleType===COLOR, this is the current color.
+         * if _currentFillStyleType===COLORMESH, this is the current color.
          * @member cc.render.DecoratedWebGLRenderingContext#_currentFillStyleColor
          * @type {Float32Array}
          * @private
          */
         _currentFillStyleColor: Float32Array;
+        /**
+         * if _currentStrokeStyleType===COLORMESH, this is the current color.
+         * @member cc.render.DecoratedWebGLRenderingContext#_currentStrokeStyleColor
+         * @type {Float32Array}
+         * @private
+         */
+        _currentStrokeStyleColor: Float32Array;
+        /**
+         * if _currentStrokeStyleType===PATTERN_REPEAT, this is the pattern info.
+         * @member cc.render.DecoratedWebGLRenderingContext#_currentFillStylePattern
+         * @type {Float32Array}
+         * @private
+         */
         _currentFillStylePattern: cc.render.Pattern;
         /**
          * Current fill style type. The style type reflects what shader is currently set for rendering.
@@ -10129,6 +10914,14 @@ declare module cc.render {
          * @private
          */
         _currentFillStyleType: FillStyleType;
+        /**
+         * Current tint color. The tint color is multiplied by whatever drawing operation pixel color is currently
+         * executed.
+         *
+         * @member cc.render.DecoratedWebGLRenderingContext#_currentTintColor
+         * @type {Float32Array}
+         * @private
+         */
         _currentTintColor: Float32Array;
         /**
          * Last global composite operation set.
@@ -10151,9 +10944,35 @@ declare module cc.render {
          * @private
          */
         _batcher: GeometryBatcher;
+        /**
+         * Internal webgl context wrapping object.
+         *
+         * @member cc.render.DecoratedWebGLRenderingContext#_webglState
+         * @type {cc.render.WebGLState}
+         * @private
+         */
         _webglState: WebGLState;
+        /**
+         * Rendering surface width.
+         *
+         * @member cc.render.DecoratedWebGLRenderingContext#_width
+         * @type {number}
+         * @private
+         */
         _width: number;
+        /**
+         * Rendering surface height.
+         *
+         * @member cc.render.DecoratedWebGLRenderingContext#_height
+         * @type {number}
+         * @private
+         */
         _height: number;
+        /**
+         * Renderer instance this gl renderer context belongs to.
+         * @type {cc.render.Renderer}
+         * @private
+         */
         _renderer: Renderer;
         /**
          * Rendering surface (canvas object)
@@ -10311,10 +11130,31 @@ declare module cc.render {
         setFillStyleColor(color: Color): void;
         setFillStyleColorArray(colorArray: Float32Array): void;
         setFillStylePattern(pattern: Pattern): void;
+        setStrokeStyleColor(color: Color): void;
+        setStrokeStyleColorArray(colorArray: Float32Array): void;
+        setStrokeStylePattern(pattern: Pattern): void;
+        fillStyle: string;
+        strokeStyle: string;
         beginPath(): void;
+        closePath(): void;
         stroke(): void;
+        fill(): void;
+        __checkStrokeFlushConditions(): void;
+        lineWidth: number;
+        lineCap: string;
+        lineJoin: string;
+        setLineWidth(w: number): void;
+        getLineWidth(): number;
+        setLineCap(cap: cc.render.LineCap): void;
+        getLineCap(): cc.render.LineCap;
+        setLineJoin(join: cc.render.LineJoin): void;
+        getLineJoin(): cc.render.LineJoin;
         moveTo(x: number, y: number): void;
         lineTo(x: number, y: number): void;
+        bezierCurveTo(cp0x: number, cp0y: number, cp1x: number, cp1y: number, p2x: number, p2y: number): void;
+        quadraticCurveTo(cp0x: number, cp0y: number, p2x: number, p2y: number): void;
+        rect(x: number, y: number, width: number, height: number): void;
+        arc(x: number, y: number, radius: number, startAngle: number, endAngle: number, counterClockWise: boolean): void;
         save(): void;
         restore(): void;
         drawMesh(geometry: Float32Array, uv: Float32Array, indices: Uint32Array, color: number, texture: Texture2D): void;
@@ -10833,6 +11673,7 @@ declare module cc.render.util {
     function getChannel(image: HTMLImageElement | HTMLCanvasElement, channel: number): any[] | Uint8Array;
     function createCanvas(w: number, h: number): HTMLCanvasElement;
     function extractChannel(data: number[], width: number, height: number, channel: number): any[] | Uint8Array;
+    function parseColor(c: string): Float32Array;
 }
 /**
  * License: see license.txt file
