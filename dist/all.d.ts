@@ -860,6 +860,8 @@ declare module cc.math {
          * @returns {cc.math.Vector}
          */
         clone(): Vector;
+        perpendicular(): Vector;
+        invert(): Vector;
     }
 }
 /**
