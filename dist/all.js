@@ -1,6 +1,12 @@
 /**
  * License: see license.txt file.
  */
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
 /**
  * @name cc
  * @namespace
@@ -150,7 +156,6 @@ var cc;
         win.cancelAnimationFrame = win.cancelAnimationFrame || win.cancelRequestAnimationFrame || win.msCancelRequestAnimationFrame || win.mozCancelRequestAnimationFrame || win.oCancelRequestAnimationFrame || win.webkitCancelRequestAnimationFrame || win.msCancelAnimationFrame || win.mozCancelAnimationFrame || win.webkitCancelAnimationFrame || win.oCancelAnimationFrame || ctTime;
     })();
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -263,7 +268,6 @@ var cc;
         Debug.info = info;
     })(Debug = cc.Debug || (cc.Debug = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -398,7 +402,6 @@ var cc;
         locale.ERR_SOUND_POOL_EMPTY = "Can't play, sound pool is empty.";
     })(locale = cc.locale || (cc.locale = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -768,7 +771,6 @@ var cc;
         math.Color = Color;
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -1161,7 +1163,6 @@ var cc;
         var _workingMatrix = cc.math.Matrix3.create();
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -1178,7 +1179,6 @@ var cc;
         math.Matrix4 = Matrix4;
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -1362,7 +1362,6 @@ var cc;
         math.Vector = Vector;
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -1591,7 +1590,6 @@ var cc;
         math.Rectangle = Rectangle;
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
@@ -1656,7 +1654,6 @@ var cc;
         math.Dimension = Dimension;
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  * Created by ibon on 11/20/14.
  */
@@ -1696,7 +1693,6 @@ var cc;
         })(path = math.path || (math.path = {}));
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
@@ -1896,7 +1892,6 @@ var cc;
         })(path = math.path || (math.path = {}));
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
@@ -2207,7 +2202,6 @@ var cc;
         })(path = math.path || (math.path = {}));
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -2475,7 +2469,6 @@ var cc;
         })(path = math.path || (math.path = {}));
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -2771,7 +2764,6 @@ var cc;
         })(path = math.path || (math.path = {}));
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  * Created by ibon on 11/23/14.
  */
@@ -2990,7 +2982,6 @@ var cc;
         })(path = math.path || (math.path = {}));
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
@@ -3305,7 +3296,6 @@ var cc;
         })(path = math.path || (math.path = {}));
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  * Created by ibon on 11/22/14.
  */
@@ -3513,16 +3503,9 @@ var cc;
         })(path = math.path || (math.path = {}));
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="../Point.ts"/>
 /// <reference path="./Segment.ts"/>
 /// <reference path="./SegmentLine.ts"/>
@@ -3861,7 +3844,6 @@ var cc;
         })(path = math.path || (math.path = {}));
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  *
  * License: see license.txt file.
@@ -3881,13 +3863,17 @@ var cc;
             (function (geometry) {
                 var EPSILON = 0.0001;
                 /**
-                 * Get Stroke geometry for an array of Vector objects.
-                 * The array is the result of calling 'trace' for a Path object.
+                 * Get Stroke geometry for an array of Point objects.
+                 * The array could be the result of calling 'trace' for a Path object, or an arbitrary cloud of points.
+                 *
                  *
                  * @param points {Array.<cc.math.Vector>} contour of the points to trace.
-                 * @param attrs {cc.math.path.StrokeGeometryAttributes}
+                 * @param attrs {cc.math.path.StrokeGeometryAttributes} this object defines stroke attributes like line cap,
+                 *      line join, line width and miter limit.
                  *
                  * @returns {Array<number> | Float32Array} Array with pairs of numbers (x,y)
+                 *
+                 * @method cc.math.path.geometry.getStrokeGeometry
                  */
                 function getStrokeGeometry(points, attrs) {
                     // trivial reject
@@ -4010,6 +3996,19 @@ var cc;
                         __pushVert(verts, center.x + radius * Math.cos(orgAngle0 + angleInc * (1 + i)), center.y + radius * Math.sin(orgAngle0 + angleInc * (1 + i)));
                     }
                 }
+                /**
+                 * Get the signed area of a triangle.
+                 *
+                 * @method cc.math.path.geometry.signedArea
+                 *
+                 * @param p0x {number}
+                 * @param p0y {number}
+                 * @param p1x {number}
+                 * @param p1y {number}
+                 * @param p2x {number}
+                 * @param p2y {number}
+                 * @returns {number}
+                 */
                 function signedArea(p0x, p0y, p1x, p1y, p2x, p2y) {
                     return (p1x - p0x) * (p2y - p0y) - (p2x - p0x) * (p1y - p0y);
                 }
@@ -4148,13 +4147,17 @@ var cc;
                 /**
                  * ripped from http://www.blackpawn.com/texts/pointinpoly/default.html ;)
                  *
-                 * @param p
-                 * @param ax
-                 * @param ay
-                 * @param bx
-                 * @param by
-                 * @param cx
-                 * @param cy
+                 * Identify whether the <code>cc.math.Point</code> p is inside the triangle defined by the 3 point.
+                 *
+                 * @method cc.math.path.geometry.isPointInTriangle
+                 *
+                 * @param p {cc.math.Point}
+                 * @param ax {number}
+                 * @param ay {number}
+                 * @param bx {number}
+                 * @param by {number}
+                 * @param cx {number}
+                 * @param cy {number}
                  * @returns {boolean}
                  */
                 function isPointInTriangle(p, ax, ay, bx, by, cx, cy) {
@@ -4180,9 +4183,13 @@ var cc;
                 geometry.isPointInTriangle = isPointInTriangle;
                 /**
                  * Based from Ivank.polyk: http://polyk.ivank.net/polyk.js
-                 * @param contour
-                 * @param verts
-                 * @returns {Array}
+                 *
+                 * Turn a cloud of points to triangles.
+                 * The result of this operation will be an array of numbers, being each two a point, and each 6 a triangle.
+                 *
+                 * @method cc.math.path.geometry.tessellate
+                 * @param contour {Array<cc.math.Point>}
+                 * @returns {Float32Array}
                  */
                 function tessellate(contour) {
                     var n = contour.length;
@@ -4245,16 +4252,9 @@ var cc;
         })(path = math.path || (math.path = {}));
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="./path/Segment.ts"/>
 /// <reference path="./path/ContainerSegment.ts"/>
 /// <reference path="./path/SubPath.ts"/>
@@ -4307,18 +4307,48 @@ var cc;
                  * @private
                  */
                 this._currentSubPath = null;
+                /**
+                 * Cached stroke geometry.
+                 * @member cc.math.Path#_strokeGeometry
+                 * @type {Float32Array}
+                 * @private
+                 */
                 this._strokeGeometry = null;
+                /**
+                 * Cached fill geometry.
+                 * @member cc.math.Path#_fillGeometry
+                 * @type {Float32Array}
+                 * @private
+                 */
                 this._fillGeometry = null;
+                /**
+                 * Flag for stroke geometry cache invalidation.
+                 * @member cc.math.Path#_strokeDirty
+                 * @type {boolean}
+                 * @private
+                 */
                 this._strokeDirty = true;
+                /**
+                 * Flag for fill geometry cache invalidation.
+                 * @member cc.math.Path#_fillDirty
+                 * @type {boolean}
+                 * @private
+                 */
                 this._fillDirty = true;
             }
             /**
              * Get the Path's number of SubPaths.
+             * @method cc.math.Path#numSubPaths
              * @returns {number}
              */
             Path.prototype.numSubPaths = function () {
                 return this._segments.length;
             };
+            /**
+             * Create a new sub path.
+             * @method cc.math.Path#__newSubPath
+             * @private
+             */
             Path.prototype.__newSubPath = function () {
                 var subpath = new SubPath();
                 this._segments.push(subpath);
@@ -4327,6 +4357,7 @@ var cc;
             };
             /**
              * Test whether this Path is empty, ie has no sub paths.
+             * @method cc.math.Path#isEmpty
              * @returns {boolean}
              */
             Path.prototype.isEmpty = function () {
@@ -4346,6 +4377,8 @@ var cc;
              *
              * @param x {number=}
              * @param y {number=}
+             *
+             * @method cc.math.Path#__ensureSubPath
              * @private
              */
             Path.prototype.__ensureSubPath = function (x, y) {
@@ -4356,6 +4389,11 @@ var cc;
                     this._currentSubPath.moveTo(x, y);
                 }
             };
+            /**
+             * Chain two contours (subpath) when one is closed. Necessary for closed arcs.
+             * @method cc.math.Path#__chainSubPathIfCurrentIsClosed
+             * @private
+             */
             Path.prototype.__chainSubPathIfCurrentIsClosed = function () {
                 if (this._currentSubPath.isClosed()) {
                     var pt = this._currentSubPath._currentPoint;
@@ -4366,6 +4404,8 @@ var cc;
             /**
              * Get the Path current position for tracing.
              * This point corresponds to the tracing position of the current SubPath.
+             *
+             * @method cc.math.Path#getCurrentTracePosition
              * @returns {cc.math.Point}
              */
             Path.prototype.getCurrentTracePosition = function () {
@@ -4379,6 +4419,8 @@ var cc;
              * Get the Path starting point.
              * It corresponds to the starting point of the first segment it contains, regardless of its type.
              * If there's no current SubPath, an empty Point (0,0) is returned.
+             *
+             * @method cc.math.Path#getStartingPoint
              * @returns {*}
              */
             Path.prototype.getStartingPoint = function () {
@@ -4392,6 +4434,8 @@ var cc;
              * Get the Path ending point.
              * It corresponds to the ending point of the last segment it contains, regardless of its type.
              * If there's no current SubPath, an empty Point (0,0) is returned.
+             *
+             * @method cc.math.Path#getEndingPoint
              * @returns {*}
              */
             Path.prototype.getEndingPoint = function () {
@@ -4405,6 +4449,8 @@ var cc;
              * Create a poli-line path from a set of Points.
              * If no points, or an empty array is passed, no Path is built and returns null.
              * @param points {Array<cc.math.Vector>}
+             *
+             * @method cc.math.Path.createFromPoints
              * @returns {cc.math.Path} Newly created path or null if the path can't be created.
              * @static
              */
@@ -4437,6 +4483,17 @@ var cc;
                 this.setDirty();
                 return this;
             };
+            /**
+             * Add a quadratic curve to the path.
+             * @param x1 {number} control point x position
+             * @param y1 {number} control point y position
+             * @param x2 {number} second curve point x position
+             * @param y2 {number} second curve point y position
+             * @param matrix {Float32Array}
+             *
+             * @method cc.math.Path#quadraticCurveTo
+             * @returns {cc.math.Path} the path holding the segment
+             */
             Path.prototype.quadraticCurveTo = function (x1, y1, x2, y2, matrix) {
                 __v0.set(x1, y1);
                 __v1.set(x2, y2);
@@ -4449,6 +4506,17 @@ var cc;
                 this.setDirty();
                 return this;
             };
+            /**
+             * Add a quadratic curve to the path.
+             * @param x1 {number} control point x position
+             * @param y1 {number} control point y position
+             * @param x2 {number} second curve point x position
+             * @param y2 {number} second curve point y position
+             * @param matrix {Float32Array}
+             *
+             * @method cc.math.Path#bezierCurveTo
+             * @returns {cc.math.Path} the path holding the segment
+             */
             Path.prototype.bezierCurveTo = function (x0, y0, x1, y1, x2, y2, matrix) {
                 __v0.set(x0, y0);
                 __v1.set(x1, y1);
@@ -4463,6 +4531,18 @@ var cc;
                 this.setDirty();
                 return this;
             };
+            /**
+             * Add CatmullRom segments.
+             * The segments are defined by an array of numbers, being each two the definition of a Point, or an array of
+             * <code>cc.math.Point</code> objects.
+             *
+             * This method will create in the as much CatmullRom segments as needed based on the number of parameters supplied.
+             *
+             * @method cc.math.Path#catmullRomTo
+             * @param p0
+             * @param rest
+             * @returns {cc.math.Path}
+             */
             Path.prototype.catmullRomTo = function (p0) {
                 var rest = [];
                 for (var _i = 1; _i < arguments.length; _i++) {
@@ -4505,7 +4585,9 @@ var cc;
                 return this;
             };
             /**
-             * Add a catmull rom (cardinal spline
+             * Add a CatmullRom segment implementation.
+             *
+             * @method cc.math.Path#__catmullRomTo
              * @param cp0x {number}
              * @param cp0y {number}
              * @param cp1x {number}
@@ -4530,6 +4612,7 @@ var cc;
             /**
              * Close the current SubPath.
              *
+             * @method cc.math.Path#closePath
              * @returns {cc.math.Path}
              */
             Path.prototype.closePath = function () {
@@ -4593,6 +4676,8 @@ var cc;
             /**
              * Create a rect as a new SubPath. The rect has 4 segments which conform the rect.
              * It also created a new SubPath movedTo (x,y).
+             *
+             * @method cc.math.Path#rect
              * @param x {number}
              * @param y {number}
              * @param w {number}
@@ -4634,6 +4719,7 @@ var cc;
              * In this implementation if the radius is < 0, the radius will be set to 0.
              * If the radius is 0 or the diffangle is 0, no arc is added.
              *
+             * @method cc.math.Path#arc
              * @param x {number}
              * @param y {number}
              * @param radius {number}
@@ -4690,6 +4776,11 @@ var cc;
                 this.setDirty();
                 return this;
             };
+            /**
+             * Deep clone this path, contours and segments.
+             * @method cc.math.Path#clone
+             * @return {cc.math.Path} a cloned path.
+             */
             Path.prototype.clone = function () {
                 var path = new Path();
                 for (var i = 0; i < this._segments.length; i++) {
@@ -4699,16 +4790,33 @@ var cc;
                 path._length = this._length;
                 return path;
             };
+            /**
+             * Mark the path as dirty. Also, the cache for stroke and fill are marked as dirty.
+             * @method cc.math.Path#setDirty
+             */
             Path.prototype.setDirty = function () {
                 this._dirty = true;
                 this._fillDirty = true;
                 this._strokeDirty = true;
             };
+            /**
+             * Paint the path in a canvas rendering context.
+             * @method cc.math.Path#paint
+             * @param ctx {cc.render.RenderingContext}
+             */
             Path.prototype.paint = function (ctx) {
                 for (var i = 0; i < this._segments.length; i++) {
                     this._segments[i].paint(ctx);
                 }
             };
+            /**
+             * If needed, calculate the stroke geometry for a path.
+             * The stroke mesh will be traced based of line attributes.
+             * On average, you will never interact with this method.
+             * @method cc.math.Path#getStrokeGeometry
+             * @param attributes {cc.math.path.geometry.StrokeGeometryAttributes}
+             * @returns {Float32Array}
+             */
             Path.prototype.getStrokeGeometry = function (attributes) {
                 if (this._dirty || this._strokeDirty) {
                     var size = 0;
@@ -4734,6 +4842,12 @@ var cc;
                 }
                 return this._strokeGeometry;
             };
+            /**
+             * If needed, tessellate the points of the path and create a mesh.
+             * On average, you will never interact with this method.
+             * @method cc.math.Path#getFillGeometry
+             * @returns {Float32Array}
+             */
             Path.prototype.getFillGeometry = function () {
                 if (this._dirty || this._fillDirty) {
                     var size = 0;
@@ -4765,7 +4879,6 @@ var cc;
         math.Path = Path;
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -6674,7 +6787,6 @@ var cc;
         _node.Node = Node;
     })(node = cc.node || (cc.node = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -7783,7 +7895,6 @@ var cc;
         _action.Action = Action;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -8390,19 +8501,12 @@ var cc;
         action.Interpolator = Interpolator;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
 /// <reference path="../node/Node.ts"/>
 /// <reference path="./Action.ts"/>
 "use strict";
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 var cc;
 (function (cc) {
     var action;
@@ -8558,16 +8662,9 @@ var cc;
         action.AlphaAction = AlphaAction;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="../math/Point.ts"/>
 /// <reference path="../node/Node.ts"/>
 /// <reference path="./Action.ts"/>
@@ -8751,16 +8848,9 @@ var cc;
         action.MoveAction = MoveAction;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="../node/Node.ts"/>
 /// <reference path="../action/Action.ts"/>
 var cc;
@@ -9078,16 +9168,9 @@ var cc;
         action.PropertyAction = PropertyAction;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="../node/Node.ts"/>
 /// <reference path="./Action.ts"/>
 var cc;
@@ -9241,16 +9324,9 @@ var cc;
         action.RotateAction = RotateAction;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="./Action.ts"/>
 /// <reference path="../math/Point.ts"/>
 /// <reference path="../node/Node.ts"/>
@@ -9428,16 +9504,9 @@ var cc;
         action.ScaleAction = ScaleAction;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="../node/Node.ts"/>
 /// <reference path="./Action.ts"/>
 /// <reference path="./MoveAction.ts"/>
@@ -9752,16 +9821,9 @@ var cc;
         _action.SequenceAction = SequenceAction;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="../node/Node.ts"/>
 /// <reference path="../math/Point.ts"/>
 /// <reference path="./Action.ts"/>
@@ -9936,16 +9998,9 @@ var cc;
         action.TintAction = TintAction;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="./Action.ts"/>
 /// <reference path="../node/sprite/Animation.ts"/>
 /// <reference path="../node/sprite/SpriteFrame.ts"/>
@@ -10135,16 +10190,9 @@ var cc;
         action.AnimateAction = AnimateAction;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="../math/Point.ts"/>
 /// <reference path="../math/path/Segment.ts"/>
 /// <reference path="../node/Node.ts"/>
@@ -10449,7 +10497,6 @@ var cc;
         action.PathAction = PathAction;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
@@ -10457,12 +10504,6 @@ var cc;
 /// <reference path="../node/Node.ts"/>
 /// <reference path="./Action.ts"/>
 "use strict";
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 var cc;
 (function (cc) {
     var action;
@@ -10612,7 +10653,6 @@ var cc;
         action.JumpAction = JumpAction;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -10869,16 +10909,9 @@ var cc;
         __action.ActionManager = ActionManager;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="./Action.ts"/>
 /// <reference path="../node/Node.ts"/>
 var cc;
@@ -11423,7 +11456,6 @@ var cc;
         action.SchedulerQueue = SchedulerQueue;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
@@ -11865,16 +11897,9 @@ var cc;
         _action.ActionChainContext = ActionChainContext;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 var cc;
 (function (cc) {
     var Performance;
@@ -11986,16 +12011,9 @@ var cc;
         _Performance.Performance = Performance;
     })(Performance = cc.Performance || (cc.Performance = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="../action/Action.ts"/>
 /// <reference path="../action/SchedulerQueue.ts"/>
 /// <reference path="./Node.ts"/>
@@ -12465,16 +12483,9 @@ var cc;
         _node.Scene = Scene;
     })(node = cc.node || (cc.node = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="./Node.ts"/>
 /// <reference path="./Scene.ts"/>
 /// <reference path="../math/Dimension.ts"/>
@@ -12999,7 +13010,6 @@ var cc;
         node.Director = Director;
     })(node = cc.node || (cc.node = {}));
 })(cc || (cc = {}));
-
 /**
  * Created by ibon on 11/17/14.
  */
@@ -13210,7 +13220,6 @@ var cc;
         render.Texture2D = Texture2D;
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * Created by ibon on 11/26/14.
  */
@@ -13556,7 +13565,6 @@ var cc;
         })(sprite = node.sprite || (node.sprite = {}));
     })(node = cc.node || (cc.node = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -13766,16 +13774,9 @@ var cc;
         })(sprite = node.sprite || (node.sprite = {}));
     })(node = cc.node || (cc.node = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="Node.ts"/>
 /// <reference path="./sprite/SpriteFrame.ts"/>
 /// <reference path="../math/Color.ts"/>
@@ -14119,16 +14120,9 @@ var cc;
         node.SpriteBatchNode = SpriteBatchNode;
     })(node = cc.node || (cc.node = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="./Node.ts"/>
 /// <reference path="./Sprite.ts"/>
 /// <reference path="../render/RenderingContext.ts"/>
@@ -14184,16 +14178,9 @@ var cc;
         node.FastSprite = FastSprite;
     })(node = cc.node || (cc.node = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="../node/Node.ts"/>
 /// <reference path="../node/sprite/SpriteFrame.ts"/>
 /// <reference path="../input/InputManager.ts"/>
@@ -14640,16 +14627,9 @@ var cc;
     })(cc.node.Node);
     cc.MenuItemToggle = MenuItemToggle;
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="../math/Dimension.ts"/>
 /// <reference path="../node/Node.ts"/>
 /// <reference path="../node/Sprite.ts"/>
@@ -15022,7 +15002,6 @@ var cc;
         widget.LabelTTF = LabelTTF;
     })(widget = cc.widget || (cc.widget = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
@@ -15290,16 +15269,9 @@ var cc;
         render.WebGLState = WebGLState;
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="../node/Node.ts"/>
 /// <reference path="../node/Scene.ts"/>
 /// <reference path="../node/Director.ts"/>
@@ -15622,16 +15594,9 @@ var cc;
         _transition.TransitionSlideInB = TransitionSlideInB;
     })(transition = cc.transition || (cc.transition = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="../WebGLState.ts"/>
 var cc;
 (function (cc) {
@@ -15819,7 +15784,6 @@ var cc;
         })(shader = render.shader || (render.shader = {}));
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -15880,7 +15844,6 @@ var cc;
         })(shader = render.shader || (render.shader = {}));
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -16116,16 +16079,9 @@ var cc;
         })(shader = render.shader || (render.shader = {}));
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="./AbstractShader.ts"/>
 /// <reference path="../webGLState.ts"/>
 /// <reference path="../../util/util.ts"/>
@@ -16224,16 +16180,9 @@ var cc;
         })(shader = render.shader || (render.shader = {}));
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * Created by ibon on 11/17/14.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="./AbstractShader.ts"/>
 /// <reference path="../WebGLState.ts"/>
 /// <reference path="../RenderingContextSnapshot.ts"/>
@@ -16434,16 +16383,9 @@ var cc;
         })(shader = render.shader || (render.shader = {}));
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="./AbstractShader.ts"/>
 /// <reference path="../webGLState.ts"/>
 /// <reference path="../../util/util.ts"/>
@@ -16563,16 +16505,9 @@ var cc;
         })(shader = render.shader || (render.shader = {}));
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="./AbstractShader.ts"/>
 /// <reference path="../RenderingContextSnapshot.ts"/>
 var cc;
@@ -16673,7 +16608,6 @@ var cc;
         })(shader = render.shader || (render.shader = {}));
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * Created by ibon on 11/19/14.
  */
@@ -16727,16 +16661,9 @@ var cc;
         })(shader = render.shader || (render.shader = {}));
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="../math/Dimension.ts"/>
 /// <reference path="../math/Color.ts"/>
 /// <reference path="../math/Matrix3.ts"/>
@@ -17075,7 +17002,6 @@ var cc;
             var globalAlpha = 1;
             var globalCompositeOperation = 0 /* source_over */;
             c2d.flush = function () {
-                this.setTransform(1, 0, 0, 1, 0, 0);
             };
             c2d.type = cc.render.RENDERER_TYPE_CANVAS;
             c2d.setStrokeStyleColor = function (color) {
@@ -17101,8 +17027,10 @@ var cc;
                 // useless for canvas.
             };
             c2d.clear = function () {
+                this.save();
                 this.setTransform(1, 0, 0, 1, 0, 0);
                 this.clearRect(0, 0, this.getWidth(), this.getHeight());
+                this.restore();
             };
             c2d.getUnitsFactor = function () {
                 return renderer.getUnitsFactor();
@@ -17247,6 +17175,7 @@ var cc;
         /**
          * @class cc.render.CanvasRenderer
          * @classdesc
+         * @extends Renderer
          *
          * Create a Canvas renderer.
          */
@@ -17443,7 +17372,6 @@ var cc;
         };
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -17545,6 +17473,10 @@ var cc;
             LineCap[LineCap["ROUND"] = 2] = "ROUND";
         })(render.LineCap || (render.LineCap = {}));
         var LineCap = render.LineCap;
+        /**
+         * @enum
+         *
+         */
         (function (LineJoin) {
             LineJoin[LineJoin["BEVEL"] = 0] = "BEVEL";
             LineJoin[LineJoin["MITER"] = 1] = "MITER";
@@ -17553,7 +17485,6 @@ var cc;
         var LineJoin = render.LineJoin;
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -17611,6 +17542,12 @@ var cc;
                  * @private
                  */
                 this._miterLimit = 10;
+                /**
+                 * Current fill type info. Needed for shader selection.
+                 * @member cc.render.RenderingContextSnapshot#_currentFillStyleType
+                 * @type {cc.render.FillStyleType}
+                 * @private
+                 */
                 this._currentFillStyleType = 0 /* MESHCOLOR */;
                 /**
                  * Current fill style.
@@ -17619,6 +17556,14 @@ var cc;
                  * @private
                  */
                 this._fillStyleColor = new Float32Array([0.0, 0.0, 0.0, 1.0]);
+                /**
+                 * Current pattern info when <code>_currentFillStyleType</code> is
+                 * <code>cc.render.FillStyleType.PATTERN_REPEAT</code>
+                 * @type {cc.render.Pattern}
+                 * @member cc.render.RenderingContextSnapshot#_fillStylePattern
+                 * @private
+                 *
+                 */
                 this._fillStylePattern = null;
                 /**
                  * Current tint color. Only makes sense in webgl renderers.
@@ -17634,7 +17579,19 @@ var cc;
                  * @private
                  */
                 this._lineWidth = 1.0;
+                /**
+                 * Line cap hint for path stroking.
+                 * @type {cc.render.LineCap.BUTT}
+                 * @member cc.render.RenderingContextSnapshot#_lineCap
+                 * @private
+                 */
                 this._lineCap = 0 /* BUTT */;
+                /**
+                 * Line join hint for path stroking.
+                 * @type {cc.render.LineCap.BUTT}
+                 * @member cc.render.RenderingContextSnapshot#_lineJoin
+                 * @private
+                 */
                 this._lineJoin = 1 /* MITER */;
                 /**
                  * Current font data.
@@ -17664,9 +17621,6 @@ var cc;
                  * @private
                  */
                 this._currentPath = null;
-                this._currentPathStrokeGeometry = null;
-                this._currentPathFillGeometry = null;
-                this._currentPathStrokeContour = null;
                 /**
                  * Current clipping paths stack
                  * @member cc.render.RenderingContextSnapshot#_clippingStack
@@ -17696,37 +17650,107 @@ var cc;
                 rcs._textBaseline = this._textBaseline;
                 rcs._textAlign = this._textAlign;
                 rcs._currentPath = this._currentPath.clone();
-                if (this._currentPathStrokeGeometry) {
-                    rcs._currentPathStrokeGeometry = new Float32Array(this._currentPathStrokeGeometry.length);
-                    rcs._currentPathStrokeGeometry.set(this._currentPathStrokeGeometry);
-                }
                 rcs._clippingStack = this._clippingStack;
                 return rcs;
             };
+            /**
+             * begin path in the path tracer.
+             * @method cc.render.RenderingContextSnapshot#beginPath
+             */
             RenderingContextSnapshot.prototype.beginPath = function () {
                 this._currentPath.beginPath();
             };
+            /**
+             * Close the current contour in the path tracer.
+             * A closed contour can't have any other segment added, and successive tracing operations will create a new
+             * contour.
+             * @method cc.render.RenderingContextSnapshot#closePath
+             */
             RenderingContextSnapshot.prototype.closePath = function () {
                 this._currentPath.closePath();
             };
+            /**
+             * Move the current path position based on the current transformation matrix.
+             * @param x {number}
+             * @param y {number}
+             * @method cc.render.RenderingContextSnapshot#moveTo
+             */
             RenderingContextSnapshot.prototype.moveTo = function (x, y) {
                 this._currentPath.moveTo(x, y, this._currentMatrix);
             };
+            /**
+             * Add a line segment to the current path. Segment info must be transformed by the current transformation matrix.
+             * @param x {number}
+             * @param y {number}
+             * @method cc.render.RenderingContextSnapshot#lineTo
+             */
             RenderingContextSnapshot.prototype.lineTo = function (x, y) {
                 this._currentPath.lineTo(x, y, this._currentMatrix);
             };
+            /**
+             * Add a bezier segment to the current path. Segment info must be transformed by the current transformation matrix.
+             * @param cp0x {number}
+             * @param cp0y {number}
+             * @param cp1x {number}
+             * @param cp1y {number}
+             * @param p2x {number}
+             * @param p2y {number}
+             * @method cc.render.RenderingContextSnapshot#bezierCurveTo
+             */
             RenderingContextSnapshot.prototype.bezierCurveTo = function (cp0x, cp0y, cp1x, cp1y, p2x, p2y) {
                 this._currentPath.bezierCurveTo(cp0x, cp0y, cp1x, cp1y, p2x, p2y, this._currentMatrix);
             };
+            /**
+             * Add a quadratic segment to the current path. Segment info must be transformed by the current transformation matrix.
+             * @param cp0x {number}
+             * @param cp0y {number}
+             * @param p2x {number}
+             * @param p2y {number}
+             * @method cc.render.RenderingContextSnapshot#quadraticCurveTo
+             */
             RenderingContextSnapshot.prototype.quadraticCurveTo = function (cp0x, cp0y, p2x, p2y) {
                 this._currentPath.quadraticCurveTo(cp0x, cp0y, p2x, p2y, this._currentMatrix);
             };
+            /**
+             * Add a rectangle segment to the current path.
+             * Segment info must be transformed by the current transformation matrix.
+             * @param x {number}
+             * @param y {number}
+             * @param width {number}
+             * @param height {number}
+             * @method cc.render.RenderingContextSnapshot#rect
+             */
             RenderingContextSnapshot.prototype.rect = function (x, y, width, height) {
                 this._currentPath.rect(x, y, width, height, this._currentMatrix);
             };
+            /**
+             * Add an arc segment to the current path.
+             * Segment info must be transformed by the current transformation matrix.
+             * @param x {number}
+             * @param y {number}
+             * @param radius {number}
+             * @param startAngle {number}
+             * @param endAngle {number}
+             * @param counterClockWise {boolean}
+             *
+             * @method cc.render.RenderingContextSnapshot#arc
+             */
             RenderingContextSnapshot.prototype.arc = function (x, y, radius, startAngle, endAngle, counterClockWise) {
                 this._currentPath.arc(x, y, radius, startAngle, endAngle, counterClockWise, this._currentMatrix);
             };
+            /**
+             * Tell the current path to create geometry for its contour stroke.
+             * The stroke will different based on the line width, and contour hints line join/cap.
+             *
+             * You normally don't have to interact with this method.
+             *
+             * @param lineWidth {number}
+             * @param join {cc.render.LineJoin}
+             * @param cap {cc.render.LineCap}
+             *
+             * @method cc.render.RenderingContextSnapshot#setupStroke
+             * @returns {Float32Array}
+             */
             RenderingContextSnapshot.prototype.setupStroke = function (lineWidth, join, cap) {
                 if (this._currentPath._dirty || this._lineWidth !== lineWidth || this._lineCap !== cap || this._lineJoin !== join) {
                     lineWidth = cc.math.path.getDistanceVector(lineWidth, this._currentMatrix).length();
@@ -17742,6 +17766,14 @@ var cc;
                 }
                 return this._currentPath._strokeGeometry;
             };
+            /**
+             * Tell the current path to create geometry for filling it.
+             *
+             * You normally don't have to interact with this method.
+             *
+             * @method cc.render.RenderingContextSnapshot#setupFill
+             * @returns {Float32Array}
+             */
             RenderingContextSnapshot.prototype.setupFill = function () {
                 return this._currentPath.getFillGeometry();
             };
@@ -17750,7 +17782,6 @@ var cc;
         render.RenderingContextSnapshot = RenderingContextSnapshot;
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -17905,6 +17936,18 @@ var cc;
                 this._glIndexBuffer = this._glIndexBuffers[0];
                 this._glIndexMeshBuffer = this._glIndexMeshBuffers[0];
             }
+            /**
+             * Batch a rectangle with texture.
+             *
+             * @method cc.render.GeometryBatcher#batchRectGeometryWithTexture
+             * @param vertices {Array<cc.math.Point>}
+             * @param u0 {number}
+             * @param v0 {number}
+             * @param u1 {number}
+             * @param v1 {number}
+             * @param rcs {cc.render.RenderingContextSnapshot}
+             * @returns {boolean}
+             */
             GeometryBatcher.prototype.batchRectGeometryWithTexture = function (vertices, u0, v0, u1, v1, rcs) {
                 var cc = this.__uintColor(rcs);
                 this.batchVertex(vertices[0], cc, u0, v0);
@@ -18061,6 +18104,15 @@ var cc;
                 this._glIndexBuffer = this._glIndexBuffers[this._currentBuffersIndex];
                 this._glIndexMeshBuffer = this._glIndexMeshBuffers[this._currentBuffersIndex];
             };
+            /**
+             * Get a compact Uint32 representation of a color.
+             * The color is calculated as the mix or the rendering context current color multiplied the the rendering context
+             * current tint color.
+             * @method cc.render.GeometryBatcher#__uintColor
+             * @param rcs {cc.render.RenderincContextSnapshot}
+             * @returns {number}
+             * @private
+             */
             GeometryBatcher.prototype.__uintColor = function (rcs) {
                 var tint = rcs._tintColor;
                 var r = (tint[0] * 255) | 0;
@@ -18069,6 +18121,20 @@ var cc;
                 var a = (tint[3] * rcs._globalAlpha * 255) | 0;
                 return (r) | (g << 8) | (b << 16) | (a << 24);
             };
+            /**
+             * Batch a fast sprite info. Fast sprite objects do all transformation calculations on the GPU, and as such,
+             * have some limitations.
+             *
+             * @method cc.render.GeometryBatcher#batchRectGeometryWithSpriteFast
+             *
+             * @param sprite {cc.node.Sprite}
+             * @param u0 {number}
+             * @param v0 {number}
+             * @param u1 {number}
+             * @param v1 {number}
+             * @param rcs {cc.render.RenderingContextSnapshot}
+             * @returns {boolean}
+             */
             GeometryBatcher.prototype.batchRectGeometryWithSpriteFast = function (sprite, u0, v0, u1, v1, rcs) {
                 var cc = this.__uintColor(rcs);
                 var db = this._dataBufferFloat;
@@ -18110,7 +18176,18 @@ var cc;
                 this._dataBufferIndex += 40;
                 return this._dataBufferIndex + 40 >= this._dataBufferFloat.length;
             };
-            GeometryBatcher.prototype.batchMesh = function (geometry, uv, indices, color, rcs) {
+            /**
+             * Batch a mesh.
+             * A mesh uses a custom shader for meshes. They expect to color-per-vertex info, but a global color for the as
+             * a uniform value.
+             *
+             * @method cc.render.GeometryBatcher#batchMesh
+             * @param geometry {Float32Array}
+             * @param uv {Float32Array}
+             * @param indices {Uint32Array}
+             * @param color {number} the result of calling __uintColor
+             */
+            GeometryBatcher.prototype.batchMesh = function (geometry, uv, indices, color) {
                 for (var i = 0; i < indices.length; i += 3) {
                     var indexVertex0 = indices[i + 0] * 3;
                     var indexVertexUV0 = indices[i + 0] * 2;
@@ -18123,6 +18200,15 @@ var cc;
                     this.batchMeshVertex(geometry[indexVertex2], geometry[indexVertex2 + 1], uv[indexVertexUV2], uv[indexVertexUV2 + 1]);
                 }
             };
+            /**
+             * Batch a vertex for a mesh.
+             *
+             * @method cc.render.GeometryBatcher#batchMeshVertex
+             * @param x {number}
+             * @param y {number}
+             * @param u {number}
+             * @param v {number}
+             */
             GeometryBatcher.prototype.batchMeshVertex = function (x, y, u, v) {
                 this._dataBufferFloat[this._dataBufferIndex++] = x;
                 this._dataBufferFloat[this._dataBufferIndex++] = y;
@@ -18135,6 +18221,7 @@ var cc;
              * Requires sequential indices.
              * Geometry already in screen space.
              *
+             * @method cc.render.GeometryBatcher#batchPath
              * @param geometry {Float32Array}
              * @param rcs {cc.render.RenderingContextSnapshot}
              */
@@ -18164,7 +18251,6 @@ var cc;
         render.GeometryBatcher = GeometryBatcher;
     })(render = _cc.render || (_cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -18254,12 +18340,21 @@ var cc;
         /**
          * @class cc.render.DecoratedWebGLRenderingContext
          * @classdesc
+         * @extends RenderingContext
          *
-         * This object wraps a 3D canvas context (webgl) and exposes a canvas like 2d rendering API.
-         * The implementation should be extremely efficient by:
-         *   <li>lazily set every property.
-         *   <li>batch all drawing operations as much as possible.
-         *   <li>ping pong between buffers
+         * This object wraps a 3D canvas context (webgl) and exposes a canvas-like 2d rendering API without sacrificing
+         * flexibility to expose the internal gl context for custom drawing on developer side.
+         * <p>
+         * This object is an implementation of the <code>cc.render.RenderingContext</code> interface, and the documentation
+         * associated must be referred there. The rest of the code are just implementation details of the interface.
+         *
+         * <p>
+         * The implementation aims at performance and on-pair visual results with a canvas renderer. To achieve this,
+         * as well as highest performance, the implementation:
+         *   <li>lazily sets every property.
+         *   <li>batches all drawing operations as much as possible.
+         *   <li>ping-pongs between buffers
+         *   <li>...
          *
          * <br>
          * All this would be transparent for the developer and happen automatically. For example, is a value is set to
@@ -18268,6 +18363,8 @@ var cc;
          * is deferred until the moment when some geometry will happen, for example, a fillRect call.
          * <br>
          * This mechanism is set for every potential flushing operation like changing fillStyle, compisite, textures, etc.
+         *
+         * @see cc.render.RenderingContext
          */
         var DecoratedWebGLRenderingContext = (function () {
             /**
@@ -18276,8 +18373,26 @@ var cc;
              * @param r {cc.render.Renderer}
              */
             function DecoratedWebGLRenderingContext(r) {
+                /**
+                 * Currently set line join stroke hint.
+                 * @member cc.render.DecoratedRenderingContext#_currentLineJoin
+                 * @type {cc.render.LineJoin}
+                 * @private
+                 */
                 this._currentLineJoin = 1 /* MITER */;
+                /**
+                 * Currently set line cap stroke hint.
+                 * @member cc.render.DecoratedRenderingContext#_currentLineCap
+                 * @type {cc.render.LineCap}
+                 * @private
+                 */
                 this._currentLineCap = 0 /* BUTT */;
+                /**
+                 * Currently set line width stroke hint.
+                 * @member cc.render.DecoratedRenderingContext#_currentLineWidth
+                 * @type {number}
+                 * @private
+                 */
                 this._currentLineWidth = 1;
                 /**
                  * Current rendering context data.
@@ -18294,13 +18409,25 @@ var cc;
                  */
                 this._contextSnapshots = [];
                 /**
-                 * if _currentFillStyleType===COLOR, this is the current color.
+                 * if _currentFillStyleType===COLORMESH, this is the current color.
                  * @member cc.render.DecoratedWebGLRenderingContext#_currentFillStyleColor
                  * @type {Float32Array}
                  * @private
                  */
                 this._currentFillStyleColor = new Float32Array([0.0, 0.0, 0.0, 1.0]);
+                /**
+                 * if _currentStrokeStyleType===COLORMESH, this is the current color.
+                 * @member cc.render.DecoratedWebGLRenderingContext#_currentStrokeStyleColor
+                 * @type {Float32Array}
+                 * @private
+                 */
                 this._currentStrokeStyleColor = new Float32Array([0.0, 0.0, 0.0, 1.0]);
+                /**
+                 * if _currentStrokeStyleType===PATTERN_REPEAT, this is the pattern info.
+                 * @member cc.render.DecoratedWebGLRenderingContext#_currentFillStylePattern
+                 * @type {Float32Array}
+                 * @private
+                 */
                 this._currentFillStylePattern = null;
                 /**
                  * Current fill style type. The style type reflects what shader is currently set for rendering.
@@ -18309,6 +18436,14 @@ var cc;
                  * @private
                  */
                 this._currentFillStyleType = 0 /* MESHCOLOR */;
+                /**
+                 * Current tint color. The tint color is multiplied by whatever drawing operation pixel color is currently
+                 * executed.
+                 *
+                 * @member cc.render.DecoratedWebGLRenderingContext#_currentTintColor
+                 * @type {Float32Array}
+                 * @private
+                 */
                 this._currentTintColor = new Float32Array([1.0, 1.0, 1.0, 1.0]);
                 /**
                  * Last global composite operation set.
@@ -18331,9 +18466,35 @@ var cc;
                  * @private
                  */
                 this._batcher = null;
+                /**
+                 * Internal webgl context wrapping object.
+                 *
+                 * @member cc.render.DecoratedWebGLRenderingContext#_webglState
+                 * @type {cc.render.WebGLState}
+                 * @private
+                 */
                 this._webglState = null;
+                /**
+                 * Rendering surface width.
+                 *
+                 * @member cc.render.DecoratedWebGLRenderingContext#_width
+                 * @type {number}
+                 * @private
+                 */
                 this._width = 0;
+                /**
+                 * Rendering surface height.
+                 *
+                 * @member cc.render.DecoratedWebGLRenderingContext#_height
+                 * @type {number}
+                 * @private
+                 */
                 this._height = 0;
+                /**
+                 * Renderer instance this gl renderer context belongs to.
+                 * @type {cc.render.Renderer}
+                 * @private
+                 */
                 this._renderer = null;
                 /**
                  * Rendering surface (canvas object)
@@ -18995,7 +19156,7 @@ var cc;
             };
             DecoratedWebGLRenderingContext.prototype.drawMesh = function (geometry, uv, indices, color, texture) {
                 this.__checkMeshFlushConditions(texture._glId, color);
-                this._batcher.batchMesh(geometry, uv, indices, color, this._currentContextSnapshot);
+                this._batcher.batchMesh(geometry, uv, indices, color);
                 this.flush();
             };
             DecoratedWebGLRenderingContext.prototype.__checkMeshFlushConditions = function (textureId, color) {
@@ -19037,7 +19198,6 @@ var cc;
         render.DecoratedWebGLRenderingContext = DecoratedWebGLRenderingContext;
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
@@ -19821,7 +19981,6 @@ var cc;
         render.ScaleManager = ScaleManager;
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -19886,7 +20045,6 @@ var cc;
         })(util = render.util || (render.util = {}));
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
@@ -19977,7 +20135,6 @@ var cc;
         })(mesh = render.mesh || (render.mesh = {}));
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -20078,7 +20235,6 @@ var cc;
         util.fromPosixRegularExpression = fromPosixRegularExpression;
     })(util = cc.util || (cc.util = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
@@ -20266,7 +20422,6 @@ var cc;
         })(loader = plugin.loader || (plugin.loader = {}));
     })(plugin = cc.plugin || (cc.plugin = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
@@ -20300,7 +20455,6 @@ var cc;
         })(loader = plugin.loader || (plugin.loader = {}));
     })(plugin = cc.plugin || (cc.plugin = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
@@ -20365,16 +20519,9 @@ var cc;
         })(loader = plugin.loader || (plugin.loader = {}));
     })(plugin = cc.plugin || (cc.plugin = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="./ResourceLoader.ts"/>
 /// <reference path="../../util/Debug.ts"/>
 /// <reference path="../../locale/Locale.ts"/>
@@ -20617,7 +20764,6 @@ var cc;
         })(loader = plugin.loader || (plugin.loader = {}));
     })(plugin = cc.plugin || (cc.plugin = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
@@ -20715,7 +20861,6 @@ var cc;
         })(loader = plugin.loader || (plugin.loader = {}));
     })(plugin = cc.plugin || (cc.plugin = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
@@ -20918,7 +21063,6 @@ var cc;
         })(loader = plugin.loader || (plugin.loader = {}));
     })(plugin = cc.plugin || (cc.plugin = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -21439,7 +21583,6 @@ var cc;
         })(texture = plugin.texture || (plugin.texture = {}));
     })(plugin = cc.plugin || (cc.plugin = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -22066,7 +22209,6 @@ var cc;
         })(font = plugin.font || (plugin.font = {}));
     })(plugin = cc.plugin || (cc.plugin = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
@@ -22208,7 +22350,6 @@ var cc;
         })(font = plugin.font || (plugin.font = {}));
     })(plugin = cc.plugin || (cc.plugin = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
@@ -22542,7 +22683,6 @@ var cc;
         })(asset = plugin.asset || (plugin.asset = {}));
     })(plugin = cc.plugin || (cc.plugin = {}));
 })(cc || (cc = {}));
-
 /**
  *
  */
@@ -23560,16 +23700,9 @@ var cc;
         })(audio = plugin.audio || (plugin.audio = {}));
     })(plugin = cc.plugin || (cc.plugin = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="../../math/Rectangle.ts"/>
 /// <reference path="../../math/Dimension.ts"/>
 var cc;
@@ -24538,7 +24671,6 @@ var cc;
         })(layout = plugin.layout || (plugin.layout = {}));
     })(plugin = cc.plugin || (cc.plugin = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -24906,16 +25038,9 @@ var cc;
         input.SceneGraphInputTreeNode = SceneGraphInputTreeNode;
     })(input = cc.input || (cc.input = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="../math/Point.ts"/>
 /// <reference path="../node/Node.ts"/>
 /// <reference path="../node/Scene.ts"/>
@@ -25586,7 +25711,6 @@ var cc;
         input.MouseInputManager = MouseInputManager;
     })(input = cc.input || (cc.input = {}));
 })(cc || (cc = {}));
-
 /**
  * Created by ibon on 1/6/15.
  */
@@ -26325,7 +26449,6 @@ var cc;
         input.KeyboardInputManager = KeyboardInputManager;
     })(input = cc.input || (cc.input = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -26516,7 +26639,6 @@ var cc;
         _game.Game = Game;
     })(game = cc.game || (cc.game = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -27256,7 +27378,6 @@ var cc;
     }
     cc.easeQuinticActionInOut = easeQuinticActionInOut;
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -27529,7 +27650,6 @@ var cc;
         Blink.create = cc.blink;
     })(Blink = cc.Blink || (cc.Blink = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
@@ -27747,7 +27867,6 @@ var cc;
     cc.ONE_MINUS_CONSTANT_ALPHA = 0x8004;
     cc.ONE_MINUS_CONSTANT_COLOR = 0x8002;
 })(cc || (cc = {}));
-
 /// <reference path="./AssetManager.ts"/>
 /// <reference path="../loader/Resource.ts"/>
 /// <reference path="../asset/AssetManager.ts"/>
@@ -27865,7 +27984,6 @@ var cc;
     })();
     cc.animationCache = animationCache;
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */

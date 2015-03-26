@@ -1528,7 +1528,7 @@ module cc.math {
          * @returns {number}
          */
         length() : number {
-            return Math.sqrt( this.x*this.x + this.y*this.y + this.z*this.z );
+            return Math.sqrt( this.x*this.x + this.y*this.y );
         }
 
         /**
@@ -1588,7 +1588,7 @@ module cc.math {
             return this;
         }
 
-        static add( v0:Vector,v1:Vector ) : Vector {
+        static add( v0:Point,v1:Point ) : Vector {
             return new Vector( v1.x+v0.x, v1.y+v0.y );
         }
 
@@ -1598,7 +1598,7 @@ module cc.math {
          * @param v1 {cc.math.Vector}
          * @returns {Vector}
          */
-        static sub( v0:Vector,v1:Vector ) : Vector {
+        static sub( v1:Point,v0:Point ) : Vector {
             return new Vector( v1.x-v0.x, v1.y-v0.y );
         }
 
@@ -1608,7 +1608,7 @@ module cc.math {
          * @param v1 {cc.math.Vector}
          * @returns {number} distance between vectors.
          */
-        static distance( v0 : Vector, v1 : Vector ) : number {
+        static distance( v0 : Point, v1 : Point ) : number {
             var dx= v1.x - v0.x;
             var dy= v1.y - v0.y;
 
@@ -1625,6 +1625,10 @@ module cc.math {
             var x= (p1.x+p0.x)/2;
             var y= (p1.y+p0.y)/2;
             return new Vector(x,y);
+        }
+
+        static equals( p0:Point, p1:Point ) {
+            return p0.x===p1.x && p0.y===p1.y;
         }
 
         /**
@@ -2292,7 +2296,7 @@ module cc.math.path {
 
             dstArray= dstArray || [];
 
-            dstArray.push( this._start );
+            //dstArray.push( this._start );
             dstArray.push( this._end );
 
             return dstArray;
@@ -3618,6 +3622,12 @@ module cc.math.path {
                 this._startAngle += 2 * Math.PI;
             }
 
+            if ( this._startAngle>this._endAngle ) {
+                var tmp= this._startAngle;
+                this._startAngle= this._endAngle;
+                this._endAngle= tmp;
+            }
+
             var s:Vector = this.getValueAt(0);
             this._startingPoint = new Vector();
             this._startingPoint.x = s.x;
@@ -3699,7 +3709,7 @@ module cc.math.path {
                 return dstArray;
             }
 
-            for( var i=0; i<numPoints; i++ ) {
+            for( var i=0; i<=numPoints; i++ ) {
                 dstArray.push( this.getValueAt(i/numPoints, new Vector()) );
             }
 
@@ -4326,11 +4336,23 @@ module cc.math.path {
 
             numPoints = numPoints || cc.math.path.DEFAULT_TRACE_LENGTH;
 
-            for( var i=0; i<=numPoints; i++ ) {
-                dstArray.push( this.getValueAt( i/numPoints, new Vector() ) );
+
+            this.getLength();
+            dstArray.push( this.getStartingPoint() );
+            for( var i=0; i<this._segments.length; i++) {
+                this._segments[i].trace( dstArray, numPoints );
             }
 
             return dstArray;
+        }
+
+        isClosed() {
+            var sp= this.getStartingPoint();
+            var ep= this.getEndingPoint();
+
+            if ( sp===ep || sp.equals(ep) ) {
+                return;
+            }
         }
 
         /**
@@ -4837,6 +4859,7 @@ module cc.math.path {
  */
 
 /// <reference path="../../Point.ts"/>
+/// <reference path="../../../render/RenderingContext.ts"/>
 
 module cc.math.path.geometry {
 
@@ -4844,51 +4867,55 @@ module cc.math.path.geometry {
 
     export interface StrokeGeometryAttributes {
         width? : number;        // 1 if not defined
-        cap? : string;          // butt, round, square
-        join?: string;          // bevel, round, miter
+        cap? : cc.render.LineCap;          // butt, round, square
+        join?: cc.render.LineJoin;          // bevel, round, miter
         miterLimit? : number   // for join miter, the maximum angle value to use the miter
     }
 
     /**
-     * Get Stroke geometry for an array of Vector objects.
-     * The array is the result of calling 'trace' for a Path object.
+     * Get Stroke geometry for an array of Point objects.
+     * The array could be the result of calling 'trace' for a Path object, or an arbitrary cloud of points.
+     *
      *
      * @param points {Array.<cc.math.Vector>} contour of the points to trace.
-     * @param attrs {cc.math.path.StrokeGeometryAttributes}
+     * @param attrs {cc.math.path.StrokeGeometryAttributes} this object defines stroke attributes like line cap,
+     *      line join, line width and miter limit.
      *
      * @returns {Array<number> | Float32Array} Array with pairs of numbers (x,y)
+     *
+     * @method cc.math.path.geometry.getStrokeGeometry
      */
-    export function getStrokeGeometry(points:cc.math.Vector[], attrs:StrokeGeometryAttributes) : Float32Array {
+    export function getStrokeGeometry(points:cc.math.Point[], attrs:StrokeGeometryAttributes) : Float32Array {
 
         // trivial reject
         if (points.length < 2) {
             return new Float32Array([]);
         }
 
-        var cap:string =                attrs.cap || "butt";
-        var join:string =               attrs.join || "bevel";
+        var cap:cc.render.LineCap =     attrs.cap || cc.render.LineCap.BUTT;
+        var join:cc.render.LineJoin=    attrs.join || cc.render.LineJoin.BEVEL;
         var lineWidth:number =          (attrs.width || 1) / 2;
         var miterLimit:number =         attrs.miterLimit || 10;
         var vertices:Array<number> =    [];
-        var middlePoints:Vector[] =     [];  // middle points per each line segment.
+        var middlePoints:Point[] =      [];  // middle points per each line segment.
         var closed:boolean =            false;
 
         if (points.length === 2) {
-            join = "bevel";
+            join = cc.render.LineJoin.BEVEL;
             createTriangles(points[0], cc.math.Vector.middlePoint(points[0], points[1]), points[1], vertices, lineWidth, join, miterLimit);
 
         } else {
 
-             if (points[0] === points[points.length - 1] ||
+            if (points[0] === points[points.length - 1] ||
                  (  points[0].x === points[points.length - 1].x &&
                     points[0].y === points[points.length - 1].y )   ) {
 
-                 var p0 = points.shift();
-                 p0 = cc.math.Vector.middlePoint(p0, points[0]);
-                 points.unshift(p0);
-                 points.push(p0);
-                 closed= true;
-             }
+                var p0 = points.shift();
+                p0 = cc.math.Vector.middlePoint(p0, points[0]);
+                points.unshift(p0);
+                points.push(p0);
+                closed = true;
+            }
 
             var i;
             for (i = 0; i < points.length - 1; i++) {
@@ -4908,7 +4935,7 @@ module cc.math.path.geometry {
 
         if ( !closed ) {
 
-            if (cap === "round") {
+            if (cap === cc.render.LineCap.ROUND) {
 
                 var p00 = new cc.math.Vector(vertices[0],vertices[1]);
                 var p01 = new cc.math.Vector(vertices[2],vertices[3]);
@@ -4920,7 +4947,7 @@ module cc.math.path.geometry {
                 createRoundCap(points[0], p00, p01, p02, vertices);
                 createRoundCap(points[points.length - 1], p10, p11, p12, vertices);
 
-            } else if (cap === "square") {
+            } else if (cap === cc.render.LineCap.SQUARE ) {
 
                 var p00 = new cc.math.Vector( vertices[vertices.length - 2], vertices[vertices.length - 1]);
                 var p01 = new cc.math.Vector( vertices[vertices.length - 6], vertices[vertices.length - 5]);
@@ -4998,7 +5025,7 @@ module cc.math.path.geometry {
 
         // for angles equal Math.PI, make the round point in the right direction.
         if (Math.abs(angleDiff) >= Math.PI - EPSILON && Math.abs(angleDiff) <= Math.PI + EPSILON) {
-            var r1 = cc.math.Vector.sub(center, nextPointInLine);
+            var r1:Vector = cc.math.Vector.sub(center, nextPointInLine);
             if ( r1.x===0 ) {
                 if (r1.y>0) {
                     angleDiff= -angleDiff;
@@ -5011,6 +5038,7 @@ module cc.math.path.geometry {
         // calculate points, and make the cap.
         var nsegments = (Math.abs(angleDiff * radius) / 7) >> 0;
         nsegments++;
+        nsegments= Math.max( nsegments, 8 );
 
         var angleInc = angleDiff / nsegments;
 
@@ -5029,9 +5057,21 @@ module cc.math.path.geometry {
         }
     }
 
-
-    function signedArea(p0:cc.math.Point, p1:cc.math.Point, p2:cc.math.Point) {
-        return (p1.x - p0.x) * (p2.y - p0.y) - (p2.x - p0.x) * (p1.y - p0.y);
+    /**
+     * Get the signed area of a triangle.
+     *
+     * @method cc.math.path.geometry.signedArea
+     *
+     * @param p0x {number}
+     * @param p0y {number}
+     * @param p1x {number}
+     * @param p1y {number}
+     * @param p2x {number}
+     * @param p2y {number}
+     * @returns {number}
+     */
+    export function signedArea(p0x:number, p0y:number, p1x:number, p1y:number, p2x:number, p2y:number ) : number {
+        return (p1x - p0x) * (p2y - p0y) - (p2x - p0x) * (p1y - p0y);
     }
 
     function lineIntersection(p0:cc.math.Point, p1:cc.math.Point, p2:cc.math.Point, p3:cc.math.Point) {
@@ -5057,9 +5097,24 @@ module cc.math.path.geometry {
 
 
     function createTriangles(
-        p0:cc.math.Vector, p1:cc.math.Vector, p2:cc.math.Vector,
+        p0:cc.math.Point, p1:cc.math.Point, p2:cc.math.Point,
         verts:Array<number>,
-        width:number, join:string, miterLimit:number) {
+        width:number,
+        join:cc.render.LineJoin,
+        miterLimit:number) {
+
+        if ( cc.math.Vector.equals(p0,p1) ) {
+            p1.x= p0.x + (p2.x-p0.x)/2;
+            p1.y= p0.y + (p2.y-p0.y)/2;
+        } else if ( cc.math.Vector.equals(p1,p2) ) {
+            p2= new cc.math.Vector( p1.x, p1.y );
+            p1.x= p0.x + (p2.x-p0.x)/2;
+            p1.y= p0.y + (p2.y-p0.y)/2;
+        }
+
+        if ( cc.math.Vector.equals(p0,p1) && cc.math.Vector.equals(p1,p2) ) {
+            return;
+        }
 
         var t0:cc.math.Vector = cc.math.Vector.sub(p1, p0);
         var t2:cc.math.Vector = cc.math.Vector.sub(p2, p1);
@@ -5070,7 +5125,7 @@ module cc.math.path.geometry {
         // triangle composed by the 3 points if clockwise or couterclockwise.
         // if counterclockwise, we must invert the line threshold points, otherwise the intersection point
         // could be erroneous and lead to odd results.
-        if (signedArea(p0, p1, p2) > 0) {
+        if (signedArea(p0.x, p0.y, p1.x, p1.y, p2.x, p2.y) > 0) {
             t0.invert();
             t2.invert();
         }
@@ -5112,17 +5167,17 @@ module cc.math.path.geometry {
             __pushVert( verts, p1.x+t0.x, p1.y+t0.y );              // p1+t0
             __pushVert( verts, p1.x-t0.x, p1.y-t0.y );              // p1-t0
 
-            if ( join === "round" ) {
+            if ( join === cc.render.LineJoin.ROUND ) {
 
                 createRoundCap(p1, cc.math.Vector.add(p1,t0), cc.math.Vector.add(p1,t2), p2, verts);
 
-            } else if ( join==="bevel" || (join==="miter" && dd>=miterLimit) ) {
+            } else if ( join===cc.render.LineJoin.BEVEL || (join===cc.render.LineJoin.MITER && dd>=miterLimit) ) {
 
                 __pushVert( verts, p1.x, p1.y );                    // p1
                 __pushVert( verts, p1.x+t0.x, p1.y+t0.y );          // p1+t0
                 __pushVert( verts, p1.x+t2.x, p1.y+t2.y );          // p1+t2
 
-            } else if (join === 'miter' && dd<miterLimit && pintersect) {
+            } else if (join === cc.render.LineJoin.MITER && dd<miterLimit && pintersect) {
 
                 __pushVert( verts, p1.x+t0.x, p1.y+t0.y );          // p1+t0
                 __pushVert( verts, p1.x, p1.y );                    // p1
@@ -5151,7 +5206,7 @@ module cc.math.path.geometry {
             __pushVert( verts, p1.x-anchor.x, p1.y-anchor.y );      // p1-anchor
             __pushVert( verts, p1.x+t0.x, p1.y+t0.y );              // p1+t0
 
-            if (join === "round") {
+            if (join === cc.render.LineJoin.ROUND) {
 
                 var _p0 = cc.math.Vector.add(p1, t0);
                 var _p1 = cc.math.Vector.add(p1, t2);
@@ -5171,16 +5226,20 @@ module cc.math.path.geometry {
 
             } else {
 
-                if (join === "bevel" || (join === "miter" && dd >= miterLimit)) {
+                if (join === cc.render.LineJoin.BEVEL || (join === cc.render.LineJoin.MITER && dd >= miterLimit)) {
 
                     __pushVert( verts, p1.x+t0.x, p1.y+t0.y );      // p1+t0
                     __pushVert( verts, p1.x+t2.x, p1.y+t2.y );      // p1+t2
                     __pushVert( verts, p1.x-anchor.x, p1.y-anchor.y ); // p1-anchor
                 }
 
-                if (join === 'miter' && dd < miterLimit) {
+                if (join === cc.render.LineJoin.MITER && dd < miterLimit) {
 
                     __pushVert( verts, pintersect.x, pintersect.y );// pintersect
+                    __pushVert( verts, p1.x+t0.x, p1.y+t0.y );      // p1+t0
+                    __pushVert( verts, p1.x+t2.x, p1.y+t2.y );      // p1+t2
+
+                    __pushVert( verts, p1.x-anchor.x, p1.y-anchor.y );      // p1-anchor
                     __pushVert( verts, p1.x+t0.x, p1.y+t0.y );      // p1+t0
                     __pushVert( verts, p1.x+t2.x, p1.y+t2.y );      // p1+t2
                 }
@@ -5195,6 +5254,134 @@ module cc.math.path.geometry {
             __pushVert( verts, p2.x-t2.x, p2.y-t2.y );              // p2-t2
         }
     }
+
+    /**
+     * ripped from http://www.blackpawn.com/texts/pointinpoly/default.html ;)
+     *
+     * Identify whether the <code>cc.math.Point</code> p is inside the triangle defined by the 3 point.
+     *
+     * @method cc.math.path.geometry.isPointInTriangle
+     *
+     * @param p {cc.math.Point}
+     * @param ax {number}
+     * @param ay {number}
+     * @param bx {number}
+     * @param by {number}
+     * @param cx {number}
+     * @param cy {number}
+     * @returns {boolean}
+     */
+    export function isPointInTriangle(
+        p:cc.math.Point,
+        ax:number, ay:number,
+        bx:number, by:number,
+        cx:number, cy:number ) : boolean {
+
+        var v0x = cx - ax;
+        var v0y = cy - ay;
+        var v1x = bx - ax;
+        var v1y = by - ay;
+        var v2x = p.x - ax;
+        var v2y = p.y - ay;
+
+        // Compute dot products
+        var dot00 = Math.sqrt(v0x*v0x + v0y*v0y);
+        var dot01 = Math.sqrt(v0x*v1x + v0y*v1y);
+        var dot02 = Math.sqrt(v0x*v2x + v0y*v2y);
+        var dot11 = Math.sqrt(v1x*v1x + v1y*v1y);
+        var dot12 = Math.sqrt(v1x*v2x + v1y*v2y);
+
+        // Compute barycentric coordinates
+        var invDenom = 1 / (dot00 * dot11 - dot01 * dot01);
+        var u = (dot11 * dot02 - dot01 * dot12) * invDenom;
+        var v = (dot00 * dot12 - dot01 * dot02) * invDenom;
+
+        // Check if point is in triangle
+        return (u >= 0) && (v >= 0) && (u + v < 1)
+
+    }
+
+    /**
+     * Based from Ivank.polyk: http://polyk.ivank.net/polyk.js
+     *
+     * Turn a cloud of points to triangles.
+     * The result of this operation will be an array of numbers, being each two a point, and each 6 a triangle.
+     *
+     * @method cc.math.path.geometry.tessellate
+     * @param contour {Array<cc.math.Point>}
+     * @returns {Float32Array}
+     */
+    export function tessellate( contour:cc.math.Point[] ) {
+
+        var n = contour.length;
+
+        if (n < 3) {
+            return null;;
+        }
+
+        var triangles = [];
+
+        var available = [];
+        for (var i = 0; i < n; i++) {
+            available.push(i);
+        }
+
+        var i = 0;
+        var numPointsToTessellate = n;
+
+        while (numPointsToTessellate > 3) {
+
+            var i0:number = available[(i    ) % numPointsToTessellate];
+            var i1:number = available[(i + 1) % numPointsToTessellate];
+            var i2:number = available[(i + 2) % numPointsToTessellate];
+
+            var ax = contour[i0].x;
+            var ay = contour[i0].y;
+            var bx = contour[i1].x;
+            var by = contour[i1].y;
+            var cx = contour[i2].x;
+            var cy = contour[i2].y;
+
+            var earFound = false;
+
+            if (signedArea(ax, ay, bx, by, cx, cy)>=0) {
+                earFound = true;
+                for (var j = 0; j < numPointsToTessellate; j++) {
+                    var vi = available[j];
+
+                    if (vi === i0 || vi === i1 || vi === i2) {
+                        continue;
+                    }
+
+                    if (isPointInTriangle(contour[vi], ax, ay, bx, by, cx, cy)) {
+                        earFound = false;
+                        break;
+                    }
+                }
+            }
+
+            if (earFound) {
+                triangles.push(i0, i1, i2);
+                available.splice((i + 1) % numPointsToTessellate, 1);
+                numPointsToTessellate--;
+                i = 0;
+            } else if (i++ > 3 * numPointsToTessellate) {
+                break;
+            }
+        }
+
+        triangles.push(available[0], available[1], available[2]);
+
+        var trianglesData= new Float32Array( triangles.length*2 );
+        for( var i=0; i<triangles.length; i++ ) {
+            var p:cc.math.Point= contour[ triangles[i] ];
+            trianglesData[i*2  ]=p.x;
+            trianglesData[i*2+1]=p.y;
+        }
+
+        return new Float32Array(trianglesData);
+    }
+
 }
 /**
  * License: see license.txt file.
@@ -5251,6 +5438,39 @@ module cc.math {
         _currentSubPath : SubPath = null;
 
         /**
+         * Cached stroke geometry.
+         * @member cc.math.Path#_strokeGeometry
+         * @type {Float32Array}
+         * @private
+         */
+        _strokeGeometry : Float32Array = null;
+
+        /**
+         * Cached fill geometry.
+         * @member cc.math.Path#_fillGeometry
+         * @type {Float32Array}
+         * @private
+         */
+        _fillGeometry : Float32Array = null;
+
+
+        /**
+         * Flag for stroke geometry cache invalidation.
+         * @member cc.math.Path#_strokeDirty
+         * @type {boolean}
+         * @private
+         */
+        _strokeDirty= true;
+
+        /**
+         * Flag for fill geometry cache invalidation.
+         * @member cc.math.Path#_fillDirty
+         * @type {boolean}
+         * @private
+         */
+        _fillDirty= true;
+
+        /**
          * Build a new Path instance.
          * @method cc.math.Path#constructor
          */
@@ -5260,12 +5480,18 @@ module cc.math {
 
         /**
          * Get the Path's number of SubPaths.
+         * @method cc.math.Path#numSubPaths
          * @returns {number}
          */
         numSubPaths() : number {
             return this._segments.length;
         }
 
+        /**
+         * Create a new sub path.
+         * @method cc.math.Path#__newSubPath
+         * @private
+         */
         __newSubPath() : void {
             var subpath : SubPath = new SubPath();
             this._segments.push( subpath );
@@ -5275,6 +5501,7 @@ module cc.math {
 
         /**
          * Test whether this Path is empty, ie has no sub paths.
+         * @method cc.math.Path#isEmpty
          * @returns {boolean}
          */
         isEmpty() : boolean {
@@ -5295,6 +5522,8 @@ module cc.math {
          *
          * @param x {number=}
          * @param y {number=}
+         *
+         * @method cc.math.Path#__ensureSubPath
          * @private
          */
         __ensureSubPath( x:number= 0, y:number= 0 ) : void {
@@ -5306,6 +5535,11 @@ module cc.math {
 
         }
 
+        /**
+         * Chain two contours (subpath) when one is closed. Necessary for closed arcs.
+         * @method cc.math.Path#__chainSubPathIfCurrentIsClosed
+         * @private
+         */
         __chainSubPathIfCurrentIsClosed() : void {
 
             if ( this._currentSubPath.isClosed() ) {
@@ -5319,6 +5553,8 @@ module cc.math {
         /**
          * Get the Path current position for tracing.
          * This point corresponds to the tracing position of the current SubPath.
+         *
+         * @method cc.math.Path#getCurrentTracePosition
          * @returns {cc.math.Point}
          */
         getCurrentTracePosition() : Point {
@@ -5334,6 +5570,8 @@ module cc.math {
          * Get the Path starting point.
          * It corresponds to the starting point of the first segment it contains, regardless of its type.
          * If there's no current SubPath, an empty Point (0,0) is returned.
+         *
+         * @method cc.math.Path#getStartingPoint
          * @returns {*}
          */
         getStartingPoint() : Vector {
@@ -5349,6 +5587,8 @@ module cc.math {
          * Get the Path ending point.
          * It corresponds to the ending point of the last segment it contains, regardless of its type.
          * If there's no current SubPath, an empty Point (0,0) is returned.
+         *
+         * @method cc.math.Path#getEndingPoint
          * @returns {*}
          */
         getEndingPoint() : Vector {
@@ -5365,6 +5605,8 @@ module cc.math {
          * Create a poli-line path from a set of Points.
          * If no points, or an empty array is passed, no Path is built and returns null.
          * @param points {Array<cc.math.Vector>}
+         *
+         * @method cc.math.Path.createFromPoints
          * @returns {cc.math.Path} Newly created path or null if the path can't be created.
          * @static
          */
@@ -5401,12 +5643,23 @@ module cc.math {
             this._segments= [];
             this._length= 0;
             this._currentSubPath= null;
-            this._dirty= true;
+            this.setDirty();
 
             return this;
         }
 
-        quadraticTo( x1:number, y1:number, x2:number, y2:number, matrix?:Float32Array ) : Path {
+        /**
+         * Add a quadratic curve to the path.
+         * @param x1 {number} control point x position
+         * @param y1 {number} control point y position
+         * @param x2 {number} second curve point x position
+         * @param y2 {number} second curve point y position
+         * @param matrix {Float32Array}
+         *
+         * @method cc.math.Path#quadraticCurveTo
+         * @returns {cc.math.Path} the path holding the segment
+         */
+        quadraticCurveTo( x1:number, y1:number, x2:number, y2:number, matrix?:Float32Array ) : Path {
 
             __v0.set(x1,y1);
             __v1.set(x2,y2);
@@ -5418,10 +5671,23 @@ module cc.math {
             this.__ensureSubPath();
             this._currentSubPath.quadraticTo( __v0.x, __v0.y, __v1.x, __v1.y );
 
+            this.setDirty();
+
             return this;
         }
 
-        bezierTo( x0:number, y0:number, x1:number, y1:number, x2:number, y2:number, matrix?:Float32Array ) : Path {
+        /**
+         * Add a quadratic curve to the path.
+         * @param x1 {number} control point x position
+         * @param y1 {number} control point y position
+         * @param x2 {number} second curve point x position
+         * @param y2 {number} second curve point y position
+         * @param matrix {Float32Array}
+         *
+         * @method cc.math.Path#bezierCurveTo
+         * @returns {cc.math.Path} the path holding the segment
+         */
+        bezierCurveTo( x0:number, y0:number, x1:number, y1:number, x2:number, y2:number, matrix?:Float32Array ) : Path {
 
             __v0.set(x0,y0);
             __v1.set(x1,y1);
@@ -5435,12 +5701,26 @@ module cc.math {
             this.__ensureSubPath();
             this._currentSubPath.bezierTo( __v0.x, __v0.y, __v1.x, __v1.y, __v2.x, __v2.y );
 
+            this.setDirty();
+
             return this;
         }
 
         catmullRomTo( points:Point[], closed:boolean, tension:number, matrix?:Float32Array ) : Path;
         catmullRomTo( cp0x:number,cp0y:number,cp1x:number,cp1y:number,p1x:number,p1y:number, tension:number, matrix?:Float32Array ): Path;
 
+        /**
+         * Add CatmullRom segments.
+         * The segments are defined by an array of numbers, being each two the definition of a Point, or an array of
+         * <code>cc.math.Point</code> objects.
+         *
+         * This method will create in the as much CatmullRom segments as needed based on the number of parameters supplied.
+         *
+         * @method cc.math.Path#catmullRomTo
+         * @param p0
+         * @param rest
+         * @returns {cc.math.Path}
+         */
         catmullRomTo( p0:any, ...rest:Array<any> ): Path {
 
             if ( typeof p0==="number ") {
@@ -5491,11 +5771,15 @@ module cc.math {
                 console.log("invalid signature Path.catmullRomTo");
             }
 
+            this.setDirty();
+
             return this;
         }
 
         /**
-         * Add a catmull rom (cardinal spline
+         * Add a CatmullRom segment implementation.
+         *
+         * @method cc.math.Path#__catmullRomTo
          * @param cp0x {number}
          * @param cp0y {number}
          * @param cp1x {number}
@@ -5517,16 +5801,19 @@ module cc.math {
 
             this.__ensureSubPath();
             this._currentSubPath.catmullRomTo(__v0.x, __v0.y, __v1.x, __v1.y, __v2.x, __v2.y, tension );
+
+            this.setDirty();
         }
 
         /**
          * Close the current SubPath.
          *
+         * @method cc.math.Path#closePath
          * @returns {cc.math.Path}
          */
         closePath() : Path {
             this._currentSubPath.closePath();
-            this._dirty= true;
+            this.setDirty();
             return this;
         }
         
@@ -5548,7 +5835,6 @@ module cc.math {
          */
         moveTo( x: number, y : number, matrix? : Float32Array ) : Path {
 
-
             if ( matrix ) {
                 __v0.set(x,y);
                 Matrix3.transformPoint( matrix, __v0 );
@@ -5557,6 +5843,9 @@ module cc.math {
             }
 
             this.__ensureSubPath(x,y);
+            if (!this._currentSubPath.isEmpty()) {
+                this.__newSubPath();
+            }
             this._currentSubPath.moveTo(x,y);
 
             return this;
@@ -5586,7 +5875,7 @@ module cc.math {
 
             this._currentSubPath.lineTo(x, y);
 
-            this._dirty = true;
+            this.setDirty();
 
             return this;
         }
@@ -5594,6 +5883,8 @@ module cc.math {
         /**
          * Create a rect as a new SubPath. The rect has 4 segments which conform the rect.
          * It also created a new SubPath movedTo (x,y).
+         *
+         * @method cc.math.Path#rect
          * @param x {number}
          * @param y {number}
          * @param w {number}
@@ -5630,7 +5921,7 @@ module cc.math {
 
             this.__newSubPath();
             this._currentSubPath.moveTo( __v0.x, __v0.y );
-            this._dirty= true;
+            this.setDirty();
 
             return this;
         }
@@ -5643,6 +5934,7 @@ module cc.math {
          * In this implementation if the radius is < 0, the radius will be set to 0.
          * If the radius is 0 or the diffangle is 0, no arc is added.
          *
+         * @method cc.math.Path#arc
          * @param x {number}
          * @param y {number}
          * @param radius {number}
@@ -5701,19 +5993,24 @@ module cc.math {
             // calculate start angle based on current matrix
             if ( matrix ) {
 
-                Matrix3.copy( __m0, matrix );
+                Matrix3.copy( matrix, __m0 );
                 Matrix3.setRotate( __m1, startAngle );
                 Matrix3.multiply(__m0, __m1);
 
-                startAngle= cc.math.path.getDistanceVector(1,matrix).angle();
+                startAngle= cc.math.path.getDistanceVector(1,__m0).angle();
             }
 
             this._currentSubPath.arc( x,y,radius,startAngle,startAngle+diffAngle,anticlockwise,addLine );
-            this._dirty= true;
+            this.setDirty();
 
             return this;
         }
 
+        /**
+         * Deep clone this path, contours and segments.
+         * @method cc.math.Path#clone
+         * @return {cc.math.Path} a cloned path.
+         */
         clone() : Path {
             var path= new Path();
 
@@ -5727,17 +6024,114 @@ module cc.math {
             return path;
         }
 
+        /**
+         * Mark the path as dirty. Also, the cache for stroke and fill are marked as dirty.
+         * @method cc.math.Path#setDirty
+         */
+        setDirty() {
+            this._dirty= true;
+            this._fillDirty= true;
+            this._strokeDirty= true;
+        }
+
+        /**
+         * Paint the path in a canvas rendering context.
+         * @method cc.math.Path#paint
+         * @param ctx {cc.render.RenderingContext}
+         */
         paint( ctx:cc.render.RenderingContext ) {
             for( var i=0; i<this._segments.length; i++ ) {
                 this._segments[i].paint(ctx);
             }
         }
 
-        getStrokeGeometry() : number[] {
+        /**
+         * If needed, calculate the stroke geometry for a path.
+         * The stroke mesh will be traced based of line attributes.
+         * On average, you will never interact with this method.
+         * @method cc.math.Path#getStrokeGeometry
+         * @param attributes {cc.math.path.geometry.StrokeGeometryAttributes}
+         * @returns {Float32Array}
+         */
+        getStrokeGeometry( attributes : cc.math.path.geometry.StrokeGeometryAttributes ) {
 
+            if ( this._dirty || this._strokeDirty ) {
 
-            return [];
+                var size : number = 0;
+                var buffers : Float32Array[] = [];
+
+                for( var i=0; i<this._segments.length; i++ ) {
+
+                    var subPath = this._segments[i];
+                    var contourPoints = subPath.trace();
+
+                    var buffer:Float32Array = cc.math.path.geometry.getStrokeGeometry( subPath.trace(), attributes );
+
+                    if ( null!==buffer ) {
+                        size += buffer.length;
+                        buffers.push(buffer);
+                    }
+                };
+
+                this._strokeGeometry= new Float32Array( size );
+
+                var offset= 0;
+                for( var i=0; i<buffers.length; i++ ) {
+                    this._strokeGeometry.set( buffers[i], offset );
+                    offset+= buffers[i].length;
+                }
+
+                this._dirty = false;
+                this._strokeDirty= false;
+            }
+
+            return this._strokeGeometry;
         }
+
+        /**
+         * If needed, tessellate the points of the path and create a mesh.
+         * On average, you will never interact with this method.
+         * @method cc.math.Path#getFillGeometry
+         * @returns {Float32Array}
+         */
+        getFillGeometry( ) {
+
+            if ( this._dirty || this._fillDirty ) {
+
+                var size : number = 0;
+                var buffers : Float32Array[] = [];
+
+                for( var i=0; i<this._segments.length; i++ ) {
+
+                    var subPath = this._segments[i];
+                    var contourPoints = subPath.trace();
+
+                    var contour= subPath.trace();
+
+                    var buffer:Float32Array = cc.math.path.geometry.tessellate( contour );
+
+
+                    if ( null!==buffer ) {
+                        size += buffer.length;
+                        buffers.push(buffer);
+                    }
+                };
+
+                this._fillGeometry= new Float32Array( size );
+
+                var offset= 0;
+                for( var i=0; i<buffers.length; i++ ) {
+                    this._fillGeometry.set( buffers[i], offset );
+                    offset+= buffers[i].length;
+                }
+
+                this._dirty = false;
+                this._fillDirty= false;
+            }
+
+            return this._fillGeometry;
+        }
+
     }
 }
 /**
@@ -19248,6 +19642,9 @@ module cc.render.shader {
             return __mat4;
         }
 
+        useMeshIndex() : boolean {
+            return false;
+        }
     }
 
 }
@@ -19378,6 +19775,11 @@ module cc.render.shader {
             gl.vertexAttribPointer(this._attributePosition._location, 2, gl._gl.FLOAT, false, 12, 0);
             gl.vertexAttribPointer(this._attributeColor._location, 4, gl._gl.UNSIGNED_BYTE, true,  12, 2 * 4 );
         }
+
+        useMeshIndex() : boolean {
+            return true;
+        }
+
 
     }
 }
@@ -19652,6 +20054,10 @@ module cc.render.shader {
             gl.vertexAttribPointer(this._attributePosition._location, 2, gl._gl.FLOAT, false, 4*4, 0);
             gl.vertexAttribPointer(this._attributeTexture._location, 2, gl._gl.FLOAT, false, 4*4, 2*4 );
 
+        }
+
+        useMeshIndex() : boolean {
+            return true;
         }
     }
 }
@@ -20424,17 +20830,22 @@ module cc.render {
         var globalCompositeOperation:cc.render.CompositeOperation= cc.render.CompositeOperation.source_over;
 
         c2d.flush= function() {
-            this.setTransform(1,0,0,1,0,0);
+
         };
 
         c2d.type= cc.render.RENDERER_TYPE_CANVAS;
-        //Object.defineProperty(c2d, "type", {
-        //    get: function () {
-        //        return cc.render.RENDERER_TYPE_CANVAS;
-        //    },
-        //    enumerable: true,
-        //    configurable: true
-        //});
+
+        c2d.setStrokeStyleColor= function( color:cc.math.Color ) {
+            this.strokeStyle= (<cc.math.Color>color).getFillStyle();
+        };
+
+        c2d.setStrokeStyleColorArray= function( colorArray:Float32Array ) {
+            this.strokeStyle = new cc.math.Color(colorArray[0], colorArray[1], colorArray[2], colorArray[3]).getFillStyle();
+        };
+
+        c2d.setStrokeStylePattern = function( pattern:cc.render.Pattern ) {
+
+        };
 
         c2d.setFillStyleColor= function( color:cc.math.Color ) {
             this.fillStyle = (<cc.math.Color>color).getFillStyle();
@@ -20455,8 +20866,10 @@ module cc.render {
         };
 
         c2d.clear= function() {
+            this.save();
             this.setTransform(1,0,0,1,0,0);
             this.clearRect(0,0,this.getWidth(), this.getHeight());
+            this.restore();
         };
 
         c2d.getUnitsFactor= function() {
@@ -20616,9 +21029,6 @@ module cc.render {
                 this.closePath();
                 this.stroke();
 
-                //this.fillRect( geometry[ indexVertex0 ], geometry[ indexVertex0+1 ], .1, .1 );
-                //this.fillRect( geometry[ indexVertex1 ], geometry[ indexVertex1+1 ], .1, .1 );
-                //this.fillRect( geometry[ indexVertex2 ], geometry[ indexVertex2+1 ], .1, .1 );
             }
 
         };
@@ -20629,6 +21039,7 @@ module cc.render {
     /**
      * @class cc.render.CanvasRenderer
      * @classdesc
+     * @extends Renderer
      *
      * Create a Canvas renderer.
      */
@@ -20993,14 +21404,60 @@ module cc.render {
         "lighter"   // should be add, but does not exist.
     ];
 
+    export enum LineCap {
+        BUTT, SQUARE, ROUND
+    }
+
+    /**
+     * @enum
+     * 
+     */
+    export enum LineJoin {
+        BEVEL, MITER, ROUND
+    }
+
     /**
      * @class cc.render.RenderingContext
      * @interface
      * @classdesc
      *
-     * Minimum rendering context interface. All nodes when a call to draw is done, whether in canvas or webgl,
-     * will be able to use these functions.
+     * A RenderingContext is a high level API for paint code execution. Normally, this paint code will be wrapped in a
+     * <code>cc.node.Node</code>'s <code>draw</code> method. This allows arbitrary drawing capabilities per node which
+     * is a big game changer from previous engine implementations where Node specialization at drawing forced composition
+     * for custom draw.
+     * <p>
+     * While the <code>cc.render.CanvasRenderer</code> will mostly proxy to the under-laying
+     * <code>CanvasRenderingContext2D</code>, the <code>cc.render.WebGLRenderer</code> will do extra to achieve
+     * to aim at visual consistency with its canvas counterpart. This webgl implementation will allow for:
+     *   <li>stroking and filling paths with color, patterns and gradients
+     *   <li>use custom shader per quad
+     *   <li>image slicing
+     *   <li>rendering context save and restore
      *
+     * <h4>Path</h4>
+     * <p>
+     * The rendering context has support for path stroke or fill operations. Internally, these operations are backed by
+     * a path implementation <code>cc.math.Path</code>. The path, is composed by a collection of contours (basically
+     * each time <code>moveTo</code> is called a new contour is created) and each contour is a collection of
+     * <code>cc.math.path.Segment</code> objects. Calls to <code>lineTo</code> or <code>QuadraticCurveTo</code> create
+     * segments and contour creation is automatically done.
+     * <p>
+     * The segment creation operations are incremental. In order to avoid leaking, a call to <code>beginPath</code>
+     * must be performed to start with a new fresh path. The rendering context <code>cc.math.Path</code> object is not
+     * reset per frame, it is something the developer must do on its own.
+     * <p>
+     * Each segment operation will automatically be modified by the current transformation matrix.
+     * <p>
+     * The Path object can manually created and stroked/filled for later fast stroke/fill operations.
+     *
+     * <h4>Transformation</h4>
+     * At any given time, all rendering context operations can be transformed by a cumulative transformation matrix.
+     * Calls to <code>translate</code>, <code>rotate</code> and <code>scale</code>, will
+     * indistinctly affect path tracing/filling, image drawing, line width, text, pattern and gradient projection space,
+     * etc.
+     * <p>
+     * The tansformation is not reset by the system at any time. It is developers responsibility to either make a call
+     * to <code>setTransform(1,0,0,1,0,0)</code> or make appropriate <code>save</code>/<code>restore</code> calls.
      */
     export interface RenderingContext {
 
@@ -21011,9 +21468,26 @@ module cc.render {
          */
         canvas : HTMLCanvasElement;
 
+        /**
+         * Set draw operations tint color.
+         * The tinting only makes sense in a WebGL renderer.
+         * @param color {cc.math.Color}
+         * @method cc.render.RenderingContext#setTintColor
+         */
         setTintColor( color:Color );
 
+        /**
+         * Set a global transparency value.
+         * @param alpha {number} value between 0 and 1. 0 is full transparent and 1 is full opaque.
+         * @method cc.render.RenderingContext#setGlobalAlpha
+         */
         setGlobalAlpha( alpha: number );
+
+        /**
+         * Get the global transparency value.
+         * @method cc.render.RenderingContext#getGlobalAlpha
+         * @return number
+         */
         getGlobalAlpha( ) : number;
 
         /**
@@ -21031,7 +21505,7 @@ module cc.render {
         setTransform( a : number, b: number, c : number, d: number, tx : number, ty : number );
 
         /**
-         * Concatenate the matrix described by coeficcients with the current transformation matrix.
+         * Concatenate the matrix described by a,b,c,d,tx,ty with the current transformation matrix.
          * @param a {number}
          * @param b {number}
          * @param c {number}
@@ -21053,12 +21527,66 @@ module cc.render {
 
         /**
          * Draw an image.
+         * This method can be called in 3 different ways:
+         *
+         * <li>3 parameters</li>
+         * This will draw the whole texture at its actual size at the given sx,sy position.
+         * <li>5 parameters</li>
+         * This will draw the whole texture size at the given sx,sy position but at the size specified by sw,sh.
+         * <li>9 parameters</li>
+         * This will draw a source rectangle of the texture defined by sx,sy,sw,sh in the destination rectangle defined
+         * by dx,dy,dw,dh.
+         *
+         * <p>
+         * This method honors the current transformation matrix and will be safe to perform new drawing operations after
+         * calling it.
+         *
+         * @param texture {cc.render.Texture2D}
+         * @param sx {number}
+         * @param sy {number}
+         * @param sw {number=}
+         * @param sh {number=}
+         * @param dx {number=}
+         * @param dy {number=}
+         * @param dw {number=}
+         * @param dh {number=}
+         *
          * @method cc.render.RenderingContext#drawImage
-         * @param image {HTMLImageElement|HTMLCanvasElement}
-         * @param x {number}
-         * @param y {number}
          */
         drawTexture( texture:Texture2D, sx: number, sy:number, sw?:number, sh?:number, dx?: number, dy?:number, dw?:number, dh?:number  ) : void;
+
+        /**
+         * Draw an image.
+         * This method can be called in 3 different ways:
+         *
+         * <li>3 parameters</li>
+         * This will draw the whole texture at its actual size at the given sx,sy position.
+         * <li>5 parameters</li>
+         * This will draw the whole texture size at the given sx,sy position but at the size specified by sw,sh.
+         * <li>9 parameters</li>
+         * This will draw a source rectangle of the texture defined by sx,sy,sw,sh in the destination rectangle defined
+         * by dx,dy,dw,dh.
+         *
+         * <p>
+         * This method <b>does not</b> may leave the current transformation matrix in the wrong state, and you may get
+         * not the expected results after calling new drawTexture/drawTextureUnsafe operations.
+         * <p>
+         * For a webgl renderer, this method is much faster than calling <code>drawTexture</code>. In most cases,
+         * like an sprite which just needs to draw a chunk of a texture in a destination rectangle, this method will
+         * suffice.
+         *
+         * @param texture {cc.render.Texture2D}
+         * @param sx {number}
+         * @param sy {number}
+         * @param sw {number=}
+         * @param sh {number=}
+         * @param dx {number=}
+         * @param dy {number=}
+         * @param dw {number=}
+         * @param dh {number=}
+         *
+         * @method cc.render.RenderingContext#drawImageUnsafe
+         */
         drawTextureUnsafe( texture:Texture2D, sx: number, sy:number, sw?:number, sh?:number, dx?: number, dy?:number, dw?:number, dh?:number  ) : void;
 
         /**
@@ -21070,6 +21598,7 @@ module cc.render {
         /**
          * Flush current renderer. This method only makes sense for WebGL, the canvas implementation is empty.
          * A call to this method must be done in a WebGL renderer to have content shown in the canvas.
+         * If running inside the engine, this method is called automatically.
          * @method cc.render.RenderingContext#flush
          */
         flush();
@@ -21097,33 +21626,305 @@ module cc.render {
          */
         scale( x:number, y:number );
 
+        /**
+         * Get the rendering area width in pixels.
+         * @method cc.render.RenderingContext#getWidth
+         */
         getWidth() : number;
+
+        /**
+         * Get the rendering area height in pixels.
+         * @method cc.render.RenderingContext#getWidth
+         */
         getHeight() : number;
 
+        /**
+         * Get the renderer type. A value from cc.render.RENDERER_TYPE_CANVAS | cc.render.RENDERER_TYPE_WEBGL
+         * @type {number}
+         * @member cc.render.RenderingContext#type
+         */
         type : number;
 
+        /**
+         * Save the current RenderingContext status. It clones the associated <code>cc.render.RenderingContextSnapshot</code>.
+         * @method cc.render.RenderingContext#save
+         */
         save() : void;
+
+        /**
+         * Restore a previously saved RenderingContext status.
+         * It clones the associated <code>cc.render.RenderingContextSnapshot</code>.
+         * @method cc.render.RenderingContext#restore
+         */
         restore() : void;
 
-        beginPath();
-
+        /**
+         * Stroke (trace contour) of the current rendering context's state path.
+         * The path is tracked internally in a <code>cc.math.Path</code> object.
+         * The trace of the path contour is modified by:
+         *   <li>current transformation matrix
+         *   <li>line width
+         *   <li>line join
+         *   <li>line cap
+         *   <li>line join miter limit
+         *
+         * @method cc.render.RenderingContext#stroke
+         */
         stroke();
 
+        /**
+         * Fill the current rendering context's state path.
+         * The path is tracked internally in a <code>cc.math.Path</code> object.
+         * The fill is performed by a basic tessellation process. Self intersecting path contours won't be appropriately
+         * displayed.
+         * <b>This method may not be consistent between canvas and webgl renderers</b>
+         *
+         * @method cc.render.RenderingContext#fill
+         */
+        fill();
+
+        /**
+         * The the current rendering context to reset the internal path representation.
+         * This method should be called to start a fresh path tracing/filling operation.
+         *
+         * This operation will be affected by the current transformation matrix.
+         *
+         * @method cc.render.RenderingContext#beginPath
+         */
+        beginPath();
+
+        /**
+         * Move the path tracer position.
+         * @param x {number}
+         * @param y {number}
+         *
+         * @method cc.render.RenderincContext#moveTo
+         */
         moveTo(x:number, y:number);
 
+        /**
+         * Add a line from the current path position to the desired position.
+         * This operation will be affected by the current transformation matrix.
+         *
+         * @param x {number}
+         * @param y {number}
+         * @method cc.render.RenderingContext#lineTo
+         */
         lineTo(x:number, y:number);
 
+        /**
+         * Add a cubic bezier from the current path position defined by the two control points and the final curve point.
+         *
+         * @param cp0x {number} first control point x position
+         * @param cp0y {number} first control point y position
+         * @param cp1x {number} second control point x position
+         * @param cp1y {number} second control point y position
+         * @param p2x {number} second curve point x position
+         * @param p2y {number} second curve point y position
+         *
+         * This operation will be affected by the current transformation matrix.
+         *
+         * @method cc.render.RenderingContext#bezierCurveTo
+         */
+        bezierCurveTo( cp0x:number, cp0y:number, cp1x:number, cp1y:number, p2x:number, p2y:number );
+
+        /**
+         * Add a quadratic bezier from the current path position defined by one control point and the final curve point.
+         *
+         * @param cp0x {number} control point x position
+         * @param cp0y {number} control point y position
+         * @param p2x {number} second curve point x position
+         * @param p2y {number} second curve point y position
+         *
+         * This operation will be affected by the current transformation matrix.
+         *
+         * @method cc.render.RenderingContext#quadraticCurveTo
+         */
+        quadraticCurveTo( cp0x:number, cp0y:number, p2x:number, p2y:number );
+
+        /**
+         * Create a new rectangular closed contour on the current path.
+         * @param x {number}
+         * @param y {number}
+         * @param width {number}
+         * @param height {number}
+         *
+         * This operation will be affected by the current transformation matrix.
+         *
+         * @method cc.render.RenderingContext#rect
+         */
+        rect( x:number, y:number, width:number, height:number );
+
+        /**
+         * Add an arc segment to the current path.
+         * The arc will be drawn as the least angle difference between startAngle and endAngle. This means that if an arc
+         * is defined from 0 to 100*PI radians, the arc will actually be from 0 to 2*PI radians.
+         *
+         *
+         * @param x {number} arc center x position
+         * @param y {number} arc center y position
+         * @param radius {number} arc radius
+         * @param startAngle {number} arc start angle
+         * @param endAngle {number} arc end angle
+         * @param counterClockWise {boolean} if true the arc will be complimentary arc from the original one.
+         *
+         * This operation will be affected by the current transformation matrix.
+         *
+         * @method cc.render.RenderingContext#arc
+         */
+        arc( x:number, y:number, radius:number, startAngle:number, endAngle:number, counterClockWise:boolean );
+
+        /**
+         * Close the current contour on the current path.
+         * Successive path operations will create a new contour.
+         *
+         * This operation will be affected by the current transformation matrix.
+         *
+         * @method cc.render.RenderingContext#closePath
+         */
+        closePath();
+
+        /**
+         * Set the current path line cap. This call will have effect when a call to <code>stroke</code> is performed.
+         * @param cap {cc.render.LineCap}
+         *
+         * @method cc.render.RenderingContext#setLineCap
+         */
+        setLineCap( cap:LineCap );
+
+        /**
+         * Get the current line cap.
+         *
+         * @method cc.render.RenderingContext#getLineCap
+         * @return cc.render.LineCap
+         */
+        getLineCap() : LineCap;
+
+        /**
+         * Set the current path line join. This call will have effect when a call to <code>stroke</code> is performed.
+         * @param join {cc.render.LineJoin}
+         *
+         * @method cc.render.RenderingContext#setLineJoin
+         */
+        setLineJoin( join:LineJoin );
+
+        /**
+         * Get the current line join.
+         *
+         * @method cc.render.RenderingContext#getLineJoin
+         * @return cc.render.LineJoin
+         */
+        getLineJoin() : LineJoin;
+
+        /**
+         * Set the line width for stroking a path.
+         * The lineWidth will be affected by the current transformation matrix.
+         *
+         * @param w {number} desired line width. 1 by default.
+         * @method cc.render.RenderingContext#setLineWidth
+         */
+        setLineWidth( w:number );
+
+        /**
+         * Get the current line width.
+         *
+         * @method cc.render.RenderingContext#getLineWidth
+         * @return number
+         */
+        getLineWidth() : number;
+
+        /**
+         * Set fill operations color.
+         *
+         * @param color {cc.math.Color}
+         * @method cc.render.RenderingContext#setFillStyleColor
+         */
         setFillStyleColor( color:Color );
+
+        /**
+         * Set fill operations color.
+         *
+         * @param colorArray {Float32Array}
+         * @method cc.render.RenderingContext#setFillStyleColorArray
+         */
         setFillStyleColorArray( colorArray:Float32Array );
+
+        /**
+         * Set fill operations <code>cc.render.Pattern</code>.
+         *
+         * @param pattern {cc.render.Pattern}
+         * @method cc.render.RenderingContext#setFillStylePattern
+         */
         setFillStylePattern( pattern:cc.render.Pattern );
 
+        /**
+         * Set stroke operations color.
+         *
+         * @param color {cc.math.Color}
+         * @method cc.render.RenderingContext#setStrokeStyleColor
+         */
+        setStrokeStyleColor( color:Color );
+
+        /**
+         * Set stroke operations color.
+         *
+         * @param colorArray {Float32Array}
+         * @method cc.render.RenderingContext#setStrokeStyleColorArray
+         */
+        setStrokeStyleColorArray( colorArray:Float32Array );
+
+        /**
+         * Set stroke operations <code>cc.render.Pattern</code>.
+         *
+         * @param pattern {cc.render.Pattern}
+         * @method cc.render.RenderingContext#setStrokeStylePattern
+         */
+        setStrokeStylePattern( pattern:cc.render.Pattern );
+
+        /**
+         * Resize the rendering context.
+         * This method is internal and must never be called directly.
+         *
+         * @method cc.render.RenderingContext#resize
+         */
         resize();
 
+        /**
+         * Get the units/pixels conversion ratio value.
+         *
+         * @method cc.render.RenderingContext#getUnitsFactor
+         */
         getUnitsFactor():number;
 
+        /**
+         * Set current composite operation (blending mode).
+         *
+         * @param o {cc.render.CompositeOperation}
+         * @method cc.render.RenderingContext#setCompositeOperation
+         */
         setCompositeOperation( o:cc.render.CompositeOperation );
+
+        /**
+         * Get current composite operation (blending mode).
+         *
+         * @method cc.render.RenderingContext#getCompositeOperation
+         * @return cc.render.CompositeOperation
+         */
         getCompositeOperation() : cc.render.CompositeOperation;
 
+        /**
+         * Draw a mesh defined by geometry, texture coordinates and indices.
+         * This method is expected to be used only in webgl. Current canvas renderer implementation will draw the mesh
+         * itself and not the image.
+         *
+         * @param geometry {Float32Array} vertices geometry. <b>It expects 3 coords per vertex.</b>
+         * @param uv {Float32Array} texture coordinates per vertex. 2 coords per vertex.
+         * @param indices {Uint32Array} vertices indices.
+         * @param color {number} a 32 bit encoded RGBA value. This will be a tint over the texture.
+         * @param texture {cc.render.Texture2D} a texture.
+         *
+         * @method cc.render.RenderingContext#drawMesh
+         */
         drawMesh( geometry:Float32Array, uv:Float32Array, indices:Uint32Array, color:number, texture:Texture2D );
     }
 
@@ -21132,14 +21933,14 @@ module cc.render {
  * License: see license.txt file.
  */
 
+/// <reference path="../math/Point.ts"/>
 /// <reference path="../math/Matrix3.ts"/>
 /// <reference path="../math/Color.ts"/>
+/// <reference path="../math/Path.ts"/>
+/// <reference path="../math/path/geometry/StrokeGeometry.ts"/>
 /// <reference path="./RenderingContext.ts"/>
 
 module cc.render {
-
-    import Matrix3 = cc.math.Matrix3;
-    import Color = cc.math.Color;
 
     /**
      * @class cc.render.RenderingContextSnapshot
@@ -21185,7 +21986,13 @@ module cc.render {
          */
         _miterLimit : number= 10;
 
-        _currentFillStyleType : cc.render.FillStyleType= cc.render.FillStyleType.COLOR;
+        /**
+         * Current fill type info. Needed for shader selection.
+         * @member cc.render.RenderingContextSnapshot#_currentFillStyleType
+         * @type {cc.render.FillStyleType}
+         * @private
+         */
+        _currentFillStyleType : cc.render.FillStyleType= cc.render.FillStyleType.MESHCOLOR;
 
         /**
          * Current fill style.
@@ -21195,6 +22002,14 @@ module cc.render {
          */
         _fillStyleColor : Float32Array= new Float32Array([0.0, 0.0, 0.0, 1.0]);
 
+        /**
+         * Current pattern info when <code>_currentFillStyleType</code> is
+         * <code>cc.render.FillStyleType.PATTERN_REPEAT</code>
+         * @type {cc.render.Pattern}
+         * @member cc.render.RenderingContextSnapshot#_fillStylePattern
+         * @private
+         *
+         */
         _fillStylePattern : cc.render.Pattern= null;
 
         /**
@@ -21212,6 +22027,22 @@ module cc.render {
          * @private
          */
         _lineWidth : number = 1.0;
+
+        /**
+         * Line cap hint for path stroking.
+         * @type {cc.render.LineCap.BUTT}
+         * @member cc.render.RenderingContextSnapshot#_lineCap
+         * @private
+         */
+        _lineCap : cc.render.LineCap = cc.render.LineCap.BUTT;
+
+        /**
+         * Line join hint for path stroking.
+         * @type {cc.render.LineCap.BUTT}
+         * @member cc.render.RenderingContextSnapshot#_lineJoin
+         * @private
+         */
+        _lineJoin: cc.render.LineJoin= cc.render.LineJoin.MITER;
 
         /**
          * Current font data.
@@ -21237,7 +22068,6 @@ module cc.render {
          */
         _textAlign : string = "left";
 
-
         /**
          * Current path tracing data.
          * @member cc.render.RenderingContextSnapshot#_currentPath
@@ -21260,6 +22090,7 @@ module cc.render {
          */
         constructor() {
 
+            this._currentPath= new cc.math.Path();
         }
 
         /**
@@ -21273,7 +22104,7 @@ module cc.render {
 
             rcs._globalCompositeOperation = this._globalCompositeOperation;
             rcs._globalAlpha = this._globalAlpha;
-            Matrix3.copy( rcs._currentMatrix, this._currentMatrix );
+            cc.math.Matrix3.copy( rcs._currentMatrix, this._currentMatrix );
             rcs._fillStyleColor= this._fillStyleColor;
             rcs._fillStylePattern= this._fillStylePattern;
             rcs._currentFillStyleType= this._currentFillStyleType;
@@ -21284,11 +22115,151 @@ module cc.render {
             rcs._textBaseline= this._textBaseline;
             rcs._textAlign= this._textAlign;
 
-            //rcs._currentPath = this._currentPath.clone();
+            rcs._currentPath = this._currentPath.clone();
             rcs._clippingStack = this._clippingStack;
 
             return rcs;
         }
+
+        /**
+         * begin path in the path tracer.
+         * @method cc.render.RenderingContextSnapshot#beginPath
+         */
+        beginPath() {
+            this._currentPath.beginPath();
+        }
+
+        /**
+         * Close the current contour in the path tracer.
+         * A closed contour can't have any other segment added, and successive tracing operations will create a new
+         * contour.
+         * @method cc.render.RenderingContextSnapshot#closePath
+         */
+        closePath() {
+            this._currentPath.closePath();
+        }
+
+        /**
+         * Move the current path position based on the current transformation matrix.
+         * @param x {number}
+         * @param y {number}
+         * @method cc.render.RenderingContextSnapshot#moveTo
+         */
+        moveTo( x:number, y:number ) {
+            this._currentPath.moveTo(x,y,this._currentMatrix);
+        }
+
+        /**
+         * Add a line segment to the current path. Segment info must be transformed by the current transformation matrix.
+         * @param x {number}
+         * @param y {number}
+         * @method cc.render.RenderingContextSnapshot#lineTo
+         */
+        lineTo( x:number, y:number ) {
+            this._currentPath.lineTo(x,y,this._currentMatrix);
+        }
+
+        /**
+         * Add a bezier segment to the current path. Segment info must be transformed by the current transformation matrix.
+         * @param cp0x {number}
+         * @param cp0y {number}
+         * @param cp1x {number}
+         * @param cp1y {number}
+         * @param p2x {number}
+         * @param p2y {number}
+         * @method cc.render.RenderingContextSnapshot#bezierCurveTo
+         */
+        bezierCurveTo( cp0x:number, cp0y:number, cp1x:number, cp1y:number, p2x:number, p2y:number ) {
+            this._currentPath.bezierCurveTo( cp0x, cp0y, cp1x, cp1y, p2x, p2y,this._currentMatrix );
+        }
+
+        /**
+         * Add a quadratic segment to the current path. Segment info must be transformed by the current transformation matrix.
+         * @param cp0x {number}
+         * @param cp0y {number}
+         * @param p2x {number}
+         * @param p2y {number}
+         * @method cc.render.RenderingContextSnapshot#quadraticCurveTo
+         */
+        quadraticCurveTo( cp0x:number, cp0y:number, p2x:number, p2y:number ) {
+            this._currentPath.quadraticCurveTo( cp0x, cp0y, p2x, p2y,this._currentMatrix );
+        }
+
+        /**
+         * Add a rectangle segment to the current path.
+         * Segment info must be transformed by the current transformation matrix.
+         * @param x {number}
+         * @param y {number}
+         * @param width {number}
+         * @param height {number}
+         * @method cc.render.RenderingContextSnapshot#rect
+         */
+        rect( x:number, y:number, width:number, height:number ) {
+            this._currentPath.rect( x, y, width, height, this._currentMatrix );
+        }
+
+        /**
+         * Add an arc segment to the current path.
+         * Segment info must be transformed by the current transformation matrix.
+         * @param x {number}
+         * @param y {number}
+         * @param radius {number}
+         * @param startAngle {number}
+         * @param endAngle {number}
+         * @param counterClockWise {boolean}
+         *
+         * @method cc.render.RenderingContextSnapshot#arc
+         */
+        arc( x:number, y:number, radius:number, startAngle:number, endAngle:number, counterClockWise:boolean ) {
+            this._currentPath.arc( x, y, radius, startAngle, endAngle, counterClockWise, this._currentMatrix );
+        }
+
+        /**
+         * Tell the current path to create geometry for its contour stroke.
+         * The stroke will different based on the line width, and contour hints line join/cap.
+         *
+         * You normally don't have to interact with this method.
+         *
+         * @param lineWidth {number}
+         * @param join {cc.render.LineJoin}
+         * @param cap {cc.render.LineCap}
+         *
+         * @method cc.render.RenderingContextSnapshot#setupStroke
+         * @returns {Float32Array}
+         */
+        setupStroke( lineWidth:number, join:cc.render.LineJoin, cap:cc.render.LineCap ) {
+            if ( this._currentPath._dirty || this._lineWidth!==lineWidth || this._lineCap!==cap || this._lineJoin!==join ) {
+
+                lineWidth= cc.math.path.getDistanceVector(lineWidth, this._currentMatrix).length();
+
+                this._lineCap= cap;
+                this._lineJoin= join;
+                this._lineWidth= lineWidth;
+
+                this._currentPath.getStrokeGeometry({
+                    width: lineWidth,
+                    cap: this._lineCap,
+                    join: this._lineJoin,
+                    miterLimit: this._miterLimit
+                });
+
+            }
+
+            return this._currentPath._strokeGeometry;
+        }
+
+        /**
+         * Tell the current path to create geometry for filling it.
+         *
+         * You normally don't have to interact with this method.
+         *
+         * @method cc.render.RenderingContextSnapshot#setupFill
+         * @returns {Float32Array}
+         */
+        setupFill( ) {
+            return this._currentPath.getFillGeometry();
+        }
+
     }
 
 }
@@ -21320,6 +22291,7 @@ module cc.render {
     import Sprite = cc.node.Sprite;
 
     var __vv : Point = { x:0, y:0 };
+    var __vv0 : Point = { x:0, y:0 };
     var __color : Uint8Array = new Uint8Array([0,0,0,0]);
 
     /**
@@ -21436,8 +22408,6 @@ module cc.render {
         _indexBufferMesh : Uint16Array = null;
         _indexBufferMeshIndex : number = 0;
 
-        _indicesChanged: boolean= false;
-
         _glIndexMeshBuffers : Buffer[] = [];
         _glIndexMeshBuffer : Buffer = null;
 
@@ -21470,17 +22440,19 @@ module cc.render {
             var indexBuffer= this._indexBuffer;
             for( var i=0; i<GeometryBatcher.MAX_QUADS; i++ ) {
 
-                indexBuffer[ indexBufferIndex ]=   elementIndex;
-                indexBuffer[ indexBufferIndex+1 ]= elementIndex+1;
-                indexBuffer[ indexBufferIndex+2 ]= elementIndex+2;
+                indexBuffer[indexBufferIndex] = elementIndex;
+                indexBuffer[indexBufferIndex + 1] = elementIndex + 1;
+                indexBuffer[indexBufferIndex + 2] = elementIndex + 2;
 
-                indexBuffer[ indexBufferIndex+3 ]= elementIndex;
-                indexBuffer[ indexBufferIndex+4 ]= elementIndex+2;
-                indexBuffer[ indexBufferIndex+5 ]= elementIndex+3;
+                indexBuffer[indexBufferIndex + 3] = elementIndex;
+                indexBuffer[indexBufferIndex + 4] = elementIndex + 2;
+                indexBuffer[indexBufferIndex + 5] = elementIndex + 3;
                 indexBufferIndex += 6;
-                elementIndex+= 4;
+                elementIndex += 4;
+            }
 
-                this._indexBufferMesh[i]= i;
+            for( var i=0; i<GeometryBatcher.MAX_QUADS*6; i++ ) {
+                this._indexBufferMesh[ i ]= i;
             }
 
             this._glDataBuffers.push( new Buffer( this._gl, this._gl.ARRAY_BUFFER, this._dataBufferFloat, this._gl.DYNAMIC_DRAW ) );
@@ -21503,6 +22475,18 @@ module cc.render {
             this._glIndexMeshBuffer= this._glIndexMeshBuffers[0];
         }
 
+        /**
+         * Batch a rectangle with texture.
+         *
+         * @method cc.render.GeometryBatcher#batchRectGeometryWithTexture
+         * @param vertices {Array<cc.math.Point>}
+         * @param u0 {number}
+         * @param v0 {number}
+         * @param u1 {number}
+         * @param v1 {number}
+         * @param rcs {cc.render.RenderingContextSnapshot}
+         * @returns {boolean}
+         */
         batchRectGeometryWithTexture( vertices:Point[], u0:number, v0:number, u1:number, v1:number, rcs:RenderingContextSnapshot ) {
             var cc= this.__uintColor( rcs );
 
@@ -21579,11 +22563,13 @@ module cc.render {
 
             var cm : Float32Array= rcs._currentMatrix;
 
-            __vv.x= x;
-            __vv.y= y;
-            Matrix3.transformPoint(cm,__vv);
-            this._dataBufferFloat[ this._dataBufferIndex++ ] = __vv.x;
-            this._dataBufferFloat[ this._dataBufferIndex++ ] = __vv.y;
+            // 0-1-2
+
+            __vv0.x= x;
+            __vv0.y= y;
+            Matrix3.transformPoint(cm,__vv0);
+            this._dataBufferFloat[ this._dataBufferIndex++ ] = __vv0.x;
+            this._dataBufferFloat[ this._dataBufferIndex++ ] = __vv0.y;
             this._dataBufferUint [ this._dataBufferIndex++ ] = cc;
 
             __vv.x= x+w;
@@ -21596,6 +22582,17 @@ module cc.render {
             __vv.x= x+w;
             __vv.y= y+h;
             Matrix3.transformPoint(cm,__vv);
+            this._dataBufferFloat[ this._dataBufferIndex++ ] = __vv.x;
+            this._dataBufferFloat[ this._dataBufferIndex++ ] = __vv.y;
+            this._dataBufferUint [ this._dataBufferIndex++ ] = cc;
+
+
+            // 0-2-3
+
+            this._dataBufferFloat[ this._dataBufferIndex++ ] = __vv0.x;
+            this._dataBufferFloat[ this._dataBufferIndex++ ] = __vv0.y;
+            this._dataBufferUint [ this._dataBufferIndex++ ] = cc;
+
             this._dataBufferFloat[ this._dataBufferIndex++ ] = __vv.x;
             this._dataBufferFloat[ this._dataBufferIndex++ ] = __vv.y;
             this._dataBufferUint [ this._dataBufferIndex++ ] = cc;
@@ -21608,9 +22605,9 @@ module cc.render {
             this._dataBufferUint [ this._dataBufferIndex++ ] = cc;
 
             // add two triangles * 3 values each.
-            this._indexBufferIndex+=6;
+            this._indexBufferMeshIndex+=6;
 
-            return this._indexBufferIndex+6 >= this._indexBuffer.length;
+            return this._indexBufferMeshIndex+6 >= this._indexBuffer.length;
         }
 
         /**
@@ -21633,6 +22630,7 @@ module cc.render {
         }
 
         /**
+         * BUGBUG refactor. Move to AbstractShader and reimplement for each shader.
          * Flush currently batched geometry and related info with a given shader program.
          * @method cc.render.GeometryBatcher#flush
          * @param shader {cc.render.shader.AbstractShader} program shader
@@ -21642,16 +22640,16 @@ module cc.render {
 
             var trianglesCount;
 
-            if ( this._indicesChanged ) {
-                trianglesCount= this._indexBufferMeshIndex;
-                if ( !trianglesCount ) {
+            if (shader.useMeshIndex()) {
+                trianglesCount = this._indexBufferMeshIndex;
+                if (!trianglesCount) {
                     return;
                 }
                 this._glIndexMeshBuffer.bind(this._gl.ELEMENT_ARRAY_BUFFER);
 
             } else {
-                trianglesCount= this._indexBufferIndex;
-                if ( !trianglesCount ) {
+                trianglesCount = this._indexBufferIndex;
+                if (!trianglesCount) {
                     return;
                 }
                 // simply rebind the buffer, not modify its contents.
@@ -21662,25 +22660,32 @@ module cc.render {
             this._glDataBuffer.forceEnableWithValue(this._dataBufferFloat.subarray(0, this._dataBufferIndex));
             //this._glDataBuffer.enableWithValue(this._dataBufferFloat.subarray(0, this._dataBufferIndex));
 
-            shader.flushBuffersWithContent( rcs );
+            shader.flushBuffersWithContent(rcs);
 
             this._gl.drawElements(this._gl.TRIANGLES, trianglesCount, this._gl.UNSIGNED_SHORT, 0);
-            //this._gl.drawArrays(this._gl.TRIANGLE_STRIP, 0, 4);
+            //this._gl.drawArrays(this._gl.TRIANGLES, 0, trianglesCount);
 
             // reset buffer data index.
-            this._dataBufferIndex= 0;
-            this._indexBufferIndex= 0;
-            this._indexBufferMeshIndex= 0;
+            this._dataBufferIndex = 0;
+            this._indexBufferIndex = 0;
+            this._indexBufferMeshIndex = 0;
 
             // ping pong rendering buffer.
-            this._currentBuffersIndex= (this._currentBuffersIndex+1) & 3;
-            this._glDataBuffer= this._glDataBuffers[ this._currentBuffersIndex ];
-            this._glIndexBuffer= this._glIndexBuffers[ this._currentBuffersIndex ];
-            this._glIndexMeshBuffer= this._glIndexMeshBuffers[ this._currentBuffersIndex ];
-
-            this._indicesChanged= false;
+            this._currentBuffersIndex = (this._currentBuffersIndex + 1) & 3;
+            this._glDataBuffer = this._glDataBuffers[this._currentBuffersIndex];
+            this._glIndexBuffer = this._glIndexBuffers[this._currentBuffersIndex];
+            this._glIndexMeshBuffer = this._glIndexMeshBuffers[this._currentBuffersIndex];
         }
 
+        /**
+         * Get a compact Uint32 representation of a color.
+         * The color is calculated as the mix or the rendering context current color multiplied the the rendering context
+         * current tint color.
+         * @method cc.render.GeometryBatcher#__uintColor
+         * @param rcs {cc.render.RenderincContextSnapshot}
+         * @returns {number}
+         * @private
+         */
         __uintColor( rcs:RenderingContextSnapshot ) : number {
             var tint:Float32Array= rcs._tintColor;
 
@@ -21692,6 +22697,20 @@ module cc.render {
             return (r)|(g<<8)|(b<<16)|(a<<24);
         }
 
+        /**
+         * Batch a fast sprite info. Fast sprite objects do all transformation calculations on the GPU, and as such,
+         * have some limitations.
+         *
+         * @method cc.render.GeometryBatcher#batchRectGeometryWithSpriteFast
+         *
+         * @param sprite {cc.node.Sprite}
+         * @param u0 {number}
+         * @param v0 {number}
+         * @param u1 {number}
+         * @param v1 {number}
+         * @param rcs {cc.render.RenderingContextSnapshot}
+         * @returns {boolean}
+         */
         batchRectGeometryWithSpriteFast( sprite:Sprite, u0:number, v0:number, u1:number, v1:number, rcs:RenderingContextSnapshot ) {
 
             var cc= this.__uintColor( rcs );
@@ -21747,9 +22766,18 @@ module cc.render {
             return this._dataBufferIndex+40 >= this._dataBufferFloat.length;
         }
 
-        batchMesh( geometry:Float32Array, uv:Float32Array, indices:Uint32Array, color:number, rcs:RenderingContextSnapshot  ) {
-
-            this._indicesChanged= true;
+        /**
+         * Batch a mesh.
+         * A mesh uses a custom shader for meshes. They expect to color-per-vertex info, but a global color for the as
+         * a uniform value.
+         *
+         * @method cc.render.GeometryBatcher#batchMesh
+         * @param geometry {Float32Array}
+         * @param uv {Float32Array}
+         * @param indices {Uint32Array}
+         * @param color {number} the result of calling __uintColor
+         */
+        batchMesh( geometry:Float32Array, uv:Float32Array, indices:Uint32Array, color:number ) {
 
             for( var i=0; i<indices.length; i+=3 ) {
 
@@ -21774,12 +22802,49 @@ module cc.render {
 
         }
 
+        /**
+         * Batch a vertex for a mesh.
+         *
+         * @method cc.render.GeometryBatcher#batchMeshVertex
+         * @param x {number}
+         * @param y {number}
+         * @param u {number}
+         * @param v {number}
+         */
         batchMeshVertex( x:number, y:number, u:number, v:number ) : void {
             this._dataBufferFloat[ this._dataBufferIndex++ ] = x;
             this._dataBufferFloat[ this._dataBufferIndex++ ] = y;
             this._dataBufferFloat[ this._dataBufferIndex++ ] = u;
             this._dataBufferFloat[ this._dataBufferIndex++ ] = v;
             this._indexBufferMeshIndex++;
+        }
+
+        /**
+         * Batch a path geometry.
+         * Requires sequential indices.
+         * Geometry already in screen space.
+         *
+         * @method cc.render.GeometryBatcher#batchPath
+         * @param geometry {Float32Array}
+         * @param rcs {cc.render.RenderingContextSnapshot}
+         */
+        batchPath( geometry:Float32Array, rcs:RenderingContextSnapshot ) {
+
+            var color:Float32Array= rcs._fillStyleColor;
+            var tint:Float32Array= rcs._tintColor;
+
+            var r= ((color[0] * tint[0])*255)|0;
+            var g= ((color[1] * tint[1])*255)|0;
+            var b= ((color[2] * tint[2])*255)|0;
+            var a= ((color[3] * tint[3] * rcs._globalAlpha)*255)|0;
+            var cc= (r)|(g<<8)|(b<<16)|(a<<24);
+
+            for( var i=0; i<geometry.length; i+=2 ) {
+                this._dataBufferFloat[ this._dataBufferIndex++ ] = geometry[i];
+                this._dataBufferFloat[ this._dataBufferIndex++ ] = geometry[i+1];
+                this._dataBufferUint [ this._dataBufferIndex++ ] = cc;
+                this._indexBufferMeshIndex++
+            }
         }
     }
 
@@ -21799,6 +22864,7 @@ module cc.render {
 /// <reference path="./WebGLState.ts"/>
 /// <reference path="./Texture2D.ts"/>
 /// <reference path="./GeometryBatcher.ts"/>
+/// <reference path="./RenderUtil.ts"/>
 /// <reference path="./shader/AbstractShader.ts"/>
 /// <reference path="./shader/SolidColorShader.ts"/>
 /// <reference path="./shader/TextureShader.ts"/>
@@ -21830,7 +22896,7 @@ module cc.render {
      * @tsenum cc.render.FillStyleType
      */
     export enum FillStyleType {
-        COLOR = 0,
+        MESHCOLOR = 0,
         IMAGE = 1,
         IMAGEFAST = 2,
         PATTERN_REPEAT= 3,
@@ -21842,7 +22908,7 @@ module cc.render {
      * @tsenum cc.render.ShaderType
      */
     export enum ShaderType {
-        COLOR = 0,
+        MESHCOLOR = 0,
         IMAGE = 1,
         IMAGEFAST = 2,
         PATTERN_REPEAT= 3,
@@ -21870,12 +22936,21 @@ module cc.render {
     /**
      * @class cc.render.DecoratedWebGLRenderingContext
      * @classdesc
+     * @extends RenderingContext
      *
-     * This object wraps a 3D canvas context (webgl) and exposes a canvas like 2d rendering API.
-     * The implementation should be extremely efficient by:
-     *   <li>lazily set every property.
-     *   <li>batch all drawing operations as much as possible.
-     *   <li>ping pong between buffers
+     * This object wraps a 3D canvas context (webgl) and exposes a canvas-like 2d rendering API without sacrificing
+     * flexibility to expose the internal gl context for custom drawing on developer side.
+     * <p>
+     * This object is an implementation of the <code>cc.render.RenderingContext</code> interface, and the documentation
+     * associated must be referred there. The rest of the code are just implementation details of the interface.
+     *
+     * <p>
+     * The implementation aims at performance and on-pair visual results with a canvas renderer. To achieve this,
+     * as well as highest performance, the implementation:
+     *   <li>lazily sets every property.
+     *   <li>batches all drawing operations as much as possible.
+     *   <li>ping-pongs between buffers
+     *   <li>...
      *
      * <br>
      * All this would be transparent for the developer and happen automatically. For example, is a value is set to
@@ -21884,6 +22959,8 @@ module cc.render {
      * is deferred until the moment when some geometry will happen, for example, a fillRect call.
      * <br>
      * This mechanism is set for every potential flushing operation like changing fillStyle, compisite, textures, etc.
+     *
+     * @see cc.render.RenderingContext
      */
     export class DecoratedWebGLRenderingContext implements RenderingContext {
 
@@ -21909,6 +22986,30 @@ module cc.render {
         static CTX_ALPHA : boolean = false;
 
         /**
+         * Currently set line join stroke hint.
+         * @member cc.render.DecoratedRenderingContext#_currentLineJoin
+         * @type {cc.render.LineJoin}
+         * @private
+         */
+        _currentLineJoin:cc.render.LineJoin= cc.render.LineJoin.MITER;
+
+        /**
+         * Currently set line cap stroke hint.
+         * @member cc.render.DecoratedRenderingContext#_currentLineCap
+         * @type {cc.render.LineCap}
+         * @private
+         */
+        _currentLineCap:cc.render.LineCap= cc.render.LineCap.BUTT;
+
+        /**
+         * Currently set line width stroke hint.
+         * @member cc.render.DecoratedRenderingContext#_currentLineWidth
+         * @type {number}
+         * @private
+         */
+        _currentLineWidth:number = 1;
+
+        /**
          * Current rendering context data.
          * @member cc.render.DecoratedWebGLRenderingContext#_currentContextSnapshot
          * @type {cc.render.RenderingContextSnapshot}
@@ -21925,13 +23026,27 @@ module cc.render {
         _contextSnapshots : Array<RenderingContextSnapshot> = [];
 
         /**
-         * if _currentFillStyleType===COLOR, this is the current color.
+         * if _currentFillStyleType===COLORMESH, this is the current color.
          * @member cc.render.DecoratedWebGLRenderingContext#_currentFillStyleColor
          * @type {Float32Array}
          * @private
          */
         _currentFillStyleColor : Float32Array = new Float32Array([0.0,0.0,0.0,1.0]);
 
+        /**
+         * if _currentStrokeStyleType===COLORMESH, this is the current color.
+         * @member cc.render.DecoratedWebGLRenderingContext#_currentStrokeStyleColor
+         * @type {Float32Array}
+         * @private
+         */
+        _currentStrokeStyleColor : Float32Array = new Float32Array([0.0,0.0,0.0,1.0]);
+
+        /**
+         * if _currentStrokeStyleType===PATTERN_REPEAT, this is the pattern info.
+         * @member cc.render.DecoratedWebGLRenderingContext#_currentFillStylePattern
+         * @type {Float32Array}
+         * @private
+         */
         _currentFillStylePattern : cc.render.Pattern = null;
 
         /**
@@ -21940,8 +23055,16 @@ module cc.render {
          * @type {cc.render.FillStyleType}
          * @private
          */
-        _currentFillStyleType : FillStyleType = FillStyleType.COLOR;
+        _currentFillStyleType : FillStyleType = FillStyleType.MESHCOLOR;
 
+        /**
+         * Current tint color. The tint color is multiplied by whatever drawing operation pixel color is currently
+         * executed.
+         *
+         * @member cc.render.DecoratedWebGLRenderingContext#_currentTintColor
+         * @type {Float32Array}
+         * @private
+         */
         _currentTintColor : Float32Array = new Float32Array([1.0,1.0,1.0,1.0]);
 
         /**
@@ -21968,12 +23091,38 @@ module cc.render {
          */
         _batcher : GeometryBatcher = null;
 
+        /**
+         * Internal webgl context wrapping object.
+         *
+         * @member cc.render.DecoratedWebGLRenderingContext#_webglState
+         * @type {cc.render.WebGLState}
+         * @private
+         */
         _webglState : WebGLState = null;
 
+        /**
+         * Rendering surface width.
+         *
+         * @member cc.render.DecoratedWebGLRenderingContext#_width
+         * @type {number}
+         * @private
+         */
         _width : number = 0;
 
+        /**
+         * Rendering surface height.
+         *
+         * @member cc.render.DecoratedWebGLRenderingContext#_height
+         * @type {number}
+         * @private
+         */
         _height : number = 0;
 
+        /**
+         * Renderer instance this gl renderer context belongs to.
+         * @type {cc.render.Renderer}
+         * @private
+         */
         _renderer:Renderer= null;
 
         /**
@@ -22495,10 +23644,7 @@ module cc.render {
          * @member cc.render.DecoratedWebGLRenderingContext#flush
          */
         flush( ) : void {
-
             this._batcher.flush( this._shaders[ this._currentContextSnapshot._currentFillStyleType ], this._currentContextSnapshot );
-
-//            this._debugInfo._draws++;
         }
 
         resize( ) {
@@ -22598,34 +23744,180 @@ module cc.render {
 
         setFillStyleColor( color:Color ) {
             this._currentFillStyleColor= color._color;
-            this._currentFillStyleType= cc.render.FillStyleType.COLOR;
+            this._currentFillStyleType= cc.render.FillStyleType.MESHCOLOR;
         }
 
         setFillStyleColorArray( colorArray:Float32Array ) {
             this._currentFillStyleColor= colorArray;
-            this._currentFillStyleType= cc.render.FillStyleType.COLOR;
+            this._currentFillStyleType= cc.render.FillStyleType.MESHCOLOR;
         }
 
         setFillStylePattern( pattern:Pattern ) {
             // BUGBUG change for actual pattern type
-            this._currentFillStyleType= cc.render.FillStyleType.PATTERN_REPEAT;
-            this._currentFillStylePattern= pattern;
+            //this._currentFillStyleType= cc.render.FillStyleType.PATTERN_REPEAT;
+            //this._currentFillStylePattern= pattern;
+        }
+
+        setStrokeStyleColor( color:Color ) {
+            this._currentStrokeStyleColor= color._color;
+            this._currentFillStyleType= cc.render.FillStyleType.MESHCOLOR;
+        }
+
+        setStrokeStyleColorArray( colorArray:Float32Array ) {
+            this._currentStrokeStyleColor= colorArray;
+            this._currentFillStyleType= cc.render.FillStyleType.MESHCOLOR;
+        }
+
+        setStrokeStylePattern( pattern:Pattern ) {
+            // BUGBUG change for actual pattern type
+            //this._currentStrokeStyleColor= cc.render.FillStyleType.PATTERN_REPEAT;
+            //this._currentFillStylePattern= pattern;
+        }
+
+        set fillStyle( v:string ) {
+            this._currentFillStyleType= cc.render.FillStyleType.MESHCOLOR;
+            this._currentFillStyleColor= cc.render.util.parseColor( v );
+        }
+
+        set strokeStyle( v:string ) {
+            this._currentFillStyleType= cc.render.FillStyleType.MESHCOLOR;
+            this._currentStrokeStyleColor= cc.render.util.parseColor( v );
         }
 
         beginPath() {
+            this._currentContextSnapshot.beginPath();
+        }
 
+        closePath() {
+            this._currentContextSnapshot.closePath();
         }
 
         stroke() {
 
+            var geometry:Float32Array= this._currentContextSnapshot.setupStroke(
+                this._currentLineWidth,
+                this._currentLineJoin,
+                this._currentLineCap
+            );
+
+            this.__checkStrokeFlushConditions();
+
+            this._currentContextSnapshot._fillStyleColor= this._currentStrokeStyleColor;
+            this._batcher.batchPath( geometry, this._currentContextSnapshot );
+        }
+
+        fill() {
+
+            var geometry:Float32Array= this._currentContextSnapshot.setupFill( );
+
+            this.__checkStrokeFlushConditions();
+
+            this._currentContextSnapshot._fillStyleColor= this._currentFillStyleColor;
+            this._batcher.batchPath( geometry, this._currentContextSnapshot );
+        }
+
+        __checkStrokeFlushConditions() {
+
+            if ( this._currentContextSnapshot._currentFillStyleType!==FillStyleType.MESHCOLOR ) {
+                this.flush();
+                this.__setCurrentFillStyleType( FillStyleType.MESHCOLOR );
+            }
+        }
+
+        set lineWidth( w:number ) {
+            this.setLineWidth(w);
+        }
+
+        get lineWidth() : number {
+            return this._currentLineWidth;
+        }
+
+        set lineCap( s:string ) {
+            s= s.toLowerCase();
+
+            if ( s==="square" ) {
+                this.setLineCap( cc.render.LineCap.SQUARE );
+            } else if ( s==="round" ) {
+                this.setLineCap( cc.render.LineCap.ROUND );
+            } else {
+                this.setLineCap( cc.render.LineCap.BUTT );
+            }
+        }
+
+        get lineCap() : string {
+            switch( this._currentLineCap ) {
+                case cc.render.LineCap.SQUARE: return "square";
+                case cc.render.LineCap.ROUND: return "round";
+                default: return "butt";
+            }
+        }
+
+        set lineJoin( s:string ) {
+            s= s.toLowerCase();
+
+            if ( s==="miter" ) {
+                this.setLineJoin( cc.render.LineJoin.MITER );
+            } else if ( s==="round" ) {
+                this.setLineJoin( cc.render.LineJoin.ROUND );
+            } else {
+                this.setLineJoin( cc.render.LineJoin.BEVEL );
+            }
+        }
+
+        get lineJoin() : string {
+            switch( this._currentLineJoin ) {
+                case cc.render.LineJoin.MITER: return "miter";
+                case cc.render.LineJoin.ROUND: return "round";
+                default: return "bevel";
+            }
+        }
+
+        setLineWidth( w : number ) {
+            this._currentLineWidth= w;
+        }
+
+        getLineWidth() : number {
+            return this._currentLineWidth;
+        }
+
+        setLineCap( cap:cc.render.LineCap ) {
+            this._currentLineCap= cap;
+        }
+
+        getLineCap() : cc.render.LineCap {
+            return this._currentLineCap;
+        }
+
+        setLineJoin( join:cc.render.LineJoin ) {
+            this._currentLineJoin= join;
+        }
+
+        getLineJoin() : cc.render.LineJoin {
+            return this._currentLineJoin;
         }
 
         moveTo(x:number, y:number) {
-
+            this._currentContextSnapshot.moveTo( x, y );
         }
 
         lineTo(x:number, y:number) {
+            this._currentContextSnapshot.lineTo( x, y );
+        }
 
+        bezierCurveTo( cp0x:number, cp0y:number, cp1x:number, cp1y:number, p2x:number, p2y:number ) {
+            this._currentContextSnapshot.bezierCurveTo( cp0x, cp0y, cp1x, cp1y, p2x, p2y );
+        }
+
+        quadraticCurveTo( cp0x:number, cp0y:number, p2x:number, p2y:number ) {
+            this._currentContextSnapshot.quadraticCurveTo( cp0x, cp0y, p2x, p2y );
+        }
+
+        rect( x:number, y:number, width:number, height:number ) {
+            this._currentContextSnapshot.rect( x, y, width, height );
+        }
+
+        arc( x:number, y:number, radius:number, startAngle:number, endAngle:number, counterClockWise:boolean ) {
+            this._currentContextSnapshot.arc( x, y, radius, startAngle, endAngle, counterClockWise );
         }
 
         save() {
@@ -22639,7 +23931,7 @@ module cc.render {
         drawMesh( geometry:Float32Array, uv:Float32Array, indices:Uint32Array, color:number, texture:Texture2D ) {
 
             this.__checkMeshFlushConditions( texture._glId, color );
-            this._batcher.batchMesh( geometry, uv, indices, color, this._currentContextSnapshot );
+            this._batcher.batchMesh( geometry, uv, indices, color );
             this.flush();
         }
 
@@ -23661,6 +24953,10 @@ module cc.render.util {
         }
 
         return ret;
+    }
+
+    export function parseColor( c:string ) : Float32Array {
+        return new Float32Array([1,0,0,1]);
     }
 }
 /**

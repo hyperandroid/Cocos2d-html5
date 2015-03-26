@@ -85,12 +85,21 @@ module cc.render {
     /**
      * @class cc.render.DecoratedWebGLRenderingContext
      * @classdesc
+     * @extends RenderingContext
      *
-     * This object wraps a 3D canvas context (webgl) and exposes a canvas like 2d rendering API.
-     * The implementation should be extremely efficient by:
-     *   <li>lazily set every property.
-     *   <li>batch all drawing operations as much as possible.
-     *   <li>ping pong between buffers
+     * This object wraps a 3D canvas context (webgl) and exposes a canvas-like 2d rendering API without sacrificing
+     * flexibility to expose the internal gl context for custom drawing on developer side.
+     * <p>
+     * This object is an implementation of the <code>cc.render.RenderingContext</code> interface, and the documentation
+     * associated must be referred there. The rest of the code are just implementation details of the interface.
+     *
+     * <p>
+     * The implementation aims at performance and on-pair visual results with a canvas renderer. To achieve this,
+     * as well as highest performance, the implementation:
+     *   <li>lazily sets every property.
+     *   <li>batches all drawing operations as much as possible.
+     *   <li>ping-pongs between buffers
+     *   <li>...
      *
      * <br>
      * All this would be transparent for the developer and happen automatically. For example, is a value is set to
@@ -99,6 +108,8 @@ module cc.render {
      * is deferred until the moment when some geometry will happen, for example, a fillRect call.
      * <br>
      * This mechanism is set for every potential flushing operation like changing fillStyle, compisite, textures, etc.
+     *
+     * @see cc.render.RenderingContext
      */
     export class DecoratedWebGLRenderingContext implements RenderingContext {
 
@@ -123,8 +134,28 @@ module cc.render {
          */
         static CTX_ALPHA : boolean = false;
 
+        /**
+         * Currently set line join stroke hint.
+         * @member cc.render.DecoratedRenderingContext#_currentLineJoin
+         * @type {cc.render.LineJoin}
+         * @private
+         */
         _currentLineJoin:cc.render.LineJoin= cc.render.LineJoin.MITER;
+
+        /**
+         * Currently set line cap stroke hint.
+         * @member cc.render.DecoratedRenderingContext#_currentLineCap
+         * @type {cc.render.LineCap}
+         * @private
+         */
         _currentLineCap:cc.render.LineCap= cc.render.LineCap.BUTT;
+
+        /**
+         * Currently set line width stroke hint.
+         * @member cc.render.DecoratedRenderingContext#_currentLineWidth
+         * @type {number}
+         * @private
+         */
         _currentLineWidth:number = 1;
 
         /**
@@ -144,14 +175,27 @@ module cc.render {
         _contextSnapshots : Array<RenderingContextSnapshot> = [];
 
         /**
-         * if _currentFillStyleType===COLOR, this is the current color.
+         * if _currentFillStyleType===COLORMESH, this is the current color.
          * @member cc.render.DecoratedWebGLRenderingContext#_currentFillStyleColor
          * @type {Float32Array}
          * @private
          */
         _currentFillStyleColor : Float32Array = new Float32Array([0.0,0.0,0.0,1.0]);
+
+        /**
+         * if _currentStrokeStyleType===COLORMESH, this is the current color.
+         * @member cc.render.DecoratedWebGLRenderingContext#_currentStrokeStyleColor
+         * @type {Float32Array}
+         * @private
+         */
         _currentStrokeStyleColor : Float32Array = new Float32Array([0.0,0.0,0.0,1.0]);
 
+        /**
+         * if _currentStrokeStyleType===PATTERN_REPEAT, this is the pattern info.
+         * @member cc.render.DecoratedWebGLRenderingContext#_currentFillStylePattern
+         * @type {Float32Array}
+         * @private
+         */
         _currentFillStylePattern : cc.render.Pattern = null;
 
         /**
@@ -162,6 +206,14 @@ module cc.render {
          */
         _currentFillStyleType : FillStyleType = FillStyleType.MESHCOLOR;
 
+        /**
+         * Current tint color. The tint color is multiplied by whatever drawing operation pixel color is currently
+         * executed.
+         *
+         * @member cc.render.DecoratedWebGLRenderingContext#_currentTintColor
+         * @type {Float32Array}
+         * @private
+         */
         _currentTintColor : Float32Array = new Float32Array([1.0,1.0,1.0,1.0]);
 
         /**
@@ -188,12 +240,38 @@ module cc.render {
          */
         _batcher : GeometryBatcher = null;
 
+        /**
+         * Internal webgl context wrapping object.
+         *
+         * @member cc.render.DecoratedWebGLRenderingContext#_webglState
+         * @type {cc.render.WebGLState}
+         * @private
+         */
         _webglState : WebGLState = null;
 
+        /**
+         * Rendering surface width.
+         *
+         * @member cc.render.DecoratedWebGLRenderingContext#_width
+         * @type {number}
+         * @private
+         */
         _width : number = 0;
 
+        /**
+         * Rendering surface height.
+         *
+         * @member cc.render.DecoratedWebGLRenderingContext#_height
+         * @type {number}
+         * @private
+         */
         _height : number = 0;
 
+        /**
+         * Renderer instance this gl renderer context belongs to.
+         * @type {cc.render.Renderer}
+         * @private
+         */
         _renderer:Renderer= null;
 
         /**
@@ -1002,7 +1080,7 @@ module cc.render {
         drawMesh( geometry:Float32Array, uv:Float32Array, indices:Uint32Array, color:number, texture:Texture2D ) {
 
             this.__checkMeshFlushConditions( texture._glId, color );
-            this._batcher.batchMesh( geometry, uv, indices, color, this._currentContextSnapshot );
+            this._batcher.batchMesh( geometry, uv, indices, color );
             this.flush();
         }
 

@@ -415,14 +415,14 @@ module cc.render {
         var globalCompositeOperation:cc.render.CompositeOperation= cc.render.CompositeOperation.source_over;
 
         c2d.flush= function() {
-            this.setTransform(1,0,0,1,0,0);
+
         };
 
         c2d.type= cc.render.RENDERER_TYPE_CANVAS;
 
         c2d.setStrokeStyleColor= function( color:cc.math.Color ) {
             this.strokeStyle= (<cc.math.Color>color).getFillStyle();
-        }
+        };
 
         c2d.setStrokeStyleColorArray= function( colorArray:Float32Array ) {
             this.strokeStyle = new cc.math.Color(colorArray[0], colorArray[1], colorArray[2], colorArray[3]).getFillStyle();
@@ -451,8 +451,10 @@ module cc.render {
         };
 
         c2d.clear= function() {
+            this.save();
             this.setTransform(1,0,0,1,0,0);
             this.clearRect(0,0,this.getWidth(), this.getHeight());
+            this.restore();
         };
 
         c2d.getUnitsFactor= function() {
@@ -612,9 +614,6 @@ module cc.render {
                 this.closePath();
                 this.stroke();
 
-                //this.fillRect( geometry[ indexVertex0 ], geometry[ indexVertex0+1 ], .1, .1 );
-                //this.fillRect( geometry[ indexVertex1 ], geometry[ indexVertex1+1 ], .1, .1 );
-                //this.fillRect( geometry[ indexVertex2 ], geometry[ indexVertex2+1 ], .1, .1 );
             }
 
         };
@@ -625,6 +624,7 @@ module cc.render {
     /**
      * @class cc.render.CanvasRenderer
      * @classdesc
+     * @extends Renderer
      *
      * Create a Canvas renderer.
      */
