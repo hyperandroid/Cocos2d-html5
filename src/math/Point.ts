@@ -89,7 +89,7 @@ module cc.math {
          * @returns {number}
          */
         length() : number {
-            return Math.sqrt( this.x*this.x + this.y*this.y + this.z*this.z );
+            return Math.sqrt( this.x*this.x + this.y*this.y );
         }
 
         /**
@@ -149,7 +149,7 @@ module cc.math {
             return this;
         }
 
-        static add( v0:Vector,v1:Vector ) : Vector {
+        static add( v0:Point,v1:Point ) : Vector {
             return new Vector( v1.x+v0.x, v1.y+v0.y );
         }
 
@@ -159,7 +159,7 @@ module cc.math {
          * @param v1 {cc.math.Vector}
          * @returns {Vector}
          */
-        static sub( v0:Vector,v1:Vector ) : Vector {
+        static sub( v1:Point,v0:Point ) : Vector {
             return new Vector( v1.x-v0.x, v1.y-v0.y );
         }
 
@@ -169,7 +169,7 @@ module cc.math {
          * @param v1 {cc.math.Vector}
          * @returns {number} distance between vectors.
          */
-        static distance( v0 : Vector, v1 : Vector ) : number {
+        static distance( v0 : Point, v1 : Point ) : number {
             var dx= v1.x - v0.x;
             var dy= v1.y - v0.y;
 
@@ -188,6 +188,10 @@ module cc.math {
             return new Vector(x,y);
         }
 
+        static equals( p0:Point, p1:Point ) {
+            return p0.x===p1.x && p0.y===p1.y;
+        }
+
         /**
          * Compare the vector with another vector for equality.
          * @param v {cc.math.Vector}
@@ -204,5 +208,21 @@ module cc.math {
         clone() : Vector {
             return new Vector( this.x, this.y, this.z );
         }
+
+        perpendicular() {
+            var x = this.x;
+            this.x = -this.y;
+            this.y = x;
+
+            return this;
+        }
+
+        invert() {
+            this.x = -this.x;
+            this.y = -this.y;
+
+            return this;
+        }
+
     }
 }

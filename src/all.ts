@@ -20,6 +20,8 @@
 /// <reference path="math/path/Subpath.ts"/>
 /// <reference path="math/Path.ts"/>
 
+/// <reference path="math/path/geometry/StrokeGeometry.ts"/>
+
 /// <reference path="node/NodeV3.ts"/>
 /// <reference path="node/Node.ts"/>
 /// <reference path="node/Scene.ts"/>

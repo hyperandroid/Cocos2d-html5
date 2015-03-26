@@ -13,6 +13,7 @@
 /// <reference path="./WebGLState.ts"/>
 /// <reference path="./Texture2D.ts"/>
 /// <reference path="./GeometryBatcher.ts"/>
+/// <reference path="./RenderUtil.ts"/>
 /// <reference path="./shader/AbstractShader.ts"/>
 /// <reference path="./shader/SolidColorShader.ts"/>
 /// <reference path="./shader/TextureShader.ts"/>
@@ -44,7 +45,7 @@ module cc.render {
      * @tsenum cc.render.FillStyleType
      */
     export enum FillStyleType {
-        COLOR = 0,
+        MESHCOLOR = 0,
         IMAGE = 1,
         IMAGEFAST = 2,
         PATTERN_REPEAT= 3,
@@ -56,7 +57,7 @@ module cc.render {
      * @tsenum cc.render.ShaderType
      */
     export enum ShaderType {
-        COLOR = 0,
+        MESHCOLOR = 0,
         IMAGE = 1,
         IMAGEFAST = 2,
         PATTERN_REPEAT= 3,
@@ -122,6 +123,10 @@ module cc.render {
          */
         static CTX_ALPHA : boolean = false;
 
+        _currentLineJoin:cc.render.LineJoin= cc.render.LineJoin.MITER;
+        _currentLineCap:cc.render.LineCap= cc.render.LineCap.BUTT;
+        _currentLineWidth:number = 1;
+
         /**
          * Current rendering context data.
          * @member cc.render.DecoratedWebGLRenderingContext#_currentContextSnapshot
@@ -145,6 +150,7 @@ module cc.render {
          * @private
          */
         _currentFillStyleColor : Float32Array = new Float32Array([0.0,0.0,0.0,1.0]);
+        _currentStrokeStyleColor : Float32Array = new Float32Array([0.0,0.0,0.0,1.0]);
 
         _currentFillStylePattern : cc.render.Pattern = null;
 
@@ -154,7 +160,7 @@ module cc.render {
          * @type {cc.render.FillStyleType}
          * @private
          */
-        _currentFillStyleType : FillStyleType = FillStyleType.COLOR;
+        _currentFillStyleType : FillStyleType = FillStyleType.MESHCOLOR;
 
         _currentTintColor : Float32Array = new Float32Array([1.0,1.0,1.0,1.0]);
 
@@ -709,10 +715,7 @@ module cc.render {
          * @member cc.render.DecoratedWebGLRenderingContext#flush
          */
         flush( ) : void {
-
             this._batcher.flush( this._shaders[ this._currentContextSnapshot._currentFillStyleType ], this._currentContextSnapshot );
-
-//            this._debugInfo._draws++;
         }
 
         resize( ) {
@@ -812,34 +815,180 @@ module cc.render {
 
         setFillStyleColor( color:Color ) {
             this._currentFillStyleColor= color._color;
-            this._currentFillStyleType= cc.render.FillStyleType.COLOR;
+            this._currentFillStyleType= cc.render.FillStyleType.MESHCOLOR;
         }
 
         setFillStyleColorArray( colorArray:Float32Array ) {
             this._currentFillStyleColor= colorArray;
-            this._currentFillStyleType= cc.render.FillStyleType.COLOR;
+            this._currentFillStyleType= cc.render.FillStyleType.MESHCOLOR;
         }
 
         setFillStylePattern( pattern:Pattern ) {
             // BUGBUG change for actual pattern type
-            this._currentFillStyleType= cc.render.FillStyleType.PATTERN_REPEAT;
-            this._currentFillStylePattern= pattern;
+            //this._currentFillStyleType= cc.render.FillStyleType.PATTERN_REPEAT;
+            //this._currentFillStylePattern= pattern;
+        }
+
+        setStrokeStyleColor( color:Color ) {
+            this._currentStrokeStyleColor= color._color;
+            this._currentFillStyleType= cc.render.FillStyleType.MESHCOLOR;
+        }
+
+        setStrokeStyleColorArray( colorArray:Float32Array ) {
+            this._currentStrokeStyleColor= colorArray;
+            this._currentFillStyleType= cc.render.FillStyleType.MESHCOLOR;
+        }
+
+        setStrokeStylePattern( pattern:Pattern ) {
+            // BUGBUG change for actual pattern type
+            //this._currentStrokeStyleColor= cc.render.FillStyleType.PATTERN_REPEAT;
+            //this._currentFillStylePattern= pattern;
+        }
+
+        set fillStyle( v:string ) {
+            this._currentFillStyleType= cc.render.FillStyleType.MESHCOLOR;
+            this._currentFillStyleColor= cc.render.util.parseColor( v );
+        }
+
+        set strokeStyle( v:string ) {
+            this._currentFillStyleType= cc.render.FillStyleType.MESHCOLOR;
+            this._currentStrokeStyleColor= cc.render.util.parseColor( v );
         }
 
         beginPath() {
+            this._currentContextSnapshot.beginPath();
+        }
 
+        closePath() {
+            this._currentContextSnapshot.closePath();
         }
 
         stroke() {
 
+            var geometry:Float32Array= this._currentContextSnapshot.setupStroke(
+                this._currentLineWidth,
+                this._currentLineJoin,
+                this._currentLineCap
+            );
+
+            this.__checkStrokeFlushConditions();
+
+            this._currentContextSnapshot._fillStyleColor= this._currentStrokeStyleColor;
+            this._batcher.batchPath( geometry, this._currentContextSnapshot );
+        }
+
+        fill() {
+
+            var geometry:Float32Array= this._currentContextSnapshot.setupFill( );
+
+            this.__checkStrokeFlushConditions();
+
+            this._currentContextSnapshot._fillStyleColor= this._currentFillStyleColor;
+            this._batcher.batchPath( geometry, this._currentContextSnapshot );
+        }
+
+        __checkStrokeFlushConditions() {
+
+            if ( this._currentContextSnapshot._currentFillStyleType!==FillStyleType.MESHCOLOR ) {
+                this.flush();
+                this.__setCurrentFillStyleType( FillStyleType.MESHCOLOR );
+            }
+        }
+
+        set lineWidth( w:number ) {
+            this.setLineWidth(w);
+        }
+
+        get lineWidth() : number {
+            return this._currentLineWidth;
+        }
+
+        set lineCap( s:string ) {
+            s= s.toLowerCase();
+
+            if ( s==="square" ) {
+                this.setLineCap( cc.render.LineCap.SQUARE );
+            } else if ( s==="round" ) {
+                this.setLineCap( cc.render.LineCap.ROUND );
+            } else {
+                this.setLineCap( cc.render.LineCap.BUTT );
+            }
+        }
+
+        get lineCap() : string {
+            switch( this._currentLineCap ) {
+                case cc.render.LineCap.SQUARE: return "square";
+                case cc.render.LineCap.ROUND: return "round";
+                default: return "butt";
+            }
+        }
+
+        set lineJoin( s:string ) {
+            s= s.toLowerCase();
+
+            if ( s==="miter" ) {
+                this.setLineJoin( cc.render.LineJoin.MITER );
+            } else if ( s==="round" ) {
+                this.setLineJoin( cc.render.LineJoin.ROUND );
+            } else {
+                this.setLineJoin( cc.render.LineJoin.BEVEL );
+            }
+        }
+
+        get lineJoin() : string {
+            switch( this._currentLineJoin ) {
+                case cc.render.LineJoin.MITER: return "miter";
+                case cc.render.LineJoin.ROUND: return "round";
+                default: return "bevel";
+            }
+        }
+
+        setLineWidth( w : number ) {
+            this._currentLineWidth= w;
+        }
+
+        getLineWidth() : number {
+            return this._currentLineWidth;
+        }
+
+        setLineCap( cap:cc.render.LineCap ) {
+            this._currentLineCap= cap;
+        }
+
+        getLineCap() : cc.render.LineCap {
+            return this._currentLineCap;
+        }
+
+        setLineJoin( join:cc.render.LineJoin ) {
+            this._currentLineJoin= join;
+        }
+
+        getLineJoin() : cc.render.LineJoin {
+            return this._currentLineJoin;
         }
 
         moveTo(x:number, y:number) {
-
+            this._currentContextSnapshot.moveTo( x, y );
         }
 
         lineTo(x:number, y:number) {
+            this._currentContextSnapshot.lineTo( x, y );
+        }
 
+        bezierCurveTo( cp0x:number, cp0y:number, cp1x:number, cp1y:number, p2x:number, p2y:number ) {
+            this._currentContextSnapshot.bezierCurveTo( cp0x, cp0y, cp1x, cp1y, p2x, p2y );
+        }
+
+        quadraticCurveTo( cp0x:number, cp0y:number, p2x:number, p2y:number ) {
+            this._currentContextSnapshot.quadraticCurveTo( cp0x, cp0y, p2x, p2y );
+        }
+
+        rect( x:number, y:number, width:number, height:number ) {
+            this._currentContextSnapshot.rect( x, y, width, height );
+        }
+
+        arc( x:number, y:number, radius:number, startAngle:number, endAngle:number, counterClockWise:boolean ) {
+            this._currentContextSnapshot.arc( x, y, radius, startAngle, endAngle, counterClockWise );
         }
 
         save() {

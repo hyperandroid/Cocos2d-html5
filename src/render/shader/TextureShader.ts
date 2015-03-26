@@ -270,5 +270,9 @@ module cc.render.shader {
             gl.vertexAttribPointer(this._attributeTexture._location, 2, gl._gl.FLOAT, false, 4*4, 2*4 );
 
         }
+
+        useMeshIndex() : boolean {
+            return true;
+        }
     }
 }

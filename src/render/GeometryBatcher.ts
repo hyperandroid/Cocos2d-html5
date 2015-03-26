@@ -26,6 +26,7 @@ module cc.render {
     import Sprite = cc.node.Sprite;
 
     var __vv : Point = { x:0, y:0 };
+    var __vv0 : Point = { x:0, y:0 };
     var __color : Uint8Array = new Uint8Array([0,0,0,0]);
 
     /**
@@ -142,8 +143,6 @@ module cc.render {
         _indexBufferMesh : Uint16Array = null;
         _indexBufferMeshIndex : number = 0;
 
-        _indicesChanged: boolean= false;
-
         _glIndexMeshBuffers : Buffer[] = [];
         _glIndexMeshBuffer : Buffer = null;
 
@@ -176,17 +175,19 @@ module cc.render {
             var indexBuffer= this._indexBuffer;
             for( var i=0; i<GeometryBatcher.MAX_QUADS; i++ ) {
 
-                indexBuffer[ indexBufferIndex ]=   elementIndex;
-                indexBuffer[ indexBufferIndex+1 ]= elementIndex+1;
-                indexBuffer[ indexBufferIndex+2 ]= elementIndex+2;
+                indexBuffer[indexBufferIndex] = elementIndex;
+                indexBuffer[indexBufferIndex + 1] = elementIndex + 1;
+                indexBuffer[indexBufferIndex + 2] = elementIndex + 2;
 
-                indexBuffer[ indexBufferIndex+3 ]= elementIndex;
-                indexBuffer[ indexBufferIndex+4 ]= elementIndex+2;
-                indexBuffer[ indexBufferIndex+5 ]= elementIndex+3;
+                indexBuffer[indexBufferIndex + 3] = elementIndex;
+                indexBuffer[indexBufferIndex + 4] = elementIndex + 2;
+                indexBuffer[indexBufferIndex + 5] = elementIndex + 3;
                 indexBufferIndex += 6;
-                elementIndex+= 4;
+                elementIndex += 4;
+            }
 
-                this._indexBufferMesh[i]= i;
+            for( var i=0; i<GeometryBatcher.MAX_QUADS*6; i++ ) {
+                this._indexBufferMesh[ i ]= i;
             }
 
             this._glDataBuffers.push( new Buffer( this._gl, this._gl.ARRAY_BUFFER, this._dataBufferFloat, this._gl.DYNAMIC_DRAW ) );
@@ -285,11 +286,13 @@ module cc.render {
 
             var cm : Float32Array= rcs._currentMatrix;
 
-            __vv.x= x;
-            __vv.y= y;
-            Matrix3.transformPoint(cm,__vv);
-            this._dataBufferFloat[ this._dataBufferIndex++ ] = __vv.x;
-            this._dataBufferFloat[ this._dataBufferIndex++ ] = __vv.y;
+            // 0-1-2
+
+            __vv0.x= x;
+            __vv0.y= y;
+            Matrix3.transformPoint(cm,__vv0);
+            this._dataBufferFloat[ this._dataBufferIndex++ ] = __vv0.x;
+            this._dataBufferFloat[ this._dataBufferIndex++ ] = __vv0.y;
             this._dataBufferUint [ this._dataBufferIndex++ ] = cc;
 
             __vv.x= x+w;
@@ -302,6 +305,17 @@ module cc.render {
             __vv.x= x+w;
             __vv.y= y+h;
             Matrix3.transformPoint(cm,__vv);
+            this._dataBufferFloat[ this._dataBufferIndex++ ] = __vv.x;
+            this._dataBufferFloat[ this._dataBufferIndex++ ] = __vv.y;
+            this._dataBufferUint [ this._dataBufferIndex++ ] = cc;
+
+
+            // 0-2-3
+
+            this._dataBufferFloat[ this._dataBufferIndex++ ] = __vv0.x;
+            this._dataBufferFloat[ this._dataBufferIndex++ ] = __vv0.y;
+            this._dataBufferUint [ this._dataBufferIndex++ ] = cc;
+
             this._dataBufferFloat[ this._dataBufferIndex++ ] = __vv.x;
             this._dataBufferFloat[ this._dataBufferIndex++ ] = __vv.y;
             this._dataBufferUint [ this._dataBufferIndex++ ] = cc;
@@ -314,9 +328,9 @@ module cc.render {
             this._dataBufferUint [ this._dataBufferIndex++ ] = cc;
 
             // add two triangles * 3 values each.
-            this._indexBufferIndex+=6;
+            this._indexBufferMeshIndex+=6;
 
-            return this._indexBufferIndex+6 >= this._indexBuffer.length;
+            return this._indexBufferMeshIndex+6 >= this._indexBuffer.length;
         }
 
         /**
@@ -339,6 +353,7 @@ module cc.render {
         }
 
         /**
+         * BUGBUG refactor. Move to AbstractShader and reimplement for each shader.
          * Flush currently batched geometry and related info with a given shader program.
          * @method cc.render.GeometryBatcher#flush
          * @param shader {cc.render.shader.AbstractShader} program shader
@@ -348,16 +363,16 @@ module cc.render {
 
             var trianglesCount;
 
-            if ( this._indicesChanged ) {
-                trianglesCount= this._indexBufferMeshIndex;
-                if ( !trianglesCount ) {
+            if (shader.useMeshIndex()) {
+                trianglesCount = this._indexBufferMeshIndex;
+                if (!trianglesCount) {
                     return;
                 }
                 this._glIndexMeshBuffer.bind(this._gl.ELEMENT_ARRAY_BUFFER);
 
             } else {
-                trianglesCount= this._indexBufferIndex;
-                if ( !trianglesCount ) {
+                trianglesCount = this._indexBufferIndex;
+                if (!trianglesCount) {
                     return;
                 }
                 // simply rebind the buffer, not modify its contents.
@@ -368,23 +383,21 @@ module cc.render {
             this._glDataBuffer.forceEnableWithValue(this._dataBufferFloat.subarray(0, this._dataBufferIndex));
             //this._glDataBuffer.enableWithValue(this._dataBufferFloat.subarray(0, this._dataBufferIndex));
 
-            shader.flushBuffersWithContent( rcs );
+            shader.flushBuffersWithContent(rcs);
 
             this._gl.drawElements(this._gl.TRIANGLES, trianglesCount, this._gl.UNSIGNED_SHORT, 0);
-            //this._gl.drawArrays(this._gl.TRIANGLE_STRIP, 0, 4);
+            //this._gl.drawArrays(this._gl.TRIANGLES, 0, trianglesCount);
 
             // reset buffer data index.
-            this._dataBufferIndex= 0;
-            this._indexBufferIndex= 0;
-            this._indexBufferMeshIndex= 0;
+            this._dataBufferIndex = 0;
+            this._indexBufferIndex = 0;
+            this._indexBufferMeshIndex = 0;
 
             // ping pong rendering buffer.
-            this._currentBuffersIndex= (this._currentBuffersIndex+1) & 3;
-            this._glDataBuffer= this._glDataBuffers[ this._currentBuffersIndex ];
-            this._glIndexBuffer= this._glIndexBuffers[ this._currentBuffersIndex ];
-            this._glIndexMeshBuffer= this._glIndexMeshBuffers[ this._currentBuffersIndex ];
-
-            this._indicesChanged= false;
+            this._currentBuffersIndex = (this._currentBuffersIndex + 1) & 3;
+            this._glDataBuffer = this._glDataBuffers[this._currentBuffersIndex];
+            this._glIndexBuffer = this._glIndexBuffers[this._currentBuffersIndex];
+            this._glIndexMeshBuffer = this._glIndexMeshBuffers[this._currentBuffersIndex];
         }
 
         __uintColor( rcs:RenderingContextSnapshot ) : number {
@@ -455,8 +468,6 @@ module cc.render {
 
         batchMesh( geometry:Float32Array, uv:Float32Array, indices:Uint32Array, color:number, rcs:RenderingContextSnapshot  ) {
 
-            this._indicesChanged= true;
-
             for( var i=0; i<indices.length; i+=3 ) {
 
                 var indexVertex0= indices[i+0]*3;
@@ -486,6 +497,33 @@ module cc.render {
             this._dataBufferFloat[ this._dataBufferIndex++ ] = u;
             this._dataBufferFloat[ this._dataBufferIndex++ ] = v;
             this._indexBufferMeshIndex++;
+        }
+
+        /**
+         * Batch a path geometry.
+         * Requires sequential indices.
+         * Geometry already in screen space.
+         *
+         * @param geometry {Float32Array}
+         * @param rcs {cc.render.RenderingContextSnapshot}
+         */
+        batchPath( geometry:Float32Array, rcs:RenderingContextSnapshot ) {
+
+            var color:Float32Array= rcs._fillStyleColor;
+            var tint:Float32Array= rcs._tintColor;
+
+            var r= ((color[0] * tint[0])*255)|0;
+            var g= ((color[1] * tint[1])*255)|0;
+            var b= ((color[2] * tint[2])*255)|0;
+            var a= ((color[3] * tint[3] * rcs._globalAlpha)*255)|0;
+            var cc= (r)|(g<<8)|(b<<16)|(a<<24);
+
+            for( var i=0; i<geometry.length; i+=2 ) {
+                this._dataBufferFloat[ this._dataBufferIndex++ ] = geometry[i];
+                this._dataBufferFloat[ this._dataBufferIndex++ ] = geometry[i+1];
+                this._dataBufferUint [ this._dataBufferIndex++ ] = cc;
+                this._indexBufferMeshIndex++
+            }
         }
     }
 

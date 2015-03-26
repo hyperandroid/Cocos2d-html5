@@ -79,10 +79,10 @@ var Cocos = (function () {
         } else if (argv.compile) {
             compile('js', true );
         } else if (argv.build || argv['build-release'] || argv['build-debug']) {
-            //compile('js', false );
-            //compileTest();
-            //dist();
-
+            compile('js', false );
+            compileTest();
+            dist();
+        } else if (argv.builddts ) {
             // new build process:
             // concat all ts into one single file
             // compile all.ts to all.js and get an all.d.ts file.

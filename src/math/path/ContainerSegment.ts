@@ -136,11 +136,23 @@ module cc.math.path {
 
             numPoints = numPoints || cc.math.path.DEFAULT_TRACE_LENGTH;
 
-            for( var i=0; i<=numPoints; i++ ) {
-                dstArray.push( this.getValueAt( i/numPoints, new Vector() ) );
+
+            this.getLength();
+            dstArray.push( this.getStartingPoint() );
+            for( var i=0; i<this._segments.length; i++) {
+                this._segments[i].trace( dstArray, numPoints );
             }
 
             return dstArray;
+        }
+
+        isClosed() {
+            var sp= this.getStartingPoint();
+            var ep= this.getEndingPoint();
+
+            if ( sp===ep || sp.equals(ep) ) {
+                return;
+            }
         }
 
         /**

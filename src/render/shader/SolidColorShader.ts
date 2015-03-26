@@ -126,5 +126,10 @@ module cc.render.shader {
             gl.vertexAttribPointer(this._attributeColor._location, 4, gl._gl.UNSIGNED_BYTE, true,  12, 2 * 4 );
         }
 
+        useMeshIndex() : boolean {
+            return true;
+        }
+
+
     }
 }
