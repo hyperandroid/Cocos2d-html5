@@ -14,125 +14,115 @@
         var W= 600;
         var H= 600;
 
+        cc.render.RENDER_ORIGIN= cc.render.ORIGIN_BOTTOM;
+
+        cc.render.DecoratedWebGLRenderingContext.ANTIALIAS= true;
+
         /**
          *
          */
         function initialize( ) {
 
-            // the renderer will setup pre-loaded textures for the renderer type.
-            // it will also create necessary SpriteFrames for each texture, in this case a frame for the image dude.png
-
-            var renderer2 = new cc.render.CanvasRenderer(W, H, document.getElementById("c1"));
-            var ctx2 = renderer2.getRenderingContext();
-            paint( ctx2 );
-
             var renderer = new cc.render.WebGLRenderer(W, H, document.getElementById("c"));
-            var ctx = renderer.getRenderingContext();
-            paint( ctx );
+            var director = new cc.node.Director().setRenderer(renderer);
+            var scene = director.createScene().setColor(1,1,1);
+            var node = new cc.node.Node().setContentSize(W, H);
+            node.scheduleUpdate();
+            node.update = function (delta) {
+                this.rotationAngle += .2;
+            };
 
-                setInterval(function () {
-                    paint(ctx);
-                    angle += .002
-                }, 16);
+            scene.addChild( node );
+
+            node.draw = function (ctx) {
+
+                var lw = 10;
+
+                ctx.setStrokeStyleColor(cc.math.Color.RED);
+                ctx.lineJoin = 'miter';
+                ctx.lineCap= 'butt';
+                ctx.beginPath();
+                ctx.lineWidth = lw;
+                ctx.moveTo(100, 50);
+                ctx.lineTo(200, 150);
+                ctx.lineTo(300, 50);
+                ctx.lineTo(400, 150);
+                ctx.lineTo(500, 50);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.setStrokeStyleColor(cc.math.Color.BLUE);
+                ctx.lineWidth = lw;
+                ctx.lineJoin = 'round';
+                ctx.lineCap = "round";
+                ctx.moveTo(100, 300);
+                ctx.lineTo(200, 200);
+                ctx.lineTo(300, 300);
+                ctx.lineTo(400, 200);
+                ctx.lineTo(500, 300);
+
+                ctx.moveTo(100, 200);
+                ctx.lineTo(200, 300);
+                ctx.lineTo(300, 200);
+                ctx.lineTo(400, 300);
+                ctx.lineTo(500, 200);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.setStrokeStyleColorArray([1, 0, 1, 1]);
+                ctx.lineWidth = lw;
+                ctx.lineJoin = 'bevel';
+                ctx.lineCap = "square";
+                ctx.moveTo(100, 350);
+                ctx.lineTo(200, 450);
+                ctx.lineTo(300, 350);
+                ctx.lineTo(400, 450);
+                ctx.lineTo(500, 350);
+                ctx.stroke();
+
+                ctx.setStrokeStyleColorArray([1, 1, 0, 1]);
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.bezierCurveTo(W, 0, 0, H, W, H);
+                ctx.quadraticCurveTo(0, H, 0, 0);
+                ctx.closePath();
+                ctx.stroke();
+                ctx.setFillStyleColorArray([0, 0, 1, .2]);
+                ctx.fill();
+
+
+                ctx.setStrokeStyleColorArray([0, 1, 1, 1]);
+                ctx.rotate(Math.PI / 12);
+                ctx.scale(5, 5);
+                ctx.beginPath();
+                ctx.lineJoin = "round";
+                ctx.rect(10, 10, 50, 50);
+                ctx.stroke();
+                ctx.setFillStyleColorArray([1, 0, 1, .5]);
+                ctx.fill();
+
+                ctx.lineJoin = 'bevel';
+                ctx.lineCap = "butt";
+
+                ctx.setStrokeStyleColorArray([.5, .5, 1, 1]);
+                ctx.beginPath();
+                ctx.arc(50, 50, 50, 0, Math.PI / 2, true);
+                ctx.stroke();
+
+                ctx.scale(1.05, 1.05);
+                ctx.setStrokeStyleColorArray([1, .5, 1, 1]);
+                ctx.beginPath();
+                ctx.arc(50, 50, 50, 0, Math.PI / 2, false);
+                ctx.stroke();
+                ctx.setFillStyleColorArray([1, .2, .2, .5]);
+                ctx.fill();
+
+            };
+
+            director.runScene( scene );
         }
 
-        var angle= 0;
-
-        function paint(ctx) {
-
-            ctx.setTransform(1,0,0,1,0,0);
-            ctx.clear();
-
-            ctx.translate( W/2,H/2 );
-            ctx.rotate( angle );
-            ctx.translate( -W/2,-H/2 );
-
-            ctx.setFillStyleColor(cc.math.Color.WHITE);
-            ctx.fillRect(0, 0, W, H);
-
-            var lw= 10;
-
-            ctx.setStrokeStyleColor(cc.math.Color.RED);
-            ctx.beginPath();
-            ctx.lineWidth = lw;
-            ctx.moveTo(100, 50);
-            ctx.lineTo(200, 150);
-            ctx.lineTo(300, 50);
-            ctx.lineTo(400, 150);
-            ctx.lineTo(500, 50);
-            ctx.stroke();
-
-            ctx.beginPath();
-            ctx.setStrokeStyleColor(cc.math.Color.BLUE);
-            ctx.lineWidth = lw;
-            ctx.lineJoin = 'round';
-            ctx.lineCap = "round";
-            ctx.moveTo(100, 300);
-            ctx.lineTo(200, 200);
-            ctx.lineTo(300, 300);
-            ctx.lineTo(400, 200);
-            ctx.lineTo(500, 300);
-
-            ctx.moveTo(100, 200);
-            ctx.lineTo(200, 300);
-            ctx.lineTo(300, 200);
-            ctx.lineTo(400, 300);
-            ctx.lineTo(500, 200);
-            ctx.stroke();
-
-            ctx.beginPath();
-            ctx.setStrokeStyleColorArray([1,0,1,1]);
-            ctx.lineWidth = lw;
-            ctx.lineJoin = 'bevel';
-            ctx.lineCap = "square";
-            ctx.moveTo(100, 350);
-            ctx.lineTo(200, 450);
-            ctx.lineTo(300, 350);
-            ctx.lineTo(400, 450);
-            ctx.lineTo(500, 350);
-            ctx.stroke();
-
-            ctx.setStrokeStyleColorArray([1,1,0,1]);
-            ctx.beginPath();
-            ctx.moveTo(0,0);
-            ctx.bezierCurveTo( W,0, 0,H, W,H );
-            ctx.quadraticCurveTo( 0,H, 0,0 );
-            ctx.closePath();
-            ctx.stroke();
-            ctx.setFillStyleColorArray([0,0,1,1]);
-            ctx.fill();
-
-
-            ctx.setStrokeStyleColorArray([0,1,1,1]);
-            ctx.rotate( Math.PI/12 );
-            ctx.scale(5,5);
-            ctx.beginPath();
-            ctx.lineJoin= "round";
-            ctx.rect( 10,10,50,50 );
-            ctx.stroke();
-            ctx.setFillStyleColorArray([1,0,1,1]);
-            ctx.fill();
-
-            ctx.lineJoin = 'bevel';
-            ctx.lineCap = "butt";
-
-            ctx.setStrokeStyleColorArray([.5,.5,1,1]);
-            ctx.beginPath();
-            ctx.arc( 50,50, 50, 0, Math.PI/2, true );
-            ctx.stroke();
-
-            ctx.scale(1.05,1.05);
-            ctx.setStrokeStyleColorArray([1,.5,1,1]);
-            ctx.beginPath();
-            ctx.arc( 50,50, 50, 0, Math.PI/2, false );
-            ctx.stroke();
-            ctx.setFillStyleColorArray([1,.2,.2,.5]);
-            ctx.fill();
-
-            ctx.flush();
-        }
-
-        window.addEventListener("DOMContentLoaded", initialize, false);
+      window.addEventListener("DOMContentLoaded", initialize, false);
 
     })();
 </script>

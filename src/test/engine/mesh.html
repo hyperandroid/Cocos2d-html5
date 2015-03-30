@@ -15,6 +15,10 @@
 <script>
     (function() {
 
+        var W=600;
+        var H=600;
+
+
         var AssetManager= cc.plugin.asset.AssetManager;
 
         function loadResources() {
@@ -73,6 +77,8 @@
 
             var indices= target_creature.global_indices;
 
+            cc.render.RENDER_ORIGIN= cc.render.ORIGIN_BOTTOM;
+
             var renderer= new cc.render.WebGLRenderer(800,600,document.getElementById("c"));
             var director= new cc.node.Director().setRenderer( renderer );
             var scene= director.createScene();
@@ -92,6 +98,8 @@
                 ctx.scale(13, 13);
                 ctx.drawMesh(read_pts, read_uvs, indices, 0xffffffff, texture);
                 ctx.restore();
+
+
             };
 
 

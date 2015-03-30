@@ -396,14 +396,22 @@ module cc.math.path {
             return this;
         }
 
-        paint( ctx:cc.render.RenderingContext ) {
+        canvasStroke( ctx:cc.render.RenderingContext ) {
 
+            var fp= this.getStartingPoint();
             ctx.beginPath();
-            //ctx.strokeStyle="#000";
-            for( var i=0; i<this._segments.length; i++ ) {
-                this._segments[i].paint(ctx);
-            }
+            ctx.moveTo( fp.x, fp.y );
+            super.canvasStroke(ctx);
             ctx.stroke();
+        }
+
+        canvasFill( ctx:cc.render.RenderingContext ) {
+
+            var fp= this.getStartingPoint();
+            ctx.beginPath();
+            ctx.moveTo( fp.x, fp.y );
+            super.canvasFill(ctx);
+            ctx.fill();
         }
 
     }

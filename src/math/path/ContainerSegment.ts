@@ -236,7 +236,17 @@ module cc.math.path {
             }
         }
 
-        paint( ctx:cc.render.RenderingContext ) {
+        canvasStroke( ctx:cc.render.RenderingContext ) {
+            for( var i=0; i<this._segments.length; i++ ) {
+                this._segments[i].canvasStroke( ctx );
+            }
         }
+
+        canvasFill( ctx:cc.render.RenderingContext ) {
+            for( var i=0; i<this._segments.length; i++ ) {
+                this._segments[i].canvasFill( ctx );
+            }
+        }
+
     }
 }

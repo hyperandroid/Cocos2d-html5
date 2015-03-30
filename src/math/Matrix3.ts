@@ -96,6 +96,31 @@ module cc.math {
             destination.set( source );
         }
 
+        static compare( s:Float32Array, d:Float32Array ) : boolean {
+            return s.length===d.length &&
+                    s[0]===d[0] &&
+                    s[1]===d[1] &&
+                    s[2]===d[2] &&
+                    s[3]===d[3] &&
+                    s[4]===d[4] &&
+                    s[5]===d[5] &&
+                    s[6]===d[6] &&
+                    s[7]===d[7] &&
+                    s[8]===d[8];
+        }
+
+        static isIdentity( s:Float32Array ) : boolean {
+            return s[0]===1.0 &&
+                    s[1]===0.0 &&
+                    s[2]===0.0 &&
+                    s[3]===0.0 &&
+                    s[4]===1.0 &&
+                    s[5]===0.0 &&
+                    s[6]===0.0 &&
+                    s[7]===0.0 &&
+                    s[8]===1.0;
+        }
+
         static set( m:Float32Array, a:number, b:number, c:number, d:number, tx:number, ty:number ) {
             m[0]= a;
             m[1]= b;

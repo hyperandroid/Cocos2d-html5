@@ -397,15 +397,17 @@ module cc.math.path {
             }
         }
 
-        paint( ctx:cc.render.RenderingContext ) {
+
+        canvasStroke( ctx:cc.render.RenderingContext ) {
+            this.canvasFill(ctx);
+        }
+
+        canvasFill( ctx:cc.render.RenderingContext ) {
 
             var c= this.trace(null, 50);
-            ctx.beginPath();
-            ctx.moveTo(c[0].x, c[0].y );
             for( var i=1 ; i<c.length; i++ ) {
                 ctx.lineTo( c[i].x, c[i].y );
             }
-            ctx.stroke();
         }
 
     }

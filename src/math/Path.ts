@@ -650,17 +650,6 @@ module cc.math {
         }
 
         /**
-         * Paint the path in a canvas rendering context.
-         * @method cc.math.Path#paint
-         * @param ctx {cc.render.RenderingContext}
-         */
-        paint( ctx:cc.render.RenderingContext ) {
-            for( var i=0; i<this._segments.length; i++ ) {
-                this._segments[i].paint(ctx);
-            }
-        }
-
-        /**
          * If needed, calculate the stroke geometry for a path.
          * The stroke mesh will be traced based of line attributes.
          * On average, you will never interact with this method.

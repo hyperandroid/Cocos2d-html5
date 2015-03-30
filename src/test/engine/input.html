@@ -20,10 +20,11 @@
         function initialize() {
 
             cc.render.RENDER_ORIGIN=cc.render.ORIGIN_TOP;
+            cc.render.DecoratedWebGLRenderingContext.ANTIALIAS= true;
 
             // the renderer will setup pre-loaded textures for the renderer type.
             // it will also create necessary SpriteFrames for each texture, in this case a frame for the image dude.png
-            var renderer= new cc.render.CanvasRenderer(W,H,document.getElementById("c"));
+            var renderer= new cc.render.WebGLRenderer(W,H,document.getElementById("c"));
 
             // director is the main Cocos Node, and must exist.
             var director= new cc.node.Director().
@@ -64,11 +65,13 @@
                 ctx.fillRect(0,0,this._contentSize.width,this._contentSize.height);
 
 
-                ctx.strokeStyle="#000";
-                ctx.strokeRect(0,0,this._contentSize.width,this._contentSize.height);
+                ctx.setStrokeStyleColor(cc.math.Color.BLACK);
+                ctx.beginPath();
+                ctx.rect(0,0,this._contentSize.width,this._contentSize.height);
+                ctx.stroke();
 
                 ctx.lineWidth=2;
-                ctx.strokeStyle= "#fff";
+                ctx.setStrokeStyleColor(cc.math.Color.WHITE);
                 ctx.beginPath();
                 ctx.moveTo(3,8);
                 ctx.lineTo(15,8);
@@ -159,13 +162,15 @@
 
             node.draw= function( ctx ) {
 
-                ctx.strokeStyle="#000";
-                ctx.strokeRect(0,0,this._contentSize.width,this._contentSize.height);
+                ctx.setStrokeStyleColor(cc.math.Color.BLACK);
+                ctx.beginPath();
+                ctx.rect(0,0,this._contentSize.width,this._contentSize.height);
+                ctx.stroke();
 
                 ctx.setFillStyleColor(this._color);
                 ctx.fillRect(0,0,this._contentSize.width,this._contentSize.height);
 
-                ctx.setFillStyleColorArray([1,1,1]);
+                ctx.setFillStyleColorArray([1,1,1,1]);
                 ctx.fillRect(3,3,5,5);
             };
 

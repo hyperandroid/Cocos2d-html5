@@ -30,11 +30,13 @@
          */
         function initialize(resources) {
 
+            cc.render.RENDER_ORIGIN= cc.render.ORIGIN_TOP;
+
             AssetManager.addImage(resources['dude'],'dude');
 
             // the renderer will setup pre-loaded textures for the renderer type.
             // it will also create necessary SpriteFrames for each texture, in this case a frame for the image dude.png
-            var renderer = new cc.render.CanvasRenderer(800, 600, document.getElementById("c"));
+            var renderer = new cc.render.WebGLRenderer(800, 600, document.getElementById("c"));
 
             // director is the main Cocos Node, and must exist.
             var director = new cc.node.Director().
@@ -48,8 +50,8 @@
             var path0= new cc.math.Path().
                     beginPath().
                     moveTo( 400,200).
-                    bezierTo( 400,400, 500,100, 600, 200).
-                    quadraticTo( 200,200, 200,100).
+                    bezierCurveTo( 400,400, 500,100, 600, 200).
+                    quadraticCurveTo( 200,200, 200,100).
                     closePath();
 
             var path1= cc.math.Path.createFromPoints( path0.trace(null, 50) );
@@ -59,16 +61,17 @@
             scene.draw= function( ctx ) {
                 ctx.fillStyle= "#ccc";
                 ctx.fillRect(0,0,this._contentSize.width, this._contentSize.height);
+                ctx.lineWidth=40;
+                ctx.lineJoin="miter";
                 ctx.beginPath();
                 ctx.strokeStyle="#00f";
-                path0.paint(ctx);
-                ctx.translate(0,20);
+                ctx.strokePath(path2);
+                ctx.lineWidth=30;
                 ctx.strokeStyle="#0f0";
-                path1.paint(ctx);
-                ctx.translate(0,20);
+                ctx.strokePath(path1);
+                ctx.lineWidth=20;
                 ctx.strokeStyle="#f00";
-                path2.paint(ctx);
-                ctx.translate(0,20);
+                ctx.strokePath(path0);
                 ctx.stroke();
                 ctx.globalCompositeOperation="source-over";
             };

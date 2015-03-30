@@ -262,12 +262,12 @@ module cc.math.path {
             }
         }
 
-        paint( ctx:cc.render.RenderingContext ) {
+        canvasStroke( ctx:cc.render.RenderingContext ) {
+            this.canvasFill(ctx);
+        }
 
-            ctx.beginPath();
-            ctx.moveTo( this._start.x, this._start.y );
+        canvasFill( ctx:cc.render.RenderingContext ) {
             ctx.lineTo( this._end.x, this._end.y );
-            ctx.stroke();
         }
 
     }

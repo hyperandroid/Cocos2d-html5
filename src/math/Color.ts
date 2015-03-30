@@ -399,14 +399,14 @@ module cc.math {
             var VSW:number = V*S*Math.sin(H*Math.PI/180);
 
             var r = (.299*V+.701*VSU+.168*VSW)*c.r +
-                (.587*V-.587*VSU+.330*VSW)*c.g +
-                (.114*V-.114*VSU-.497*VSW)*c.b;
+                    (.587*V-.587*VSU+.330*VSW)*c.g +
+                    (.114*V-.114*VSU-.497*VSW)*c.b;
             var g = (.299*V-.299*VSU-.328*VSW)*c.r +
-                (.587*V+.413*VSU+.035*VSW)*c.g +
-                (.114*V-.114*VSU+.292*VSW)*c.b;
+                    (.587*V+.413*VSU+.035*VSW)*c.g +
+                    (.114*V-.114*VSU+.292*VSW)*c.b;
             var b = (.299*V-.3*VSU+1.25*VSW)*c.r +
-                (.587*V-.588*VSU-1.05*VSW)*c.g +
-                (.114*V+.886*VSU-.203*VSW)*c.b;
+                    (.587*V-.588*VSU-1.05*VSW)*c.g +
+                    (.114*V+.886*VSU-.203*VSW)*c.b;
 
             c.r= r;
             c.g= g;

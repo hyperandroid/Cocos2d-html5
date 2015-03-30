@@ -87,7 +87,7 @@ module cc.render {
          * @type {Float32Array}
          * @private
          */
-        _tintColor : Float32Array = new Float32Array([0.0, 0.0, 0.0, 1.0]);
+        _tintColor : Float32Array = new Float32Array([1.0, 1.0, 1.0, 1.0]);
 
         /**
          * Current stroke line width.
@@ -296,8 +296,13 @@ module cc.render {
          * @method cc.render.RenderingContextSnapshot#setupStroke
          * @returns {Float32Array}
          */
-        setupStroke( lineWidth:number, join:cc.render.LineJoin, cap:cc.render.LineCap ) {
-            if ( this._currentPath._dirty || this._lineWidth!==lineWidth || this._lineCap!==cap || this._lineJoin!==join ) {
+        setupStroke( lineWidth:number, join:cc.render.LineJoin, cap:cc.render.LineCap, path?:cc.math.Path ) {
+
+            if ( typeof path==="undefined" ) {
+                path= this._currentPath;
+            }
+
+            if ( path._dirty || this._lineWidth!==lineWidth || this._lineCap!==cap || this._lineJoin!==join ) {
 
                 lineWidth= cc.math.path.getDistanceVector(lineWidth, this._currentMatrix).length();
 
@@ -305,7 +310,7 @@ module cc.render {
                 this._lineJoin= join;
                 this._lineWidth= lineWidth;
 
-                this._currentPath.getStrokeGeometry({
+                path.getStrokeGeometry({
                     width: lineWidth,
                     cap: this._lineCap,
                     join: this._lineJoin,
@@ -314,7 +319,7 @@ module cc.render {
 
             }
 
-            return this._currentPath._strokeGeometry;
+            return path._strokeGeometry;
         }
 
         /**
@@ -325,8 +330,13 @@ module cc.render {
          * @method cc.render.RenderingContextSnapshot#setupFill
          * @returns {Float32Array}
          */
-        setupFill( ) {
-            return this._currentPath.getFillGeometry();
+        setupFill( path?:cc.math.Path ) {
+
+            if ( typeof path==="undefined" ) {
+                path= this._currentPath;
+            }
+
+            return path.getFillGeometry();
         }
 
     }

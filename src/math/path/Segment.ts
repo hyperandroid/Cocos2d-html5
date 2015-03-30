@@ -148,7 +148,8 @@ module cc.math.path {
          */
         setDirty( d:boolean );
 
-        paint( ctx:RenderingContext );
+        canvasStroke( ctx:RenderingContext );
+        canvasFill( ctx:RenderingContext );
     }
 
 }
