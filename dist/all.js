@@ -1243,7 +1243,7 @@ var cc;
              * @returns {number}
              */
             Vector.prototype.length = function () {
-                return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
+                return Math.sqrt(this.x * this.x + this.y * this.y);
             };
             /**
              * get the vector angle.
@@ -1304,7 +1304,7 @@ var cc;
              * @param v1 {cc.math.Vector}
              * @returns {Vector}
              */
-            Vector.sub = function (v0, v1) {
+            Vector.sub = function (v1, v0) {
                 return new Vector(v1.x - v0.x, v1.y - v0.y);
             };
             /**
@@ -1328,6 +1328,9 @@ var cc;
                 var y = (p1.y + p0.y) / 2;
                 return new Vector(x, y);
             };
+            Vector.equals = function (p0, p1) {
+                return p0.x === p1.x && p0.y === p1.y;
+            };
             /**
              * Compare the vector with another vector for equality.
              * @param v {cc.math.Vector}
@@ -1342,6 +1345,17 @@ var cc;
              */
             Vector.prototype.clone = function () {
                 return new Vector(this.x, this.y, this.z);
+            };
+            Vector.prototype.perpendicular = function () {
+                var x = this.x;
+                this.x = -this.y;
+                this.y = x;
+                return this;
+            };
+            Vector.prototype.invert = function () {
+                this.x = -this.x;
+                this.y = -this.y;
+                return this;
             };
             return Vector;
         })();
@@ -1786,7 +1800,7 @@ var cc;
                  */
                 SegmentLine.prototype.trace = function (dstArray, numPoints) {
                     dstArray = dstArray || [];
-                    dstArray.push(this._start);
+                    //dstArray.push( this._start );
                     dstArray.push(this._end);
                     return dstArray;
                 };
@@ -2833,6 +2847,11 @@ var cc;
                     else if (this._ccw && this._startAngle <= this._endAngle) {
                         this._startAngle += 2 * Math.PI;
                     }
+                    if (this._startAngle > this._endAngle) {
+                        var tmp = this._startAngle;
+                        this._startAngle = this._endAngle;
+                        this._endAngle = tmp;
+                    }
                     var s = this.getValueAt(0);
                     this._startingPoint = new Vector();
                     this._startingPoint.x = s.x;
@@ -2901,7 +2920,7 @@ var cc;
                     if (this._startAngle === this._endAngle || this._radius === 0) {
                         return dstArray;
                     }
-                    for (var i = 0; i < numPoints; i++) {
+                    for (var i = 0; i <= numPoints; i++) {
                         dstArray.push(this.getValueAt(i / numPoints, new Vector()));
                     }
                     return dstArray;
@@ -3401,10 +3420,19 @@ var cc;
                 ContainerSegment.prototype.trace = function (dstArray, numPoints) {
                     dstArray = dstArray || [];
                     numPoints = numPoints || cc.math.path.DEFAULT_TRACE_LENGTH;
-                    for (var i = 0; i <= numPoints; i++) {
-                        dstArray.push(this.getValueAt(i / numPoints, new math.Vector()));
+                    this.getLength();
+                    dstArray.push(this.getStartingPoint());
+                    for (var i = 0; i < this._segments.length; i++) {
+                        this._segments[i].trace(dstArray, numPoints);
                     }
                     return dstArray;
+                };
+                ContainerSegment.prototype.isClosed = function () {
+                    var sp = this.getStartingPoint();
+                    var ep = this.getEndingPoint();
+                    if (sp === ep || sp.equals(ep)) {
+                        return;
+                    }
                 };
                 /**
                  * @see {cc.math.path.Segment#getStartingPoint}
@@ -3835,6 +3863,418 @@ var cc;
 })(cc || (cc = {}));
 
 /**
+ *
+ * License: see license.txt file.
+ *
+ * (c) 2014-2015 @hyperandroid
+ *
+ */
+/// <reference path="../../Point.ts"/>
+/// <reference path="../../../render/RenderingContext.ts"/>
+var cc;
+(function (cc) {
+    var math;
+    (function (math) {
+        var path;
+        (function (path) {
+            var geometry;
+            (function (geometry) {
+                var EPSILON = 0.0001;
+                var signedAreaModifier = 1;
+                /**
+                 * Get Stroke geometry for an array of Point objects.
+                 * The array could be the result of calling 'trace' for a Path object, or an arbitrary cloud of points.
+                 *
+                 *
+                 * @param points {Array.<cc.math.Vector>} contour of the points to trace.
+                 * @param attrs {cc.math.path.StrokeGeometryAttributes} this object defines stroke attributes like line cap,
+                 *      line join, line width and miter limit.
+                 *
+                 * @returns {Array<number> | Float32Array} Array with pairs of numbers (x,y)
+                 *
+                 * @method cc.math.path.geometry.getStrokeGeometry
+                 */
+                function getStrokeGeometry(points, attrs) {
+                    // trivial reject
+                    if (points.length < 2) {
+                        return new Float32Array([]);
+                    }
+                    var cap = attrs.cap || 0 /* BUTT */;
+                    var join = attrs.join || 0 /* BEVEL */;
+                    var lineWidth = (attrs.width || 1) / 2;
+                    var miterLimit = attrs.miterLimit || 10;
+                    var vertices = [];
+                    var middlePoints = []; // middle points per each line segment.
+                    var closed = false;
+                    signedAreaModifier = cc.render.RENDER_ORIGIN === cc.render.ORIGIN_TOP ? 1 : -1;
+                    if (points.length === 2) {
+                        join = 0 /* BEVEL */;
+                        createTriangles(points[0], cc.math.Vector.middlePoint(points[0], points[1]), points[1], vertices, lineWidth, join, miterLimit);
+                    }
+                    else {
+                        if (points[0] === points[points.length - 1] || (points[0].x === points[points.length - 1].x && points[0].y === points[points.length - 1].y)) {
+                            var p0 = points.shift();
+                            p0 = cc.math.Vector.middlePoint(p0, points[0]);
+                            points.unshift(p0);
+                            points.push(p0);
+                            closed = true;
+                        }
+                        var i;
+                        for (i = 0; i < points.length - 1; i++) {
+                            if (i === 0) {
+                                middlePoints.push(points[0]);
+                            }
+                            else if (i === points.length - 2) {
+                                middlePoints.push(points[points.length - 1]);
+                            }
+                            else {
+                                middlePoints.push(cc.math.Vector.middlePoint(points[i], points[i + 1]));
+                            }
+                        }
+                        for (i = 1; i < middlePoints.length; i++) {
+                            createTriangles(middlePoints[i - 1], points[i], middlePoints[i], vertices, lineWidth, join, miterLimit);
+                        }
+                    }
+                    if (!closed) {
+                        if (cap === 2 /* ROUND */) {
+                            var p00 = new cc.math.Vector(vertices[0], vertices[1]);
+                            var p01 = new cc.math.Vector(vertices[2], vertices[3]);
+                            var p02 = points[1];
+                            var p10 = new cc.math.Vector(vertices[vertices.length - 2], vertices[vertices.length - 1]);
+                            var p11 = new cc.math.Vector(vertices[vertices.length - 6], vertices[vertices.length - 5]);
+                            var p12 = points[points.length - 2];
+                            createRoundCap(points[0], p00, p01, p02, vertices);
+                            createRoundCap(points[points.length - 1], p10, p11, p12, vertices);
+                        }
+                        else if (cap === 1 /* SQUARE */) {
+                            var p00 = new cc.math.Vector(vertices[vertices.length - 2], vertices[vertices.length - 1]);
+                            var p01 = new cc.math.Vector(vertices[vertices.length - 6], vertices[vertices.length - 5]);
+                            createSquareCap(new cc.math.Vector(vertices[0], vertices[1]), new cc.math.Vector(vertices[2], vertices[3]), cc.math.Vector.sub(points[0], points[1]).normalize().mult(cc.math.Vector.sub(points[0], new cc.math.Vector(vertices[0], vertices[1])).length()), vertices);
+                            createSquareCap(p00, p01, cc.math.Vector.sub(points[points.length - 1], points[points.length - 2]).normalize().mult(cc.math.Vector.sub(p01, points[points.length - 1]).length()), vertices);
+                        }
+                    }
+                    return new Float32Array(vertices);
+                }
+                geometry.getStrokeGeometry = getStrokeGeometry;
+                function __pushVert(v, x, y) {
+                    v.push(x);
+                    v.push(y);
+                }
+                function createSquareCap(p0, p1, dir, verts) {
+                    //p0
+                    __pushVert(verts, p0.x, p0.y);
+                    //Point.Add(p0, dir);
+                    __pushVert(verts, p0.x + dir.x, p0.y + dir.y);
+                    //Point.Add(p1, dir);
+                    __pushVert(verts, p1.x + dir.x, p1.y + dir.y);
+                    //p1;
+                    __pushVert(verts, p1.x, p1.y);
+                    //Point.Add(p1, dir);
+                    __pushVert(verts, p1.x + dir.x, p1.y + dir.y);
+                    //p0
+                    __pushVert(verts, p0.x, p0.y);
+                }
+                function createRoundCap(center, _p0, _p1, nextPointInLine, verts) {
+                    var radius = cc.math.Vector.sub(center, _p0).length();
+                    var angle0 = Math.atan2((_p1.y - center.y), (_p1.x - center.x));
+                    var angle1 = Math.atan2((_p0.y - center.y), (_p0.x - center.x));
+                    var orgAngle0 = angle0;
+                    // make the round caps point in the right direction.
+                    // calculate minimum angle between two given angles.
+                    // for example: -Math.PI, Math.PI = 0, -Math.PI/2, Math.PI= Math.PI/2, etc.
+                    if (angle1 > angle0) {
+                        while (angle1 - angle0 >= Math.PI - EPSILON) {
+                            angle1 = angle1 - 2 * Math.PI;
+                        }
+                    }
+                    else {
+                        while (angle0 - angle1 >= Math.PI - EPSILON) {
+                            angle0 = angle0 - 2 * Math.PI;
+                        }
+                    }
+                    var angleDiff = angle1 - angle0;
+                    // for angles equal Math.PI, make the round point in the right direction.
+                    if (Math.abs(angleDiff) >= Math.PI - EPSILON && Math.abs(angleDiff) <= Math.PI + EPSILON) {
+                        var r1 = cc.math.Vector.sub(center, nextPointInLine);
+                        if (r1.x === 0) {
+                            if (r1.y > 0) {
+                                angleDiff = -angleDiff;
+                            }
+                        }
+                        else if (r1.x >= -EPSILON) {
+                            angleDiff = -angleDiff;
+                        }
+                    }
+                    // calculate points, and make the cap.
+                    var nsegments = (Math.abs(angleDiff * radius) / 7) >> 0;
+                    nsegments++;
+                    nsegments = Math.max(nsegments, 8);
+                    var angleInc = angleDiff / nsegments;
+                    for (var i = 0; i < nsegments; i++) {
+                        __pushVert(verts, center.x, center.y);
+                        __pushVert(verts, center.x + radius * Math.cos(orgAngle0 + angleInc * i), center.y + radius * Math.sin(orgAngle0 + angleInc * i));
+                        __pushVert(verts, center.x + radius * Math.cos(orgAngle0 + angleInc * (1 + i)), center.y + radius * Math.sin(orgAngle0 + angleInc * (1 + i)));
+                    }
+                }
+                /**
+                 * Get the signed area of a triangle.
+                 *
+                 * @method cc.math.path.geometry.signedArea
+                 *
+                 * @param p0x {number}
+                 * @param p0y {number}
+                 * @param p1x {number}
+                 * @param p1y {number}
+                 * @param p2x {number}
+                 * @param p2y {number}
+                 * @returns {number}
+                 */
+                function signedArea(p0x, p0y, p1x, p1y, p2x, p2y) {
+                    return (p1x - p0x) * (p2y - p0y) - (p2x - p0x) * (p1y - p0y);
+                }
+                geometry.signedArea = signedArea;
+                function lineIntersection(p0, p1, p2, p3) {
+                    var a0 = p1.y - p0.y;
+                    var b0 = p0.x - p1.x;
+                    var a1 = p3.y - p2.y;
+                    var b1 = p2.x - p3.x;
+                    var det = a0 * b1 - a1 * b0;
+                    if (det > -EPSILON && det < EPSILON) {
+                        return null;
+                    }
+                    else {
+                        var c0 = a0 * p0.x + b0 * p0.y;
+                        var c1 = a1 * p2.x + b1 * p2.y;
+                        var x = (b1 * c0 - b0 * c1) / det;
+                        var y = (a0 * c1 - a1 * c0) / det;
+                        return new cc.math.Vector(x, y);
+                    }
+                }
+                function createTriangles(p0, p1, p2, verts, width, join, miterLimit) {
+                    if (cc.math.Vector.equals(p0, p1)) {
+                        p1.x = p0.x + (p2.x - p0.x) / 2;
+                        p1.y = p0.y + (p2.y - p0.y) / 2;
+                    }
+                    else if (cc.math.Vector.equals(p1, p2)) {
+                        p2 = new cc.math.Vector(p1.x, p1.y);
+                        p1.x = p0.x + (p2.x - p0.x) / 2;
+                        p1.y = p0.y + (p2.y - p0.y) / 2;
+                    }
+                    if (cc.math.Vector.equals(p0, p1) && cc.math.Vector.equals(p1, p2)) {
+                        return;
+                    }
+                    var t0 = cc.math.Vector.sub(p1, p0);
+                    var t2 = cc.math.Vector.sub(p2, p1);
+                    t0.perpendicular().normalize().mult(width);
+                    t2.perpendicular().normalize().mult(width);
+                    // triangle composed by the 3 points if clockwise or couterclockwise.
+                    // if counterclockwise, we must invert the line threshold points, otherwise the intersection point
+                    // could be erroneous and lead to odd results.
+                    if (signedArea(p0.x, p0.y, p1.x, p1.y, p2.x, p2.y) > 0) {
+                        t0.invert();
+                        t2.invert();
+                    }
+                    var pintersect = lineIntersection(cc.math.Vector.add(p0, t0), cc.math.Vector.add(p1, t0), cc.math.Vector.add(p2, t2), cc.math.Vector.add(p1, t2));
+                    var anchor = null;
+                    var anchorLength = Number.MAX_VALUE;
+                    if (pintersect) {
+                        anchor = cc.math.Vector.sub(pintersect, p1);
+                        anchorLength = anchor.length();
+                    }
+                    var dd = (anchorLength / width) | 0;
+                    var p0p1 = cc.math.Vector.sub(p0, p1);
+                    var p0p1Length = p0p1.length();
+                    var p1p2 = cc.math.Vector.sub(p1, p2);
+                    var p1p2Length = p1p2.length();
+                    /**
+                     * the cross point exceeds any of the segments dimension.
+                     * do not use cross point as reference.
+                     * This case deserves more attention to avoid redraw, currently works by overdrawing large parts.
+                     */
+                    if (anchorLength > p0p1Length || anchorLength > p1p2Length) {
+                        __pushVert(verts, p0.x + t0.x, p0.y + t0.y); // p0+t0
+                        __pushVert(verts, p0.x - t0.x, p0.y - t0.y); // p0-t0
+                        __pushVert(verts, p1.x + t0.x, p1.y + t0.y); // p1+t0
+                        __pushVert(verts, p0.x - t0.x, p0.y - t0.y); // p0-t0
+                        __pushVert(verts, p1.x + t0.x, p1.y + t0.y); // p1+t0
+                        __pushVert(verts, p1.x - t0.x, p1.y - t0.y); // p1-t0
+                        if (join === 2 /* ROUND */) {
+                            createRoundCap(p1, cc.math.Vector.add(p1, t0), cc.math.Vector.add(p1, t2), p2, verts);
+                        }
+                        else if (join === 0 /* BEVEL */ || (join === 1 /* MITER */ && dd >= miterLimit)) {
+                            __pushVert(verts, p1.x, p1.y); // p1
+                            __pushVert(verts, p1.x + t0.x, p1.y + t0.y); // p1+t0
+                            __pushVert(verts, p1.x + t2.x, p1.y + t2.y); // p1+t2
+                        }
+                        else if (join === 1 /* MITER */ && dd < miterLimit && pintersect) {
+                            __pushVert(verts, p1.x + t0.x, p1.y + t0.y); // p1+t0
+                            __pushVert(verts, p1.x, p1.y); // p1
+                            __pushVert(verts, pintersect.x, pintersect.y); // pintersect
+                            __pushVert(verts, p1.x + t2.x, p1.y + t2.y); // p1+t2
+                            __pushVert(verts, p1.x, p1.y); // p1
+                            __pushVert(verts, pintersect.x, pintersect.y); // pintersect
+                        }
+                        __pushVert(verts, p2.x + t2.x, p2.y + t2.y); // p2+t2
+                        __pushVert(verts, p1.x - t2.x, p1.y - t2.y); // p1-t2
+                        __pushVert(verts, p1.x + t2.x, p1.y + t2.y); // p1+t2
+                        __pushVert(verts, p2.x + t2.x, p2.y + t2.y); // p2+t2
+                        __pushVert(verts, p1.x - t2.x, p1.y - t2.y); // p1-t2
+                        __pushVert(verts, p2.x - t2.x, p2.y - t2.y); // p2-t2
+                    }
+                    else {
+                        __pushVert(verts, p0.x + t0.x, p0.y + t0.y); // p0+t0
+                        __pushVert(verts, p0.x - t0.x, p0.y - t0.y); // p0-t0
+                        __pushVert(verts, p1.x - anchor.x, p1.y - anchor.y); // p1-anchor
+                        __pushVert(verts, p0.x + t0.x, p0.y + t0.y); // p0+t0
+                        __pushVert(verts, p1.x - anchor.x, p1.y - anchor.y); // p1-anchor
+                        __pushVert(verts, p1.x + t0.x, p1.y + t0.y); // p1+t0
+                        if (join === 2 /* ROUND */) {
+                            var _p0 = cc.math.Vector.add(p1, t0);
+                            var _p1 = cc.math.Vector.add(p1, t2);
+                            var _p2 = cc.math.Vector.sub(p1, anchor);
+                            var center = p1;
+                            __pushVert(verts, _p0.x, _p0.y); // _p0
+                            __pushVert(verts, center.x, center.y); // center
+                            __pushVert(verts, _p2.x, _p2.y); // _p2
+                            createRoundCap(center, _p0, _p1, _p2, verts);
+                            __pushVert(verts, center.x, center.y); // center
+                            __pushVert(verts, _p1.x, _p1.y); // _p1
+                            __pushVert(verts, _p2.x, _p2.y); // _p2
+                        }
+                        else {
+                            if (join === 0 /* BEVEL */ || (join === 1 /* MITER */ && dd >= miterLimit)) {
+                                __pushVert(verts, p1.x + t0.x, p1.y + t0.y); // p1+t0
+                                __pushVert(verts, p1.x + t2.x, p1.y + t2.y); // p1+t2
+                                __pushVert(verts, p1.x - anchor.x, p1.y - anchor.y); // p1-anchor
+                            }
+                            if (join === 1 /* MITER */ && dd < miterLimit) {
+                                __pushVert(verts, pintersect.x, pintersect.y); // pintersect
+                                __pushVert(verts, p1.x + t0.x, p1.y + t0.y); // p1+t0
+                                __pushVert(verts, p1.x + t2.x, p1.y + t2.y); // p1+t2
+                                __pushVert(verts, p1.x - anchor.x, p1.y - anchor.y); // p1-anchor
+                                __pushVert(verts, p1.x + t0.x, p1.y + t0.y); // p1+t0
+                                __pushVert(verts, p1.x + t2.x, p1.y + t2.y); // p1+t2
+                            }
+                        }
+                        __pushVert(verts, p2.x + t2.x, p2.y + t2.y); // p2+t2
+                        __pushVert(verts, p1.x - anchor.x, p1.y - anchor.y); // p1-anchor
+                        __pushVert(verts, p1.x + t2.x, p1.y + t2.y); // p1+t2
+                        __pushVert(verts, p2.x + t2.x, p2.y + t2.y); // p2+t2
+                        __pushVert(verts, p1.x - anchor.x, p1.y - anchor.y); // p1-anchor
+                        __pushVert(verts, p2.x - t2.x, p2.y - t2.y); // p2-t2
+                    }
+                }
+                /**
+                 * ripped from http://www.blackpawn.com/texts/pointinpoly/default.html ;)
+                 *
+                 * Identify whether the <code>cc.math.Point</code> p is inside the triangle defined by the 3 point.
+                 *
+                 * @method cc.math.path.geometry.isPointInTriangle
+                 *
+                 * @param p {cc.math.Point}
+                 * @param ax {number}
+                 * @param ay {number}
+                 * @param bx {number}
+                 * @param by {number}
+                 * @param cx {number}
+                 * @param cy {number}
+                 * @returns {boolean}
+                 */
+                function isPointInTriangle(p, ax, ay, bx, by, cx, cy) {
+                    var v0x = cx - ax;
+                    var v0y = cy - ay;
+                    var v1x = bx - ax;
+                    var v1y = by - ay;
+                    var v2x = p.x - ax;
+                    var v2y = p.y - ay;
+                    // Compute dot products
+                    var dot00 = Math.sqrt(v0x * v0x + v0y * v0y);
+                    var dot01 = Math.sqrt(v0x * v1x + v0y * v1y);
+                    var dot02 = Math.sqrt(v0x * v2x + v0y * v2y);
+                    var dot11 = Math.sqrt(v1x * v1x + v1y * v1y);
+                    var dot12 = Math.sqrt(v1x * v2x + v1y * v2y);
+                    // Compute barycentric coordinates
+                    var invDenom = 1 / (dot00 * dot11 - dot01 * dot01);
+                    var u = (dot11 * dot02 - dot01 * dot12) * invDenom;
+                    var v = (dot00 * dot12 - dot01 * dot02) * invDenom;
+                    // Check if point is in triangle
+                    return (u >= 0) && (v >= 0) && (u + v < 1);
+                }
+                geometry.isPointInTriangle = isPointInTriangle;
+                /**
+                 * Based from Ivank.polyk: http://polyk.ivank.net/polyk.js
+                 *
+                 * Turn a cloud of points to triangles.
+                 * The result of this operation will be an array of numbers, being each two a point, and each 6 a triangle.
+                 *
+                 * @method cc.math.path.geometry.tessellate
+                 * @param contour {Array<cc.math.Point>}
+                 * @returns {Float32Array}
+                 */
+                function tessellate(contour) {
+                    var n = contour.length;
+                    if (n < 3) {
+                        return null;
+                        ;
+                    }
+                    signedAreaModifier = cc.render.RENDER_ORIGIN === cc.render.ORIGIN_TOP ? 1 : -1;
+                    var triangles = [];
+                    var available = [];
+                    for (var i = 0; i < n; i++) {
+                        available.push(i);
+                    }
+                    var i = 0;
+                    var numPointsToTessellate = n;
+                    while (numPointsToTessellate > 3) {
+                        var i0 = available[(i) % numPointsToTessellate];
+                        var i1 = available[(i + 1) % numPointsToTessellate];
+                        var i2 = available[(i + 2) % numPointsToTessellate];
+                        var ax = contour[i0].x;
+                        var ay = contour[i0].y;
+                        var bx = contour[i1].x;
+                        var by = contour[i1].y;
+                        var cx = contour[i2].x;
+                        var cy = contour[i2].y;
+                        var earFound = false;
+                        if (signedArea(ax, ay, bx, by, cx, cy) * signedAreaModifier >= 0) {
+                            earFound = true;
+                            for (var j = 0; j < numPointsToTessellate; j++) {
+                                var vi = available[j];
+                                if (vi === i0 || vi === i1 || vi === i2) {
+                                    continue;
+                                }
+                                if (isPointInTriangle(contour[vi], ax, ay, bx, by, cx, cy)) {
+                                    earFound = false;
+                                    break;
+                                }
+                            }
+                        }
+                        if (earFound) {
+                            triangles.push(i0, i1, i2);
+                            available.splice((i + 1) % numPointsToTessellate, 1);
+                            numPointsToTessellate--;
+                            i = 0;
+                        }
+                        else if (i++ > 3 * numPointsToTessellate) {
+                            break;
+                        }
+                    }
+                    triangles.push(available[0], available[1], available[2]);
+                    var trianglesData = new Float32Array(triangles.length * 2);
+                    for (var i = 0; i < triangles.length; i++) {
+                        var p = contour[triangles[i]];
+                        trianglesData[i * 2] = p.x;
+                        trianglesData[i * 2 + 1] = p.y;
+                    }
+                    return new Float32Array(trianglesData);
+                }
+                geometry.tessellate = tessellate;
+            })(geometry = path.geometry || (path.geometry = {}));
+        })(path = math.path || (math.path = {}));
+    })(math = cc.math || (cc.math = {}));
+})(cc || (cc = {}));
+
+/**
  * License: see license.txt file.
  */
 var __extends = this.__extends || function (d, b) {
@@ -3895,14 +4335,48 @@ var cc;
                  * @private
                  */
                 this._currentSubPath = null;
+                /**
+                 * Cached stroke geometry.
+                 * @member cc.math.Path#_strokeGeometry
+                 * @type {Float32Array}
+                 * @private
+                 */
+                this._strokeGeometry = null;
+                /**
+                 * Cached fill geometry.
+                 * @member cc.math.Path#_fillGeometry
+                 * @type {Float32Array}
+                 * @private
+                 */
+                this._fillGeometry = null;
+                /**
+                 * Flag for stroke geometry cache invalidation.
+                 * @member cc.math.Path#_strokeDirty
+                 * @type {boolean}
+                 * @private
+                 */
+                this._strokeDirty = true;
+                /**
+                 * Flag for fill geometry cache invalidation.
+                 * @member cc.math.Path#_fillDirty
+                 * @type {boolean}
+                 * @private
+                 */
+                this._fillDirty = true;
             }
             /**
              * Get the Path's number of SubPaths.
+             * @method cc.math.Path#numSubPaths
              * @returns {number}
              */
             Path.prototype.numSubPaths = function () {
                 return this._segments.length;
             };
+            /**
+             * Create a new sub path.
+             * @method cc.math.Path#__newSubPath
+             * @private
+             */
             Path.prototype.__newSubPath = function () {
                 var subpath = new SubPath();
                 this._segments.push(subpath);
@@ -3911,6 +4385,7 @@ var cc;
             };
             /**
              * Test whether this Path is empty, ie has no sub paths.
+             * @method cc.math.Path#isEmpty
              * @returns {boolean}
              */
             Path.prototype.isEmpty = function () {
@@ -3930,6 +4405,8 @@ var cc;
              *
              * @param x {number=}
              * @param y {number=}
+             *
+             * @method cc.math.Path#__ensureSubPath
              * @private
              */
             Path.prototype.__ensureSubPath = function (x, y) {
@@ -3940,6 +4417,11 @@ var cc;
                     this._currentSubPath.moveTo(x, y);
                 }
             };
+            /**
+             * Chain two contours (subpath) when one is closed. Necessary for closed arcs.
+             * @method cc.math.Path#__chainSubPathIfCurrentIsClosed
+             * @private
+             */
             Path.prototype.__chainSubPathIfCurrentIsClosed = function () {
                 if (this._currentSubPath.isClosed()) {
                     var pt = this._currentSubPath._currentPoint;
@@ -3950,6 +4432,8 @@ var cc;
             /**
              * Get the Path current position for tracing.
              * This point corresponds to the tracing position of the current SubPath.
+             *
+             * @method cc.math.Path#getCurrentTracePosition
              * @returns {cc.math.Point}
              */
             Path.prototype.getCurrentTracePosition = function () {
@@ -3963,6 +4447,8 @@ var cc;
              * Get the Path starting point.
              * It corresponds to the starting point of the first segment it contains, regardless of its type.
              * If there's no current SubPath, an empty Point (0,0) is returned.
+             *
+             * @method cc.math.Path#getStartingPoint
              * @returns {*}
              */
             Path.prototype.getStartingPoint = function () {
@@ -3976,6 +4462,8 @@ var cc;
              * Get the Path ending point.
              * It corresponds to the ending point of the last segment it contains, regardless of its type.
              * If there's no current SubPath, an empty Point (0,0) is returned.
+             *
+             * @method cc.math.Path#getEndingPoint
              * @returns {*}
              */
             Path.prototype.getEndingPoint = function () {
@@ -3989,6 +4477,8 @@ var cc;
              * Create a poli-line path from a set of Points.
              * If no points, or an empty array is passed, no Path is built and returns null.
              * @param points {Array<cc.math.Vector>}
+             *
+             * @method cc.math.Path.createFromPoints
              * @returns {cc.math.Path} Newly created path or null if the path can't be created.
              * @static
              */
@@ -4018,10 +4508,21 @@ var cc;
                 this._segments = [];
                 this._length = 0;
                 this._currentSubPath = null;
-                this._dirty = true;
+                this.setDirty();
                 return this;
             };
-            Path.prototype.quadraticTo = function (x1, y1, x2, y2, matrix) {
+            /**
+             * Add a quadratic curve to the path.
+             * @param x1 {number} control point x position
+             * @param y1 {number} control point y position
+             * @param x2 {number} second curve point x position
+             * @param y2 {number} second curve point y position
+             * @param matrix {Float32Array}
+             *
+             * @method cc.math.Path#quadraticCurveTo
+             * @returns {cc.math.Path} the path holding the segment
+             */
+            Path.prototype.quadraticCurveTo = function (x1, y1, x2, y2, matrix) {
                 __v0.set(x1, y1);
                 __v1.set(x2, y2);
                 if (matrix) {
@@ -4030,9 +4531,21 @@ var cc;
                 }
                 this.__ensureSubPath();
                 this._currentSubPath.quadraticTo(__v0.x, __v0.y, __v1.x, __v1.y);
+                this.setDirty();
                 return this;
             };
-            Path.prototype.bezierTo = function (x0, y0, x1, y1, x2, y2, matrix) {
+            /**
+             * Add a quadratic curve to the path.
+             * @param x1 {number} control point x position
+             * @param y1 {number} control point y position
+             * @param x2 {number} second curve point x position
+             * @param y2 {number} second curve point y position
+             * @param matrix {Float32Array}
+             *
+             * @method cc.math.Path#bezierCurveTo
+             * @returns {cc.math.Path} the path holding the segment
+             */
+            Path.prototype.bezierCurveTo = function (x0, y0, x1, y1, x2, y2, matrix) {
                 __v0.set(x0, y0);
                 __v1.set(x1, y1);
                 __v2.set(x2, y2);
@@ -4043,8 +4556,21 @@ var cc;
                 }
                 this.__ensureSubPath();
                 this._currentSubPath.bezierTo(__v0.x, __v0.y, __v1.x, __v1.y, __v2.x, __v2.y);
+                this.setDirty();
                 return this;
             };
+            /**
+             * Add CatmullRom segments.
+             * The segments are defined by an array of numbers, being each two the definition of a Point, or an array of
+             * <code>cc.math.Point</code> objects.
+             *
+             * This method will create in the as much CatmullRom segments as needed based on the number of parameters supplied.
+             *
+             * @method cc.math.Path#catmullRomTo
+             * @param p0
+             * @param rest
+             * @returns {cc.math.Path}
+             */
             Path.prototype.catmullRomTo = function (p0) {
                 var rest = [];
                 for (var _i = 1; _i < arguments.length; _i++) {
@@ -4083,10 +4609,13 @@ var cc;
                 else {
                     console.log("invalid signature Path.catmullRomTo");
                 }
+                this.setDirty();
                 return this;
             };
             /**
-             * Add a catmull rom (cardinal spline
+             * Add a CatmullRom segment implementation.
+             *
+             * @method cc.math.Path#__catmullRomTo
              * @param cp0x {number}
              * @param cp0y {number}
              * @param cp1x {number}
@@ -4106,15 +4635,17 @@ var cc;
                 }
                 this.__ensureSubPath();
                 this._currentSubPath.catmullRomTo(__v0.x, __v0.y, __v1.x, __v1.y, __v2.x, __v2.y, tension);
+                this.setDirty();
             };
             /**
              * Close the current SubPath.
              *
+             * @method cc.math.Path#closePath
              * @returns {cc.math.Path}
              */
             Path.prototype.closePath = function () {
                 this._currentSubPath.closePath();
-                this._dirty = true;
+                this.setDirty();
                 return this;
             };
             /**
@@ -4141,6 +4672,9 @@ var cc;
                     y = __v0.y;
                 }
                 this.__ensureSubPath(x, y);
+                if (!this._currentSubPath.isEmpty()) {
+                    this.__newSubPath();
+                }
                 this._currentSubPath.moveTo(x, y);
                 return this;
             };
@@ -4164,12 +4698,14 @@ var cc;
                 this.__ensureSubPath(x, y);
                 this.__chainSubPathIfCurrentIsClosed();
                 this._currentSubPath.lineTo(x, y);
-                this._dirty = true;
+                this.setDirty();
                 return this;
             };
             /**
              * Create a rect as a new SubPath. The rect has 4 segments which conform the rect.
              * It also created a new SubPath movedTo (x,y).
+             *
+             * @method cc.math.Path#rect
              * @param x {number}
              * @param y {number}
              * @param w {number}
@@ -4200,7 +4736,7 @@ var cc;
                 this.closePath();
                 this.__newSubPath();
                 this._currentSubPath.moveTo(__v0.x, __v0.y);
-                this._dirty = true;
+                this.setDirty();
                 return this;
             };
             /**
@@ -4211,6 +4747,7 @@ var cc;
              * In this implementation if the radius is < 0, the radius will be set to 0.
              * If the radius is 0 or the diffangle is 0, no arc is added.
              *
+             * @method cc.math.Path#arc
              * @param x {number}
              * @param y {number}
              * @param radius {number}
@@ -4258,15 +4795,20 @@ var cc;
                 }
                 // calculate start angle based on current matrix
                 if (matrix) {
-                    Matrix3.copy(__m0, matrix);
+                    Matrix3.copy(matrix, __m0);
                     Matrix3.setRotate(__m1, startAngle);
                     Matrix3.multiply(__m0, __m1);
-                    startAngle = cc.math.path.getDistanceVector(1, matrix).angle();
+                    startAngle = cc.math.path.getDistanceVector(1, __m0).angle();
                 }
                 this._currentSubPath.arc(x, y, radius, startAngle, startAngle + diffAngle, anticlockwise, addLine);
-                this._dirty = true;
+                this.setDirty();
                 return this;
             };
+            /**
+             * Deep clone this path, contours and segments.
+             * @method cc.math.Path#clone
+             * @return {cc.math.Path} a cloned path.
+             */
             Path.prototype.clone = function () {
                 var path = new Path();
                 for (var i = 0; i < this._segments.length; i++) {
@@ -4276,13 +4818,89 @@ var cc;
                 path._length = this._length;
                 return path;
             };
+            /**
+             * Mark the path as dirty. Also, the cache for stroke and fill are marked as dirty.
+             * @method cc.math.Path#setDirty
+             */
+            Path.prototype.setDirty = function () {
+                this._dirty = true;
+                this._fillDirty = true;
+                this._strokeDirty = true;
+            };
+            /**
+             * Paint the path in a canvas rendering context.
+             * @method cc.math.Path#paint
+             * @param ctx {cc.render.RenderingContext}
+             */
             Path.prototype.paint = function (ctx) {
                 for (var i = 0; i < this._segments.length; i++) {
                     this._segments[i].paint(ctx);
                 }
             };
-            Path.prototype.getStrokeGeometry = function () {
-                return [];
+            /**
+             * If needed, calculate the stroke geometry for a path.
+             * The stroke mesh will be traced based of line attributes.
+             * On average, you will never interact with this method.
+             * @method cc.math.Path#getStrokeGeometry
+             * @param attributes {cc.math.path.geometry.StrokeGeometryAttributes}
+             * @returns {Float32Array}
+             */
+            Path.prototype.getStrokeGeometry = function (attributes) {
+                if (this._dirty || this._strokeDirty) {
+                    var size = 0;
+                    var buffers = [];
+                    for (var i = 0; i < this._segments.length; i++) {
+                        var subPath = this._segments[i];
+                        var contourPoints = subPath.trace();
+                        var buffer = cc.math.path.geometry.getStrokeGeometry(subPath.trace(), attributes);
+                        if (null !== buffer) {
+                            size += buffer.length;
+                            buffers.push(buffer);
+                        }
+                    }
+                    ;
+                    this._strokeGeometry = new Float32Array(size);
+                    var offset = 0;
+                    for (var i = 0; i < buffers.length; i++) {
+                        this._strokeGeometry.set(buffers[i], offset);
+                        offset += buffers[i].length;
+                    }
+                    this._dirty = false;
+                    this._strokeDirty = false;
+                }
+                return this._strokeGeometry;
+            };
+            /**
+             * If needed, tessellate the points of the path and create a mesh.
+             * On average, you will never interact with this method.
+             * @method cc.math.Path#getFillGeometry
+             * @returns {Float32Array}
+             */
+            Path.prototype.getFillGeometry = function () {
+                if (this._dirty || this._fillDirty) {
+                    var size = 0;
+                    var buffers = [];
+                    for (var i = 0; i < this._segments.length; i++) {
+                        var subPath = this._segments[i];
+                        var contourPoints = subPath.trace();
+                        var contour = subPath.trace();
+                        var buffer = cc.math.path.geometry.tessellate(contour);
+                        if (null !== buffer) {
+                            size += buffer.length;
+                            buffers.push(buffer);
+                        }
+                    }
+                    ;
+                    this._fillGeometry = new Float32Array(size);
+                    var offset = 0;
+                    for (var i = 0; i < buffers.length; i++) {
+                        this._fillGeometry.set(buffers[i], offset);
+                        offset += buffers[i].length;
+                    }
+                    this._dirty = false;
+                    this._fillDirty = false;
+                }
+                return this._fillGeometry;
             };
             return Path;
         })(ContainerSegment);
@@ -5323,6 +5941,11 @@ var cc;
             Node.prototype.getScene = function () {
                 return this._scene;
             };
+            /**
+             * Get the path of nodes to the top node, normally a <code>cc.node.Director</node> object.
+             * @method cc.node.Node#getPathToRoot
+             * @returns {Array<cc.node.Node>}
+             */
             Node.prototype.getPathToRoot = function () {
                 var node = this;
                 var ret = [];
@@ -5330,6 +5953,28 @@ var cc;
                     ret.push(node);
                     node = node.getParent();
                 } while (node);
+                return ret;
+            };
+            /**
+             * Get the path of nodes to the cc.node.Scene containing this Node.
+             * This method is called by <code>cc.node.Node#enableEventsForNode</code> because
+             * the input manager captures input based on a Scene.
+             * @method cc.node.Node#getPathToScene
+             * @returns {Array<cc.node.Node>}
+             */
+            Node.prototype.getPathToScene = function () {
+                if (!this._scene) {
+                    return [];
+                }
+                var node = this;
+                var ret = [];
+                do {
+                    ret.push(node);
+                    if (node === this._scene) {
+                        break;
+                    }
+                    node = node.getParent();
+                } while (node !== null);
                 return ret;
             };
             /**
@@ -5880,7 +6525,7 @@ var cc;
              * @param priority {number}
              */
             Node.prototype.scheduleUpdateWithPriority = function (priority) {
-                var task = cc.action.SchedulerQueue.createSchedulerTask(this, this.update, 0, Number.MAX_VALUE, 0);
+                var task = cc.action.SchedulerQueue.createSchedulerUpdateTask(this, 0, Number.MAX_VALUE, 0);
                 task._priority = priority;
                 this.__scheduleImpl(task);
             };
@@ -5893,7 +6538,7 @@ var cc;
              * @deprecated
              */
             Node.prototype.scheduleUpdate = function () {
-                var task = cc.action.SchedulerQueue.createSchedulerTask(this, this.update, 0, Number.MAX_VALUE, 0);
+                var task = cc.action.SchedulerQueue.createSchedulerUpdateTask(this, 0, Number.MAX_VALUE, 0);
                 this.__scheduleImpl(task);
             };
             Node.prototype.__scheduleImpl = function (task) {
@@ -10575,6 +11220,31 @@ var cc;
         })();
         action.SchedulerQueueTask = SchedulerQueueTask;
         /**
+         * @class cc.action.SchedulerQueueUpdateTask
+         * @classdesc
+         * @extends SchedulerQueueTask
+         *
+         * This object represents a scheduler task which calls the update method for a given Object, does not have to be
+         * a <code>cc.node.Node</code> object.
+         *
+         * This task type extends a <code>cc.action.SchedulerQueueTask</code> object and only calls the update method,
+         * that is, there must be a target object (mandatory at construction) and the callback parameter is omitted.
+         * <p>
+         * This object makes calling <code>cc.node.Node#scheduleUpdate</code> and then changing the update method safe.
+         *
+         */
+        var SchedulerQueueUpdateTask = (function (_super) {
+            __extends(SchedulerQueueUpdateTask, _super);
+            function SchedulerQueueUpdateTask() {
+                _super.call(this);
+            }
+            SchedulerQueueUpdateTask.prototype.__doCallCallback = function (elapsedTime) {
+                this._target.update.call(this._target, elapsedTime / cc.action.TIMEUNITS, this._target);
+            };
+            return SchedulerQueueUpdateTask;
+        })(SchedulerQueueTask);
+        action.SchedulerQueueUpdateTask = SchedulerQueueUpdateTask;
+        /**
          * @class cc.action.SchedulerQueue
          * @extends cc.action.Action
          * @classdesc
@@ -10673,6 +11343,25 @@ var cc;
                 task._target = target;
                 task._delay = (delay || 0) * cc.action.TIMEUNITS;
                 task._callback = callback;
+                task._interval = (interval || 0) * cc.action.TIMEUNITS;
+                task._repeat = typeof repeat !== "undefined" ? repeat : Number.MAX_VALUE;
+                task._status = 0 /* RUNNING */;
+                return task;
+            };
+            /**
+             * Create a schedulable task to call the update method on a cc.node.Node instance.
+             * This special factory method prevents errors when calling scheduleUpdate and then changing the update function.
+             *
+             * @param target {object} this object will be supplied as context to the callback function.
+             * @param interval {number} interval time to elapse between scheduler calls. Can't be less than 16ms. If the
+             *   value is less, it will be fired at every frame anyway.
+             * @param repeat {number} multi-shot task. Should this event repeat over time ?
+             * @param delay {boolean} schedule the task and wait this time before firing the event.
+             */
+            SchedulerQueue.createSchedulerUpdateTask = function (target, interval, repeat, delay) {
+                var task = new SchedulerQueueUpdateTask();
+                task._target = target;
+                task._delay = (delay || 0) * cc.action.TIMEUNITS;
                 task._interval = (interval || 0) * cc.action.TIMEUNITS;
                 task._repeat = typeof repeat !== "undefined" ? repeat : Number.MAX_VALUE;
                 task._status = 0 /* RUNNING */;
@@ -11577,8 +12266,11 @@ var cc;
              * @param node {cc.node.Node}
              */
             Scene.prototype.enableEventsForNode = function (node) {
-                this._sceneGraphPriorityTree.insert(node.getPathToRoot());
+                this._sceneGraphPriorityTree.insert(node.getPathToScene());
                 return this;
+            };
+            Scene.prototype.getPathToScene = function () {
+                return [this];
             };
             /**
              * Enable events in priority order for a node.
@@ -11819,7 +12511,7 @@ var cc;
                 this._scheduler.scheduleTask(task);
             };
             Scene.prototype.scheduleUpdateWithPriority = function (priority) {
-                var task = cc.action.SchedulerQueue.createSchedulerTask(this, this.update, 0, Number.MAX_VALUE, 0);
+                var task = cc.action.SchedulerQueue.createSchedulerUpdateTask(this, 0, Number.MAX_VALUE, 0);
                 task._priority = priority;
                 this._scheduler.scheduleTask(task);
             };
@@ -11830,7 +12522,7 @@ var cc;
              * @deprecated
              */
             Scene.prototype.scheduleUpdate = function () {
-                var task = cc.action.SchedulerQueue.createSchedulerTask(this, this.update, 0, Number.MAX_VALUE, 0);
+                var task = cc.action.SchedulerQueue.createSchedulerUpdateTask(this, 0, Number.MAX_VALUE, 0);
                 this._scheduler.scheduleTask(task);
             };
             Scene.prototype.unscheduleUpate = function () {
@@ -12454,6 +13146,7 @@ var cc;
  * Created by ibon on 11/17/14.
  */
 /// <reference path="./WebGLState.ts"/>
+/// <reference path="./Renderer.ts"/>
 var cc;
 (function (cc) {
     var render;
@@ -15556,6 +16249,9 @@ var cc;
                     __mat4[13] = mat3[5];
                     return __mat4;
                 };
+                AbstractShader.prototype.useMeshIndex = function () {
+                    return false;
+                };
                 return AbstractShader;
             })();
             _shader.AbstractShader = AbstractShader;
@@ -15654,6 +16350,9 @@ var cc;
                     var gl = this._webglState;
                     gl.vertexAttribPointer(this._attributePosition._location, 2, gl._gl.FLOAT, false, 12, 0);
                     gl.vertexAttribPointer(this._attributeColor._location, 4, gl._gl.UNSIGNED_BYTE, true, 12, 2 * 4);
+                };
+                SolidColorShader.prototype.useMeshIndex = function () {
+                    return true;
                 };
                 /**
                  * Spare matrix
@@ -15861,6 +16560,9 @@ var cc;
                     var gl = this._webglState;
                     gl.vertexAttribPointer(this._attributePosition._location, 2, gl._gl.FLOAT, false, 4 * 4, 0);
                     gl.vertexAttribPointer(this._attributeTexture._location, 2, gl._gl.FLOAT, false, 4 * 4, 2 * 4);
+                };
+                MeshShader.prototype.useMeshIndex = function () {
+                    return true;
                 };
                 /**
                  * Spare matrix
@@ -16515,16 +17217,16 @@ var cc;
             var globalAlpha = 1;
             var globalCompositeOperation = 0 /* source_over */;
             c2d.flush = function () {
-                this.setTransform(1, 0, 0, 1, 0, 0);
             };
             c2d.type = cc.render.RENDERER_TYPE_CANVAS;
-            //Object.defineProperty(c2d, "type", {
-            //    get: function () {
-            //        return cc.render.RENDERER_TYPE_CANVAS;
-            //    },
-            //    enumerable: true,
-            //    configurable: true
-            //});
+            c2d.setStrokeStyleColor = function (color) {
+                this.strokeStyle = color.getFillStyle();
+            };
+            c2d.setStrokeStyleColorArray = function (colorArray) {
+                this.strokeStyle = new cc.math.Color(colorArray[0], colorArray[1], colorArray[2], colorArray[3]).getFillStyle();
+            };
+            c2d.setStrokeStylePattern = function (pattern) {
+            };
             c2d.setFillStyleColor = function (color) {
                 this.fillStyle = color.getFillStyle();
             };
@@ -16540,8 +17242,10 @@ var cc;
                 // useless for canvas.
             };
             c2d.clear = function () {
+                this.save();
                 this.setTransform(1, 0, 0, 1, 0, 0);
                 this.clearRect(0, 0, this.getWidth(), this.getHeight());
+                this.restore();
             };
             c2d.getUnitsFactor = function () {
                 return renderer.getUnitsFactor();
@@ -16686,6 +17390,7 @@ var cc;
         /**
          * @class cc.render.CanvasRenderer
          * @classdesc
+         * @extends Renderer
          *
          * Create a Canvas renderer.
          */
@@ -16818,17 +17523,6 @@ var cc;
          *
          */
         render.RendererUtil = {
-            /**
-             * Draw a 9 patch from a SpriteFrame.
-             * It assumes that the 9 patch frame size is divisible by 3 horizontal and vertically.
-             * @param ctx {cc.render.RenderingContext}
-             * @param frameName {string}
-             * @param x {number}
-             * @param y {number}
-             * @param w {number}
-             * @param h {number}
-             * @param patchData {cc.render.PatchData?}
-             */
             draw9Patch: function (ctx, frameName, x, y, w, h, patchData) {
                 var sf = cc.plugin.asset.AssetManager.getSpriteFrame(frameName);
                 if (null === sf) {
@@ -16839,6 +17533,8 @@ var cc;
                     ctx.drawTexture(sf.getTexture(), 0, 0, sf.getWidth(), sf.getHeight(), x, y, w, h);
                     return;
                 }
+                var tx = sf.getX();
+                var ty = sf.getY();
                 patchData.left = patchData.left || 0;
                 patchData.top = patchData.top || 0;
                 patchData.right = patchData.right || 0;
@@ -16859,34 +17555,34 @@ var cc;
                 if (patchData.left) {
                     // top left
                     if (patchData.top) {
-                        ctx.drawTexture(sf.getTexture(), 0, 0, spriteLeftWidth, spriteTopHeight, x, topy, spriteLeftWidth / scaleFactor, spriteTopHeight / scaleFactor);
+                        ctx.drawTexture(sf.getTexture(), tx, ty, spriteLeftWidth, spriteTopHeight, x, topy, spriteLeftWidth / scaleFactor, spriteTopHeight / scaleFactor);
                     }
                     // bottom left
                     if (patchData.bottom) {
-                        ctx.drawTexture(sf.getTexture(), 0, spriteBottomY, spriteLeftWidth, spriteBottomHeight, x, bottomy, spriteLeftWidth / scaleFactor, spriteBottomHeight / scaleFactor);
+                        ctx.drawTexture(sf.getTexture(), tx, ty + spriteBottomY, spriteLeftWidth, spriteBottomHeight, x, bottomy, spriteLeftWidth / scaleFactor, spriteBottomHeight / scaleFactor);
                     }
-                    ctx.drawTexture(sf.getTexture(), 0, patchData.top, spriteLeftWidth, spriteMiddleHeight, x, middley, spriteLeftWidth / scaleFactor, h - paddingH / scaleFactor);
+                    ctx.drawTexture(sf.getTexture(), tx, ty + patchData.top, spriteLeftWidth, spriteMiddleHeight, x, middley, spriteLeftWidth / scaleFactor, h - paddingH / scaleFactor);
                 }
                 if (patchData.right) {
                     // top left
                     if (patchData.top) {
-                        ctx.drawTexture(sf.getTexture(), sf.getWidth() - patchData.right, 0, spriteRightWidth, spriteTopHeight, x + w - patchData.right / scaleFactor, topy, spriteRightWidth / scaleFactor, spriteTopHeight / scaleFactor);
+                        ctx.drawTexture(sf.getTexture(), tx + sf.getWidth() - patchData.right, ty, spriteRightWidth, spriteTopHeight, x + w - patchData.right / scaleFactor, topy, spriteRightWidth / scaleFactor, spriteTopHeight / scaleFactor);
                     }
                     // bottom left
                     if (patchData.bottom) {
-                        ctx.drawTexture(sf.getTexture(), sf.getWidth() - patchData.right, spriteBottomY, spriteRightWidth, spriteBottomHeight, x + w - patchData.right / scaleFactor, bottomy, spriteRightWidth / scaleFactor, spriteBottomHeight / scaleFactor);
+                        ctx.drawTexture(sf.getTexture(), tx + sf.getWidth() - patchData.right, ty + spriteBottomY, spriteRightWidth, spriteBottomHeight, x + w - patchData.right / scaleFactor, bottomy, spriteRightWidth / scaleFactor, spriteBottomHeight / scaleFactor);
                     }
-                    ctx.drawTexture(sf.getTexture(), sf.getWidth() - patchData.right, patchData.top, spriteRightWidth, spriteMiddleHeight, x + w - patchData.right / scaleFactor, middley, spriteRightWidth / scaleFactor, h - paddingH / scaleFactor);
+                    ctx.drawTexture(sf.getTexture(), tx + sf.getWidth() - patchData.right, ty + patchData.top, spriteRightWidth, spriteMiddleHeight, x + w - patchData.right / scaleFactor, middley, spriteRightWidth / scaleFactor, h - paddingH / scaleFactor);
                 }
                 // top left
                 if (patchData.top) {
-                    ctx.drawTexture(sf.getTexture(), patchData.left, 0, spriteMiddleWidth, spriteTopHeight, x + patchData.left / scaleFactor, topy, w - paddingW / scaleFactor, spriteTopHeight / scaleFactor);
+                    ctx.drawTexture(sf.getTexture(), tx + patchData.left, ty, spriteMiddleWidth, spriteTopHeight, x + patchData.left / scaleFactor, topy, w - paddingW / scaleFactor, spriteTopHeight / scaleFactor);
                 }
                 // bottom left
                 if (patchData.bottom) {
-                    ctx.drawTexture(sf.getTexture(), patchData.left, spriteBottomY, spriteMiddleWidth, spriteBottomHeight, x + patchData.left / scaleFactor, bottomy, w - paddingW / scaleFactor, spriteBottomHeight / scaleFactor);
+                    ctx.drawTexture(sf.getTexture(), tx + patchData.left, ty + spriteBottomY, spriteMiddleWidth, spriteBottomHeight, x + patchData.left / scaleFactor, bottomy, w - paddingW / scaleFactor, spriteBottomHeight / scaleFactor);
                 }
-                ctx.drawTexture(sf.getTexture(), patchData.left, patchData.top, spriteMiddleWidth, spriteMiddleHeight, x + patchData.left / scaleFactor, middley, w - paddingW / scaleFactor, h - paddingH / scaleFactor);
+                ctx.drawTexture(sf.getTexture(), tx + patchData.left, ty + patchData.top, spriteMiddleWidth, spriteMiddleHeight, x + patchData.left / scaleFactor, middley, w - paddingW / scaleFactor, h - paddingH / scaleFactor);
             }
         };
     })(render = cc.render || (cc.render = {}));
@@ -16987,20 +17683,38 @@ var cc;
             "xor",
             "lighter"
         ];
+        (function (LineCap) {
+            LineCap[LineCap["BUTT"] = 0] = "BUTT";
+            LineCap[LineCap["SQUARE"] = 1] = "SQUARE";
+            LineCap[LineCap["ROUND"] = 2] = "ROUND";
+        })(render.LineCap || (render.LineCap = {}));
+        var LineCap = render.LineCap;
+        /**
+         * @enum
+         *
+         */
+        (function (LineJoin) {
+            LineJoin[LineJoin["BEVEL"] = 0] = "BEVEL";
+            LineJoin[LineJoin["MITER"] = 1] = "MITER";
+            LineJoin[LineJoin["ROUND"] = 2] = "ROUND";
+        })(render.LineJoin || (render.LineJoin = {}));
+        var LineJoin = render.LineJoin;
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
 
 /**
  * License: see license.txt file.
  */
+/// <reference path="../math/Point.ts"/>
 /// <reference path="../math/Matrix3.ts"/>
 /// <reference path="../math/Color.ts"/>
+/// <reference path="../math/Path.ts"/>
+/// <reference path="../math/path/geometry/StrokeGeometry.ts"/>
 /// <reference path="./RenderingContext.ts"/>
 var cc;
 (function (cc) {
     var render;
     (function (render) {
-        var Matrix3 = cc.math.Matrix3;
         /**
          * @class cc.render.RenderingContextSnapshot
          * @classdesc
@@ -17045,7 +17759,13 @@ var cc;
                  * @private
                  */
                 this._miterLimit = 10;
-                this._currentFillStyleType = 0 /* COLOR */;
+                /**
+                 * Current fill type info. Needed for shader selection.
+                 * @member cc.render.RenderingContextSnapshot#_currentFillStyleType
+                 * @type {cc.render.FillStyleType}
+                 * @private
+                 */
+                this._currentFillStyleType = 0 /* MESHCOLOR */;
                 /**
                  * Current fill style.
                  * @member cc.render.RenderingContextSnapshot#_fillStyle
@@ -17053,6 +17773,14 @@ var cc;
                  * @private
                  */
                 this._fillStyleColor = new Float32Array([0.0, 0.0, 0.0, 1.0]);
+                /**
+                 * Current pattern info when <code>_currentFillStyleType</code> is
+                 * <code>cc.render.FillStyleType.PATTERN_REPEAT</code>
+                 * @type {cc.render.Pattern}
+                 * @member cc.render.RenderingContextSnapshot#_fillStylePattern
+                 * @private
+                 *
+                 */
                 this._fillStylePattern = null;
                 /**
                  * Current tint color. Only makes sense in webgl renderers.
@@ -17060,7 +17788,7 @@ var cc;
                  * @type {Float32Array}
                  * @private
                  */
-                this._tintColor = new Float32Array([0.0, 0.0, 0.0, 1.0]);
+                this._tintColor = new Float32Array([1.0, 1.0, 1.0, 1.0]);
                 /**
                  * Current stroke line width.
                  * @member cc.render.RenderingContextSnapshot#_lineWidth
@@ -17068,6 +17796,20 @@ var cc;
                  * @private
                  */
                 this._lineWidth = 1.0;
+                /**
+                 * Line cap hint for path stroking.
+                 * @type {cc.render.LineCap.BUTT}
+                 * @member cc.render.RenderingContextSnapshot#_lineCap
+                 * @private
+                 */
+                this._lineCap = 0 /* BUTT */;
+                /**
+                 * Line join hint for path stroking.
+                 * @type {cc.render.LineCap.BUTT}
+                 * @member cc.render.RenderingContextSnapshot#_lineJoin
+                 * @private
+                 */
+                this._lineJoin = 1 /* MITER */;
                 /**
                  * Current font data.
                  * @member cc.render.RenderingContextSnapshot#_fontDefinition
@@ -17103,6 +17845,7 @@ var cc;
                  * @private
                  */
                 this._clippingStack = [];
+                this._currentPath = new cc.math.Path();
             }
             /**
              * Clone this snapshot and create a new one.
@@ -17113,7 +17856,7 @@ var cc;
                 var rcs = new RenderingContextSnapshot();
                 rcs._globalCompositeOperation = this._globalCompositeOperation;
                 rcs._globalAlpha = this._globalAlpha;
-                Matrix3.copy(rcs._currentMatrix, this._currentMatrix);
+                cc.math.Matrix3.copy(rcs._currentMatrix, this._currentMatrix);
                 rcs._fillStyleColor = this._fillStyleColor;
                 rcs._fillStylePattern = this._fillStylePattern;
                 rcs._currentFillStyleType = this._currentFillStyleType;
@@ -17123,9 +17866,139 @@ var cc;
                 rcs._fontDefinition = this._fontDefinition;
                 rcs._textBaseline = this._textBaseline;
                 rcs._textAlign = this._textAlign;
-                //rcs._currentPath = this._currentPath.clone();
+                rcs._currentPath = this._currentPath.clone();
                 rcs._clippingStack = this._clippingStack;
                 return rcs;
+            };
+            /**
+             * begin path in the path tracer.
+             * @method cc.render.RenderingContextSnapshot#beginPath
+             */
+            RenderingContextSnapshot.prototype.beginPath = function () {
+                this._currentPath.beginPath();
+            };
+            /**
+             * Close the current contour in the path tracer.
+             * A closed contour can't have any other segment added, and successive tracing operations will create a new
+             * contour.
+             * @method cc.render.RenderingContextSnapshot#closePath
+             */
+            RenderingContextSnapshot.prototype.closePath = function () {
+                this._currentPath.closePath();
+            };
+            /**
+             * Move the current path position based on the current transformation matrix.
+             * @param x {number}
+             * @param y {number}
+             * @method cc.render.RenderingContextSnapshot#moveTo
+             */
+            RenderingContextSnapshot.prototype.moveTo = function (x, y) {
+                this._currentPath.moveTo(x, y, this._currentMatrix);
+            };
+            /**
+             * Add a line segment to the current path. Segment info must be transformed by the current transformation matrix.
+             * @param x {number}
+             * @param y {number}
+             * @method cc.render.RenderingContextSnapshot#lineTo
+             */
+            RenderingContextSnapshot.prototype.lineTo = function (x, y) {
+                this._currentPath.lineTo(x, y, this._currentMatrix);
+            };
+            /**
+             * Add a bezier segment to the current path. Segment info must be transformed by the current transformation matrix.
+             * @param cp0x {number}
+             * @param cp0y {number}
+             * @param cp1x {number}
+             * @param cp1y {number}
+             * @param p2x {number}
+             * @param p2y {number}
+             * @method cc.render.RenderingContextSnapshot#bezierCurveTo
+             */
+            RenderingContextSnapshot.prototype.bezierCurveTo = function (cp0x, cp0y, cp1x, cp1y, p2x, p2y) {
+                this._currentPath.bezierCurveTo(cp0x, cp0y, cp1x, cp1y, p2x, p2y, this._currentMatrix);
+            };
+            /**
+             * Add a quadratic segment to the current path. Segment info must be transformed by the current transformation matrix.
+             * @param cp0x {number}
+             * @param cp0y {number}
+             * @param p2x {number}
+             * @param p2y {number}
+             * @method cc.render.RenderingContextSnapshot#quadraticCurveTo
+             */
+            RenderingContextSnapshot.prototype.quadraticCurveTo = function (cp0x, cp0y, p2x, p2y) {
+                this._currentPath.quadraticCurveTo(cp0x, cp0y, p2x, p2y, this._currentMatrix);
+            };
+            /**
+             * Add a rectangle segment to the current path.
+             * Segment info must be transformed by the current transformation matrix.
+             * @param x {number}
+             * @param y {number}
+             * @param width {number}
+             * @param height {number}
+             * @method cc.render.RenderingContextSnapshot#rect
+             */
+            RenderingContextSnapshot.prototype.rect = function (x, y, width, height) {
+                this._currentPath.rect(x, y, width, height, this._currentMatrix);
+            };
+            /**
+             * Add an arc segment to the current path.
+             * Segment info must be transformed by the current transformation matrix.
+             * @param x {number}
+             * @param y {number}
+             * @param radius {number}
+             * @param startAngle {number}
+             * @param endAngle {number}
+             * @param counterClockWise {boolean}
+             *
+             * @method cc.render.RenderingContextSnapshot#arc
+             */
+            RenderingContextSnapshot.prototype.arc = function (x, y, radius, startAngle, endAngle, counterClockWise) {
+                this._currentPath.arc(x, y, radius, startAngle, endAngle, counterClockWise, this._currentMatrix);
+            };
+            /**
+             * Tell the current path to create geometry for its contour stroke.
+             * The stroke will different based on the line width, and contour hints line join/cap.
+             *
+             * You normally don't have to interact with this method.
+             *
+             * @param lineWidth {number}
+             * @param join {cc.render.LineJoin}
+             * @param cap {cc.render.LineCap}
+             *
+             * @method cc.render.RenderingContextSnapshot#setupStroke
+             * @returns {Float32Array}
+             */
+            RenderingContextSnapshot.prototype.setupStroke = function (lineWidth, join, cap, path) {
+                if (typeof path === "undefined") {
+                    path = this._currentPath;
+                }
+                if (path._dirty || this._lineWidth !== lineWidth || this._lineCap !== cap || this._lineJoin !== join) {
+                    lineWidth = cc.math.path.getDistanceVector(lineWidth, this._currentMatrix).length();
+                    this._lineCap = cap;
+                    this._lineJoin = join;
+                    this._lineWidth = lineWidth;
+                    path.getStrokeGeometry({
+                        width: lineWidth,
+                        cap: this._lineCap,
+                        join: this._lineJoin,
+                        miterLimit: this._miterLimit
+                    });
+                }
+                return path._strokeGeometry;
+            };
+            /**
+             * Tell the current path to create geometry for filling it.
+             *
+             * You normally don't have to interact with this method.
+             *
+             * @method cc.render.RenderingContextSnapshot#setupFill
+             * @returns {Float32Array}
+             */
+            RenderingContextSnapshot.prototype.setupFill = function (path) {
+                if (typeof path === "undefined") {
+                    path = this._currentPath;
+                }
+                return path.getFillGeometry();
             };
             return RenderingContextSnapshot;
         })();
@@ -17152,6 +18025,7 @@ var cc;
         var Matrix3 = cc.math.Matrix3;
         var Buffer = cc.render.shader.Buffer;
         var __vv = { x: 0, y: 0 };
+        var __vv0 = { x: 0, y: 0 };
         var __color = new Uint8Array([0, 0, 0, 0]);
         /**
          * @class cc.render.GeometryBatcher
@@ -17238,7 +18112,6 @@ var cc;
                 this._indexBufferIndex = 0;
                 this._indexBufferMesh = null;
                 this._indexBufferMeshIndex = 0;
-                this._indicesChanged = false;
                 this._glIndexMeshBuffers = [];
                 this._glIndexMeshBuffer = null;
                 /**
@@ -17268,6 +18141,9 @@ var cc;
                     indexBufferIndex += 6;
                     elementIndex += 4;
                 }
+                for (var i = 0; i < GeometryBatcher.MAX_QUADS * 6; i++) {
+                    this._indexBufferMesh[i] = i;
+                }
                 this._glDataBuffers.push(new Buffer(this._gl, this._gl.ARRAY_BUFFER, this._dataBufferFloat, this._gl.DYNAMIC_DRAW));
                 this._glDataBuffers.push(new Buffer(this._gl, this._gl.ARRAY_BUFFER, this._dataBufferFloat, this._gl.DYNAMIC_DRAW));
                 this._glDataBuffers.push(new Buffer(this._gl, this._gl.ARRAY_BUFFER, this._dataBufferFloat, this._gl.DYNAMIC_DRAW));
@@ -17276,14 +18152,26 @@ var cc;
                 this._glIndexBuffers.push(new Buffer(this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer, this._gl.STATIC_DRAW));
                 this._glIndexBuffers.push(new Buffer(this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer, this._gl.STATIC_DRAW));
                 this._glIndexBuffers.push(new Buffer(this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer, this._gl.STATIC_DRAW));
-                this._glIndexMeshBuffers.push(new Buffer(this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer, this._gl.DYNAMIC_DRAW));
-                this._glIndexMeshBuffers.push(new Buffer(this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer, this._gl.DYNAMIC_DRAW));
-                this._glIndexMeshBuffers.push(new Buffer(this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer, this._gl.DYNAMIC_DRAW));
-                this._glIndexMeshBuffers.push(new Buffer(this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer, this._gl.DYNAMIC_DRAW));
+                this._glIndexMeshBuffers.push(new Buffer(this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBufferMesh, this._gl.STATIC_DRAW));
+                this._glIndexMeshBuffers.push(new Buffer(this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBufferMesh, this._gl.STATIC_DRAW));
+                this._glIndexMeshBuffers.push(new Buffer(this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBufferMesh, this._gl.STATIC_DRAW));
+                this._glIndexMeshBuffers.push(new Buffer(this._gl, this._gl.ELEMENT_ARRAY_BUFFER, this._indexBufferMesh, this._gl.STATIC_DRAW));
                 this._glDataBuffer = this._glDataBuffers[0];
                 this._glIndexBuffer = this._glIndexBuffers[0];
                 this._glIndexMeshBuffer = this._glIndexMeshBuffers[0];
             }
+            /**
+             * Batch a rectangle with texture.
+             *
+             * @method cc.render.GeometryBatcher#batchRectGeometryWithTexture
+             * @param vertices {Array<cc.math.Point>}
+             * @param u0 {number}
+             * @param v0 {number}
+             * @param u1 {number}
+             * @param v1 {number}
+             * @param rcs {cc.render.RenderingContextSnapshot}
+             * @returns {boolean}
+             */
             GeometryBatcher.prototype.batchRectGeometryWithTexture = function (vertices, u0, v0, u1, v1, rcs) {
                 var cc = this.__uintColor(rcs);
                 this.batchVertex(vertices[0], cc, u0, v0);
@@ -17346,11 +18234,12 @@ var cc;
                 var a = ((color[3] * tint[3] * rcs._globalAlpha) * 255) | 0;
                 var cc = (r) | (g << 8) | (b << 16) | (a << 24);
                 var cm = rcs._currentMatrix;
-                __vv.x = x;
-                __vv.y = y;
-                Matrix3.transformPoint(cm, __vv);
-                this._dataBufferFloat[this._dataBufferIndex++] = __vv.x;
-                this._dataBufferFloat[this._dataBufferIndex++] = __vv.y;
+                // 0-1-2
+                __vv0.x = x;
+                __vv0.y = y;
+                Matrix3.transformPoint(cm, __vv0);
+                this._dataBufferFloat[this._dataBufferIndex++] = __vv0.x;
+                this._dataBufferFloat[this._dataBufferIndex++] = __vv0.y;
                 this._dataBufferUint[this._dataBufferIndex++] = cc;
                 __vv.x = x + w;
                 __vv.y = y;
@@ -17361,6 +18250,13 @@ var cc;
                 __vv.x = x + w;
                 __vv.y = y + h;
                 Matrix3.transformPoint(cm, __vv);
+                this._dataBufferFloat[this._dataBufferIndex++] = __vv.x;
+                this._dataBufferFloat[this._dataBufferIndex++] = __vv.y;
+                this._dataBufferUint[this._dataBufferIndex++] = cc;
+                // 0-2-3
+                this._dataBufferFloat[this._dataBufferIndex++] = __vv0.x;
+                this._dataBufferFloat[this._dataBufferIndex++] = __vv0.y;
+                this._dataBufferUint[this._dataBufferIndex++] = cc;
                 this._dataBufferFloat[this._dataBufferIndex++] = __vv.x;
                 this._dataBufferFloat[this._dataBufferIndex++] = __vv.y;
                 this._dataBufferUint[this._dataBufferIndex++] = cc;
@@ -17371,8 +18267,8 @@ var cc;
                 this._dataBufferFloat[this._dataBufferIndex++] = __vv.y;
                 this._dataBufferUint[this._dataBufferIndex++] = cc;
                 // add two triangles * 3 values each.
-                this._indexBufferIndex += 6;
-                return this._indexBufferIndex + 6 >= this._indexBuffer.length;
+                this._indexBufferMeshIndex += 6;
+                return this._indexBufferMeshIndex + 6 >= this._indexBuffer.length;
             };
             /**
              * Batch a vertex with color and texture.
@@ -17393,6 +18289,7 @@ var cc;
                 this._dataBufferFloat[this._dataBufferIndex++] = v;
             };
             /**
+             * BUGBUG refactor. Move to AbstractShader and reimplement for each shader.
              * Flush currently batched geometry and related info with a given shader program.
              * @method cc.render.GeometryBatcher#flush
              * @param shader {cc.render.shader.AbstractShader} program shader
@@ -17400,13 +18297,12 @@ var cc;
              */
             GeometryBatcher.prototype.flush = function (shader, rcs) {
                 var trianglesCount;
-                if (this._indicesChanged) {
+                if (shader.useMeshIndex()) {
                     trianglesCount = this._indexBufferMeshIndex;
                     if (!trianglesCount) {
                         return;
                     }
                     this._glIndexMeshBuffer.bind(this._gl.ELEMENT_ARRAY_BUFFER);
-                    this._glIndexMeshBuffer.forceEnableWithValue(this._indexBufferMesh.subarray(0, this._indexBufferMeshIndex));
                 }
                 else {
                     trianglesCount = this._indexBufferIndex;
@@ -17421,7 +18317,7 @@ var cc;
                 //this._glDataBuffer.enableWithValue(this._dataBufferFloat.subarray(0, this._dataBufferIndex));
                 shader.flushBuffersWithContent(rcs);
                 this._gl.drawElements(this._gl.TRIANGLES, trianglesCount, this._gl.UNSIGNED_SHORT, 0);
-                //this._gl.drawArrays(this._gl.TRIANGLE_STRIP, 0, 4);
+                //this._gl.drawArrays(this._gl.TRIANGLES, 0, trianglesCount);
                 // reset buffer data index.
                 this._dataBufferIndex = 0;
                 this._indexBufferIndex = 0;
@@ -17431,8 +18327,16 @@ var cc;
                 this._glDataBuffer = this._glDataBuffers[this._currentBuffersIndex];
                 this._glIndexBuffer = this._glIndexBuffers[this._currentBuffersIndex];
                 this._glIndexMeshBuffer = this._glIndexMeshBuffers[this._currentBuffersIndex];
-                this._indicesChanged = false;
             };
+            /**
+             * Get a compact Uint32 representation of a color.
+             * The color is calculated as the mix or the rendering context current color multiplied the the rendering context
+             * current tint color.
+             * @method cc.render.GeometryBatcher#__uintColor
+             * @param rcs {cc.render.RenderincContextSnapshot}
+             * @returns {number}
+             * @private
+             */
             GeometryBatcher.prototype.__uintColor = function (rcs) {
                 var tint = rcs._tintColor;
                 var r = (tint[0] * 255) | 0;
@@ -17441,6 +18345,20 @@ var cc;
                 var a = (tint[3] * rcs._globalAlpha * 255) | 0;
                 return (r) | (g << 8) | (b << 16) | (a << 24);
             };
+            /**
+             * Batch a fast sprite info. Fast sprite objects do all transformation calculations on the GPU, and as such,
+             * have some limitations.
+             *
+             * @method cc.render.GeometryBatcher#batchRectGeometryWithSpriteFast
+             *
+             * @param sprite {cc.node.Sprite}
+             * @param u0 {number}
+             * @param v0 {number}
+             * @param u1 {number}
+             * @param v1 {number}
+             * @param rcs {cc.render.RenderingContextSnapshot}
+             * @returns {boolean}
+             */
             GeometryBatcher.prototype.batchRectGeometryWithSpriteFast = function (sprite, u0, v0, u1, v1, rcs) {
                 var cc = this.__uintColor(rcs);
                 var db = this._dataBufferFloat;
@@ -17482,26 +18400,69 @@ var cc;
                 this._dataBufferIndex += 40;
                 return this._dataBufferIndex + 40 >= this._dataBufferFloat.length;
             };
-            GeometryBatcher.prototype.batchMesh = function (geometry, uv, indices, color, rcs) {
-                this._indicesChanged = true;
+            /**
+             * Batch a mesh.
+             * A mesh uses a custom shader for meshes. They expect to color-per-vertex info, but a global color for the as
+             * a uniform value.
+             *
+             * @method cc.render.GeometryBatcher#batchMesh
+             * @param geometry {Float32Array}
+             * @param uv {Float32Array}
+             * @param indices {Uint32Array}
+             * @param color {number} the result of calling __uintColor
+             */
+            GeometryBatcher.prototype.batchMesh = function (geometry, uv, indices, color) {
                 for (var i = 0; i < indices.length; i += 3) {
                     var indexVertex0 = indices[i + 0] * 3;
                     var indexVertexUV0 = indices[i + 0] * 2;
-                    this.batchMeshVertex(geometry[indexVertex0], geometry[indexVertex0 + 1], uv[indexVertexUV0], uv[indexVertexUV0 + 1], i, rcs);
+                    this.batchMeshVertex(geometry[indexVertex0], geometry[indexVertex0 + 1], uv[indexVertexUV0], uv[indexVertexUV0 + 1]);
                     var indexVertex1 = indices[i + 1] * 3;
                     var indexVertexUV1 = indices[i + 1] * 2;
-                    this.batchMeshVertex(geometry[indexVertex1], geometry[indexVertex1 + 1], uv[indexVertexUV1], uv[indexVertexUV1 + 1], i + 1, rcs);
+                    this.batchMeshVertex(geometry[indexVertex1], geometry[indexVertex1 + 1], uv[indexVertexUV1], uv[indexVertexUV1 + 1]);
                     var indexVertex2 = indices[i + 2] * 3;
                     var indexVertexUV2 = indices[i + 2] * 2;
-                    this.batchMeshVertex(geometry[indexVertex2], geometry[indexVertex2 + 1], uv[indexVertexUV2], uv[indexVertexUV2 + 1], i + 2, rcs);
+                    this.batchMeshVertex(geometry[indexVertex2], geometry[indexVertex2 + 1], uv[indexVertexUV2], uv[indexVertexUV2 + 1]);
                 }
             };
-            GeometryBatcher.prototype.batchMeshVertex = function (x, y, u, v, index, rcs) {
+            /**
+             * Batch a vertex for a mesh.
+             *
+             * @method cc.render.GeometryBatcher#batchMeshVertex
+             * @param x {number}
+             * @param y {number}
+             * @param u {number}
+             * @param v {number}
+             */
+            GeometryBatcher.prototype.batchMeshVertex = function (x, y, u, v) {
                 this._dataBufferFloat[this._dataBufferIndex++] = x;
                 this._dataBufferFloat[this._dataBufferIndex++] = y;
                 this._dataBufferFloat[this._dataBufferIndex++] = u;
                 this._dataBufferFloat[this._dataBufferIndex++] = v;
-                this._indexBufferMesh[this._indexBufferMeshIndex++] = index;
+                this._indexBufferMeshIndex++;
+            };
+            /**
+             * Batch a path geometry.
+             * Requires sequential indices.
+             * Geometry already in screen space.
+             *
+             * @method cc.render.GeometryBatcher#batchPath
+             * @param geometry {Float32Array}
+             * @param rcs {cc.render.RenderingContextSnapshot}
+             */
+            GeometryBatcher.prototype.batchPath = function (geometry, rcs) {
+                var color = rcs._fillStyleColor;
+                var tint = rcs._tintColor;
+                var r = ((color[0] * tint[0]) * 255) | 0;
+                var g = ((color[1] * tint[1]) * 255) | 0;
+                var b = ((color[2] * tint[2]) * 255) | 0;
+                var a = ((color[3] * tint[3] * rcs._globalAlpha) * 255) | 0;
+                var cc = (r) | (g << 8) | (b << 16) | (a << 24);
+                for (var i = 0; i < geometry.length; i += 2) {
+                    this._dataBufferFloat[this._dataBufferIndex++] = geometry[i];
+                    this._dataBufferFloat[this._dataBufferIndex++] = geometry[i + 1];
+                    this._dataBufferUint[this._dataBufferIndex++] = cc;
+                    this._indexBufferMeshIndex++;
+                }
             };
             /**
              * Max bufferable quads.
@@ -17528,6 +18489,7 @@ var cc;
 /// <reference path="./WebGLState.ts"/>
 /// <reference path="./Texture2D.ts"/>
 /// <reference path="./GeometryBatcher.ts"/>
+/// <reference path="./RenderUtil.ts"/>
 /// <reference path="./shader/AbstractShader.ts"/>
 /// <reference path="./shader/SolidColorShader.ts"/>
 /// <reference path="./shader/TextureShader.ts"/>
@@ -17552,7 +18514,7 @@ var cc;
          * @tsenum cc.render.FillStyleType
          */
         (function (FillStyleType) {
-            FillStyleType[FillStyleType["COLOR"] = 0] = "COLOR";
+            FillStyleType[FillStyleType["MESHCOLOR"] = 0] = "MESHCOLOR";
             FillStyleType[FillStyleType["IMAGE"] = 1] = "IMAGE";
             FillStyleType[FillStyleType["IMAGEFAST"] = 2] = "IMAGEFAST";
             FillStyleType[FillStyleType["PATTERN_REPEAT"] = 3] = "PATTERN_REPEAT";
@@ -17564,7 +18526,7 @@ var cc;
          * @tsenum cc.render.ShaderType
          */
         (function (ShaderType) {
-            ShaderType[ShaderType["COLOR"] = 0] = "COLOR";
+            ShaderType[ShaderType["MESHCOLOR"] = 0] = "MESHCOLOR";
             ShaderType[ShaderType["IMAGE"] = 1] = "IMAGE";
             ShaderType[ShaderType["IMAGEFAST"] = 2] = "IMAGEFAST";
             ShaderType[ShaderType["PATTERN_REPEAT"] = 3] = "PATTERN_REPEAT";
@@ -17603,12 +18565,21 @@ var cc;
         /**
          * @class cc.render.DecoratedWebGLRenderingContext
          * @classdesc
+         * @extends RenderingContext
          *
-         * This object wraps a 3D canvas context (webgl) and exposes a canvas like 2d rendering API.
-         * The implementation should be extremely efficient by:
-         *   <li>lazily set every property.
-         *   <li>batch all drawing operations as much as possible.
-         *   <li>ping pong between buffers
+         * This object wraps a 3D canvas context (webgl) and exposes a canvas-like 2d rendering API without sacrificing
+         * flexibility to expose the internal gl context for custom drawing on developer side.
+         * <p>
+         * This object is an implementation of the <code>cc.render.RenderingContext</code> interface, and the documentation
+         * associated must be referred there. The rest of the code are just implementation details of the interface.
+         *
+         * <p>
+         * The implementation aims at performance and on-pair visual results with a canvas renderer. To achieve this,
+         * as well as highest performance, the implementation:
+         *   <li>lazily sets every property.
+         *   <li>batches all drawing operations as much as possible.
+         *   <li>ping-pongs between buffers
+         *   <li>...
          *
          * <br>
          * All this would be transparent for the developer and happen automatically. For example, is a value is set to
@@ -17617,6 +18588,8 @@ var cc;
          * is deferred until the moment when some geometry will happen, for example, a fillRect call.
          * <br>
          * This mechanism is set for every potential flushing operation like changing fillStyle, compisite, textures, etc.
+         *
+         * @see cc.render.RenderingContext
          */
         var DecoratedWebGLRenderingContext = (function () {
             /**
@@ -17625,6 +18598,27 @@ var cc;
              * @param r {cc.render.Renderer}
              */
             function DecoratedWebGLRenderingContext(r) {
+                /**
+                 * Currently set line join stroke hint.
+                 * @member cc.render.DecoratedRenderingContext#_currentLineJoin
+                 * @type {cc.render.LineJoin}
+                 * @private
+                 */
+                this._currentLineJoin = 1 /* MITER */;
+                /**
+                 * Currently set line cap stroke hint.
+                 * @member cc.render.DecoratedRenderingContext#_currentLineCap
+                 * @type {cc.render.LineCap}
+                 * @private
+                 */
+                this._currentLineCap = 0 /* BUTT */;
+                /**
+                 * Currently set line width stroke hint.
+                 * @member cc.render.DecoratedRenderingContext#_currentLineWidth
+                 * @type {number}
+                 * @private
+                 */
+                this._currentLineWidth = 1;
                 /**
                  * Current rendering context data.
                  * @member cc.render.DecoratedWebGLRenderingContext#_currentContextSnapshot
@@ -17640,12 +18634,25 @@ var cc;
                  */
                 this._contextSnapshots = [];
                 /**
-                 * if _currentFillStyleType===COLOR, this is the current color.
+                 * if _currentFillStyleType===COLORMESH, this is the current color.
                  * @member cc.render.DecoratedWebGLRenderingContext#_currentFillStyleColor
                  * @type {Float32Array}
                  * @private
                  */
                 this._currentFillStyleColor = new Float32Array([0.0, 0.0, 0.0, 1.0]);
+                /**
+                 * if _currentStrokeStyleType===COLORMESH, this is the current color.
+                 * @member cc.render.DecoratedWebGLRenderingContext#_currentStrokeStyleColor
+                 * @type {Float32Array}
+                 * @private
+                 */
+                this._currentStrokeStyleColor = new Float32Array([0.0, 0.0, 0.0, 1.0]);
+                /**
+                 * if _currentStrokeStyleType===PATTERN_REPEAT, this is the pattern info.
+                 * @member cc.render.DecoratedWebGLRenderingContext#_currentFillStylePattern
+                 * @type {Float32Array}
+                 * @private
+                 */
                 this._currentFillStylePattern = null;
                 /**
                  * Current fill style type. The style type reflects what shader is currently set for rendering.
@@ -17653,7 +18660,15 @@ var cc;
                  * @type {cc.render.FillStyleType}
                  * @private
                  */
-                this._currentFillStyleType = 0 /* COLOR */;
+                this._currentFillStyleType = 0 /* MESHCOLOR */;
+                /**
+                 * Current tint color. The tint color is multiplied by whatever drawing operation pixel color is currently
+                 * executed.
+                 *
+                 * @member cc.render.DecoratedWebGLRenderingContext#_currentTintColor
+                 * @type {Float32Array}
+                 * @private
+                 */
                 this._currentTintColor = new Float32Array([1.0, 1.0, 1.0, 1.0]);
                 /**
                  * Last global composite operation set.
@@ -17676,9 +18691,35 @@ var cc;
                  * @private
                  */
                 this._batcher = null;
+                /**
+                 * Internal webgl context wrapping object.
+                 *
+                 * @member cc.render.DecoratedWebGLRenderingContext#_webglState
+                 * @type {cc.render.WebGLState}
+                 * @private
+                 */
                 this._webglState = null;
+                /**
+                 * Rendering surface width.
+                 *
+                 * @member cc.render.DecoratedWebGLRenderingContext#_width
+                 * @type {number}
+                 * @private
+                 */
                 this._width = 0;
+                /**
+                 * Rendering surface height.
+                 *
+                 * @member cc.render.DecoratedWebGLRenderingContext#_height
+                 * @type {number}
+                 * @private
+                 */
                 this._height = 0;
+                /**
+                 * Renderer instance this gl renderer context belongs to.
+                 * @type {cc.render.Renderer}
+                 * @private
+                 */
                 this._renderer = null;
                 /**
                  * Rendering surface (canvas object)
@@ -18107,7 +19148,6 @@ var cc;
              */
             DecoratedWebGLRenderingContext.prototype.flush = function () {
                 this._batcher.flush(this._shaders[this._currentContextSnapshot._currentFillStyleType], this._currentContextSnapshot);
-                //            this._debugInfo._draws++;
             };
             DecoratedWebGLRenderingContext.prototype.resize = function () {
                 this.__initContext();
@@ -18179,24 +19219,171 @@ var cc;
             };
             DecoratedWebGLRenderingContext.prototype.setFillStyleColor = function (color) {
                 this._currentFillStyleColor = color._color;
-                this._currentFillStyleType = 0 /* COLOR */;
+                this._currentFillStyleType = 0 /* MESHCOLOR */;
             };
             DecoratedWebGLRenderingContext.prototype.setFillStyleColorArray = function (colorArray) {
                 this._currentFillStyleColor = colorArray;
-                this._currentFillStyleType = 0 /* COLOR */;
+                this._currentFillStyleType = 0 /* MESHCOLOR */;
             };
             DecoratedWebGLRenderingContext.prototype.setFillStylePattern = function (pattern) {
                 // BUGBUG change for actual pattern type
-                this._currentFillStyleType = 3 /* PATTERN_REPEAT */;
-                this._currentFillStylePattern = pattern;
+                //this._currentFillStyleType= cc.render.FillStyleType.PATTERN_REPEAT;
+                //this._currentFillStylePattern= pattern;
             };
+            DecoratedWebGLRenderingContext.prototype.setStrokeStyleColor = function (color) {
+                this._currentStrokeStyleColor = color._color;
+                this._currentFillStyleType = 0 /* MESHCOLOR */;
+            };
+            DecoratedWebGLRenderingContext.prototype.setStrokeStyleColorArray = function (colorArray) {
+                this._currentStrokeStyleColor = colorArray;
+                this._currentFillStyleType = 0 /* MESHCOLOR */;
+            };
+            DecoratedWebGLRenderingContext.prototype.setStrokeStylePattern = function (pattern) {
+                // BUGBUG change for actual pattern type
+                //this._currentStrokeStyleColor= cc.render.FillStyleType.PATTERN_REPEAT;
+                //this._currentFillStylePattern= pattern;
+            };
+            Object.defineProperty(DecoratedWebGLRenderingContext.prototype, "fillStyle", {
+                set: function (v) {
+                    this._currentFillStyleType = 0 /* MESHCOLOR */;
+                    this._currentFillStyleColor = cc.math.Color.fromStringToColor(v)._color; //cc.render.util.parseColor( v );
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(DecoratedWebGLRenderingContext.prototype, "strokeStyle", {
+                set: function (v) {
+                    this._currentFillStyleType = 0 /* MESHCOLOR */;
+                    this._currentStrokeStyleColor = cc.math.Color.fromStringToColor(v)._color; //cc.render.util.parseColor( v );
+                },
+                enumerable: true,
+                configurable: true
+            });
             DecoratedWebGLRenderingContext.prototype.beginPath = function () {
+                this._currentContextSnapshot.beginPath();
+            };
+            DecoratedWebGLRenderingContext.prototype.closePath = function () {
+                this._currentContextSnapshot.closePath();
+            };
+            DecoratedWebGLRenderingContext.prototype.__strokeImpl = function (geometry) {
+                this.__checkStrokeFlushConditions();
+                this._currentContextSnapshot._fillStyleColor = this._currentStrokeStyleColor;
+                this._batcher.batchPath(geometry, this._currentContextSnapshot);
             };
             DecoratedWebGLRenderingContext.prototype.stroke = function () {
+                this.__strokeImpl(this._currentContextSnapshot.setupStroke(this._currentLineWidth, this._currentLineJoin, this._currentLineCap));
+            };
+            DecoratedWebGLRenderingContext.prototype.__fillImpl = function (geometry) {
+                this.__checkStrokeFlushConditions();
+                this._currentContextSnapshot._fillStyleColor = this._currentFillStyleColor;
+                this._batcher.batchPath(geometry, this._currentContextSnapshot);
+            };
+            DecoratedWebGLRenderingContext.prototype.fill = function () {
+                this.__fillImpl(this._currentContextSnapshot.setupFill());
+            };
+            DecoratedWebGLRenderingContext.prototype.fillPath = function (path) {
+                this.__fillImpl(this._currentContextSnapshot.setupFill(path));
+            };
+            DecoratedWebGLRenderingContext.prototype.strokePath = function (path) {
+                this.__strokeImpl(this._currentContextSnapshot.setupStroke(this._currentLineWidth, this._currentLineJoin, this._currentLineCap, path));
+            };
+            DecoratedWebGLRenderingContext.prototype.__checkStrokeFlushConditions = function () {
+                if (this._currentContextSnapshot._currentFillStyleType !== 0 /* MESHCOLOR */) {
+                    this.flush();
+                    this.__setCurrentFillStyleType(0 /* MESHCOLOR */);
+                }
+            };
+            Object.defineProperty(DecoratedWebGLRenderingContext.prototype, "lineWidth", {
+                get: function () {
+                    return this._currentLineWidth;
+                },
+                set: function (w) {
+                    this.setLineWidth(w);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(DecoratedWebGLRenderingContext.prototype, "lineCap", {
+                get: function () {
+                    switch (this._currentLineCap) {
+                        case 1 /* SQUARE */: return "square";
+                        case 2 /* ROUND */: return "round";
+                        default: return "butt";
+                    }
+                },
+                set: function (s) {
+                    s = s.toLowerCase();
+                    if (s === "square") {
+                        this.setLineCap(1 /* SQUARE */);
+                    }
+                    else if (s === "round") {
+                        this.setLineCap(2 /* ROUND */);
+                    }
+                    else {
+                        this.setLineCap(0 /* BUTT */);
+                    }
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(DecoratedWebGLRenderingContext.prototype, "lineJoin", {
+                get: function () {
+                    switch (this._currentLineJoin) {
+                        case 1 /* MITER */: return "miter";
+                        case 2 /* ROUND */: return "round";
+                        default: return "bevel";
+                    }
+                },
+                set: function (s) {
+                    s = s.toLowerCase();
+                    if (s === "miter") {
+                        this.setLineJoin(1 /* MITER */);
+                    }
+                    else if (s === "round") {
+                        this.setLineJoin(2 /* ROUND */);
+                    }
+                    else {
+                        this.setLineJoin(0 /* BEVEL */);
+                    }
+                },
+                enumerable: true,
+                configurable: true
+            });
+            DecoratedWebGLRenderingContext.prototype.setLineWidth = function (w) {
+                this._currentLineWidth = w;
+            };
+            DecoratedWebGLRenderingContext.prototype.getLineWidth = function () {
+                return this._currentLineWidth;
+            };
+            DecoratedWebGLRenderingContext.prototype.setLineCap = function (cap) {
+                this._currentLineCap = cap;
+            };
+            DecoratedWebGLRenderingContext.prototype.getLineCap = function () {
+                return this._currentLineCap;
+            };
+            DecoratedWebGLRenderingContext.prototype.setLineJoin = function (join) {
+                this._currentLineJoin = join;
+            };
+            DecoratedWebGLRenderingContext.prototype.getLineJoin = function () {
+                return this._currentLineJoin;
             };
             DecoratedWebGLRenderingContext.prototype.moveTo = function (x, y) {
+                this._currentContextSnapshot.moveTo(x, y);
             };
             DecoratedWebGLRenderingContext.prototype.lineTo = function (x, y) {
+                this._currentContextSnapshot.lineTo(x, y);
+            };
+            DecoratedWebGLRenderingContext.prototype.bezierCurveTo = function (cp0x, cp0y, cp1x, cp1y, p2x, p2y) {
+                this._currentContextSnapshot.bezierCurveTo(cp0x, cp0y, cp1x, cp1y, p2x, p2y);
+            };
+            DecoratedWebGLRenderingContext.prototype.quadraticCurveTo = function (cp0x, cp0y, p2x, p2y) {
+                this._currentContextSnapshot.quadraticCurveTo(cp0x, cp0y, p2x, p2y);
+            };
+            DecoratedWebGLRenderingContext.prototype.rect = function (x, y, width, height) {
+                this._currentContextSnapshot.rect(x, y, width, height);
+            };
+            DecoratedWebGLRenderingContext.prototype.arc = function (x, y, radius, startAngle, endAngle, counterClockWise) {
+                this._currentContextSnapshot.arc(x, y, radius, startAngle, endAngle, counterClockWise);
             };
             DecoratedWebGLRenderingContext.prototype.save = function () {
             };
@@ -18204,7 +19391,7 @@ var cc;
             };
             DecoratedWebGLRenderingContext.prototype.drawMesh = function (geometry, uv, indices, color, texture) {
                 this.__checkMeshFlushConditions(texture._glId, color);
-                this._batcher.batchMesh(geometry, uv, indices, color, this._currentContextSnapshot);
+                this._batcher.batchMesh(geometry, uv, indices, color);
                 this.flush();
             };
             DecoratedWebGLRenderingContext.prototype.__checkMeshFlushConditions = function (textureId, color) {
@@ -19088,7 +20275,102 @@ var cc;
                 return ret;
             }
             util.extractChannel = extractChannel;
+            function parseColor(c) {
+                return new Float32Array([1, 0, 0, 1]);
+            }
+            util.parseColor = parseColor;
         })(util = render.util || (render.util = {}));
+    })(render = cc.render || (cc.render = {}));
+})(cc || (cc = {}));
+
+/**
+ * License: see license.txt file
+ */
+/// <reference path="../../node/sprite/SpriteFrame.ts"/>
+/// <reference path="../RenderingContext.ts"/>
+/// <reference path="../../math/Rectangle.ts"/>
+var cc;
+(function (cc) {
+    var render;
+    (function (render) {
+        var mesh;
+        (function (mesh) {
+            /**
+             * A mesh is a grid composed of geometry and u,v information.
+             */
+            var Mesh = (function () {
+                function Mesh() {
+                    this._originalGeometry = null;
+                    this._geometry = null;
+                    this._uv = null;
+                    this._workuv = null;
+                    this._indices = null;
+                    this._initialized = false;
+                    this._rectgl = null;
+                }
+                Mesh.prototype.Mesh = function () {
+                };
+                Mesh.prototype.initialize = function (pointsWidth, pointsHeight, width, height) {
+                    var numPointsInMesh = pointsWidth * pointsHeight;
+                    this._geometry = new Float32Array(numPointsInMesh * 3);
+                    this._originalGeometry = new Float32Array(numPointsInMesh * 3);
+                    this._uv = new Float32Array(numPointsInMesh * 2);
+                    this._workuv = new Float32Array(numPointsInMesh * 2);
+                    this._indices = new Uint16Array((pointsWidth - 1) * (pointsHeight - 1) * 6);
+                    for (var i = 0; i < pointsHeight; i++) {
+                        for (var j = 0; j < pointsWidth; j++) {
+                            var pointIndex = j + i * pointsWidth;
+                            this._geometry[pointIndex * 3] = j / (pointsWidth - 1) * width; // x
+                            this._geometry[pointIndex * 3 + 1] = i / (pointsHeight - 1) * height; // y
+                            this._geometry[pointIndex * 3 + 2] = 0; // z
+                            this._originalGeometry[pointIndex * 3] = this._geometry[pointIndex * 3];
+                            this._originalGeometry[pointIndex * 3 + 1] = this._geometry[pointIndex * 3 + 1];
+                            this._originalGeometry[pointIndex * 3 + 2] = this._geometry[pointIndex * 3 + 2];
+                            this._uv[pointIndex * 2] = j / (pointsWidth - 1); // normalized u
+                            this._uv[pointIndex * 2 + 1] = i / (pointsHeight - 1); // normalized v
+                            this._workuv[pointIndex * 2] = j / (pointsWidth - 1); // normalized u
+                            this._workuv[pointIndex * 2 + 1] = i / (pointsHeight - 1); // normalized v
+                        }
+                    }
+                    var index = 0;
+                    for (var i = 0; i < pointsHeight - 1; i++) {
+                        for (var j = 0; j < pointsWidth - 1; j++) {
+                            var indexindex = j + i * pointsWidth;
+                            this._indices[index] = indexindex;
+                            this._indices[index + 1] = indexindex + 1;
+                            this._indices[index + 2] = indexindex + pointsWidth;
+                            this._indices[index + 3] = indexindex + pointsWidth;
+                            this._indices[index + 4] = indexindex + 1;
+                            this._indices[index + 5] = indexindex + pointsWidth + 1;
+                            index += 6;
+                        }
+                    }
+                    this._initialized = true;
+                };
+                Mesh.prototype.draw = function (ctx, sf, color) {
+                    if (!this._initialized) {
+                        return;
+                    }
+                    color = typeof color === "undefined" ? 0xffffffff : color;
+                    if (this._rectgl !== sf._normalizedRect) {
+                        this._rectgl = sf._normalizedRect;
+                        var offx = this._rectgl.x;
+                        var offy = this._rectgl.y;
+                        var diffx = this._rectgl.x1 - this._rectgl.x;
+                        var diffy = this._rectgl.y1 - this._rectgl.y;
+                        for (var i = 0; i < this._uv.length; i += 2) {
+                            this._workuv[i] = this._uv[i] * diffx + offx;
+                            this._workuv[i] = this._uv[i] * diffy + offy;
+                        }
+                    }
+                    ctx.drawMesh(this._geometry, this._workuv, this._indices, color, sf._texture);
+                };
+                Mesh.prototype.deform = function (segment) {
+                };
+                return Mesh;
+            })();
+            mesh.Mesh = Mesh;
+        })(mesh = render.mesh || (render.mesh = {}));
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
 
@@ -23661,6 +24943,7 @@ var cc;
 /// <reference path="../locale/Locale.ts"/>
 /// <reference path="../util/Debug.ts"/>
 /// <reference path="./KeyboardInputManager.ts"/>
+/// <reference path="./MouseInputManager.ts"/>
 var cc;
 (function (cc) {
     var input;

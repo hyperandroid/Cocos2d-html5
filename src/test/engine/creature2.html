@@ -5,9 +5,9 @@
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <title>Cocos2d-htm5 - Creature animation tool exaple (II)</title>
 
-    <link rel="stylesheet" href="../css/genericons.css">
-    <link rel="stylesheet" href="../css/templatestyles.css">
-    <link rel="stylesheet" href="../stylesheets/pygment_trac.css">
+    <link rel="stylesheet" href="../common/css/genericons.css">
+    <link rel="stylesheet" href="../common/css/templatestyles.css">
+    <link rel="stylesheet" href="../common/stylesheets/pygment_trac.css">
     <link rel="stylesheet" id="open-sans-css"
           href="//fonts.googleapis.com/css?family=Open+Sans%3A300italic%2C400italic%2C600italic%2C300%2C400%2C600&amp;subset=latin%2Clatin-ext&amp;ver=4.1.1"
           type="text/css" media="all">
@@ -56,7 +56,7 @@
     </footer>
 </div>
 <script src="../../../javascripts/scale.fix.js"></script>
-<script src="menu.js"></script>
+<script src="../../../javascripts/menu.js"></script>
 <script src="../../../dist/all.js"></script>
 <script src="creature/glmatrix.js"></script>
 <script src="creature/CreatureMeshBone.js"></script>
@@ -82,7 +82,7 @@
         function loadResources() {
 
             var loader= new cc.plugin.loader.Loader({
-                        prefix : "../res/creature/",
+                        prefix : "../common/res/creature/",
                         resources: [
                             "cham.json@dragon",
                             "cham.png@skin"
@@ -148,7 +148,7 @@
             var scene= director.createScene();
 
             scene.update= function( delta ) {
-                new_manager.Update(delta*1.5);
+                new_manager.Update(delta*1.8);
             };
 
             scene.draw= function( ctx ) {

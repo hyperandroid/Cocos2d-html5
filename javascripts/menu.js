@@ -73,6 +73,10 @@
                 title: "Custom node draw"
             },
             {
+                file : "customnodedraw2.html",
+                title: "Custom node draw (II)"
+            },
+            {
                 file : "text.html",
                 title: "Loads of text"
             },

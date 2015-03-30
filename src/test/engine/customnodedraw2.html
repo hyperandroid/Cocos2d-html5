@@ -1,0 +1,196 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Cocos2d-html5 - </title>
+
+    <link rel="stylesheet" href="../common/css/genericons.css">
+    <link rel="stylesheet" href="../common/css/templatestyles.css">
+    <link rel="stylesheet" href="../common/stylesheets/pygment_trac.css">
+    <link rel="stylesheet" id="open-sans-css"
+          href="//fonts.googleapis.com/css?family=Open+Sans%3A300italic%2C400italic%2C600italic%2C300%2C400%2C600&amp;subset=latin%2Clatin-ext&amp;ver=4.1.1"
+          type="text/css" media="all">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-17485141-5', 'auto');
+      ga('send', 'pageview');
+
+    </script>
+</head>
+<body>
+
+<button class="toggle" id="menutoggle">
+</button>
+<div class="wrapper">
+<header>
+
+    <div class="site-title">
+        <div class="site-title-info">
+            <h1>Cocos2d-html5</h1>
+        </div>
+        <div id="menu" class="site-menu">
+            <div id="menuclose" class="close-button"><span class="icon-close"></span></div>
+            <p class="demos-menu-title">Demos list</p>
+            <ul id="site-menu" >
+
+            </ul>
+        </div>
+    </div>
+</header>
+
+    <section>
+        <div><canvas id="c"></canvas></div>
+
+        <div>
+            <p>This demos shows</p>
+            <ul>
+                <li>Custom node draw. Everything you see is in the draw method of a node.</li>
+                <li>WebGL fill/stroke capabilities. Note the 100% canvas visual matching.</li>
+            </ul>
+        </div>
+
+    </section>
+    <footer>
+        <p>This project is maintained by <a href="https://github.com/hyperandroid">hyperandroid</a></p>
+    </footer>
+</div>
+<script src="../../../javascripts/scale.fix.js"></script>
+<script src="../../../javascripts/menu.js"></script>
+<script src="../../../dist/all.js"></script>
+<script>
+    (function() {
+
+
+        document.getElementById("menutoggle").addEventListener("click", function (e) {
+            e.preventDefault();
+            document.getElementById("menu").style["display"] = "block";
+        }, false);
+        document.getElementById("menuclose").addEventListener("click", function (e) {
+            e.preventDefault();
+            document.getElementById("menu").style["display"] = "none";
+        }, false);
+
+
+        var W= 600;
+        var H= 600;
+
+        cc.render.RENDER_ORIGIN= cc.render.ORIGIN_TOP;
+        cc.render.DecoratedWebGLRenderingContext.ANTIALIAS= true;
+
+        /**
+         *
+         */
+        function initialize( ) {
+
+            var renderer = new cc.render.WebGLRenderer(W, H, document.getElementById("c"));
+            var director = new cc.node.Director().setRenderer(renderer);
+            var scene = director.createScene().setColor(1,1,1);
+            var node = new cc.node.Node().setContentSize(W, H);
+            node.scheduleUpdate();
+            node.update = function (delta) {
+                this.rotationAngle += .2;
+            };
+
+            scene.addChild( node );
+
+            node.draw = function (ctx) {
+
+                var lw = 10;
+
+                ctx.setStrokeStyleColor(cc.math.Color.RED);
+                ctx.beginPath();
+                ctx.lineWidth = lw;
+                ctx.moveTo(100, 50);
+                ctx.lineTo(200, 150);
+                ctx.lineTo(300, 50);
+                ctx.lineTo(400, 150);
+                ctx.lineTo(500, 50);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.setStrokeStyleColor(cc.math.Color.BLUE);
+                ctx.lineWidth = lw;
+                ctx.lineJoin = 'round';
+                ctx.lineCap = "round";
+                ctx.moveTo(100, 300);
+                ctx.lineTo(200, 200);
+                ctx.lineTo(300, 300);
+                ctx.lineTo(400, 200);
+                ctx.lineTo(500, 300);
+
+                ctx.moveTo(100, 200);
+                ctx.lineTo(200, 300);
+                ctx.lineTo(300, 200);
+                ctx.lineTo(400, 300);
+                ctx.lineTo(500, 200);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.setStrokeStyleColorArray([1, 0, 1, 1]);
+                ctx.lineWidth = lw;
+                ctx.lineJoin = 'bevel';
+                ctx.lineCap = "square";
+                ctx.moveTo(100, 350);
+                ctx.lineTo(200, 450);
+                ctx.lineTo(300, 350);
+                ctx.lineTo(400, 450);
+                ctx.lineTo(500, 350);
+                ctx.stroke();
+
+                ctx.setStrokeStyleColorArray([1, 1, 0, 1]);
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.bezierCurveTo(W, 0, 0, H, W, H);
+                ctx.quadraticCurveTo(0, H, 0, 0);
+                ctx.closePath();
+                ctx.stroke();
+                ctx.setFillStyleColorArray([0, 0, 1, .2]);
+                ctx.fill();
+
+
+                ctx.setStrokeStyleColorArray([0, 1, 1, 1]);
+                ctx.rotate(Math.PI / 12);
+                ctx.scale(5, 5);
+                ctx.beginPath();
+                ctx.lineJoin = "round";
+                ctx.rect(10, 10, 50, 50);
+                ctx.stroke();
+                ctx.setFillStyleColorArray([1, 0, 1, .5]);
+                ctx.fill();
+
+                ctx.lineJoin = 'bevel';
+                ctx.lineCap = "butt";
+
+                ctx.setStrokeStyleColorArray([.5, .5, 1, 1]);
+                ctx.beginPath();
+                ctx.arc(50, 50, 50, 0, Math.PI / 2, true);
+                ctx.stroke();
+
+                ctx.scale(1.05, 1.05);
+                ctx.setStrokeStyleColorArray([1, .5, 1, 1]);
+                ctx.beginPath();
+                ctx.arc(50, 50, 50, 0, Math.PI / 2, false);
+                ctx.stroke();
+                ctx.setFillStyleColorArray([1, .2, .2, .5]);
+                ctx.fill();
+
+            };
+
+            director.runScene( scene );
+        }
+
+        window.addEventListener("DOMContentLoaded", initialize, false);
+
+    })();
+</script>
+</body>
+</html>
