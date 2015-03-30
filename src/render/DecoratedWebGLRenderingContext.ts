@@ -925,12 +925,12 @@ module cc.render {
 
         set fillStyle( v:string ) {
             this._currentFillStyleType= cc.render.FillStyleType.MESHCOLOR;
-            this._currentFillStyleColor= cc.render.util.parseColor( v );
+            this._currentFillStyleColor= cc.math.Color.fromStringToColor(v)._color; //cc.render.util.parseColor( v );
         }
 
         set strokeStyle( v:string ) {
             this._currentFillStyleType= cc.render.FillStyleType.MESHCOLOR;
-            this._currentStrokeStyleColor= cc.render.util.parseColor( v );
+            this._currentStrokeStyleColor= cc.math.Color.fromStringToColor(v)._color; //cc.render.util.parseColor( v );
         }
 
         beginPath() {
@@ -941,28 +941,42 @@ module cc.render {
             this._currentContextSnapshot.closePath();
         }
 
-        stroke() {
-
-            var geometry:Float32Array= this._currentContextSnapshot.setupStroke(
-                this._currentLineWidth,
-                this._currentLineJoin,
-                this._currentLineCap
-            );
-
+        __strokeImpl( geometry:Float32Array ) {
             this.__checkStrokeFlushConditions();
-
             this._currentContextSnapshot._fillStyleColor= this._currentStrokeStyleColor;
             this._batcher.batchPath( geometry, this._currentContextSnapshot );
         }
 
-        fill() {
+        stroke() {
+            this.__strokeImpl( this._currentContextSnapshot.setupStroke(
+                this._currentLineWidth,
+                this._currentLineJoin,
+                this._currentLineCap
+            ) );
+        }
 
-            var geometry:Float32Array= this._currentContextSnapshot.setupFill( );
-
+        __fillImpl( geometry:Float32Array ) {
             this.__checkStrokeFlushConditions();
-
             this._currentContextSnapshot._fillStyleColor= this._currentFillStyleColor;
             this._batcher.batchPath( geometry, this._currentContextSnapshot );
+        }
+
+        fill() {
+            this.__fillImpl( this._currentContextSnapshot.setupFill( ) );
+        }
+
+        fillPath( path:cc.math.Path ) {
+            this.__fillImpl( this._currentContextSnapshot.setupFill(path) );
+        }
+
+        strokePath( path:cc.math.Path ) {
+            this.__strokeImpl( this._currentContextSnapshot.setupStroke(
+                this._currentLineWidth,
+                this._currentLineJoin,
+                this._currentLineCap,
+                path
+            ) );
+
         }
 
         __checkStrokeFlushConditions() {

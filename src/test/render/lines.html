@@ -14,6 +14,8 @@
         var W= 600;
         var H= 600;
 
+        cc.render.DecoratedWebGLRenderingContext.ANTIALIAS= true;
+
         /**
          *
          */
@@ -32,6 +34,7 @@
 
                 setInterval(function () {
                     paint(ctx);
+                    paint(ctx2);
                     angle += .002
                 }, 16);
         }
@@ -43,12 +46,12 @@
             ctx.setTransform(1,0,0,1,0,0);
             ctx.clear();
 
+            ctx.setFillStyleColor(cc.math.Color.WHITE);
+            ctx.fillRect(0, 0, W, H);
+
             ctx.translate( W/2,H/2 );
             ctx.rotate( angle );
             ctx.translate( -W/2,-H/2 );
-
-            ctx.setFillStyleColor(cc.math.Color.WHITE);
-            ctx.fillRect(0, 0, W, H);
 
             var lw= 10;
 
@@ -99,7 +102,7 @@
             ctx.quadraticCurveTo( 0,H, 0,0 );
             ctx.closePath();
             ctx.stroke();
-            ctx.setFillStyleColorArray([0,0,1,1]);
+            ctx.setFillStyleColorArray([0,0,1,.2]);
             ctx.fill();
 
 
@@ -110,7 +113,7 @@
             ctx.lineJoin= "round";
             ctx.rect( 10,10,50,50 );
             ctx.stroke();
-            ctx.setFillStyleColorArray([1,0,1,1]);
+            ctx.setFillStyleColorArray([1,0,1,.5]);
             ctx.fill();
 
             ctx.lineJoin = 'bevel';
