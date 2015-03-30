@@ -28,6 +28,7 @@ var scripts= [
         "js/math/path/Subpath.js",
         "js/math/path/geometry/StrokeGeometry.js",
         "js/math/Path.js",
+        "js/math/Shape.js",
         "js/node/Node.js",
 
         "js/action/Action.js",

@@ -612,6 +612,8 @@ declare module cc.math {
          * @param destination {Float32Array} matrix coefficients. horizontal vectors.
          */
         static copy(source: Float32Array, destination: Float32Array): void;
+        static compare(s: Float32Array, d: Float32Array): boolean;
+        static isIdentity(s: Float32Array): boolean;
         static set(m: Float32Array, a: number, b: number, c: number, d: number, tx: number, ty: number): void;
         /**
          * Given a node, calculate a resulting matrix for position, scale and rotate.
@@ -1129,7 +1131,8 @@ declare module cc.math.path {
          * @methodcc.math.path.Segment#setDirty
          */
         setDirty(d: boolean): any;
-        paint(ctx: RenderingContext): any;
+        canvasStroke(ctx: RenderingContext): any;
+        canvasFill(ctx: RenderingContext): any;
     }
 }
 /**
@@ -1292,7 +1295,8 @@ declare module cc.math.path {
          * @method cc.math.path.ContainerSegment#setDirty
          */
         setDirty(d: boolean): void;
-        paint(ctx: cc.render.RenderingContext): void;
+        canvasStroke(ctx: cc.render.RenderingContext): void;
+        canvasFill(ctx: cc.render.RenderingContext): void;
     }
 }
 /**
@@ -1508,7 +1512,8 @@ declare module cc.math.path {
          * @method cc.math.path.ContainerSegment#setDirty
          */
         setDirty(d: boolean): void;
-        paint(ctx: cc.render.RenderingContext): void;
+        canvasStroke(ctx: cc.render.RenderingContext): void;
+        canvasFill(ctx: cc.render.RenderingContext): void;
     }
 }
 /**
@@ -1725,7 +1730,8 @@ declare module cc.math.path {
          * @method cc.math.path.ContainerSegment#setDirty
          */
         setDirty(d: boolean): void;
-        paint(ctx: cc.render.RenderingContext): void;
+        canvasStroke(ctx: cc.render.RenderingContext): void;
+        canvasFill(ctx: cc.render.RenderingContext): void;
     }
 }
 /**
@@ -1914,7 +1920,8 @@ declare module cc.math.path {
          * @method cc.math.path.ContainerSegment#setDirty
          */
         setDirty(d: boolean): void;
-        paint(ctx: cc.render.RenderingContext): void;
+        canvasStroke(ctx: cc.render.RenderingContext): void;
+        canvasFill(ctx: cc.render.RenderingContext): void;
     }
 }
 /**
@@ -2145,7 +2152,8 @@ declare module cc.math.path {
          * @method cc.math.path.ContainerSegment#setDirty
          */
         setDirty(d: boolean): void;
-        paint(ctx: cc.render.RenderingContext): void;
+        canvasStroke(ctx: cc.render.RenderingContext): void;
+        canvasFill(ctx: cc.render.RenderingContext): void;
     }
 }
 /**
@@ -2266,7 +2274,8 @@ declare module cc.math.path {
          * @method cc.math.path.ContainerSegment#setDirty
          */
         setDirty(b: boolean): void;
-        paint(ctx: cc.render.RenderingContext): void;
+        canvasStroke(ctx: cc.render.RenderingContext): void;
+        canvasFill(ctx: cc.render.RenderingContext): void;
     }
 }
 /**
@@ -2404,7 +2413,8 @@ declare module cc.math.path {
         quadraticTo(x0: number, y0: number, x1: number, y1: number): SubPath;
         bezierTo(x0: number, y0: number, x1: number, y1: number, x2: number, y2: number): SubPath;
         catmullRomTo(x0: number, y0: number, x1: number, y1: number, x2: number, y2: number, tension: number): SubPath;
-        paint(ctx: cc.render.RenderingContext): void;
+        canvasStroke(ctx: cc.render.RenderingContext): void;
+        canvasFill(ctx: cc.render.RenderingContext): void;
     }
 }
 /**
@@ -2746,12 +2756,6 @@ declare module cc.math {
          */
         setDirty(): void;
         /**
-         * Paint the path in a canvas rendering context.
-         * @method cc.math.Path#paint
-         * @param ctx {cc.render.RenderingContext}
-         */
-        paint(ctx: cc.render.RenderingContext): void;
-        /**
          * If needed, calculate the stroke geometry for a path.
          * The stroke mesh will be traced based of line attributes.
          * On average, you will never interact with this method.
@@ -2767,6 +2771,59 @@ declare module cc.math {
          * @returns {Float32Array}
          */
         getFillGeometry(): Float32Array;
+    }
+}
+/**
+ * License: see license.txt file
+ */
+declare module cc.math {
+    class ShapePathAttributes {
+        path: cc.math.Path;
+        isStroked: boolean;
+        isFilled: boolean;
+        fillStyle: any;
+        strokeStyle: any;
+        fillFirst: boolean;
+        constructor();
+        setFilled(): void;
+        setStroked(): void;
+        draw(ctx: cc.render.RenderingContext): void;
+    }
+    /**
+     * @class cc.math.Shape
+     * @classdesc
+     *
+     * A Shape object is a collection of <code>cc.math.Path</code> objects and a fill style associated with each of them.
+     * The idea is to keep under an easy-to-handle class the responsibility of stroke/paint a collection of different
+     * path objects. For example, this is a good fit for SVG elements which on average are composed of a collection of
+     * path and contour objects.
+     *
+     * PENDING: Shape objects currently don't honor the current transformation matrix.
+     *
+     */
+    class Shape {
+        _pathAttributes: ShapePathAttributes[];
+        _currentPathAttributes: ShapePathAttributes;
+        _currentPath: cc.math.Path;
+        lineJoin: cc.render.LineJoin;
+        lineCap: cc.render.LineCap;
+        miterLimit: number;
+        lineWidth: number;
+        constructor();
+        beginPath(): void;
+        __ensureCurrentPathAttributes(): void;
+        moveTo(x: number, y: number, matrix?: Float32Array): void;
+        lineTo(x: number, y: number, matrix?: Float32Array): void;
+        bezierCurveTo(cp0x: number, cp0y: number, cp1x: number, cp1y: number, p2x: number, p2y: number, matrix?: Float32Array): void;
+        quadraticCurveTo(cp0x: number, cp0y: number, p2x: number, p2y: number, matrix?: Float32Array): void;
+        rect(x: number, y: number, width: number, height: number, matrix?: Float32Array): void;
+        arc(x: number, y: number, radius: number, startAngle: number, endAngle: number, counterClockWise: boolean, matrix?: Float32Array): void;
+        closePath(): void;
+        stroke(): void;
+        fill(style: Float32Array): void;
+        strokeStyle: any;
+        fillStyle: any;
+        draw(ctx: cc.render.RenderingContext): void;
     }
 }
 /**
@@ -10067,6 +10124,16 @@ declare module cc.render {
          */
         fill(): any;
         /**
+         * Fill a <code>cc.math.Path</code> object.
+         * @param path
+         */
+        fillPath(path: cc.math.Path): any;
+        /**
+         * Stroke a <code>cc.math.Path</code> object.
+         * @param path
+         */
+        strokePath(path: cc.math.Path): any;
+        /**
          * The the current rendering context to reset the internal path representation.
          * This method should be called to start a fresh path tracing/filling operation.
          *
@@ -10244,6 +10311,8 @@ declare module cc.render {
          * @method cc.render.RenderingContext#setStrokeStylePattern
          */
         setStrokeStylePattern(pattern: cc.render.Pattern): any;
+        setFillStyle(style: any): any;
+        setStrokeStyle(style: any): any;
         /**
          * Resize the rendering context.
          * This method is internal and must never be called directly.
@@ -10509,7 +10578,7 @@ declare module cc.render {
          * @method cc.render.RenderingContextSnapshot#setupStroke
          * @returns {Float32Array}
          */
-        setupStroke(lineWidth: number, join: cc.render.LineJoin, cap: cc.render.LineCap): any;
+        setupStroke(lineWidth: number, join: cc.render.LineJoin, cap: cc.render.LineCap, path?: cc.math.Path): Float32Array;
         /**
          * Tell the current path to create geometry for filling it.
          *
@@ -10518,7 +10587,7 @@ declare module cc.render {
          * @method cc.render.RenderingContextSnapshot#setupFill
          * @returns {Float32Array}
          */
-        setupFill(): any;
+        setupFill(path?: cc.math.Path): Float32Array;
     }
 }
 /**
@@ -10803,6 +10872,18 @@ declare module cc.render {
         DEPTH_TEST = 2,
         CULL_FACE = 4,
     }
+    class MeshColorFlushConditions {
+        currentInScreenSpace: boolean;
+        currentInScreenSpaceMatrix: Float32Array;
+        /**
+         * Test whether current issuing rendering command is consistent with this
+         * type of shader.
+         *
+         * @param rcs
+         * @returns {boolean} whether the shader must flush.
+         */
+        mustFlush(rc: DecoratedWebGLRenderingContext, inScreenSpace: boolean): boolean;
+    }
     /**
      * @class cc.render.DecoratedWebGLRenderingContext
      * @classdesc
@@ -10981,6 +11062,7 @@ declare module cc.render {
          * @private
          */
         _canvas: HTMLCanvasElement;
+        _meshColorFlushConditions: MeshColorFlushConditions;
         /**
          * Create a new DecoratedWebGLRenderingContext instance.
          * @method cc.render.DecoratedWebGLRenderingContext#constructor
@@ -11119,14 +11201,15 @@ declare module cc.render {
          */
         __drawImageFlushIfNeeded(textureId: WebGLTexture): void;
         __drawImageFlushIfNeededImpl(fillStyleType: FillStyleType, shader: AbstractShader, textureId: WebGLTexture): void;
-        __flushFillRectIfNeeded(): void;
         __compositeFlushIfNeeded(): void;
         /**
          * @method cc.render.DecoratedWebGLRenderingContext#__setCurrentFillStyleType
          * @param f {cc.render.FillStyleType}
          * @private
          */
-        __setCurrentFillStyleType(f: FillStyleType): void;
+        __setCurrentFillStyleType(f: FillStyleType): cc.render.shader.AbstractShader;
+        setFillStyle(s: any): void;
+        setStrokeStyle(s: any): void;
         setFillStyleColor(color: Color): void;
         setFillStyleColorArray(colorArray: Float32Array): void;
         setFillStylePattern(pattern: Pattern): void;
@@ -11138,8 +11221,13 @@ declare module cc.render {
         beginPath(): void;
         closePath(): void;
         stroke(): void;
+        __strokeImpl(geometry: Float32Array, inScreenSpace: boolean): void;
+        __fillImpl(geometry: Float32Array, inScreenSpace: boolean): void;
         fill(): void;
-        __checkStrokeFlushConditions(): void;
+        fillPath(path: cc.math.Path): void;
+        strokePath(path: cc.math.Path): void;
+        __flushFillRectIfNeeded(inScreenSpace: boolean): void;
+        __checkStrokeFlushConditions(inScreenSpace: boolean): void;
         lineWidth: number;
         lineCap: string;
         lineJoin: string;

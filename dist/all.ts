@@ -870,14 +870,14 @@ module cc.math {
             var VSW:number = V*S*Math.sin(H*Math.PI/180);
 
             var r = (.299*V+.701*VSU+.168*VSW)*c.r +
-                (.587*V-.587*VSU+.330*VSW)*c.g +
-                (.114*V-.114*VSU-.497*VSW)*c.b;
+                    (.587*V-.587*VSU+.330*VSW)*c.g +
+                    (.114*V-.114*VSU-.497*VSW)*c.b;
             var g = (.299*V-.299*VSU-.328*VSW)*c.r +
-                (.587*V+.413*VSU+.035*VSW)*c.g +
-                (.114*V-.114*VSU+.292*VSW)*c.b;
+                    (.587*V+.413*VSU+.035*VSW)*c.g +
+                    (.114*V-.114*VSU+.292*VSW)*c.b;
             var b = (.299*V-.3*VSU+1.25*VSW)*c.r +
-                (.587*V-.588*VSU-1.05*VSW)*c.g +
-                (.114*V+.886*VSU-.203*VSW)*c.b;
+                    (.587*V-.588*VSU-1.05*VSW)*c.g +
+                    (.114*V+.886*VSU-.203*VSW)*c.b;
 
             c.r= r;
             c.g= g;
@@ -1046,6 +1046,31 @@ module cc.math {
          */
         static copy( source:Float32Array, destination:Float32Array ) : void {
             destination.set( source );
+        }
+
+        static compare( s:Float32Array, d:Float32Array ) : boolean {
+            return s.length===d.length &&
+                    s[0]===d[0] &&
+                    s[1]===d[1] &&
+                    s[2]===d[2] &&
+                    s[3]===d[3] &&
+                    s[4]===d[4] &&
+                    s[5]===d[5] &&
+                    s[6]===d[6] &&
+                    s[7]===d[7] &&
+                    s[8]===d[8];
+        }
+
+        static isIdentity( s:Float32Array ) : boolean {
+            return s[0]===1.0 &&
+                    s[1]===0.0 &&
+                    s[2]===0.0 &&
+                    s[3]===0.0 &&
+                    s[4]===1.0 &&
+                    s[5]===0.0 &&
+                    s[6]===0.0 &&
+                    s[7]===0.0 &&
+                    s[8]===1.0;
         }
 
         static set( m:Float32Array, a:number, b:number, c:number, d:number, tx:number, ty:number ) {
@@ -2128,7 +2153,8 @@ module cc.math.path {
          */
         setDirty( d:boolean );
 
-        paint( ctx:RenderingContext );
+        canvasStroke( ctx:RenderingContext );
+        canvasFill( ctx:RenderingContext );
     }
 
 }
@@ -2396,12 +2422,12 @@ module cc.math.path {
             }
         }
 
-        paint( ctx:cc.render.RenderingContext ) {
+        canvasStroke( ctx:cc.render.RenderingContext ) {
+            this.canvasFill(ctx);
+        }
 
-            ctx.beginPath();
-            ctx.moveTo( this._start.x, this._start.y );
+        canvasFill( ctx:cc.render.RenderingContext ) {
             ctx.lineTo( this._end.x, this._end.y );
-            ctx.stroke();
         }
 
     }
@@ -2828,7 +2854,7 @@ module cc.math.path {
          * @type {cc.math.Vector}
          * @private
          */
-        _p0 : Vector = null;
+        _p0:Vector = null;
 
         /**
          * Quadratic curve control point.
@@ -2836,7 +2862,7 @@ module cc.math.path {
          * @type {cc.math.Vector}
          * @private
          */
-        _cp0: Vector = null;
+        _cp0:Vector = null;
 
         /**
          * End quadratic curve point.
@@ -2844,7 +2870,7 @@ module cc.math.path {
          * @type {cc.math.Vector}
          * @private
          */
-        _p1 : Vector = null;
+        _p1:Vector = null;
 
         /**
          * Internal flag for cache validity.
@@ -2852,7 +2878,7 @@ module cc.math.path {
          * @type {boolean}
          * @private
          */
-        _dirty : boolean = true;
+        _dirty:boolean = true;
 
         /**
          * Parent segment.
@@ -2860,7 +2886,7 @@ module cc.math.path {
          * @type {cc.math.path.Segment}
          * @private
          */
-        _parent : ContainerSegment = null;
+        _parent:ContainerSegment = null;
 
         /**
          * Segment length. It is approximately calculated by subdividing the curve.
@@ -2868,15 +2894,15 @@ module cc.math.path {
          * @type {number}
          * @private
          */
-        _length : number = 0;
+        _length:number = 0;
 
         /**
          * Create a new Quadratic Segment instance.
          * @param data {cc.math.path.SegmentQuadraticInitializer=}
          */
-        constructor( data? : SegmentQuadraticInitializer ) {
-            if ( data ) {
-                this.initialize( data.p0, data.p1, data.p2 );
+        constructor(data?:SegmentQuadraticInitializer) {
+            if (data) {
+                this.initialize(data.p0, data.p1, data.p2);
             }
         }
 
@@ -2886,25 +2912,25 @@ module cc.math.path {
          * @param p1 {cc.math.Point} curve control point.
          * @param p2 {cc.math.Point} end curve point}
          */
-        initialize( p0:Point, p1:Point, p2:Point ) : void {
+        initialize(p0:Point, p1:Point, p2:Point):void {
 
-            this._p0= new Vector( p0.x, p0.y );
-            this._cp0= new Vector( p1.x, p1.y );
-            this._p1= new Vector( p2.x, p2.y );
+            this._p0 = new Vector(p0.x, p0.y);
+            this._cp0 = new Vector(p1.x, p1.y);
+            this._p1 = new Vector(p2.x, p2.y);
 
             this.__calculateLength();
-            this._dirty= false;
+            this._dirty = false;
         }
 
-        __calculateLength() : void {
-            var points= this.trace( null, cc.math.path.DEFAULT_TRACE_LENGTH );
+        __calculateLength():void {
+            var points = this.trace(null, cc.math.path.DEFAULT_TRACE_LENGTH);
             // calculate distance
-            this._length=0;
-            for( var i=0; i<points.length-1; i++ ) {
-                this._length+= points[i].distance( points[i+1] );
+            this._length = 0;
+            for (var i = 0; i < points.length - 1; i++) {
+                this._length += points[i].distance(points[i + 1]);
             }
 
-            this._dirty= false;
+            this._dirty = false;
         }
 
         /**
@@ -2912,7 +2938,7 @@ module cc.math.path {
          * @method cc.math.path.SegmentQuadratic#getParent
          * @returns {cc.math.path.Segment}
          */
-        getParent() : ContainerSegment {
+        getParent():ContainerSegment {
             return this._parent;
         }
 
@@ -2921,8 +2947,8 @@ module cc.math.path {
          * @method cc.math.path.SegmentQuadratic#setParent
          * @param s {cc.math.path.Segment}
          */
-        setParent( s : ContainerSegment ) : void {
-            this._parent= s;
+        setParent(s:ContainerSegment):void {
+            this._parent = s;
         }
 
         /**
@@ -2931,8 +2957,8 @@ module cc.math.path {
          * @method cc.math.path.SegmentQuadratic#getLength
          * @returns {number}
          */
-        getLength() : number {
-            if ( this._dirty ) {
+        getLength():number {
+            if (this._dirty) {
                 this.__calculateLength();
             }
             return this._length;
@@ -2946,10 +2972,10 @@ module cc.math.path {
          * @param dstArray {Array<cc.math.Vector>=} array where to add the traced points.
          * @returns {Array<Vector>} returns the supplied array of points, or a new array of points if not set.
          */
-        trace( dstArray? : Array<Vector>, numPoints? : number ) : Vector[] {
+        trace(dstArray?:Array<Vector>, numPoints?:number):Vector[] {
 
-            dstArray= dstArray || [];
-            cc.math.path.traceQuadratic( this._p0, this._cp0, this._p1, dstArray );
+            dstArray = dstArray || [];
+            cc.math.path.traceQuadratic(this._p0, this._cp0, this._p1, dstArray);
 
             return dstArray;
         }
@@ -2964,36 +2990,36 @@ module cc.math.path {
          * @returns {cc.math.Vector} a point on the segment at the given position. This point should be copied,
          * successive calls to getValue will return the same point instance.
          */
-        getValueAt( normalizedPos : number, out? : Vector ) : Vector {
+        getValueAt(normalizedPos:number, out?:Vector):Vector {
 
             // no out point, use a spare internal one. WARNING, will be continuously reused.
             out = out || new cc.math.Vector();
 
             // fix normalization values, just in case.
-            if ( normalizedPos>1 || normalizedPos<-1 ) {
+            if (normalizedPos > 1 || normalizedPos < -1) {
                 normalizedPos %= 1;
             }
-            if ( normalizedPos<0 ) {
-                normalizedPos+=1;
+            if (normalizedPos < 0) {
+                normalizedPos += 1;
             }
 
-            if ( normalizedPos===1 ) {
-                out.set( this._p1.x, this._p1.y );
-            } else if ( normalizedPos===0 ) {
-                out.set( this._p0.x, this._p0.y );
+            if (normalizedPos === 1) {
+                out.set(this._p1.x, this._p1.y);
+            } else if (normalizedPos === 0) {
+                out.set(this._p0.x, this._p0.y);
             } else {
                 var t1 = 1 - normalizedPos;
                 var t = normalizedPos;
 
                 // solve quadratic
-                out.x = SegmentQuadratic.solve( this._p0.x, this._cp0.x, this._p1.x, t, t1 );
-                out.y = SegmentQuadratic.solve( this._p0.y, this._cp0.y, this._p1.y, t, t1 );
+                out.x = SegmentQuadratic.solve(this._p0.x, this._cp0.x, this._p1.x, t, t1);
+                out.y = SegmentQuadratic.solve(this._p0.y, this._cp0.y, this._p1.y, t, t1);
             }
 
             return out;
         }
 
-        static solve( v0:number,cv0:number,v1:number,t:number,t1:number) :number {
+        static solve(v0:number, cv0:number, v1:number, t:number, t1:number):number {
             return t1 * t1 * v0 + 2 * t1 * t * cv0 + t * t * v1;
         }
 
@@ -3002,7 +3028,7 @@ module cc.math.path {
          * It returns the original starting Point reference, not a copy of it.
          * @returns {cc.math.Vector}
          */
-        getStartingPoint() : Vector {
+        getStartingPoint():Vector {
             return this._p0;
         }
 
@@ -3011,7 +3037,7 @@ module cc.math.path {
          * It returns the original starting Point reference, not a copy of it.
          * @returns {cc.math.Vector}
          */
-        getEndingPoint() : Vector {
+        getEndingPoint():Vector {
             return this._p1;
         }
 
@@ -3020,7 +3046,7 @@ module cc.math.path {
          * @method cc.math.path.SegmentQuadratic#clone
          * @returns {cc.math.path.Segment}
          */
-        clone() : SegmentQuadratic {
+        clone():SegmentQuadratic {
 
             var segment = new SegmentQuadratic({
                 p0: {
@@ -3037,7 +3063,7 @@ module cc.math.path {
                 }
             });
 
-            segment._length= this._length;
+            segment._length = this._length;
 
             return segment;
         }
@@ -3050,12 +3076,12 @@ module cc.math.path {
          * @param arr {Array<cc.math.Vector>}
          * @returns {Array<cc.math.Vector>}
          */
-        getControlPoints( arr? : Array<Point> ) : Array<Point> {
-            arr= arr || [];
+        getControlPoints(arr?:Array<Point>):Array<Point> {
+            arr = arr || [];
 
-            arr.push( this._p0 );
-            arr.push( this._cp0 );
-            arr.push( this._p1 );
+            arr.push(this._p0);
+            arr.push(this._cp0);
+            arr.push(this._p1);
 
             return arr;
         }
@@ -3072,18 +3098,21 @@ module cc.math.path {
          * @method cc.math.path.ContainerSegment#setDirty
          */
         setDirty(d:boolean) {
-            this._dirty= d;
-            var p : ContainerSegment= this._parent;
-            while(p) {
+            this._dirty = d;
+            var p:ContainerSegment = this._parent;
+            while (p) {
                 p.setDirty(d);
-                p=p._parent;
+                p = p._parent;
             }
         }
 
-        paint( ctx:cc.render.RenderingContext ) {
-
+        canvasStroke(ctx:cc.render.RenderingContext) {
+            this.canvasFill(ctx);
         }
 
+        canvasFill(ctx:cc.render.RenderingContext) {
+            ctx.quadraticCurveTo(this._cp0.x, this._cp0.y, this._p1.x, this._p1.y);
+        }
     }
 }
 /**
@@ -3457,8 +3486,12 @@ module cc.math.path {
             }
         }
 
-        paint( ctx:cc.render.RenderingContext ) {
+        canvasStroke( ctx:cc.render.RenderingContext ) {
+            this.canvasFill(ctx);
+        }
 
+        canvasFill( ctx:cc.render.RenderingContext ) {
+            ctx.bezierCurveTo( this._cp0.x, this._cp0.y, this._cp1.x, this._cp1.y, this._p1.x, this._p1.y );
         }
 
     }
@@ -3779,9 +3812,12 @@ module cc.math.path {
             }
         }
 
-        paint( ctx:cc.render.RenderingContext ) {
+        canvasStroke( ctx:cc.render.RenderingContext ) {
+            this.canvasFill(ctx);
+        }
 
-
+        canvasFill( ctx:cc.render.RenderingContext ) {
+            ctx.arc( this._x, this._y, this._radius, this._startAngle, this._endAngle, this._ccw );
         }
 
     }
@@ -4185,15 +4221,17 @@ module cc.math.path {
             }
         }
 
-        paint( ctx:cc.render.RenderingContext ) {
+
+        canvasStroke( ctx:cc.render.RenderingContext ) {
+            this.canvasFill(ctx);
+        }
+
+        canvasFill( ctx:cc.render.RenderingContext ) {
 
             var c= this.trace(null, 50);
-            ctx.beginPath();
-            ctx.moveTo(c[0].x, c[0].y );
             for( var i=1 ; i<c.length; i++ ) {
                 ctx.lineTo( c[i].x, c[i].y );
             }
-            ctx.stroke();
         }
 
     }
@@ -4436,8 +4474,18 @@ module cc.math.path {
             }
         }
 
-        paint( ctx:cc.render.RenderingContext ) {
+        canvasStroke( ctx:cc.render.RenderingContext ) {
+            for( var i=0; i<this._segments.length; i++ ) {
+                this._segments[i].canvasStroke( ctx );
+            }
         }
+
+        canvasFill( ctx:cc.render.RenderingContext ) {
+            for( var i=0; i<this._segments.length; i++ ) {
+                this._segments[i].canvasFill( ctx );
+            }
+        }
+
     }
 }
 /**
@@ -4838,14 +4886,22 @@ module cc.math.path {
             return this;
         }
 
-        paint( ctx:cc.render.RenderingContext ) {
+        canvasStroke( ctx:cc.render.RenderingContext ) {
 
+            var fp= this.getStartingPoint();
             ctx.beginPath();
-            //ctx.strokeStyle="#000";
-            for( var i=0; i<this._segments.length; i++ ) {
-                this._segments[i].paint(ctx);
-            }
+            ctx.moveTo( fp.x, fp.y );
+            super.canvasStroke(ctx);
             ctx.stroke();
+        }
+
+        canvasFill( ctx:cc.render.RenderingContext ) {
+
+            var fp= this.getStartingPoint();
+            ctx.beginPath();
+            ctx.moveTo( fp.x, fp.y );
+            super.canvasFill(ctx);
+            ctx.fill();
         }
 
     }
@@ -4864,6 +4920,7 @@ module cc.math.path {
 module cc.math.path.geometry {
 
     var EPSILON= 0.0001;
+    var signedAreaModifier= 1;
 
     export interface StrokeGeometryAttributes {
         width? : number;        // 1 if not defined
@@ -4899,6 +4956,8 @@ module cc.math.path.geometry {
         var vertices:Array<number> =    [];
         var middlePoints:Point[] =      [];  // middle points per each line segment.
         var closed:boolean =            false;
+
+        signedAreaModifier= cc.render.RENDER_ORIGIN===cc.render.ORIGIN_TOP ? 1 : -1;
 
         if (points.length === 2) {
             join = cc.render.LineJoin.BEVEL;
@@ -5319,6 +5378,8 @@ module cc.math.path.geometry {
             return null;;
         }
 
+        signedAreaModifier= cc.render.RENDER_ORIGIN===cc.render.ORIGIN_TOP ? 1 : -1;
+
         var triangles = [];
 
         var available = [];
@@ -5344,7 +5405,7 @@ module cc.math.path.geometry {
 
             var earFound = false;
 
-            if (signedArea(ax, ay, bx, by, cx, cy)>=0) {
+            if (signedArea(ax, ay, bx, by, cx, cy)*signedAreaModifier >= 0) {
                 earFound = true;
                 for (var j = 0; j < numPointsToTessellate; j++) {
                     var vi = available[j];
@@ -6035,17 +6096,6 @@ module cc.math {
         }
 
         /**
-         * Paint the path in a canvas rendering context.
-         * @method cc.math.Path#paint
-         * @param ctx {cc.render.RenderingContext}
-         */
-        paint( ctx:cc.render.RenderingContext ) {
-            for( var i=0; i<this._segments.length; i++ ) {
-                this._segments[i].paint(ctx);
-            }
-        }
-
-        /**
          * If needed, calculate the stroke geometry for a path.
          * The stroke mesh will be traced based of line attributes.
          * On average, you will never interact with this method.
@@ -6132,6 +6182,184 @@ module cc.math {
             return this._fillGeometry;
         }
 
+    }
+}
+/**
+ * License: see license.txt file
+ */
+
+/// <reference path="./Path.ts"/>
+/// <reference path="./Matrix3.ts"/>
+/// <reference path="./Color.ts"/>
+/// <reference path="./path/geometry/StrokeGeometry.ts"/>
+/// <reference path="../render/RenderingContext.ts"/>
+
+module cc.math {
+
+    export class ShapePathAttributes {
+
+        path :          cc.math.Path= null;
+        isStroked :     boolean= false;
+        isFilled :      boolean= false;
+        fillStyle :     any = null;
+        strokeStyle :   any = null;
+
+        fillFirst : boolean = false;
+
+        constructor() {
+            this.path= new cc.math.Path();
+            this.fillStyle= cc.math.Color.BLACK;
+            this.strokeStyle= cc.math.Color.BLACK;
+        }
+
+        setFilled( ) {
+            if (!this.isStroked) {
+                this.fillFirst= true;
+            }
+            this.isFilled= true;
+        }
+
+        setStroked() {
+            if ( !this.isFilled ) {
+                this.fillFirst= false;
+            }
+
+            this.isStroked= true;
+        }
+
+        draw( ctx:cc.render.RenderingContext ) {
+
+            if ( this.fillFirst ) {
+
+                if ( this.isFilled ) {
+                    ctx.setFillStyle( this.fillStyle );
+                    ctx.fillPath( this.path );
+                }
+                if ( this.isStroked ) {
+                    ctx.setStrokeStyle( this.strokeStyle );
+                    ctx.strokePath( this.path );
+                }
+
+            } else {
+
+                if ( this.isStroked ) {
+                    ctx.setStrokeStyle( this.strokeStyle );
+                    ctx.strokePath( this.path );
+                }
+                if ( this.isFilled ) {
+                    ctx.setFillStyle( this.fillStyle );
+                    ctx.fillPath( this.path );
+                }
+            }
+        }
+    }
+
+    /**
+     * @class cc.math.Shape
+     * @classdesc
+     *
+     * A Shape object is a collection of <code>cc.math.Path</code> objects and a fill style associated with each of them.
+     * The idea is to keep under an easy-to-handle class the responsibility of stroke/paint a collection of different
+     * path objects. For example, this is a good fit for SVG elements which on average are composed of a collection of
+     * path and contour objects.
+     *
+     * PENDING: Shape objects currently don't honor the current transformation matrix.
+     *
+     */
+    export class Shape {
+
+        _pathAttributes : ShapePathAttributes[]= [];
+        _currentPathAttributes : ShapePathAttributes = null;
+        _currentPath : cc.math.Path = null;
+
+        lineJoin : cc.render.LineJoin = cc.render.LineJoin.MITER;
+        lineCap  : cc.render.LineCap = cc.render.LineCap.BUTT;
+        miterLimit : number = 10;
+        lineWidth : number = 1;
+
+        constructor() {
+
+        }
+
+        beginPath() {
+            var spa= new ShapePathAttributes();
+            this._pathAttributes.push( spa );
+            this._currentPathAttributes= spa;
+            this._currentPath= spa.path;
+        }
+
+        __ensureCurrentPathAttributes() {
+            if ( null===this._currentPathAttributes ) {
+                this.beginPath();
+            }
+        }
+
+        moveTo( x:number, y:number, matrix?:Float32Array ) {
+            this.__ensureCurrentPathAttributes();
+            this._currentPath.moveTo(x,y,matrix);
+        }
+
+        lineTo( x:number, y:number, matrix?:Float32Array ) {
+            this.__ensureCurrentPathAttributes();
+            this._currentPath.lineTo(x,y,matrix);
+        }
+
+        bezierCurveTo( cp0x:number, cp0y:number, cp1x:number, cp1y:number, p2x:number, p2y:number, matrix?:Float32Array  ) {
+            this.__ensureCurrentPathAttributes();
+            this._currentPath.bezierCurveTo( cp0x, cp0y, cp1x, cp1y, p2x, p2y, matrix );
+        }
+
+        quadraticCurveTo( cp0x:number, cp0y:number, p2x:number, p2y:number, matrix?:Float32Array ) {
+            this.__ensureCurrentPathAttributes();
+            this._currentPath.quadraticCurveTo( cp0x, cp0y, p2x, p2y, matrix );
+        }
+
+        rect( x:number, y:number, width:number, height:number, matrix?:Float32Array ) {
+            this.__ensureCurrentPathAttributes();
+            this._currentPath.rect( x, y, width, height, matrix );
+        }
+
+        arc( x:number, y:number, radius:number, startAngle:number, endAngle:number, counterClockWise:boolean, matrix?:Float32Array ) {
+            this.__ensureCurrentPathAttributes();
+            this._currentPath.arc( x, y, radius, startAngle, endAngle, counterClockWise, matrix );
+        }
+
+        closePath() {
+            this.__ensureCurrentPathAttributes();
+            this._currentPath.closePath();
+        }
+
+        stroke( ) {
+            this._currentPathAttributes.setStroked();
+            this._currentPath.getStrokeGeometry( {
+                join        : this.lineJoin,
+                cap         : this.lineCap,
+                miterLimit  : this.miterLimit,
+                width       : this.lineWidth
+            });
+        }
+
+        fill( style : Float32Array ) {
+            this._currentPathAttributes.setFilled();
+            this._currentPath.getFillGeometry();
+        }
+
+        set strokeStyle( ss:any ) {
+            this.__ensureCurrentPathAttributes();
+            this._currentPathAttributes.strokeStyle= ss;
+        }
+
+        set fillStyle( ss:any ) {
+            this.__ensureCurrentPathAttributes();
+            this._currentPathAttributes.fillStyle= ss;
+        }
+
+        draw( ctx:cc.render.RenderingContext ) {
+
+            for( var i=0; i<this._pathAttributes.length; i++ ) {
+                this._pathAttributes[i].draw( ctx );
+            }
+        }
     }
 }
 /**
@@ -7957,7 +8185,7 @@ module cc.node {
          * @param priority {number}
          */
         scheduleUpdateWithPriority( priority : number ) {
-            var task:SchedulerQueueTask= cc.action.SchedulerQueue.createSchedulerTask(this,this.update,0,Number.MAX_VALUE,0);
+            var task:SchedulerQueueTask= cc.action.SchedulerQueue.createSchedulerUpdateTask(this,0,Number.MAX_VALUE,0);
             task._priority= priority;
             this.__scheduleImpl(task);
         }
@@ -7971,7 +8199,7 @@ module cc.node {
          * @deprecated
          */
         scheduleUpdate() {
-            var task:SchedulerQueueTask= cc.action.SchedulerQueue.createSchedulerTask(this,this.update,0,Number.MAX_VALUE,0);
+            var task:SchedulerQueueTask= cc.action.SchedulerQueue.createSchedulerUpdateTask(this,0,Number.MAX_VALUE,0);
             this.__scheduleImpl(task);
         }
 
@@ -20909,6 +21137,14 @@ module cc.render {
             return globalAlpha;
         };
 
+        c2d.setFillStyle= function( s:any ) {
+            this.fillStyle= s;
+        }
+
+        c2d.setStrokeStyle= function( s:any ) {
+            this.strokeStyle= s;
+        }
+
         /**
          * this.transform(1,0,0,-1,0,h);
            //this.translate(0, h);
@@ -21031,6 +21267,14 @@ module cc.render {
 
             }
 
+        };
+
+        c2d.fillPath= function( path:cc.math.Path ) {
+            path.canvasFill( this );
+        };
+
+        c2d.strokePath= function( path:cc.math.Path ) {
+            path.canvasStroke( this );
         };
 
         return <RenderingContext>c2d;
@@ -21684,6 +21928,18 @@ module cc.render {
         fill();
 
         /**
+         * Fill a <code>cc.math.Path</code> object.
+         * @param path
+         */
+        fillPath( path:cc.math.Path );
+
+        /**
+         * Stroke a <code>cc.math.Path</code> object.
+         * @param path
+         */
+        strokePath( path:cc.math.Path );
+
+        /**
          * The the current rendering context to reset the internal path representation.
          * This method should be called to start a fresh path tracing/filling operation.
          *
@@ -21881,6 +22137,10 @@ module cc.render {
          */
         setStrokeStylePattern( pattern:cc.render.Pattern );
 
+        setFillStyle( style:any );
+
+        setStrokeStyle( style:any );
+
         /**
          * Resize the rendering context.
          * This method is internal and must never be called directly.
@@ -22018,7 +22278,7 @@ module cc.render {
          * @type {Float32Array}
          * @private
          */
-        _tintColor : Float32Array = new Float32Array([0.0, 0.0, 0.0, 1.0]);
+        _tintColor : Float32Array = new Float32Array([1.0, 1.0, 1.0, 1.0]);
 
         /**
          * Current stroke line width.
@@ -22227,8 +22487,13 @@ module cc.render {
          * @method cc.render.RenderingContextSnapshot#setupStroke
          * @returns {Float32Array}
          */
-        setupStroke( lineWidth:number, join:cc.render.LineJoin, cap:cc.render.LineCap ) {
-            if ( this._currentPath._dirty || this._lineWidth!==lineWidth || this._lineCap!==cap || this._lineJoin!==join ) {
+        setupStroke( lineWidth:number, join:cc.render.LineJoin, cap:cc.render.LineCap, path?:cc.math.Path ) {
+
+            if ( typeof path==="undefined" ) {
+                path= this._currentPath;
+            }
+
+            if ( path._dirty || this._lineWidth!==lineWidth || this._lineCap!==cap || this._lineJoin!==join ) {
 
                 lineWidth= cc.math.path.getDistanceVector(lineWidth, this._currentMatrix).length();
 
@@ -22236,7 +22501,7 @@ module cc.render {
                 this._lineJoin= join;
                 this._lineWidth= lineWidth;
 
-                this._currentPath.getStrokeGeometry({
+                path.getStrokeGeometry({
                     width: lineWidth,
                     cap: this._lineCap,
                     join: this._lineJoin,
@@ -22245,7 +22510,7 @@ module cc.render {
 
             }
 
-            return this._currentPath._strokeGeometry;
+            return path._strokeGeometry;
         }
 
         /**
@@ -22256,8 +22521,13 @@ module cc.render {
          * @method cc.render.RenderingContextSnapshot#setupFill
          * @returns {Float32Array}
          */
-        setupFill( ) {
-            return this._currentPath.getFillGeometry();
+        setupFill( path?:cc.math.Path ) {
+
+            if ( typeof path==="undefined" ) {
+                path= this._currentPath;
+            }
+
+            return path.getFillGeometry();
         }
 
     }
@@ -22933,6 +23203,52 @@ module cc.render {
         0, 0, 0, 1.0 ] );
 
 
+    export class MeshColorFlushConditions {
+
+        currentInScreenSpace = true;
+        currentInScreenSpaceMatrix = cc.math.Matrix3.create();
+
+        /**
+         * Test whether current issuing rendering command is consistent with this
+         * type of shader.
+         *
+         * @param rcs
+         * @returns {boolean} whether the shader must flush.
+         */
+        mustFlush( rc : DecoratedWebGLRenderingContext, inScreenSpace:boolean ) : boolean {
+
+            var ret= false;
+
+            if ( rc._currentFillStyleType!==FillStyleType.MESHCOLOR ) {
+                return true;
+            }
+
+            if ( this.currentInScreenSpace!==inScreenSpace ) {
+                //this.currentInScreenSpace= inScreenSpace;
+                ret= true;
+            }
+
+            if ( inScreenSpace ) {
+                if ( !cc.math.Matrix3.isIdentity(rc._currentContextSnapshot._currentMatrix) ) {
+                    //cc.math.Matrix3.identity(this.currentInScreenSpaceMatrix);
+                    ret= true;
+                }
+            } else {
+                if ( !cc.math.Matrix3.compare(
+                        this.currentInScreenSpaceMatrix,
+                        rc._currentContextSnapshot._currentMatrix)) {
+
+                    //cc.math.Matrix3.copy(
+                    //    rc._currentContextSnapshot._currentMatrix,
+                    //    this.currentInScreenSpaceMatrix);
+
+                    ret = true;
+                }
+            }
+            return ret;
+        }
+    }
+
     /**
      * @class cc.render.DecoratedWebGLRenderingContext
      * @classdesc
@@ -23132,6 +23448,8 @@ module cc.render {
          * @private
          */
         _canvas:HTMLCanvasElement= null;
+
+        _meshColorFlushConditions : MeshColorFlushConditions= new MeshColorFlushConditions();
 
         /**
          * Create a new DecoratedWebGLRenderingContext instance.
@@ -23460,7 +23778,7 @@ module cc.render {
                 return;
             }
 
-            this.__flushFillRectIfNeeded();
+            this.__flushFillRectIfNeeded( true );
 
             if ( this._batcher.batchRect(x, y, w, h, this._currentContextSnapshot) ) {
                 this.flush();
@@ -23709,20 +24027,6 @@ module cc.render {
             }
         }
 
-        __flushFillRectIfNeeded() {
-
-            if ( this._currentContextSnapshot._currentFillStyleType!==this._currentFillStyleType ) {
-                this.flush();
-
-                this.__setCurrentFillStyleType( this._currentFillStyleType );
-            }
-
-            this._currentContextSnapshot._fillStyleColor= this._currentFillStyleColor;
-            this._currentContextSnapshot._fillStylePattern= this._currentFillStylePattern;
-            this._currentContextSnapshot._tintColor= this._currentTintColor;
-
-        }
-
         __compositeFlushIfNeeded() {
             if ( this._currentGlobalCompositeOperation!==this._currentContextSnapshot._globalCompositeOperation ) {
                 this.flush();
@@ -23735,11 +24039,25 @@ module cc.render {
          * @param f {cc.render.FillStyleType}
          * @private
          */
-        __setCurrentFillStyleType( f : FillStyleType ) : void {
-            this._shaders[ this._currentContextSnapshot._currentFillStyleType ].notUseProgram();
-            this._shaders[ f ].useProgram();
-            this._currentContextSnapshot._currentFillStyleType= f;
-            this._currentFillStyleType= f;
+        __setCurrentFillStyleType( f : FillStyleType ) : cc.render.shader.AbstractShader {
+
+            if ( this._currentContextSnapshot._currentFillStyleType!==f ) {
+
+                this._shaders[this._currentContextSnapshot._currentFillStyleType].notUseProgram();
+                this._shaders[f].useProgram();
+                this._currentContextSnapshot._currentFillStyleType = f;
+            }
+
+            this._currentFillStyleType = f;
+            return this._shaders[f];
+        }
+
+        setFillStyle( s:any ) {
+            this.fillStyle=s;
+        }
+
+        setStrokeStyle( s:any ) {
+            this.strokeStyle=s;
         }
 
         setFillStyleColor( color:Color ) {
@@ -23776,12 +24094,12 @@ module cc.render {
 
         set fillStyle( v:string ) {
             this._currentFillStyleType= cc.render.FillStyleType.MESHCOLOR;
-            this._currentFillStyleColor= cc.render.util.parseColor( v );
+            this._currentFillStyleColor= cc.math.Color.fromStringToColor(v)._color; //cc.render.util.parseColor( v );
         }
 
         set strokeStyle( v:string ) {
             this._currentFillStyleType= cc.render.FillStyleType.MESHCOLOR;
-            this._currentStrokeStyleColor= cc.render.util.parseColor( v );
+            this._currentStrokeStyleColor= cc.math.Color.fromStringToColor(v)._color; //cc.render.util.parseColor( v );
         }
 
         beginPath() {
@@ -23793,35 +24111,62 @@ module cc.render {
         }
 
         stroke() {
-
-            var geometry:Float32Array= this._currentContextSnapshot.setupStroke(
+            this.__strokeImpl( this._currentContextSnapshot.setupStroke(
                 this._currentLineWidth,
                 this._currentLineJoin,
                 this._currentLineCap
-            );
+            ), false );
+        }
 
-            this.__checkStrokeFlushConditions();
 
+        __strokeImpl( geometry:Float32Array, inScreenSpace:boolean ) {
+            this.__checkStrokeFlushConditions( inScreenSpace );
             this._currentContextSnapshot._fillStyleColor= this._currentStrokeStyleColor;
             this._batcher.batchPath( geometry, this._currentContextSnapshot );
         }
 
-        fill() {
-
-            var geometry:Float32Array= this._currentContextSnapshot.setupFill( );
-
-            this.__checkStrokeFlushConditions();
-
+        __fillImpl( geometry:Float32Array, inScreenSpace:boolean ) {
+            this.__checkStrokeFlushConditions( inScreenSpace );
             this._currentContextSnapshot._fillStyleColor= this._currentFillStyleColor;
             this._batcher.batchPath( geometry, this._currentContextSnapshot );
         }
 
-        __checkStrokeFlushConditions() {
+        fill() {
+            this.__fillImpl( this._currentContextSnapshot.setupFill( ), true );
+        }
 
-            if ( this._currentContextSnapshot._currentFillStyleType!==FillStyleType.MESHCOLOR ) {
+        fillPath( path:cc.math.Path ) {
+            this.__fillImpl( this._currentContextSnapshot.setupFill(path), false );
+        }
+
+        strokePath( path:cc.math.Path ) {
+            this.__strokeImpl( this._currentContextSnapshot.setupStroke(
+                this._currentLineWidth,
+                this._currentLineJoin,
+                this._currentLineCap,
+                path
+            ), true );
+
+        }
+
+
+        __flushFillRectIfNeeded( inScreenSpace:boolean ) {
+
+            if ( this._currentContextSnapshot._currentFillStyleType!==this._currentFillStyleType ) {
                 this.flush();
-                this.__setCurrentFillStyleType( FillStyleType.MESHCOLOR );
+                this.__setCurrentFillStyleType( this._currentFillStyleType );
             }
+
+            this._currentContextSnapshot._fillStyleColor= this._currentFillStyleColor;
+            this._currentContextSnapshot._fillStylePattern= this._currentFillStylePattern;
+            this._currentContextSnapshot._tintColor= this._currentTintColor;
+
+        }
+
+        __checkStrokeFlushConditions( inScreenSpace:boolean ) {
+
+            this.__flushFillRectIfNeeded( inScreenSpace );
+
         }
 
         set lineWidth( w:number ) {
