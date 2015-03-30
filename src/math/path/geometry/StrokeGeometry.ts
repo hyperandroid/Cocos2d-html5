@@ -12,6 +12,7 @@
 module cc.math.path.geometry {
 
     var EPSILON= 0.0001;
+    var signedAreaModifier= 1;
 
     export interface StrokeGeometryAttributes {
         width? : number;        // 1 if not defined
@@ -47,6 +48,8 @@ module cc.math.path.geometry {
         var vertices:Array<number> =    [];
         var middlePoints:Point[] =      [];  // middle points per each line segment.
         var closed:boolean =            false;
+
+        signedAreaModifier= cc.render.RENDER_ORIGIN===cc.render.ORIGIN_TOP ? 1 : -1;
 
         if (points.length === 2) {
             join = cc.render.LineJoin.BEVEL;
@@ -467,6 +470,8 @@ module cc.math.path.geometry {
             return null;;
         }
 
+        signedAreaModifier= cc.render.RENDER_ORIGIN===cc.render.ORIGIN_TOP ? 1 : -1;
+
         var triangles = [];
 
         var available = [];
@@ -492,7 +497,7 @@ module cc.math.path.geometry {
 
             var earFound = false;
 
-            if (signedArea(ax, ay, bx, by, cx, cy)>=0) {
+            if (signedArea(ax, ay, bx, by, cx, cy)*signedAreaModifier >= 0) {
                 earFound = true;
                 for (var j = 0; j < numPointsToTessellate; j++) {
                     var vi = available[j];
