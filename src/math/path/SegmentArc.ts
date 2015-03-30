@@ -314,9 +314,12 @@ module cc.math.path {
             }
         }
 
-        paint( ctx:cc.render.RenderingContext ) {
+        canvasStroke( ctx:cc.render.RenderingContext ) {
+            this.canvasFill(ctx);
+        }
 
-
+        canvasFill( ctx:cc.render.RenderingContext ) {
+            ctx.arc( this._x, this._y, this._radius, this._startAngle, this._endAngle, this._ccw );
         }
 
     }

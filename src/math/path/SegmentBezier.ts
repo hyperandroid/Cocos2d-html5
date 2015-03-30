@@ -369,8 +369,12 @@ module cc.math.path {
             }
         }
 
-        paint( ctx:cc.render.RenderingContext ) {
+        canvasStroke( ctx:cc.render.RenderingContext ) {
+            this.canvasFill(ctx);
+        }
 
+        canvasFill( ctx:cc.render.RenderingContext ) {
+            ctx.bezierCurveTo( this._cp0.x, this._cp0.y, this._cp1.x, this._cp1.y, this._p1.x, this._p1.y );
         }
 
     }

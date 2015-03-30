@@ -494,6 +494,14 @@ module cc.render {
             return globalAlpha;
         };
 
+        c2d.setFillStyle= function( s:any ) {
+            this.fillStyle= s;
+        }
+
+        c2d.setStrokeStyle= function( s:any ) {
+            this.strokeStyle= s;
+        }
+
         /**
          * this.transform(1,0,0,-1,0,h);
            //this.translate(0, h);
@@ -616,6 +624,14 @@ module cc.render {
 
             }
 
+        };
+
+        c2d.fillPath= function( path:cc.math.Path ) {
+            path.canvasFill( this );
+        };
+
+        c2d.strokePath= function( path:cc.math.Path ) {
+            path.canvasStroke( this );
         };
 
         return <RenderingContext>c2d;

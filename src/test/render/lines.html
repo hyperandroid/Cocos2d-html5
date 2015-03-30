@@ -25,19 +25,16 @@
 
             var renderer = new cc.render.WebGLRenderer(W, H, document.getElementById("c"));
             var director = new cc.node.Director().setRenderer(renderer);
-            var scene = director.createScene();
+            var scene = director.createScene().setColor(1,1,1);
             var node = new cc.node.Node().setContentSize(W, H);
             node.scheduleUpdate();
             node.update = function (delta) {
-//                this.rotationAngle += .2;
+                this.rotationAngle += .2;
             };
 
             scene.addChild( node );
 
             node.draw = function (ctx) {
-
-                ctx.setFillStyleColor(cc.math.Color.WHITE);
-                ctx.fillRect(0,0,W,H);
 
                 var lw = 10;
 

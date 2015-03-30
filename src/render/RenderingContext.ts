@@ -374,6 +374,18 @@ module cc.render {
         fill();
 
         /**
+         * Fill a <code>cc.math.Path</code> object.
+         * @param path
+         */
+        fillPath( path:cc.math.Path );
+
+        /**
+         * Stroke a <code>cc.math.Path</code> object.
+         * @param path
+         */
+        strokePath( path:cc.math.Path );
+
+        /**
          * The the current rendering context to reset the internal path representation.
          * This method should be called to start a fresh path tracing/filling operation.
          *
@@ -570,6 +582,10 @@ module cc.render {
          * @method cc.render.RenderingContext#setStrokeStylePattern
          */
         setStrokeStylePattern( pattern:cc.render.Pattern );
+
+        setFillStyle( style:any );
+
+        setStrokeStyle( style:any );
 
         /**
          * Resize the rendering context.

@@ -30,6 +30,8 @@
          */
         function initialize(resources) {
 
+            cc.render.RENDER_ORIGIN= cc.render.ORIGIN_TOP;
+
             AssetManager.addImage(resources['dude'],'dude');
 
             // the renderer will setup pre-loaded textures for the renderer type.
@@ -63,13 +65,13 @@
                 ctx.lineJoin="miter";
                 ctx.beginPath();
                 ctx.strokeStyle="#00f";
-                path2.paint(ctx);
+                ctx.strokePath(path2);
                 ctx.lineWidth=30;
                 ctx.strokeStyle="#0f0";
-                path1.paint(ctx);
+                ctx.strokePath(path1);
                 ctx.lineWidth=20;
                 ctx.strokeStyle="#f00";
-                path0.paint(ctx);
+                ctx.strokePath(path0);
                 ctx.stroke();
                 ctx.globalCompositeOperation="source-over";
             };

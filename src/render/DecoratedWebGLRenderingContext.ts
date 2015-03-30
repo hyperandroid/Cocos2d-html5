@@ -82,6 +82,52 @@ module cc.render {
         0, 0, 0, 1.0 ] );
 
 
+    export class MeshColorFlushConditions {
+
+        currentInScreenSpace = true;
+        currentInScreenSpaceMatrix = cc.math.Matrix3.create();
+
+        /**
+         * Test whether current issuing rendering command is consistent with this
+         * type of shader.
+         *
+         * @param rcs
+         * @returns {boolean} whether the shader must flush.
+         */
+        mustFlush( rc : DecoratedWebGLRenderingContext, inScreenSpace:boolean ) : boolean {
+
+            var ret= false;
+
+            if ( rc._currentFillStyleType!==FillStyleType.MESHCOLOR ) {
+                return true;
+            }
+
+            if ( this.currentInScreenSpace!==inScreenSpace ) {
+                //this.currentInScreenSpace= inScreenSpace;
+                ret= true;
+            }
+
+            if ( inScreenSpace ) {
+                if ( !cc.math.Matrix3.isIdentity(rc._currentContextSnapshot._currentMatrix) ) {
+                    //cc.math.Matrix3.identity(this.currentInScreenSpaceMatrix);
+                    ret= true;
+                }
+            } else {
+                if ( !cc.math.Matrix3.compare(
+                        this.currentInScreenSpaceMatrix,
+                        rc._currentContextSnapshot._currentMatrix)) {
+
+                    //cc.math.Matrix3.copy(
+                    //    rc._currentContextSnapshot._currentMatrix,
+                    //    this.currentInScreenSpaceMatrix);
+
+                    ret = true;
+                }
+            }
+            return ret;
+        }
+    }
+
     /**
      * @class cc.render.DecoratedWebGLRenderingContext
      * @classdesc
@@ -281,6 +327,8 @@ module cc.render {
          * @private
          */
         _canvas:HTMLCanvasElement= null;
+
+        _meshColorFlushConditions : MeshColorFlushConditions= new MeshColorFlushConditions();
 
         /**
          * Create a new DecoratedWebGLRenderingContext instance.
@@ -609,7 +657,7 @@ module cc.render {
                 return;
             }
 
-            this.__flushFillRectIfNeeded();
+            this.__flushFillRectIfNeeded( true );
 
             if ( this._batcher.batchRect(x, y, w, h, this._currentContextSnapshot) ) {
                 this.flush();
@@ -858,20 +906,6 @@ module cc.render {
             }
         }
 
-        __flushFillRectIfNeeded() {
-
-            if ( this._currentContextSnapshot._currentFillStyleType!==this._currentFillStyleType ) {
-                this.flush();
-
-                this.__setCurrentFillStyleType( this._currentFillStyleType );
-            }
-
-            this._currentContextSnapshot._fillStyleColor= this._currentFillStyleColor;
-            this._currentContextSnapshot._fillStylePattern= this._currentFillStylePattern;
-            this._currentContextSnapshot._tintColor= this._currentTintColor;
-
-        }
-
         __compositeFlushIfNeeded() {
             if ( this._currentGlobalCompositeOperation!==this._currentContextSnapshot._globalCompositeOperation ) {
                 this.flush();
@@ -884,11 +918,25 @@ module cc.render {
          * @param f {cc.render.FillStyleType}
          * @private
          */
-        __setCurrentFillStyleType( f : FillStyleType ) : void {
-            this._shaders[ this._currentContextSnapshot._currentFillStyleType ].notUseProgram();
-            this._shaders[ f ].useProgram();
-            this._currentContextSnapshot._currentFillStyleType= f;
-            this._currentFillStyleType= f;
+        __setCurrentFillStyleType( f : FillStyleType ) : cc.render.shader.AbstractShader {
+
+            if ( this._currentContextSnapshot._currentFillStyleType!==f ) {
+
+                this._shaders[this._currentContextSnapshot._currentFillStyleType].notUseProgram();
+                this._shaders[f].useProgram();
+                this._currentContextSnapshot._currentFillStyleType = f;
+            }
+
+            this._currentFillStyleType = f;
+            return this._shaders[f];
+        }
+
+        setFillStyle( s:any ) {
+            this.fillStyle=s;
+        }
+
+        setStrokeStyle( s:any ) {
+            this.strokeStyle=s;
         }
 
         setFillStyleColor( color:Color ) {
@@ -941,32 +989,33 @@ module cc.render {
             this._currentContextSnapshot.closePath();
         }
 
-        __strokeImpl( geometry:Float32Array ) {
-            this.__checkStrokeFlushConditions();
-            this._currentContextSnapshot._fillStyleColor= this._currentStrokeStyleColor;
-            this._batcher.batchPath( geometry, this._currentContextSnapshot );
-        }
-
         stroke() {
             this.__strokeImpl( this._currentContextSnapshot.setupStroke(
                 this._currentLineWidth,
                 this._currentLineJoin,
                 this._currentLineCap
-            ) );
+            ), false );
         }
 
-        __fillImpl( geometry:Float32Array ) {
-            this.__checkStrokeFlushConditions();
+
+        __strokeImpl( geometry:Float32Array, inScreenSpace:boolean ) {
+            this.__checkStrokeFlushConditions( inScreenSpace );
+            this._currentContextSnapshot._fillStyleColor= this._currentStrokeStyleColor;
+            this._batcher.batchPath( geometry, this._currentContextSnapshot );
+        }
+
+        __fillImpl( geometry:Float32Array, inScreenSpace:boolean ) {
+            this.__checkStrokeFlushConditions( inScreenSpace );
             this._currentContextSnapshot._fillStyleColor= this._currentFillStyleColor;
             this._batcher.batchPath( geometry, this._currentContextSnapshot );
         }
 
         fill() {
-            this.__fillImpl( this._currentContextSnapshot.setupFill( ) );
+            this.__fillImpl( this._currentContextSnapshot.setupFill( ), true );
         }
 
         fillPath( path:cc.math.Path ) {
-            this.__fillImpl( this._currentContextSnapshot.setupFill(path) );
+            this.__fillImpl( this._currentContextSnapshot.setupFill(path), false );
         }
 
         strokePath( path:cc.math.Path ) {
@@ -975,16 +1024,28 @@ module cc.render {
                 this._currentLineJoin,
                 this._currentLineCap,
                 path
-            ) );
+            ), true );
 
         }
 
-        __checkStrokeFlushConditions() {
 
-            if ( this._currentContextSnapshot._currentFillStyleType!==FillStyleType.MESHCOLOR ) {
+        __flushFillRectIfNeeded( inScreenSpace:boolean ) {
+
+            if ( this._currentContextSnapshot._currentFillStyleType!==this._currentFillStyleType ) {
                 this.flush();
-                this.__setCurrentFillStyleType( FillStyleType.MESHCOLOR );
+                this.__setCurrentFillStyleType( this._currentFillStyleType );
             }
+
+            this._currentContextSnapshot._fillStyleColor= this._currentFillStyleColor;
+            this._currentContextSnapshot._fillStylePattern= this._currentFillStylePattern;
+            this._currentContextSnapshot._tintColor= this._currentTintColor;
+
+        }
+
+        __checkStrokeFlushConditions( inScreenSpace:boolean ) {
+
+            this.__flushFillRectIfNeeded( inScreenSpace );
+
         }
 
         set lineWidth( w:number ) {

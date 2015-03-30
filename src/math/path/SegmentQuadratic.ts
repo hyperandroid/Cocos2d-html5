@@ -77,7 +77,7 @@ module cc.math.path {
          * @type {cc.math.Vector}
          * @private
          */
-        _p0 : Vector = null;
+        _p0:Vector = null;
 
         /**
          * Quadratic curve control point.
@@ -85,7 +85,7 @@ module cc.math.path {
          * @type {cc.math.Vector}
          * @private
          */
-        _cp0: Vector = null;
+        _cp0:Vector = null;
 
         /**
          * End quadratic curve point.
@@ -93,7 +93,7 @@ module cc.math.path {
          * @type {cc.math.Vector}
          * @private
          */
-        _p1 : Vector = null;
+        _p1:Vector = null;
 
         /**
          * Internal flag for cache validity.
@@ -101,7 +101,7 @@ module cc.math.path {
          * @type {boolean}
          * @private
          */
-        _dirty : boolean = true;
+        _dirty:boolean = true;
 
         /**
          * Parent segment.
@@ -109,7 +109,7 @@ module cc.math.path {
          * @type {cc.math.path.Segment}
          * @private
          */
-        _parent : ContainerSegment = null;
+        _parent:ContainerSegment = null;
 
         /**
          * Segment length. It is approximately calculated by subdividing the curve.
@@ -117,15 +117,15 @@ module cc.math.path {
          * @type {number}
          * @private
          */
-        _length : number = 0;
+        _length:number = 0;
 
         /**
          * Create a new Quadratic Segment instance.
          * @param data {cc.math.path.SegmentQuadraticInitializer=}
          */
-        constructor( data? : SegmentQuadraticInitializer ) {
-            if ( data ) {
-                this.initialize( data.p0, data.p1, data.p2 );
+        constructor(data?:SegmentQuadraticInitializer) {
+            if (data) {
+                this.initialize(data.p0, data.p1, data.p2);
             }
         }
 
@@ -135,25 +135,25 @@ module cc.math.path {
          * @param p1 {cc.math.Point} curve control point.
          * @param p2 {cc.math.Point} end curve point}
          */
-        initialize( p0:Point, p1:Point, p2:Point ) : void {
+        initialize(p0:Point, p1:Point, p2:Point):void {
 
-            this._p0= new Vector( p0.x, p0.y );
-            this._cp0= new Vector( p1.x, p1.y );
-            this._p1= new Vector( p2.x, p2.y );
+            this._p0 = new Vector(p0.x, p0.y);
+            this._cp0 = new Vector(p1.x, p1.y);
+            this._p1 = new Vector(p2.x, p2.y);
 
             this.__calculateLength();
-            this._dirty= false;
+            this._dirty = false;
         }
 
-        __calculateLength() : void {
-            var points= this.trace( null, cc.math.path.DEFAULT_TRACE_LENGTH );
+        __calculateLength():void {
+            var points = this.trace(null, cc.math.path.DEFAULT_TRACE_LENGTH);
             // calculate distance
-            this._length=0;
-            for( var i=0; i<points.length-1; i++ ) {
-                this._length+= points[i].distance( points[i+1] );
+            this._length = 0;
+            for (var i = 0; i < points.length - 1; i++) {
+                this._length += points[i].distance(points[i + 1]);
             }
 
-            this._dirty= false;
+            this._dirty = false;
         }
 
         /**
@@ -161,7 +161,7 @@ module cc.math.path {
          * @method cc.math.path.SegmentQuadratic#getParent
          * @returns {cc.math.path.Segment}
          */
-        getParent() : ContainerSegment {
+        getParent():ContainerSegment {
             return this._parent;
         }
 
@@ -170,8 +170,8 @@ module cc.math.path {
          * @method cc.math.path.SegmentQuadratic#setParent
          * @param s {cc.math.path.Segment}
          */
-        setParent( s : ContainerSegment ) : void {
-            this._parent= s;
+        setParent(s:ContainerSegment):void {
+            this._parent = s;
         }
 
         /**
@@ -180,8 +180,8 @@ module cc.math.path {
          * @method cc.math.path.SegmentQuadratic#getLength
          * @returns {number}
          */
-        getLength() : number {
-            if ( this._dirty ) {
+        getLength():number {
+            if (this._dirty) {
                 this.__calculateLength();
             }
             return this._length;
@@ -195,10 +195,10 @@ module cc.math.path {
          * @param dstArray {Array<cc.math.Vector>=} array where to add the traced points.
          * @returns {Array<Vector>} returns the supplied array of points, or a new array of points if not set.
          */
-        trace( dstArray? : Array<Vector>, numPoints? : number ) : Vector[] {
+        trace(dstArray?:Array<Vector>, numPoints?:number):Vector[] {
 
-            dstArray= dstArray || [];
-            cc.math.path.traceQuadratic( this._p0, this._cp0, this._p1, dstArray );
+            dstArray = dstArray || [];
+            cc.math.path.traceQuadratic(this._p0, this._cp0, this._p1, dstArray);
 
             return dstArray;
         }
@@ -213,36 +213,36 @@ module cc.math.path {
          * @returns {cc.math.Vector} a point on the segment at the given position. This point should be copied,
          * successive calls to getValue will return the same point instance.
          */
-        getValueAt( normalizedPos : number, out? : Vector ) : Vector {
+        getValueAt(normalizedPos:number, out?:Vector):Vector {
 
             // no out point, use a spare internal one. WARNING, will be continuously reused.
             out = out || new cc.math.Vector();
 
             // fix normalization values, just in case.
-            if ( normalizedPos>1 || normalizedPos<-1 ) {
+            if (normalizedPos > 1 || normalizedPos < -1) {
                 normalizedPos %= 1;
             }
-            if ( normalizedPos<0 ) {
-                normalizedPos+=1;
+            if (normalizedPos < 0) {
+                normalizedPos += 1;
             }
 
-            if ( normalizedPos===1 ) {
-                out.set( this._p1.x, this._p1.y );
-            } else if ( normalizedPos===0 ) {
-                out.set( this._p0.x, this._p0.y );
+            if (normalizedPos === 1) {
+                out.set(this._p1.x, this._p1.y);
+            } else if (normalizedPos === 0) {
+                out.set(this._p0.x, this._p0.y);
             } else {
                 var t1 = 1 - normalizedPos;
                 var t = normalizedPos;
 
                 // solve quadratic
-                out.x = SegmentQuadratic.solve( this._p0.x, this._cp0.x, this._p1.x, t, t1 );
-                out.y = SegmentQuadratic.solve( this._p0.y, this._cp0.y, this._p1.y, t, t1 );
+                out.x = SegmentQuadratic.solve(this._p0.x, this._cp0.x, this._p1.x, t, t1);
+                out.y = SegmentQuadratic.solve(this._p0.y, this._cp0.y, this._p1.y, t, t1);
             }
 
             return out;
         }
 
-        static solve( v0:number,cv0:number,v1:number,t:number,t1:number) :number {
+        static solve(v0:number, cv0:number, v1:number, t:number, t1:number):number {
             return t1 * t1 * v0 + 2 * t1 * t * cv0 + t * t * v1;
         }
 
@@ -251,7 +251,7 @@ module cc.math.path {
          * It returns the original starting Point reference, not a copy of it.
          * @returns {cc.math.Vector}
          */
-        getStartingPoint() : Vector {
+        getStartingPoint():Vector {
             return this._p0;
         }
 
@@ -260,7 +260,7 @@ module cc.math.path {
          * It returns the original starting Point reference, not a copy of it.
          * @returns {cc.math.Vector}
          */
-        getEndingPoint() : Vector {
+        getEndingPoint():Vector {
             return this._p1;
         }
 
@@ -269,7 +269,7 @@ module cc.math.path {
          * @method cc.math.path.SegmentQuadratic#clone
          * @returns {cc.math.path.Segment}
          */
-        clone() : SegmentQuadratic {
+        clone():SegmentQuadratic {
 
             var segment = new SegmentQuadratic({
                 p0: {
@@ -286,7 +286,7 @@ module cc.math.path {
                 }
             });
 
-            segment._length= this._length;
+            segment._length = this._length;
 
             return segment;
         }
@@ -299,12 +299,12 @@ module cc.math.path {
          * @param arr {Array<cc.math.Vector>}
          * @returns {Array<cc.math.Vector>}
          */
-        getControlPoints( arr? : Array<Point> ) : Array<Point> {
-            arr= arr || [];
+        getControlPoints(arr?:Array<Point>):Array<Point> {
+            arr = arr || [];
 
-            arr.push( this._p0 );
-            arr.push( this._cp0 );
-            arr.push( this._p1 );
+            arr.push(this._p0);
+            arr.push(this._cp0);
+            arr.push(this._p1);
 
             return arr;
         }
@@ -321,17 +321,20 @@ module cc.math.path {
          * @method cc.math.path.ContainerSegment#setDirty
          */
         setDirty(d:boolean) {
-            this._dirty= d;
-            var p : ContainerSegment= this._parent;
-            while(p) {
+            this._dirty = d;
+            var p:ContainerSegment = this._parent;
+            while (p) {
                 p.setDirty(d);
-                p=p._parent;
+                p = p._parent;
             }
         }
 
-        paint( ctx:cc.render.RenderingContext ) {
-
+        canvasStroke(ctx:cc.render.RenderingContext) {
+            this.canvasFill(ctx);
         }
 
+        canvasFill(ctx:cc.render.RenderingContext) {
+            ctx.quadraticCurveTo(this._cp0.x, this._cp0.y, this._p1.x, this._p1.y);
+        }
     }
 }
