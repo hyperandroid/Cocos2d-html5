@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Cocos2h-html5 - Render - lines test.</title>
+    <script src="../../../dist/all.js"></script>
+</head>
+<body>
+
+<script>
+    (function() {
+
+        var W= 600;
+        var H= 600;
+
+        cc.render.RENDER_ORIGIN= cc.render.ORIGIN_TOP;
+
+        cc.render.DecoratedWebGLRenderingContext.ANTIALIAS= true;
+
+        function createShape() {
+
+            var shape= new cc.math.Shape();
+
+            shape.fillStyle = [1, 1, 0, .5];
+            shape.strokeStyle = [0, 0, 1, 1];
+            shape.lineWidth = 15;
+            shape.lineJoin = 'mitter';
+
+            shape.beginPath();
+            shape.moveTo(-50.000000, -172.500000);
+            shape.lineTo(-37.000000, -182.500000);
+            shape.lineTo(-20.000000, -187.500000);
+            shape.lineTo(-1.000000, -185.500000);
+            shape.lineTo(16.000000, -178.500000);
+            shape.lineTo(30.000000, -169.500000);
+            shape.lineTo(37.000000, -177.500000);
+            shape.lineTo(46.000000, -181.500000);
+            shape.lineTo(58.000000, -177.500000);
+            shape.lineTo(64.000000, -162.500000);
+            shape.lineTo(61.000000, -140.500000);
+            shape.lineTo(45.000000, -99.500000);
+            shape.lineTo(36.000000, -83.500000);
+            shape.lineTo(35.000000, -76.500000);
+            shape.lineTo(32.000000, -69.500000);
+            shape.lineTo(22.000000, -63.500000);
+            shape.lineTo(20.000000, -54.500000);
+            shape.lineTo(36.000000, 15.500000);
+            shape.lineTo(38.000000, 60.500000);
+            shape.lineTo(7.000000, 151.500000);
+            shape.lineTo(14.000000, 166.500000);
+            shape.lineTo(9.000000, 185.500000);
+            shape.lineTo(-36.000000, 185.500000);
+            shape.lineTo(-44.000000, 177.500000);
+            shape.lineTo(-52.000000, 159.500000);
+            shape.lineTo(-58.000000, 159.500000);
+            shape.lineTo(-66.000000, 178.500000);
+            shape.lineTo(-115.000000, 178.500000);
+            shape.lineTo(-117.000000, 170.500000);
+            shape.lineTo(-114.000000, 163.500000);
+            shape.lineTo(-107.000000, 151.500000);
+            shape.lineTo(-103.000000, 130.500000);
+            shape.lineTo(-115.000000, 66.500000);
+            shape.lineTo(-115.000000, 53.500000);
+            shape.lineTo(-112.000000, 27.500000);
+            shape.lineTo(-110.000000, -11.500000);
+            shape.lineTo(-93.000000, -63.500000);
+            shape.lineTo(-76.000000, -97.500000);
+            shape.lineTo(-87.000000, -113.500000);
+            shape.lineTo(-89.000000, -120.500000);
+            shape.lineTo(-95.000000, -123.500000);
+            shape.lineTo(-103.000000, -141.500000);
+            shape.lineTo(-102.000000, -155.500000);
+            shape.lineTo(-101.000000, -167.500000);
+            shape.lineTo(-89.000000, -178.500000);
+            shape.lineTo(-79.000000, -183.500000);
+            shape.lineTo(-66.000000, -183.500000);
+            shape.lineTo(-57.000000, -178.500000);
+            shape.lineTo(-50.000000, -172.500000);
+            shape.fillStyle='#f2cc99';
+            shape.fill();
+
+
+            shape.beginPath();
+           shape.moveTo(23.000000, -111.500000);
+           shape.lineTo(17.000000, -116.500000);
+           shape.lineTo(19.000000, -108.500000);
+           shape.lineTo(14.000000, -112.500000);
+           shape.lineTo(14.000000, -106.500000);
+           shape.lineTo(8.000000, -112.500000);
+           shape.lineTo(9.000000, -105.500000);
+           shape.lineTo(5.000000, -110.500000);
+           shape.lineTo(6.000000, -103.500000);
+           shape.lineTo(0.000000, -108.500000);
+           shape.lineTo(0.000000, -100.500000);
+           shape.lineTo(6.000000, -91.500000);
+           shape.lineTo(6.000000, -94.500000);
+           shape.lineTo(9.000000, -90.500000);
+           shape.lineTo(9.000000, -96.500000);
+           shape.lineTo(12.000000, -92.500000);
+           shape.lineTo(13.000000, -97.500000);
+           shape.lineTo(16.000000, -93.500000);
+           shape.lineTo(17.000000, -97.500000);
+           shape.lineTo(19.000000, -93.500000);
+           shape.lineTo(20.000000, -96.500000);
+           shape.lineTo(22.000000, -92.500000);
+           shape.lineTo(24.000000, -96.500000);
+           shape.lineTo(25.000000, -105.500000);
+           shape.lineTo(23.000000, -111.500000);
+           shape.fillStyle='#e5b27f';
+           shape.fill();
+
+
+            return shape;
+        }
+
+        /**
+         *
+         */
+        function initialize( ) {
+
+            var renderer = new cc.render.WebGLRenderer(W, H, document.getElementById("c"));
+            var director = new cc.node.Director().setRenderer(renderer);
+            var scene = director.createScene().setColor(1,1,1);
+            var node = new cc.node.Node().setContentSize(W, H);
+
+            var shape= createShape();
+
+            scene.addChild( node );
+
+            var angle= 0;
+
+            node.draw = function (ctx) {
+
+                ctx.rotate( angle );
+                ctx.translate( 200,200 );
+                shape.draw( ctx );
+            };
+
+            node.scheduleUpdate();
+            node.update= function( delta ) {
+                angle+=.11;
+            }
+
+            director.runScene( scene );
+        }
+
+      window.addEventListener("DOMContentLoaded", initialize, false);
+
+    })();
+</script>
+
+<div>
+    <div>
+        <div>
+            <canvas id="c"></canvas>
+            <canvas id="c1"></canvas>
+        </div>
+        <div>
+            <span id="span"></span>
+        </div>
+    </div>
+    <div>
+        <p>
+            This demos shows anchoring for different affine transformation operations.
+        </p>
+    </div>
+</div>
+
+</body>
+</html>
