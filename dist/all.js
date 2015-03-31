@@ -19021,15 +19021,8 @@ var cc;
                 this.currentInScreenSpace = true;
                 this.currentInScreenSpaceMatrix = cc.math.Matrix3.create();
             }
-            /**
-             * Test whether current issuing rendering command is consistent with this
-             * type of shader.
-             *
-             * @param rcs
-             * @returns {boolean} whether the shader must flush.
-             */
             MeshColorFlushConditions.prototype.mustFlush = function (rc, inScreenSpace) {
-                if (rc._currentFillStyleType !== 0 /* MESHCOLOR */) {
+                if (rc._currentContextSnapshot._currentFillStyleType !== 0 /* MESHCOLOR */) {
                     return true;
                 }
                 if (this.currentInScreenSpace !== inScreenSpace) {
@@ -19041,6 +19034,9 @@ var cc;
                 return false;
             };
             MeshColorFlushConditions.prototype.set = function (rc, inScreenSpace, shader) {
+                if (rc._currentContextSnapshot._currentFillStyleType !== 0 /* MESHCOLOR */) {
+                    rc.__setCurrentFillStyleType(0 /* MESHCOLOR */);
+                }
                 if (inScreenSpace !== this.currentInScreenSpace) {
                     this.currentInScreenSpace = inScreenSpace;
                 }
@@ -19704,8 +19700,8 @@ var cc;
                     this._shaders[this._currentContextSnapshot._currentFillStyleType].notUseProgram();
                     this._shaders[f].useProgram();
                     this._currentContextSnapshot._currentFillStyleType = f;
-                    this._currentFillStyleType = f;
                 }
+                this._currentFillStyleType = f;
                 return this._shaders[f];
             };
             DecoratedWebGLRenderingContext.prototype.setFillStyle = function (s) {
