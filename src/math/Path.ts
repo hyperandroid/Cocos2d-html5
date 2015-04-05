@@ -7,6 +7,7 @@
 /// <reference path="./path/SubPath.ts"/>
 /// <reference path="./Point.ts"/>
 /// <reference path="./Matrix3.ts"/>
+/// <reference path="./path/geometry/EarCut.ts"/>
 /// <reference path="../util/Debug.ts"/>
 
 module cc.math {

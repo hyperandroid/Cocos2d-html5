@@ -32,7 +32,6 @@ module cc.render {
     import RenderingContextSnapshot = cc.render.RenderingContextSnapshot;
     import GeometryBatcher = cc.render.GeometryBatcher;
     import AbstractShader = cc.render.shader.AbstractShader;
-    import SolidColorShader = cc.render.shader.SolidColorShader;
     import TextureShader = cc.render.shader.TextureShader;
     import TexturePatternShader = cc.render.shader.TexturePatternShader;
     import FastTextureShader = cc.render.shader.FastTextureShader;
@@ -87,44 +86,44 @@ module cc.render {
         currentInScreenSpace = true;
         currentInScreenSpaceMatrix = cc.math.Matrix3.create();
 
-        /**
-         * Test whether current issuing rendering command is consistent with this
-         * type of shader.
-         *
-         * @param rcs
-         * @returns {boolean} whether the shader must flush.
-         */
         mustFlush( rc : DecoratedWebGLRenderingContext, inScreenSpace:boolean ) : boolean {
 
-            var ret= false;
-
-            if ( rc._currentFillStyleType!==FillStyleType.MESHCOLOR ) {
+            if ( rc._currentContextSnapshot._currentFillStyleType!==FillStyleType.MESHCOLOR ) {
                 return true;
             }
 
             if ( this.currentInScreenSpace!==inScreenSpace ) {
-                //this.currentInScreenSpace= inScreenSpace;
-                ret= true;
+                return true;
             }
 
-            if ( inScreenSpace ) {
-                if ( !cc.math.Matrix3.isIdentity(rc._currentContextSnapshot._currentMatrix) ) {
-                    //cc.math.Matrix3.identity(this.currentInScreenSpaceMatrix);
-                    ret= true;
-                }
-            } else {
-                if ( !cc.math.Matrix3.compare(
+            if ( !inScreenSpace && !cc.math.Matrix3.compare(
                         this.currentInScreenSpaceMatrix,
                         rc._currentContextSnapshot._currentMatrix)) {
 
-                    //cc.math.Matrix3.copy(
-                    //    rc._currentContextSnapshot._currentMatrix,
-                    //    this.currentInScreenSpaceMatrix);
-
-                    ret = true;
-                }
+                return true;
             }
-            return ret;
+
+            return false;
+        }
+
+        set( rc : DecoratedWebGLRenderingContext, inScreenSpace:boolean, shader:cc.render.shader.SolidColorShader ) : void {
+
+            if ( rc._currentContextSnapshot._currentFillStyleType!==FillStyleType.MESHCOLOR ) {
+                rc.__setCurrentFillStyleType( FillStyleType.MESHCOLOR );
+            }
+
+            if ( inScreenSpace!==this.currentInScreenSpace ) {
+                this.currentInScreenSpace= inScreenSpace;
+            }
+
+            if ( inScreenSpace ) {
+                shader.resetMatrixUniform( shader._uniformTransform );
+                cc.math.Matrix3.identity(this.currentInScreenSpaceMatrix);
+            } else {
+                cc.math.Matrix3.copy( rc._currentContextSnapshot._currentMatrix, this.currentInScreenSpaceMatrix );
+                shader.mat4_from_mat3( this.currentInScreenSpaceMatrix, __mat4 );
+                shader._uniformTransform.setValue(__mat4);
+            }
         }
     }
 
@@ -269,6 +268,8 @@ module cc.render {
          * @private
          */
         _currentGlobalCompositeOperation : cc.render.CompositeOperation = cc.render.CompositeOperation.source_over;
+
+        _currentInScreenSpace : boolean = true;
 
         /**
          * Internal rendering shaders.
@@ -468,7 +469,7 @@ module cc.render {
              * Never change the order the shaders are pushed.
              * BUGBUG change the _shader array in favor of an associative collection.
              */
-            this._shaders.push( new SolidColorShader( this._webglState ) );
+            this._shaders.push( new cc.render.shader.SolidColorShader( this._webglState ) );
             this._shaders.push( new TextureShader( this._webglState ) );
             this._shaders.push( new FastTextureShader( this._webglState ) );
             this._shaders.push( new TexturePatternShader( this._webglState ) );
@@ -926,8 +927,8 @@ module cc.render {
                 this._shaders[f].useProgram();
                 this._currentContextSnapshot._currentFillStyleType = f;
             }
+                this._currentFillStyleType = f;
 
-            this._currentFillStyleType = f;
             return this._shaders[f];
         }
 
@@ -994,9 +995,8 @@ module cc.render {
                 this._currentLineWidth,
                 this._currentLineJoin,
                 this._currentLineCap
-            ), false );
+            ), true );
         }
-
 
         __strokeImpl( geometry:Float32Array, inScreenSpace:boolean ) {
             this.__checkStrokeFlushConditions( inScreenSpace );
@@ -1024,28 +1024,30 @@ module cc.render {
                 this._currentLineJoin,
                 this._currentLineCap,
                 path
-            ), true );
+            ), false );
 
         }
 
-
         __flushFillRectIfNeeded( inScreenSpace:boolean ) {
 
-            if ( this._currentContextSnapshot._currentFillStyleType!==this._currentFillStyleType ) {
+            //if ( this._currentContextSnapshot._currentFillStyleType!==this._currentFillStyleType ) {
+            //    this.flush();
+            //    this.__setCurrentFillStyleType( this._currentFillStyleType );
+            //}
+
+            if ( this._meshColorFlushConditions.mustFlush(this,inScreenSpace) ) {
                 this.flush();
-                this.__setCurrentFillStyleType( this._currentFillStyleType );
+                var shader= <cc.render.shader.SolidColorShader>this.__setCurrentFillStyleType( this._currentFillStyleType );
+                this._meshColorFlushConditions.set( this,inScreenSpace,shader );
             }
 
             this._currentContextSnapshot._fillStyleColor= this._currentFillStyleColor;
             this._currentContextSnapshot._fillStylePattern= this._currentFillStylePattern;
             this._currentContextSnapshot._tintColor= this._currentTintColor;
-
         }
 
         __checkStrokeFlushConditions( inScreenSpace:boolean ) {
-
             this.__flushFillRectIfNeeded( inScreenSpace );
-
         }
 
         set lineWidth( w:number ) {

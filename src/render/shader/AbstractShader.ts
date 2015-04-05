@@ -17,6 +17,13 @@ module cc.render.shader {
 
     "use strict";
 
+    var __mat4Identity : Float32Array= new Float32Array( [
+        1.0, 0, 0, 0,
+        0, 1.0, 0, 0,
+        0, 0, 1.0, 0,
+        0, 0, 0, 1.0 ] );
+
+
     export interface MapOfUniformInitializer {
         [name: string]: UniformInitializer;
     }
@@ -324,6 +331,10 @@ module cc.render.shader {
 
         useMeshIndex() : boolean {
             return false;
+        }
+
+        resetMatrixUniform( uniform:cc.render.shader.MatrixUniform ) {
+            uniform.setValue( __mat4Identity );
         }
     }
 

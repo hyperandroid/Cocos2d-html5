@@ -18,10 +18,13 @@
 /// <reference path="math/path/SegmentArc.ts"/>
 /// <reference path="math/path/ContainerSegment.ts"/>
 /// <reference path="math/path/Subpath.ts"/>
+
+/// <reference path="math/path/geometry/StrokeGeometry.ts"/>
+/// <reference path="math/path/geometry/EarCut.ts"/>
+
 /// <reference path="math/Path.ts"/>
 /// <reference path="math/Shape.ts"/>
 
-/// <reference path="math/path/geometry/StrokeGeometry.ts"/>
 
 /// <reference path="node/NodeV3.ts"/>
 /// <reference path="node/Node.ts"/>

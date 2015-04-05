@@ -27,6 +27,7 @@ var scripts= [
         "js/math/path/ContainerSegment.js",
         "js/math/path/Subpath.js",
         "js/math/path/geometry/StrokeGeometry.js",
+        "js/math/path/geometry/EarCut.js",
         "js/math/Path.js",
         "js/math/Shape.js",
         "js/node/Node.js",

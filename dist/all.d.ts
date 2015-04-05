@@ -2486,7 +2486,15 @@ declare module cc.math.path.geometry {
      * @param contour {Array<cc.math.Point>}
      * @returns {Float32Array}
      */
-    function tessellate(contour: cc.math.Point[]): Float32Array;
+    function tessellateWrong(contour: cc.math.Point[]): Float32Array;
+}
+/**
+ * License: see license.txt file
+ *
+ * See licenses/libgdx - license.txt
+ */
+declare module cc.math.path.geometry {
+    function tessellate(points: cc.math.Point[]): Float32Array;
 }
 /**
  * License: see license.txt file.
@@ -2823,7 +2831,7 @@ declare module cc.math {
         fill(style: Float32Array): void;
         strokeStyle: any;
         fillStyle: any;
-        draw(ctx: cc.render.RenderingContext): void;
+        draw(ctx: cc.render.RenderingContext, from?: number, to?: number): void;
     }
 }
 /**
@@ -9022,6 +9030,7 @@ declare module cc.render.shader {
      */
     class MatrixUniform extends Uniform {
         _dirty: boolean;
+        _vv: Float32Array;
         /**
          * @method cc.render.shader.MatrixUniform#constructor
          * @param name {string}
@@ -9237,6 +9246,7 @@ declare module cc.render.shader {
          */
         mat4_from_mat3(mat3: Float32Array, __mat4: Float32Array): Float32Array;
         useMeshIndex(): boolean;
+        resetMatrixUniform(uniform: cc.render.shader.MatrixUniform): void;
     }
 }
 /**
@@ -10875,14 +10885,8 @@ declare module cc.render {
     class MeshColorFlushConditions {
         currentInScreenSpace: boolean;
         currentInScreenSpaceMatrix: Float32Array;
-        /**
-         * Test whether current issuing rendering command is consistent with this
-         * type of shader.
-         *
-         * @param rcs
-         * @returns {boolean} whether the shader must flush.
-         */
         mustFlush(rc: DecoratedWebGLRenderingContext, inScreenSpace: boolean): boolean;
+        set(rc: DecoratedWebGLRenderingContext, inScreenSpace: boolean, shader: cc.render.shader.SolidColorShader): void;
     }
     /**
      * @class cc.render.DecoratedWebGLRenderingContext
@@ -11011,6 +11015,7 @@ declare module cc.render {
          * @private
          */
         _currentGlobalCompositeOperation: cc.render.CompositeOperation;
+        _currentInScreenSpace: boolean;
         /**
          * Internal rendering shaders.
          * @member cc.render.DecoratedWebGLRenderingContext#_shaders

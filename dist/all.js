@@ -4234,6 +4234,18 @@ var cc;
                     return (u >= 0) && (v >= 0) && (u + v < 1);
                 }
                 geometry.isPointInTriangle = isPointInTriangle;
+                function computeNextIndex(pVertices, pIndex) {
+                    return pIndex === pVertices.length - 1 ? 0 : pIndex + 1;
+                }
+                function areVerticesClockwise(pVertices) {
+                    var area = 0;
+                    for (var i = 0, vertexCount = pVertices.length; i != vertexCount; i++) {
+                        var p1 = pVertices[i];
+                        var p2 = pVertices[computeNextIndex(pVertices, i)];
+                        area += p1.x * p2.y - p2.x * p1.y;
+                    }
+                    return area * signedAreaModifier < 0;
+                }
                 /**
                  * Based from Ivank.polyk: http://polyk.ivank.net/polyk.js
                  *
@@ -4244,7 +4256,7 @@ var cc;
                  * @param contour {Array<cc.math.Point>}
                  * @returns {Float32Array}
                  */
-                function tessellate(contour) {
+                function tessellateWrong(contour) {
                     var n = contour.length;
                     if (n < 3) {
                         return null;
@@ -4258,6 +4270,9 @@ var cc;
                     }
                     var i = 0;
                     var numPointsToTessellate = n;
+                    if (areVerticesClockwise(contour)) {
+                        contour.reverse();
+                    }
                     while (numPointsToTessellate > 3) {
                         var i0 = available[(i) % numPointsToTessellate];
                         var i1 = available[(i + 1) % numPointsToTessellate];
@@ -4269,7 +4284,7 @@ var cc;
                         var cx = contour[i2].x;
                         var cy = contour[i2].y;
                         var earFound = false;
-                        if (signedArea(ax, ay, bx, by, cx, cy) * signedAreaModifier >= 0) {
+                        if (signedArea(ax, ay, bx, by, cx, cy) * -1 >= 0) {
                             earFound = true;
                             for (var j = 0; j < numPointsToTessellate; j++) {
                                 var vi = available[j];
@@ -4301,6 +4316,216 @@ var cc;
                     }
                     return new Float32Array(trianglesData);
                 }
+                geometry.tessellateWrong = tessellateWrong;
+            })(geometry = path.geometry || (path.geometry = {}));
+        })(path = math.path || (math.path = {}));
+    })(math = cc.math || (cc.math = {}));
+})(cc || (cc = {}));
+
+/**
+ * License: see license.txt file
+ *
+ * See licenses/libgdx - license.txt
+ */
+/// <reference path="../../Point.ts"/>
+var cc;
+(function (cc) {
+    var math;
+    (function (math) {
+        var path;
+        (function (path) {
+            var geometry;
+            (function (geometry) {
+                var CONCAVE = 1;
+                var CONVEX = -1;
+                var EarCut = (function () {
+                    function EarCut() {
+                        this.mConcaveVertexCount = 0;
+                    }
+                    EarCut.prototype.computeTriangles = function (pVertices, preserveInputPoints) {
+                        var triangles = [];
+                        var vertices;
+                        if (preserveInputPoints) {
+                            vertices = [];
+                            vertices = vertices.concat(pVertices);
+                        }
+                        else {
+                            vertices = pVertices;
+                        }
+                        if (vertices[0].x !== vertices[vertices.length - 1].x && vertices[0].y !== vertices[vertices.length - 1].y) {
+                            vertices.push(vertices[0].clone());
+                        }
+                        if (pVertices.length < 3) {
+                            return triangles;
+                        }
+                        if (vertices.length === 3) {
+                            triangles = triangles.concat(vertices);
+                            return triangles;
+                        }
+                        while (vertices.length >= 3) {
+                            var vertexTypes = this.classifyVertices(vertices);
+                            var foundEarTip = false;
+                            for (var index = 0, vertexCount = vertices.length; index != vertexCount; index++) {
+                                if (this.isEarTip(vertices, index, vertexTypes)) {
+                                    this.cutEarTip(vertices, index, triangles);
+                                    foundEarTip = true;
+                                    break;
+                                }
+                            }
+                            if (!foundEarTip) {
+                                break;
+                            }
+                        }
+                        return triangles;
+                    };
+                    EarCut.prototype.areVerticesClockwise = function (pVertices) {
+                        var area = 0;
+                        for (var i = 0, vertexCount = pVertices.length; i != vertexCount; i++) {
+                            var p1 = pVertices[i];
+                            var p2 = pVertices[this.computeNextIndex(pVertices, i)];
+                            area += p1.x * p2.y - p2.x * p1.y;
+                        }
+                        return area < 0;
+                    };
+                    EarCut.prototype.classifyVertices = function (pVertices) {
+                        var vertexCount = pVertices.length;
+                        var vertexTypes = [];
+                        for (var i = 0; i < vertexCount; i++) {
+                            vertexTypes.push(0);
+                        }
+                        this.mConcaveVertexCount = 0;
+                        /* Ensure vertices are in clockwise order. */
+                        if (!this.areVerticesClockwise(pVertices)) {
+                            pVertices.reverse();
+                        }
+                        for (var index = 0; index != vertexCount; index++) {
+                            var previousIndex = this.computePreviousIndex(pVertices, index);
+                            var nextIndex = this.computeNextIndex(pVertices, index);
+                            var previousVertex = pVertices[previousIndex];
+                            var currentVertex = pVertices[index];
+                            var nextVertex = pVertices[nextIndex];
+                            if (this.isTriangleConvex(previousVertex.x, previousVertex.y, currentVertex.x, currentVertex.y, nextVertex.x, nextVertex.y)) {
+                                vertexTypes[index] = CONVEX;
+                            }
+                            else {
+                                vertexTypes[index] = CONCAVE;
+                                this.mConcaveVertexCount++;
+                            }
+                        }
+                        return vertexTypes;
+                    };
+                    EarCut.prototype.isTriangleConvex = function (pX1, pY1, pX2, pY2, pX3, pY3) {
+                        return this.computeSpannedAreaSign(pX1, pY1, pX2, pY2, pX3, pY3) >= 0;
+                    };
+                    EarCut.prototype.computeSpannedAreaSign = function (pX1, pY1, pX2, pY2, pX3, pY3) {
+                        var area = 0;
+                        area += pX1 * (pY3 - pY2);
+                        area += pX2 * (pY1 - pY3);
+                        area += pX3 * (pY2 - pY1);
+                        return area > 0 ? 1 : area < 0 ? -1 : 0;
+                    };
+                    EarCut.prototype.isAnyVertexInTriangle = function (pVertices, pVertexTypes, pX1, pY1, pX2, pY2, pX3, pY3) {
+                        var i = 0;
+                        var vertexCount = pVertices.length;
+                        while (i < vertexCount - 1) {
+                            if ((pVertexTypes[i] === CONCAVE)) {
+                                var currentVertex = pVertices[i];
+                                var currentVertexX = currentVertex.x;
+                                var currentVertexY = currentVertex.y;
+                                /* TODO The following condition fails for perpendicular, axis aligned triangles!
+                                 * Removing it doesn't seem to cause problems.
+                                 * Maybe it was an optimization?
+                                 * Maybe it tried to handle collinear pieces ? */
+                                //                              if(((currentVertexX != pX1) && (currentVertexY != pY1)) || ((currentVertexX != pX2) && (currentVertexY != pY2)) || ((currentVertexX != pX3) && (currentVertexY != pY3))) {
+                                var areaSign1 = this.computeSpannedAreaSign(pX1, pY1, pX2, pY2, currentVertexX, currentVertexY);
+                                var areaSign2 = this.computeSpannedAreaSign(pX2, pY2, pX3, pY3, currentVertexX, currentVertexY);
+                                var areaSign3 = this.computeSpannedAreaSign(pX3, pY3, pX1, pY1, currentVertexX, currentVertexY);
+                                if (areaSign1 > 0 && areaSign2 > 0 && areaSign3 > 0) {
+                                    return true;
+                                }
+                                else if (areaSign1 <= 0 && areaSign2 <= 0 && areaSign3 <= 0) {
+                                    return true;
+                                }
+                            }
+                            i++;
+                        }
+                        return false;
+                    };
+                    EarCut.prototype.isEarTip = function (pVertices, pEarTipIndex, pVertexTypes) {
+                        if (this.mConcaveVertexCount != 0) {
+                            var previousVertex = pVertices[this.computePreviousIndex(pVertices, pEarTipIndex)];
+                            var currentVertex = pVertices[pEarTipIndex];
+                            var nextVertex = pVertices[this.computeNextIndex(pVertices, pEarTipIndex)];
+                            return !this.isAnyVertexInTriangle(pVertices, pVertexTypes, previousVertex.x, previousVertex.y, currentVertex.x, currentVertex.y, nextVertex.x, nextVertex.y);
+                        }
+                        else {
+                            return true;
+                        }
+                    };
+                    EarCut.prototype.cutEarTip = function (pVertices, pEarTipIndex, pTriangles) {
+                        var previousIndex = this.computePreviousIndex(pVertices, pEarTipIndex);
+                        var nextIndex = this.computeNextIndex(pVertices, pEarTipIndex);
+                        if (!this.isCollinear4(pVertices, previousIndex, pEarTipIndex, nextIndex)) {
+                            pTriangles.push(pVertices[previousIndex].clone());
+                            pTriangles.push(pVertices[pEarTipIndex].clone());
+                            pTriangles.push(pVertices[nextIndex].clone());
+                        }
+                        //        pVertices.remove(pEarTipIndex);
+                        pVertices.splice(pEarTipIndex, 1);
+                        if (pVertices.length >= 3) {
+                            this.removeCollinearNeighborEarsAfterRemovingEarTip(pVertices, pEarTipIndex);
+                        }
+                    };
+                    EarCut.prototype.removeCollinearNeighborEarsAfterRemovingEarTip = function (pVertices, pEarTipCutIndex) {
+                        var collinearityCheckNextIndex = pEarTipCutIndex % pVertices.length;
+                        var collinearCheckPreviousIndex = this.computePreviousIndex(pVertices, collinearityCheckNextIndex);
+                        if (this.isCollinear(pVertices, collinearityCheckNextIndex)) {
+                            //                        pVertices.remove(collinearityCheckNextIndex);
+                            pVertices.splice(collinearityCheckNextIndex, 1);
+                            if (pVertices.length > 3) {
+                                /* Update */
+                                collinearCheckPreviousIndex = this.computePreviousIndex(pVertices, collinearityCheckNextIndex);
+                                if (this.isCollinear(pVertices, collinearCheckPreviousIndex)) {
+                                    //                                        pVertices.remove(collinearCheckPreviousIndex);
+                                    pVertices.splice(collinearCheckPreviousIndex, 1);
+                                }
+                            }
+                        }
+                        else if (this.isCollinear(pVertices, collinearCheckPreviousIndex)) {
+                            //                        pVertices.remove(collinearCheckPreviousIndex);
+                            pVertices.splice(collinearCheckPreviousIndex, 1);
+                        }
+                    };
+                    EarCut.prototype.isCollinear = function (pVertices, pIndex) {
+                        var previousIndex = this.computePreviousIndex(pVertices, pIndex);
+                        var nextIndex = this.computeNextIndex(pVertices, pIndex);
+                        return this.isCollinear4(pVertices, previousIndex, pIndex, nextIndex);
+                    };
+                    EarCut.prototype.isCollinear4 = function (pVertices, pPreviousIndex, pIndex, pNextIndex) {
+                        var previousVertex = pVertices[pPreviousIndex];
+                        var vertex = pVertices[pIndex];
+                        var nextVertex = pVertices[pNextIndex];
+                        return this.computeSpannedAreaSign(previousVertex.x, previousVertex.y, vertex.x, vertex.y, nextVertex.x, nextVertex.y) == 0;
+                    };
+                    EarCut.prototype.computePreviousIndex = function (pVertices, pIndex) {
+                        return pIndex === 0 ? pVertices.length - 1 : pIndex - 1;
+                    };
+                    EarCut.prototype.computeNextIndex = function (pVertices, pIndex) {
+                        return pIndex === pVertices.length - 1 ? 0 : pIndex + 1;
+                    };
+                    return EarCut;
+                })();
+                var earCut = new EarCut();
+                function tessellate(points) {
+                    var triangles = earCut.computeTriangles(points, false);
+                    var trianglesData = new Float32Array(triangles.length * 2);
+                    for (var i = 0; i < triangles.length; i++) {
+                        var p = triangles[i];
+                        trianglesData[i * 2] = p.x;
+                        trianglesData[i * 2 + 1] = p.y;
+                    }
+                    return trianglesData;
+                }
                 geometry.tessellate = tessellate;
             })(geometry = path.geometry || (path.geometry = {}));
         })(path = math.path || (math.path = {}));
@@ -4321,6 +4546,7 @@ var __extends = this.__extends || function (d, b) {
 /// <reference path="./path/SubPath.ts"/>
 /// <reference path="./Point.ts"/>
 /// <reference path="./Matrix3.ts"/>
+/// <reference path="./path/geometry/EarCut.ts"/>
 /// <reference path="../util/Debug.ts"/>
 var cc;
 (function (cc) {
@@ -5082,8 +5308,15 @@ var cc;
                 enumerable: true,
                 configurable: true
             });
-            Shape.prototype.draw = function (ctx) {
-                for (var i = 0; i < this._pathAttributes.length; i++) {
+            Shape.prototype.draw = function (ctx, from, to) {
+                if (typeof from === "undefined") {
+                    from = 0;
+                    to = this._pathAttributes.length;
+                }
+                if (typeof to === "undefined") {
+                    to = from + 1;
+                }
+                for (var i = from; i < to; i++) {
                     this._pathAttributes[i].draw(ctx);
                 }
             };
@@ -15552,12 +15785,12 @@ var cc;
             WebGLState.prototype.uniformMatrix4fv = function (location, transpose, value) {
                 // pending remove hasOwnProperty with prior initialization
                 if (!this._uniformLocation.hasOwnProperty(location._id)) {
-                    this._uniformLocation[location._id] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+                    this._uniformLocation[location._id] = new Float32Array(16);
                 }
                 var v0 = this._uniformLocation[location._id];
                 if (v0[0] !== value[0] || v0[1] !== value[1] || v0[2] !== value[2] || v0[3] !== value[3] || v0[4] !== value[4] || v0[5] !== value[5] || v0[6] !== value[6] || v0[7] !== value[7] || v0[8] !== value[8] || v0[9] !== value[9] || v0[10] !== value[10] || v0[11] !== value[11] || v0[12] !== value[12] || v0[13] !== value[13] || v0[14] !== value[14] || v0[15] !== value[15]) {
                     this._gl.uniformMatrix4fv(location, transpose, value);
-                    this._uniformLocation[location._id] = value;
+                    this._uniformLocation[location._id].set(value);
                 }
             };
             WebGLState.prototype.vertexAttribPointer = function (locationIndex, size, type, normalized, stride, offset) {
@@ -16120,11 +16353,15 @@ var cc;
                  * @param value {any}
                  */
                 function MatrixUniform(name, type, value) {
-                    _super.call(this, name, type, value);
+                    _super.call(this, name, type, value instanceof Float32Array ? value : new Float32Array(value));
                     this._dirty = true;
+                    this._vv = null;
+                    //this._prevValue= new Float32Array(16);
+                    //this._value= new Float32Array(value);
                 }
                 MatrixUniform.prototype.setValue = function (v) {
-                    _super.prototype.setValue.call(this, v);
+                    //super.setValue(v);
+                    this._value.set(v);
                     this._dirty = true;
                 };
                 /**
@@ -16136,7 +16373,7 @@ var cc;
                     if (this._dirty) {
                         // PENDING: componentwise matrix comparison
                         gl.uniformMatrix4fv(this._location, false, this._value);
-                        this._prevValue = this._value;
+                        //this._prevValue = this._value;
                         this._dirty = false;
                     }
                 };
@@ -16225,6 +16462,24 @@ var cc;
             var Uniform = cc.render.shader.Uniform;
             var Attribute = cc.render.shader.Attribute;
             "use strict";
+            var __mat4Identity = new Float32Array([
+                1.0,
+                0,
+                0,
+                0,
+                0,
+                1.0,
+                0,
+                0,
+                0,
+                0,
+                1.0,
+                0,
+                0,
+                0,
+                0,
+                1.0
+            ]);
             /**
              * @class cc.render.shader.AbstractShader
              * @classdesc
@@ -16436,6 +16691,9 @@ var cc;
                 };
                 AbstractShader.prototype.useMeshIndex = function () {
                     return false;
+                };
+                AbstractShader.prototype.resetMatrixUniform = function (uniform) {
+                    uniform.setValue(__mat4Identity);
                 };
                 return AbstractShader;
             })();
@@ -18700,7 +18958,6 @@ var cc;
         "use strict";
         var RenderingContextSnapshot = cc.render.RenderingContextSnapshot;
         var GeometryBatcher = cc.render.GeometryBatcher;
-        var SolidColorShader = cc.render.shader.SolidColorShader;
         var TextureShader = cc.render.shader.TextureShader;
         var TexturePatternShader = cc.render.shader.TexturePatternShader;
         var FastTextureShader = cc.render.shader.FastTextureShader;
@@ -18764,37 +19021,34 @@ var cc;
                 this.currentInScreenSpace = true;
                 this.currentInScreenSpaceMatrix = cc.math.Matrix3.create();
             }
-            /**
-             * Test whether current issuing rendering command is consistent with this
-             * type of shader.
-             *
-             * @param rcs
-             * @returns {boolean} whether the shader must flush.
-             */
             MeshColorFlushConditions.prototype.mustFlush = function (rc, inScreenSpace) {
-                var ret = false;
-                if (rc._currentFillStyleType !== 0 /* MESHCOLOR */) {
+                if (rc._currentContextSnapshot._currentFillStyleType !== 0 /* MESHCOLOR */) {
                     return true;
                 }
                 if (this.currentInScreenSpace !== inScreenSpace) {
-                    //this.currentInScreenSpace= inScreenSpace;
-                    ret = true;
+                    return true;
+                }
+                if (!inScreenSpace && !cc.math.Matrix3.compare(this.currentInScreenSpaceMatrix, rc._currentContextSnapshot._currentMatrix)) {
+                    return true;
+                }
+                return false;
+            };
+            MeshColorFlushConditions.prototype.set = function (rc, inScreenSpace, shader) {
+                if (rc._currentContextSnapshot._currentFillStyleType !== 0 /* MESHCOLOR */) {
+                    rc.__setCurrentFillStyleType(0 /* MESHCOLOR */);
+                }
+                if (inScreenSpace !== this.currentInScreenSpace) {
+                    this.currentInScreenSpace = inScreenSpace;
                 }
                 if (inScreenSpace) {
-                    if (!cc.math.Matrix3.isIdentity(rc._currentContextSnapshot._currentMatrix)) {
-                        //cc.math.Matrix3.identity(this.currentInScreenSpaceMatrix);
-                        ret = true;
-                    }
+                    shader.resetMatrixUniform(shader._uniformTransform);
+                    cc.math.Matrix3.identity(this.currentInScreenSpaceMatrix);
                 }
                 else {
-                    if (!cc.math.Matrix3.compare(this.currentInScreenSpaceMatrix, rc._currentContextSnapshot._currentMatrix)) {
-                        //cc.math.Matrix3.copy(
-                        //    rc._currentContextSnapshot._currentMatrix,
-                        //    this.currentInScreenSpaceMatrix);
-                        ret = true;
-                    }
+                    cc.math.Matrix3.copy(rc._currentContextSnapshot._currentMatrix, this.currentInScreenSpaceMatrix);
+                    shader.mat4_from_mat3(this.currentInScreenSpaceMatrix, __mat4);
+                    shader._uniformTransform.setValue(__mat4);
                 }
-                return ret;
             };
             return MeshColorFlushConditions;
         })();
@@ -18914,6 +19168,7 @@ var cc;
                  * @private
                  */
                 this._currentGlobalCompositeOperation = 0 /* source_over */;
+                this._currentInScreenSpace = true;
                 /**
                  * Internal rendering shaders.
                  * @member cc.render.DecoratedWebGLRenderingContext#_shaders
@@ -19067,7 +19322,7 @@ var cc;
                  * Never change the order the shaders are pushed.
                  * BUGBUG change the _shader array in favor of an associative collection.
                  */
-                this._shaders.push(new SolidColorShader(this._webglState));
+                this._shaders.push(new cc.render.shader.SolidColorShader(this._webglState));
                 this._shaders.push(new TextureShader(this._webglState));
                 this._shaders.push(new FastTextureShader(this._webglState));
                 this._shaders.push(new TexturePatternShader(this._webglState));
@@ -19504,7 +19759,7 @@ var cc;
                 this._currentContextSnapshot.closePath();
             };
             DecoratedWebGLRenderingContext.prototype.stroke = function () {
-                this.__strokeImpl(this._currentContextSnapshot.setupStroke(this._currentLineWidth, this._currentLineJoin, this._currentLineCap), false);
+                this.__strokeImpl(this._currentContextSnapshot.setupStroke(this._currentLineWidth, this._currentLineJoin, this._currentLineCap), true);
             };
             DecoratedWebGLRenderingContext.prototype.__strokeImpl = function (geometry, inScreenSpace) {
                 this.__checkStrokeFlushConditions(inScreenSpace);
@@ -19523,12 +19778,17 @@ var cc;
                 this.__fillImpl(this._currentContextSnapshot.setupFill(path), false);
             };
             DecoratedWebGLRenderingContext.prototype.strokePath = function (path) {
-                this.__strokeImpl(this._currentContextSnapshot.setupStroke(this._currentLineWidth, this._currentLineJoin, this._currentLineCap, path), true);
+                this.__strokeImpl(this._currentContextSnapshot.setupStroke(this._currentLineWidth, this._currentLineJoin, this._currentLineCap, path), false);
             };
             DecoratedWebGLRenderingContext.prototype.__flushFillRectIfNeeded = function (inScreenSpace) {
-                if (this._currentContextSnapshot._currentFillStyleType !== this._currentFillStyleType) {
+                //if ( this._currentContextSnapshot._currentFillStyleType!==this._currentFillStyleType ) {
+                //    this.flush();
+                //    this.__setCurrentFillStyleType( this._currentFillStyleType );
+                //}
+                if (this._meshColorFlushConditions.mustFlush(this, inScreenSpace)) {
                     this.flush();
-                    this.__setCurrentFillStyleType(this._currentFillStyleType);
+                    var shader = this.__setCurrentFillStyleType(this._currentFillStyleType);
+                    this._meshColorFlushConditions.set(this, inScreenSpace, shader);
                 }
                 this._currentContextSnapshot._fillStyleColor = this._currentFillStyleColor;
                 this._currentContextSnapshot._fillStylePattern = this._currentFillStylePattern;
