@@ -249,7 +249,7 @@ module cc.render {
 
             // pending remove hasOwnProperty with prior initialization
             if ( !this._uniformLocation.hasOwnProperty(location._id) ) {
-                this._uniformLocation[location._id]= [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0];
+                this._uniformLocation[location._id]= new Float32Array(16);
             }
 
             var v0= this._uniformLocation[location._id];
@@ -260,7 +260,7 @@ module cc.render {
                  v0[12]!==value[12] || v0[13]!==value[13] || v0[14]!==value[14] || v0[15]!==value[15]    ) {
 
                 this._gl.uniformMatrix4fv(location, transpose, value);
-                this._uniformLocation[location._id] = value;
+                this._uniformLocation[location._id].set( value );
             }
         }
 

@@ -168,9 +168,17 @@ module cc.math {
             this._currentPathAttributes.fillStyle= ss;
         }
 
-        draw( ctx:cc.render.RenderingContext ) {
+        draw( ctx:cc.render.RenderingContext, from?:number, to?:number ) {
 
-            for( var i=0; i<this._pathAttributes.length; i++ ) {
+            if ( typeof from==="undefined" ) {
+                from=0;
+                to= this._pathAttributes.length;
+            }
+            if ( typeof to==="undefined" ) {
+                to= from+1;
+            }
+
+            for( var i=from; i<to; i++ ) {
                 this._pathAttributes[i].draw( ctx );
             }
         }

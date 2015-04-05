@@ -191,6 +191,7 @@ module cc.render.shader {
     export class MatrixUniform extends Uniform {
 
         _dirty:boolean= true;
+        _vv:Float32Array= null;
 
         /**
          * @method cc.render.shader.MatrixUniform#constructor
@@ -199,11 +200,14 @@ module cc.render.shader {
          * @param value {any}
          */
         constructor(name:string, type:string, value:any) {
-            super(name, type, value);
+            super(name, type, value instanceof Float32Array ? value : new Float32Array(value) );
+            //this._prevValue= new Float32Array(16);
+            //this._value= new Float32Array(value);
         }
 
         setValue( v:Float32Array ) {
-            super.setValue(v);
+            //super.setValue(v);
+            this._value.set(v);
             this._dirty= true;
         }
 
@@ -218,7 +222,7 @@ module cc.render.shader {
 
                 // PENDING: componentwise matrix comparison
                 gl.uniformMatrix4fv(this._location, false, this._value);
-                this._prevValue = this._value;
+                //this._prevValue = this._value;
 
                 this._dirty = false;
             }

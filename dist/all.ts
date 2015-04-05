@@ -5360,6 +5360,23 @@ module cc.math.path.geometry {
 
     }
 
+    function computeNextIndex(pVertices, pIndex) {
+        return pIndex === pVertices.length - 1 ? 0 : pIndex + 1;
+    }
+
+    function areVerticesClockwise(pVertices : cc.math.Point[] ) : boolean {
+
+        var area = 0;
+        for (var i = 0, vertexCount = pVertices.length; i != vertexCount; i++) {
+            var p1 = pVertices[i];
+            var p2 = pVertices[computeNextIndex(pVertices, i)];
+            area += p1.x * p2.y - p2.x * p1.y;
+        }
+
+        return area*signedAreaModifier < 0;
+    }
+
+
     /**
      * Based from Ivank.polyk: http://polyk.ivank.net/polyk.js
      *
@@ -5370,7 +5387,7 @@ module cc.math.path.geometry {
      * @param contour {Array<cc.math.Point>}
      * @returns {Float32Array}
      */
-    export function tessellate( contour:cc.math.Point[] ) {
+    export function tessellateWrong( contour:cc.math.Point[] ) {
 
         var n = contour.length;
 
@@ -5390,6 +5407,10 @@ module cc.math.path.geometry {
         var i = 0;
         var numPointsToTessellate = n;
 
+        if ( areVerticesClockwise(contour) ) {
+            contour.reverse();
+        }
+
         while (numPointsToTessellate > 3) {
 
             var i0:number = available[(i    ) % numPointsToTessellate];
@@ -5405,7 +5426,7 @@ module cc.math.path.geometry {
 
             var earFound = false;
 
-            if (signedArea(ax, ay, bx, by, cx, cy)*signedAreaModifier >= 0) {
+            if (signedArea(ax, ay, bx, by, cx, cy)*-1 >= 0) {
                 earFound = true;
                 for (var j = 0; j < numPointsToTessellate; j++) {
                     var vi = available[j];
@@ -5445,6 +5466,262 @@ module cc.math.path.geometry {
 
 }
 /**
+ * License: see license.txt file
+ *
+ * See licenses/libgdx - license.txt
+ */
+
+/// <reference path="../../Point.ts"/>
+
+module cc.math.path.geometry {
+
+    var CONCAVE = 1;
+    var CONVEX = -1;
+
+    class EarCut {
+
+        mConcaveVertexCount : number = 0;
+
+        constructor() {
+
+        }
+
+        computeTriangles(pVertices:cc.math.Point[], preserveInputPoints:boolean ) : cc.math.Point[] {
+
+            var triangles = [];
+            var vertices;
+
+            if ( preserveInputPoints ) {
+                vertices = [];
+                vertices = vertices.concat(pVertices);
+            } else {
+                vertices= pVertices;
+            }
+
+            if ( vertices[0].x!==vertices[ vertices.length-1 ].x &&
+                 vertices[0].y!==vertices[ vertices.length-1 ].y  ) {
+                vertices.push( vertices[0].clone() );
+            }
+
+            if (pVertices.length < 3) {
+                return triangles;
+            }
+
+            if (vertices.length === 3) {
+                triangles = triangles.concat(vertices);
+                return triangles;
+            }
+
+            while (vertices.length >= 3) {
+
+                var vertexTypes = this.classifyVertices(vertices);
+                var foundEarTip = false;
+
+                for (var index = 0, vertexCount = vertices.length; index != vertexCount; index++) {
+                    if (this.isEarTip(vertices, index, vertexTypes)) {
+                        this.cutEarTip(vertices, index, triangles);
+                        foundEarTip = true;
+                        break;
+                    }
+                }
+
+                if (!foundEarTip) {
+                    // polygon is not concave
+                    break;
+                }
+            }
+
+            return triangles;
+        }
+
+
+        areVerticesClockwise(pVertices : cc.math.Point[] ) : boolean {
+
+            var area = 0;
+            for (var i = 0, vertexCount = pVertices.length; i != vertexCount; i++) {
+                var p1 = pVertices[i];
+                var p2 = pVertices[this.computeNextIndex(pVertices, i)];
+                area += p1.x * p2.y - p2.x * p1.y;
+            }
+
+            return area < 0;
+        }
+
+        classifyVertices(pVertices) {
+
+            var vertexCount = pVertices.length;
+
+            var vertexTypes = [];
+            for (var i = 0; i < vertexCount; i++) {
+                vertexTypes.push(0)
+            }
+
+            this.mConcaveVertexCount = 0;
+
+            /* Ensure vertices are in clockwise order. */
+            if (!this.areVerticesClockwise(pVertices)) {
+                pVertices.reverse();
+            }
+
+            for (var index = 0; index != vertexCount; index++) {
+                var previousIndex = this.computePreviousIndex(pVertices, index);
+                var nextIndex = this.computeNextIndex(pVertices, index);
+
+                var previousVertex = pVertices[previousIndex];
+                var currentVertex = pVertices[index];
+                var nextVertex = pVertices[nextIndex];
+
+                if (this.isTriangleConvex(previousVertex.x, previousVertex.y, currentVertex.x, currentVertex.y, nextVertex.x, nextVertex.y)) {
+                    vertexTypes[index] = CONVEX;
+                } else {
+                    vertexTypes[index] = CONCAVE;
+                    this.mConcaveVertexCount++;
+                }
+            }
+
+            return vertexTypes;
+        }
+
+        isTriangleConvex(pX1, pY1, pX2, pY2, pX3, pY3) {
+            return this.computeSpannedAreaSign(pX1, pY1, pX2, pY2, pX3, pY3) >= 0;
+        }
+
+        computeSpannedAreaSign(pX1, pY1, pX2, pY2, pX3, pY3) {
+            var area = 0;
+
+            area += pX1 * (pY3 - pY2);
+            area += pX2 * (pY1 - pY3);
+            area += pX3 * (pY2 - pY1);
+
+            return area > 0 ? 1 :
+                area < 0 ? -1 :
+                    0;
+        }
+
+        isAnyVertexInTriangle(pVertices, pVertexTypes, pX1, pY1, pX2, pY2, pX3, pY3) {
+            var i = 0;
+
+            var vertexCount = pVertices.length;
+            while (i < vertexCount - 1) {
+                if ((pVertexTypes[i] === CONCAVE)) {
+                    var currentVertex = pVertices[i];
+
+                    var currentVertexX = currentVertex.x;
+                    var currentVertexY = currentVertex.y;
+
+                    /* TODO The following condition fails for perpendicular, axis aligned triangles!
+                     * Removing it doesn't seem to cause problems.
+                     * Maybe it was an optimization?
+                     * Maybe it tried to handle collinear pieces ? */
+                    //                              if(((currentVertexX != pX1) && (currentVertexY != pY1)) || ((currentVertexX != pX2) && (currentVertexY != pY2)) || ((currentVertexX != pX3) && (currentVertexY != pY3))) {
+                    var areaSign1 = this.computeSpannedAreaSign(pX1, pY1, pX2, pY2, currentVertexX, currentVertexY);
+                    var areaSign2 = this.computeSpannedAreaSign(pX2, pY2, pX3, pY3, currentVertexX, currentVertexY);
+                    var areaSign3 = this.computeSpannedAreaSign(pX3, pY3, pX1, pY1, currentVertexX, currentVertexY);
+
+                    if (areaSign1 > 0 && areaSign2 > 0 && areaSign3 > 0) {
+                        return true;
+                    } else if (areaSign1 <= 0 && areaSign2 <= 0 && areaSign3 <= 0) {
+                        return true;
+                    }
+                    //                              }
+                }
+                i++;
+            }
+            return false;
+        }
+
+        isEarTip(pVertices, pEarTipIndex, pVertexTypes) {
+            if (this.mConcaveVertexCount != 0) {
+                var previousVertex = pVertices[this.computePreviousIndex(pVertices, pEarTipIndex)];
+                var currentVertex = pVertices[pEarTipIndex];
+                var nextVertex = pVertices[this.computeNextIndex(pVertices, pEarTipIndex)];
+
+                return !this.isAnyVertexInTriangle(pVertices, pVertexTypes, previousVertex.x, previousVertex.y, currentVertex.x, currentVertex.y, nextVertex.x, nextVertex.y);
+            } else {
+                return true;
+            }
+        }
+
+        cutEarTip(pVertices, pEarTipIndex, pTriangles) {
+            var previousIndex = this.computePreviousIndex(pVertices, pEarTipIndex);
+            var nextIndex = this.computeNextIndex(pVertices, pEarTipIndex);
+
+            if (!this.isCollinear4(pVertices, previousIndex, pEarTipIndex, nextIndex)) {
+                pTriangles.push( pVertices[previousIndex].clone() );
+                pTriangles.push( pVertices[pEarTipIndex].clone() );
+                pTriangles.push( pVertices[nextIndex].clone() );
+            }
+
+            //        pVertices.remove(pEarTipIndex);
+            pVertices.splice(pEarTipIndex, 1);
+            if (pVertices.length >= 3) {
+                this.removeCollinearNeighborEarsAfterRemovingEarTip(pVertices, pEarTipIndex);
+            }
+        }
+
+        removeCollinearNeighborEarsAfterRemovingEarTip(pVertices, pEarTipCutIndex) {
+            var collinearityCheckNextIndex = pEarTipCutIndex % pVertices.length;
+            var collinearCheckPreviousIndex = this.computePreviousIndex(pVertices, collinearityCheckNextIndex);
+
+            if (this.isCollinear(pVertices, collinearityCheckNextIndex)) {
+                //                        pVertices.remove(collinearityCheckNextIndex);
+                pVertices.splice(collinearityCheckNextIndex, 1);
+
+                if (pVertices.length > 3) {
+                    /* Update */
+                    collinearCheckPreviousIndex = this.computePreviousIndex(pVertices, collinearityCheckNextIndex);
+                    if (this.isCollinear(pVertices, collinearCheckPreviousIndex)) {
+                        //                                        pVertices.remove(collinearCheckPreviousIndex);
+                        pVertices.splice(collinearCheckPreviousIndex, 1);
+                    }
+                }
+            } else if (this.isCollinear(pVertices, collinearCheckPreviousIndex)) {
+                //                        pVertices.remove(collinearCheckPreviousIndex);
+                pVertices.splice(collinearCheckPreviousIndex, 1);
+            }
+        }
+
+        isCollinear(pVertices, pIndex) {
+            var previousIndex = this.computePreviousIndex(pVertices, pIndex);
+            var nextIndex = this.computeNextIndex(pVertices, pIndex);
+
+            return this.isCollinear4(pVertices, previousIndex, pIndex, nextIndex);
+        }
+
+        isCollinear4(pVertices, pPreviousIndex, pIndex, pNextIndex) {
+            var previousVertex = pVertices[pPreviousIndex];
+            var vertex = pVertices[pIndex];
+            var nextVertex = pVertices[pNextIndex];
+
+            return this.computeSpannedAreaSign(previousVertex.x, previousVertex.y, vertex.x, vertex.y, nextVertex.x, nextVertex.y) == 0;
+        }
+
+        computePreviousIndex(pVertices, pIndex) {
+            return pIndex === 0 ? pVertices.length - 1 : pIndex - 1;
+        }
+
+        computeNextIndex(pVertices, pIndex) {
+            return pIndex === pVertices.length - 1 ? 0 : pIndex + 1;
+        }
+    }
+
+    var earCut= new EarCut();
+
+    export function tessellate( points:cc.math.Point[] ) : Float32Array {
+
+        var triangles:cc.math.Point[]= earCut.computeTriangles( points, false );
+
+        var trianglesData= new Float32Array( triangles.length*2 );
+        for( var i=0; i<triangles.length; i++ ) {
+            var p:cc.math.Point= triangles[i];
+            trianglesData[i*2  ]=p.x;
+            trianglesData[i*2+1]=p.y;
+        }
+
+        return trianglesData;
+    }
+}
+/**
  * License: see license.txt file.
  */
 
@@ -5453,6 +5730,7 @@ module cc.math.path.geometry {
 /// <reference path="./path/SubPath.ts"/>
 /// <reference path="./Point.ts"/>
 /// <reference path="./Matrix3.ts"/>
+/// <reference path="./path/geometry/EarCut.ts"/>
 /// <reference path="../util/Debug.ts"/>
 
 module cc.math {
@@ -6354,9 +6632,17 @@ module cc.math {
             this._currentPathAttributes.fillStyle= ss;
         }
 
-        draw( ctx:cc.render.RenderingContext ) {
+        draw( ctx:cc.render.RenderingContext, from?:number, to?:number ) {
 
-            for( var i=0; i<this._pathAttributes.length; i++ ) {
+            if ( typeof from==="undefined" ) {
+                from=0;
+                to= this._pathAttributes.length;
+            }
+            if ( typeof to==="undefined" ) {
+                to= from+1;
+            }
+
+            for( var i=from; i<to; i++ ) {
                 this._pathAttributes[i].draw( ctx );
             }
         }
@@ -18818,7 +19104,7 @@ module cc.render {
 
             // pending remove hasOwnProperty with prior initialization
             if ( !this._uniformLocation.hasOwnProperty(location._id) ) {
-                this._uniformLocation[location._id]= [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0];
+                this._uniformLocation[location._id]= new Float32Array(16);
             }
 
             var v0= this._uniformLocation[location._id];
@@ -18829,7 +19115,7 @@ module cc.render {
                  v0[12]!==value[12] || v0[13]!==value[13] || v0[14]!==value[14] || v0[15]!==value[15]    ) {
 
                 this._gl.uniformMatrix4fv(location, transpose, value);
-                this._uniformLocation[location._id] = value;
+                this._uniformLocation[location._id].set( value );
             }
         }
 
@@ -19454,6 +19740,7 @@ module cc.render.shader {
     export class MatrixUniform extends Uniform {
 
         _dirty:boolean= true;
+        _vv:Float32Array= null;
 
         /**
          * @method cc.render.shader.MatrixUniform#constructor
@@ -19462,11 +19749,14 @@ module cc.render.shader {
          * @param value {any}
          */
         constructor(name:string, type:string, value:any) {
-            super(name, type, value);
+            super(name, type, value instanceof Float32Array ? value : new Float32Array(value) );
+            //this._prevValue= new Float32Array(16);
+            //this._value= new Float32Array(value);
         }
 
         setValue( v:Float32Array ) {
-            super.setValue(v);
+            //super.setValue(v);
+            this._value.set(v);
             this._dirty= true;
         }
 
@@ -19481,7 +19771,7 @@ module cc.render.shader {
 
                 // PENDING: componentwise matrix comparison
                 gl.uniformMatrix4fv(this._location, false, this._value);
-                this._prevValue = this._value;
+                //this._prevValue = this._value;
 
                 this._dirty = false;
             }
@@ -19564,6 +19854,13 @@ module cc.render.shader {
     import WebGLState = cc.render.WebGLState;
 
     "use strict";
+
+    var __mat4Identity : Float32Array= new Float32Array( [
+        1.0, 0, 0, 0,
+        0, 1.0, 0, 0,
+        0, 0, 1.0, 0,
+        0, 0, 0, 1.0 ] );
+
 
     export interface MapOfUniformInitializer {
         [name: string]: UniformInitializer;
@@ -19872,6 +20169,10 @@ module cc.render.shader {
 
         useMeshIndex() : boolean {
             return false;
+        }
+
+        resetMatrixUniform( uniform:cc.render.shader.MatrixUniform ) {
+            uniform.setValue( __mat4Identity );
         }
     }
 
@@ -23153,7 +23454,6 @@ module cc.render {
     import RenderingContextSnapshot = cc.render.RenderingContextSnapshot;
     import GeometryBatcher = cc.render.GeometryBatcher;
     import AbstractShader = cc.render.shader.AbstractShader;
-    import SolidColorShader = cc.render.shader.SolidColorShader;
     import TextureShader = cc.render.shader.TextureShader;
     import TexturePatternShader = cc.render.shader.TexturePatternShader;
     import FastTextureShader = cc.render.shader.FastTextureShader;
@@ -23208,44 +23508,44 @@ module cc.render {
         currentInScreenSpace = true;
         currentInScreenSpaceMatrix = cc.math.Matrix3.create();
 
-        /**
-         * Test whether current issuing rendering command is consistent with this
-         * type of shader.
-         *
-         * @param rcs
-         * @returns {boolean} whether the shader must flush.
-         */
         mustFlush( rc : DecoratedWebGLRenderingContext, inScreenSpace:boolean ) : boolean {
 
-            var ret= false;
-
-            if ( rc._currentFillStyleType!==FillStyleType.MESHCOLOR ) {
+            if ( rc._currentContextSnapshot._currentFillStyleType!==FillStyleType.MESHCOLOR ) {
                 return true;
             }
 
             if ( this.currentInScreenSpace!==inScreenSpace ) {
-                //this.currentInScreenSpace= inScreenSpace;
-                ret= true;
+                return true;
             }
 
-            if ( inScreenSpace ) {
-                if ( !cc.math.Matrix3.isIdentity(rc._currentContextSnapshot._currentMatrix) ) {
-                    //cc.math.Matrix3.identity(this.currentInScreenSpaceMatrix);
-                    ret= true;
-                }
-            } else {
-                if ( !cc.math.Matrix3.compare(
+            if ( !inScreenSpace && !cc.math.Matrix3.compare(
                         this.currentInScreenSpaceMatrix,
                         rc._currentContextSnapshot._currentMatrix)) {
 
-                    //cc.math.Matrix3.copy(
-                    //    rc._currentContextSnapshot._currentMatrix,
-                    //    this.currentInScreenSpaceMatrix);
-
-                    ret = true;
-                }
+                return true;
             }
-            return ret;
+
+            return false;
+        }
+
+        set( rc : DecoratedWebGLRenderingContext, inScreenSpace:boolean, shader:cc.render.shader.SolidColorShader ) : void {
+
+            if ( rc._currentContextSnapshot._currentFillStyleType!==FillStyleType.MESHCOLOR ) {
+                rc.__setCurrentFillStyleType( FillStyleType.MESHCOLOR );
+            }
+
+            if ( inScreenSpace!==this.currentInScreenSpace ) {
+                this.currentInScreenSpace= inScreenSpace;
+            }
+
+            if ( inScreenSpace ) {
+                shader.resetMatrixUniform( shader._uniformTransform );
+                cc.math.Matrix3.identity(this.currentInScreenSpaceMatrix);
+            } else {
+                cc.math.Matrix3.copy( rc._currentContextSnapshot._currentMatrix, this.currentInScreenSpaceMatrix );
+                shader.mat4_from_mat3( this.currentInScreenSpaceMatrix, __mat4 );
+                shader._uniformTransform.setValue(__mat4);
+            }
         }
     }
 
@@ -23390,6 +23690,8 @@ module cc.render {
          * @private
          */
         _currentGlobalCompositeOperation : cc.render.CompositeOperation = cc.render.CompositeOperation.source_over;
+
+        _currentInScreenSpace : boolean = true;
 
         /**
          * Internal rendering shaders.
@@ -23589,7 +23891,7 @@ module cc.render {
              * Never change the order the shaders are pushed.
              * BUGBUG change the _shader array in favor of an associative collection.
              */
-            this._shaders.push( new SolidColorShader( this._webglState ) );
+            this._shaders.push( new cc.render.shader.SolidColorShader( this._webglState ) );
             this._shaders.push( new TextureShader( this._webglState ) );
             this._shaders.push( new FastTextureShader( this._webglState ) );
             this._shaders.push( new TexturePatternShader( this._webglState ) );
@@ -24047,8 +24349,8 @@ module cc.render {
                 this._shaders[f].useProgram();
                 this._currentContextSnapshot._currentFillStyleType = f;
             }
+                this._currentFillStyleType = f;
 
-            this._currentFillStyleType = f;
             return this._shaders[f];
         }
 
@@ -24115,9 +24417,8 @@ module cc.render {
                 this._currentLineWidth,
                 this._currentLineJoin,
                 this._currentLineCap
-            ), false );
+            ), true );
         }
-
 
         __strokeImpl( geometry:Float32Array, inScreenSpace:boolean ) {
             this.__checkStrokeFlushConditions( inScreenSpace );
@@ -24145,28 +24446,30 @@ module cc.render {
                 this._currentLineJoin,
                 this._currentLineCap,
                 path
-            ), true );
+            ), false );
 
         }
 
-
         __flushFillRectIfNeeded( inScreenSpace:boolean ) {
 
-            if ( this._currentContextSnapshot._currentFillStyleType!==this._currentFillStyleType ) {
+            //if ( this._currentContextSnapshot._currentFillStyleType!==this._currentFillStyleType ) {
+            //    this.flush();
+            //    this.__setCurrentFillStyleType( this._currentFillStyleType );
+            //}
+
+            if ( this._meshColorFlushConditions.mustFlush(this,inScreenSpace) ) {
                 this.flush();
-                this.__setCurrentFillStyleType( this._currentFillStyleType );
+                var shader= <cc.render.shader.SolidColorShader>this.__setCurrentFillStyleType( this._currentFillStyleType );
+                this._meshColorFlushConditions.set( this,inScreenSpace,shader );
             }
 
             this._currentContextSnapshot._fillStyleColor= this._currentFillStyleColor;
             this._currentContextSnapshot._fillStylePattern= this._currentFillStylePattern;
             this._currentContextSnapshot._tintColor= this._currentTintColor;
-
         }
 
         __checkStrokeFlushConditions( inScreenSpace:boolean ) {
-
             this.__flushFillRectIfNeeded( inScreenSpace );
-
         }
 
         set lineWidth( w:number ) {

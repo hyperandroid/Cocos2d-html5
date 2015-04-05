@@ -452,6 +452,23 @@ module cc.math.path.geometry {
 
     }
 
+    function computeNextIndex(pVertices, pIndex) {
+        return pIndex === pVertices.length - 1 ? 0 : pIndex + 1;
+    }
+
+    function areVerticesClockwise(pVertices : cc.math.Point[] ) : boolean {
+
+        var area = 0;
+        for (var i = 0, vertexCount = pVertices.length; i != vertexCount; i++) {
+            var p1 = pVertices[i];
+            var p2 = pVertices[computeNextIndex(pVertices, i)];
+            area += p1.x * p2.y - p2.x * p1.y;
+        }
+
+        return area*signedAreaModifier < 0;
+    }
+
+
     /**
      * Based from Ivank.polyk: http://polyk.ivank.net/polyk.js
      *
@@ -462,7 +479,7 @@ module cc.math.path.geometry {
      * @param contour {Array<cc.math.Point>}
      * @returns {Float32Array}
      */
-    export function tessellate( contour:cc.math.Point[] ) {
+    export function tessellateWrong( contour:cc.math.Point[] ) {
 
         var n = contour.length;
 
@@ -482,6 +499,10 @@ module cc.math.path.geometry {
         var i = 0;
         var numPointsToTessellate = n;
 
+        if ( areVerticesClockwise(contour) ) {
+            contour.reverse();
+        }
+
         while (numPointsToTessellate > 3) {
 
             var i0:number = available[(i    ) % numPointsToTessellate];
@@ -497,7 +518,7 @@ module cc.math.path.geometry {
 
             var earFound = false;
 
-            if (signedArea(ax, ay, bx, by, cx, cy)*signedAreaModifier >= 0) {
+            if (signedArea(ax, ay, bx, by, cx, cy)*-1 >= 0) {
                 earFound = true;
                 for (var j = 0; j < numPointsToTessellate; j++) {
                     var vi = available[j];
