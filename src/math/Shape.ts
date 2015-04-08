@@ -96,10 +96,20 @@ module cc.math {
         }
 
         beginPath() {
+
+            var ppa= this._currentPathAttributes;
+
             var spa= new ShapePathAttributes();
             this._pathAttributes.push( spa );
             this._currentPathAttributes= spa;
             this._currentPath= spa.path;
+
+            if ( ppa ) {
+                spa.fillStyle = ppa.fillStyle;
+                spa.strokeStyle = ppa.strokeStyle;
+            }
+
+            return this;
         }
 
         __ensureCurrentPathAttributes() {
@@ -108,39 +118,66 @@ module cc.math {
             }
         }
 
+        setLineWidth( w:number ) {
+            this.lineWidth= w;
+            return this;
+        }
+
+        setMiterLimit( w:number ) {
+            this.miterLimit= w;
+            return this;
+        }
+
+        setLineCap( w:cc.render.LineCap ) {
+            this.lineCap= w;
+            return this;
+        }
+
+        setLineJoin( w:cc.render.LineJoin ) {
+            this.lineJoin= w;
+            return this;
+        }
+
         moveTo( x:number, y:number, matrix?:Float32Array ) {
             this.__ensureCurrentPathAttributes();
             this._currentPath.moveTo(x,y,matrix);
+            return this;
         }
 
         lineTo( x:number, y:number, matrix?:Float32Array ) {
             this.__ensureCurrentPathAttributes();
             this._currentPath.lineTo(x,y,matrix);
+            return this;
         }
 
         bezierCurveTo( cp0x:number, cp0y:number, cp1x:number, cp1y:number, p2x:number, p2y:number, matrix?:Float32Array  ) {
             this.__ensureCurrentPathAttributes();
             this._currentPath.bezierCurveTo( cp0x, cp0y, cp1x, cp1y, p2x, p2y, matrix );
+            return this;
         }
 
         quadraticCurveTo( cp0x:number, cp0y:number, p2x:number, p2y:number, matrix?:Float32Array ) {
             this.__ensureCurrentPathAttributes();
             this._currentPath.quadraticCurveTo( cp0x, cp0y, p2x, p2y, matrix );
+            return this;
         }
 
         rect( x:number, y:number, width:number, height:number, matrix?:Float32Array ) {
             this.__ensureCurrentPathAttributes();
             this._currentPath.rect( x, y, width, height, matrix );
+            return this;
         }
 
         arc( x:number, y:number, radius:number, startAngle:number, endAngle:number, counterClockWise:boolean, matrix?:Float32Array ) {
             this.__ensureCurrentPathAttributes();
             this._currentPath.arc( x, y, radius, startAngle, endAngle, counterClockWise, matrix );
+            return this;
         }
 
         closePath() {
             this.__ensureCurrentPathAttributes();
             this._currentPath.closePath();
+            return this;
         }
 
         stroke( ) {
@@ -151,34 +188,37 @@ module cc.math {
                 miterLimit  : this.miterLimit,
                 width       : this.lineWidth
             });
+            return this;
         }
 
-        fill( style : Float32Array ) {
+        fill( ) {
             this._currentPathAttributes.setFilled();
             this._currentPath.getFillGeometry();
+            return this;
+        }
+
+        setStrokeStyle( ss:any ) {
+            this.__ensureCurrentPathAttributes();
+            this._currentPathAttributes.strokeStyle= ss;
+            return this;
         }
 
         set strokeStyle( ss:any ) {
-            this.__ensureCurrentPathAttributes();
-            this._currentPathAttributes.strokeStyle= ss;
+            this.setStrokeStyle(ss);
         }
 
         set fillStyle( ss:any ) {
-            this.__ensureCurrentPathAttributes();
-            this._currentPathAttributes.fillStyle= ss;
+            this.setFillStyle(ss);
         }
 
-        draw( ctx:cc.render.RenderingContext, from?:number, to?:number ) {
+        setFillStyle( ss:any ) {
+            this.__ensureCurrentPathAttributes();
+            this._currentPathAttributes.fillStyle= ss;
+            return this;
+        }
 
-            if ( typeof from==="undefined" ) {
-                from=0;
-                to= this._pathAttributes.length;
-            }
-            if ( typeof to==="undefined" ) {
-                to= from+1;
-            }
-
-            for( var i=from; i<to; i++ ) {
+        draw( ctx:cc.render.RenderingContext ) {
+            for( var i=0; i<this._pathAttributes.length; i++ ) {
                 this._pathAttributes[i].draw( ctx );
             }
         }
