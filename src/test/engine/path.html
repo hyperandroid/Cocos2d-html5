@@ -31,11 +31,13 @@
          */
         function initialize(resources) {
 
+            cc.render.DecoratedWebGLRenderingContext.ANTIALIAS= true;
+
             AssetManager.addImage(resources['dude'],'dude');
 
             // the renderer will setup pre-loaded textures for the renderer type.
             // it will also create necessary SpriteFrames for each texture, in this case a frame for the image dude.png
-            var renderer = new cc.render.CanvasRenderer(800, 600, document.getElementById("c"));
+            var renderer = new cc.render.WebGLRenderer(700, 600, document.getElementById("c"));
 
             // director is the main Cocos Node, and must exist.
             var director = new cc.node.Director().
@@ -89,18 +91,17 @@
             );
 
             // make the sprites have an animation sequence.
-            var animationTime= (.040 + .030*Math.random())>>0;
+            var animationTime= (.040 + .030*Math.random());
             sprite.runAction( cc.repeatForever( cc.animate( animation.clone().setDelayPerUnit( animationTime ) ) ) );
             sprite2.runAction( cc.repeatForever( cc.animate( animation.clone().setDelayPerUnit( animationTime ) ) ) );
 
             // overwrite scene draw method to show the path as well.
             scene.draw= function( ctx ) {
-                ctx.fillStyle= "#ccc";
+                ctx.fillStyle= "#fff";
                 ctx.fillRect(0,0,this._contentSize.width, this._contentSize.height);
                 ctx.beginPath();
                 ctx.strokeStyle="#00f";
-                path.paint(ctx);
-                ctx.stroke();
+                ctx.fillPath(path);
                 ctx.globalCompositeOperation="source-over";
             };
 
@@ -112,12 +113,12 @@
 
             // calculate some points ...
             var i;
-            var R= (Math.min( 800,600 ) - 40)/2;
+            var R= (Math.min( 700,600 ) - 40)/2;
             var pp= [];
             for( i=0; i<7; i++ ) {
                 var angle= i*Math.PI/(7);
                 pp.push( new cc.math.Vector(
-                        800/2 - R*Math.cos(angle + (Math.PI*(i%2)) ) ,
+                        700/2 - R*Math.cos(angle + (Math.PI*(i%2)) ) ,
                         600/2 + R*Math.sin(angle + (Math.PI*(i%2))) ) );
             }
 
