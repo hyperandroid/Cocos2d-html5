@@ -302,7 +302,7 @@ module cc.render {
                 path= this._currentPath;
             }
 
-            if ( path._dirty || this._lineWidth!==lineWidth || this._lineCap!==cap || this._lineJoin!==join ) {
+            if ( path._strokeDirty || this._lineWidth!==lineWidth || this._lineCap!==cap || this._lineJoin!==join ) {
 
                 lineWidth= cc.math.path.getDistanceVector(lineWidth, this._currentMatrix).length();
 

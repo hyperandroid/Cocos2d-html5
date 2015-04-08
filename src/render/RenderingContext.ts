@@ -583,8 +583,22 @@ module cc.render {
          */
         setStrokeStylePattern( pattern:cc.render.Pattern );
 
+        /**
+         * Set the appropriate fill style based on the parameter type.
+         * This method is not the preferred way of setting a fill style.
+         * Instead refer to the specific methods.
+         * @method cc.render.RenderingContext#setFillStyle
+         * @param style {object}
+         */
         setFillStyle( style:any );
 
+        /**
+         * Set the appropriate stroke style based on the parameter type.
+         * This method is not the preferred way of setting a fill style.
+         * Instead refer to the specific methods.
+         * @method cc.render.RenderingContext#setStrokeStyle
+         * @param style
+         */
         setStrokeStyle( style:any );
 
         /**
