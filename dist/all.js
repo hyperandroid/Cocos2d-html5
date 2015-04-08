@@ -5107,7 +5107,6 @@ var cc;
                             buffers.push(buffer);
                         }
                     }
-                    ;
                     this._strokeGeometry = new Float32Array(size);
                     var offset = 0;
                     for (var i = 0; i < buffers.length; i++) {
@@ -5241,43 +5240,72 @@ var cc;
                 this.lineWidth = 1;
             }
             Shape.prototype.beginPath = function () {
+                var ppa = this._currentPathAttributes;
                 var spa = new ShapePathAttributes();
                 this._pathAttributes.push(spa);
                 this._currentPathAttributes = spa;
                 this._currentPath = spa.path;
+                if (ppa) {
+                    spa.fillStyle = ppa.fillStyle;
+                    spa.strokeStyle = ppa.strokeStyle;
+                }
+                return this;
             };
             Shape.prototype.__ensureCurrentPathAttributes = function () {
                 if (null === this._currentPathAttributes) {
                     this.beginPath();
                 }
             };
+            Shape.prototype.setLineWidth = function (w) {
+                this.lineWidth = w;
+                return this;
+            };
+            Shape.prototype.setMiterLimit = function (w) {
+                this.miterLimit = w;
+                return this;
+            };
+            Shape.prototype.setLineCap = function (w) {
+                this.lineCap = w;
+                return this;
+            };
+            Shape.prototype.setLineJoin = function (w) {
+                this.lineJoin = w;
+                return this;
+            };
             Shape.prototype.moveTo = function (x, y, matrix) {
                 this.__ensureCurrentPathAttributes();
                 this._currentPath.moveTo(x, y, matrix);
+                return this;
             };
             Shape.prototype.lineTo = function (x, y, matrix) {
                 this.__ensureCurrentPathAttributes();
                 this._currentPath.lineTo(x, y, matrix);
+                return this;
             };
             Shape.prototype.bezierCurveTo = function (cp0x, cp0y, cp1x, cp1y, p2x, p2y, matrix) {
                 this.__ensureCurrentPathAttributes();
                 this._currentPath.bezierCurveTo(cp0x, cp0y, cp1x, cp1y, p2x, p2y, matrix);
+                return this;
             };
             Shape.prototype.quadraticCurveTo = function (cp0x, cp0y, p2x, p2y, matrix) {
                 this.__ensureCurrentPathAttributes();
                 this._currentPath.quadraticCurveTo(cp0x, cp0y, p2x, p2y, matrix);
+                return this;
             };
             Shape.prototype.rect = function (x, y, width, height, matrix) {
                 this.__ensureCurrentPathAttributes();
                 this._currentPath.rect(x, y, width, height, matrix);
+                return this;
             };
             Shape.prototype.arc = function (x, y, radius, startAngle, endAngle, counterClockWise, matrix) {
                 this.__ensureCurrentPathAttributes();
                 this._currentPath.arc(x, y, radius, startAngle, endAngle, counterClockWise, matrix);
+                return this;
             };
             Shape.prototype.closePath = function () {
                 this.__ensureCurrentPathAttributes();
                 this._currentPath.closePath();
+                return this;
             };
             Shape.prototype.stroke = function () {
                 this._currentPathAttributes.setStroked();
@@ -5287,36 +5315,39 @@ var cc;
                     miterLimit: this.miterLimit,
                     width: this.lineWidth
                 });
+                return this;
             };
-            Shape.prototype.fill = function (style) {
+            Shape.prototype.fill = function () {
                 this._currentPathAttributes.setFilled();
                 this._currentPath.getFillGeometry();
+                return this;
+            };
+            Shape.prototype.setStrokeStyle = function (ss) {
+                this.__ensureCurrentPathAttributes();
+                this._currentPathAttributes.strokeStyle = ss;
+                return this;
             };
             Object.defineProperty(Shape.prototype, "strokeStyle", {
                 set: function (ss) {
-                    this.__ensureCurrentPathAttributes();
-                    this._currentPathAttributes.strokeStyle = ss;
+                    this.setStrokeStyle(ss);
                 },
                 enumerable: true,
                 configurable: true
             });
             Object.defineProperty(Shape.prototype, "fillStyle", {
                 set: function (ss) {
-                    this.__ensureCurrentPathAttributes();
-                    this._currentPathAttributes.fillStyle = ss;
+                    this.setFillStyle(ss);
                 },
                 enumerable: true,
                 configurable: true
             });
-            Shape.prototype.draw = function (ctx, from, to) {
-                if (typeof from === "undefined") {
-                    from = 0;
-                    to = this._pathAttributes.length;
-                }
-                if (typeof to === "undefined") {
-                    to = from + 1;
-                }
-                for (var i = from; i < to; i++) {
+            Shape.prototype.setFillStyle = function (ss) {
+                this.__ensureCurrentPathAttributes();
+                this._currentPathAttributes.fillStyle = ss;
+                return this;
+            };
+            Shape.prototype.draw = function (ctx) {
+                for (var i = 0; i < this._pathAttributes.length; i++) {
                     this._pathAttributes[i].draw(ctx);
                 }
             };
@@ -18427,7 +18458,7 @@ var cc;
                 if (typeof path === "undefined") {
                     path = this._currentPath;
                 }
-                if (path._dirty || this._lineWidth !== lineWidth || this._lineCap !== cap || this._lineJoin !== join) {
+                if (path._strokeDirty || this._lineWidth !== lineWidth || this._lineCap !== cap || this._lineJoin !== join) {
                     lineWidth = cc.math.path.getDistanceVector(lineWidth, this._currentMatrix).length();
                     this._lineCap = cap;
                     this._lineJoin = join;

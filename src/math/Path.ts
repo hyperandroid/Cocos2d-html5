@@ -676,7 +676,7 @@ module cc.math {
                         size += buffer.length;
                         buffers.push(buffer);
                     }
-                };
+                }
 
                 this._strokeGeometry= new Float32Array( size );
 

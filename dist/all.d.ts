@@ -2818,20 +2818,26 @@ declare module cc.math {
         miterLimit: number;
         lineWidth: number;
         constructor();
-        beginPath(): void;
+        beginPath(): Shape;
         __ensureCurrentPathAttributes(): void;
-        moveTo(x: number, y: number, matrix?: Float32Array): void;
-        lineTo(x: number, y: number, matrix?: Float32Array): void;
-        bezierCurveTo(cp0x: number, cp0y: number, cp1x: number, cp1y: number, p2x: number, p2y: number, matrix?: Float32Array): void;
-        quadraticCurveTo(cp0x: number, cp0y: number, p2x: number, p2y: number, matrix?: Float32Array): void;
-        rect(x: number, y: number, width: number, height: number, matrix?: Float32Array): void;
-        arc(x: number, y: number, radius: number, startAngle: number, endAngle: number, counterClockWise: boolean, matrix?: Float32Array): void;
-        closePath(): void;
-        stroke(): void;
-        fill(style: Float32Array): void;
+        setLineWidth(w: number): Shape;
+        setMiterLimit(w: number): Shape;
+        setLineCap(w: cc.render.LineCap): Shape;
+        setLineJoin(w: cc.render.LineJoin): Shape;
+        moveTo(x: number, y: number, matrix?: Float32Array): Shape;
+        lineTo(x: number, y: number, matrix?: Float32Array): Shape;
+        bezierCurveTo(cp0x: number, cp0y: number, cp1x: number, cp1y: number, p2x: number, p2y: number, matrix?: Float32Array): Shape;
+        quadraticCurveTo(cp0x: number, cp0y: number, p2x: number, p2y: number, matrix?: Float32Array): Shape;
+        rect(x: number, y: number, width: number, height: number, matrix?: Float32Array): Shape;
+        arc(x: number, y: number, radius: number, startAngle: number, endAngle: number, counterClockWise: boolean, matrix?: Float32Array): Shape;
+        closePath(): Shape;
+        stroke(): Shape;
+        fill(): Shape;
+        setStrokeStyle(ss: any): Shape;
         strokeStyle: any;
         fillStyle: any;
-        draw(ctx: cc.render.RenderingContext, from?: number, to?: number): void;
+        setFillStyle(ss: any): Shape;
+        draw(ctx: cc.render.RenderingContext): void;
     }
 }
 /**
@@ -10321,7 +10327,21 @@ declare module cc.render {
          * @method cc.render.RenderingContext#setStrokeStylePattern
          */
         setStrokeStylePattern(pattern: cc.render.Pattern): any;
+        /**
+         * Set the appropriate fill style based on the parameter type.
+         * This method is not the preferred way of setting a fill style.
+         * Instead refer to the specific methods.
+         * @method cc.render.RenderingContext#setFillStyle
+         * @param style {object}
+         */
         setFillStyle(style: any): any;
+        /**
+         * Set the appropriate stroke style based on the parameter type.
+         * This method is not the preferred way of setting a fill style.
+         * Instead refer to the specific methods.
+         * @method cc.render.RenderingContext#setStrokeStyle
+         * @param style
+         */
         setStrokeStyle(style: any): any;
         /**
          * Resize the rendering context.
