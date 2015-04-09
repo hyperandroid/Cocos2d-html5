@@ -143,7 +143,8 @@ module cc {
 
         var segment:Path = new Path().catmullRomTo(p, closed, tension);
 
-        return new PathAction({type:"PathAction", segment: segment}).
+        return new PathAction().
+            setPath(segment).
             setRelative(relative).
             timeInfo(0, timeInSecs );
 
@@ -167,13 +168,22 @@ module cc {
 
     function __bezier( timeInSecs : number, p : Array<Point>, relative : boolean ) : Action {
         return new PathAction({
-            type : "PathAction",
-            segment : new SegmentBezier({
-                    p0 : { x:0, y:0 },
-                    p1 : p[0],
-                    p2 : p[1],
-                    p3 : p[2]
-                })
+            type: "PathAction",
+            path:
+                {
+                    type : "Path",
+                    segments: [
+                        {
+                            type: "SegmentBezier",
+                            points: [
+                                {x: 0, y: 0},
+                                p[0],
+                                p[1],
+                                p[2]
+                            ]
+                        }
+                    ]
+                }
             }).
             setRelative( relative ).
             timeInfo( 0, timeInSecs );

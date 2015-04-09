@@ -24,6 +24,14 @@ module cc.math.path {
     import ContainerSegment = cc.math.path.ContainerSegment;
 
     /**
+     * @class cc.math.path.SubPathSegmentInitializer
+     */
+    export interface SubPathSegmentInitializer extends cc.math.path.ContainerSegmentInitializer {
+
+        closed : boolean;
+    }
+
+    /**
      * @class cc.math.path.SubPath
      * @extends cc.math.path.ContainerSegment
      * @classdesc
@@ -64,8 +72,11 @@ module cc.math.path {
          * Build a new SubPath instance.
          * @method cc.math.path.SubPath#constructor
          */
-        constructor() {
+        constructor( initializer? : SubPathSegmentInitializer ) {
             super();
+            if ( initializer ) {
+                this.__createFromInitializer(initializer);
+            }
         }
 
         /**
@@ -93,14 +104,6 @@ module cc.math.path {
             return this._segments.length;
         }
 
-        /**
-         * Add a Segment to the SubPath and set the Segment's parent as the SubPath.
-         * @param s {cc.math.path.Segment}
-         */
-        addSegment( s : Segment ) : void {
-            s.setParent( this );
-            this._segments.push(s);
-        }
 
         /**
          * Clear all sub-path data, and revert to the original path object status.
@@ -128,7 +131,7 @@ module cc.math.path {
 
             if ( this._closed ) {
                 cc.Debug.warn( locale.WARN_MOVETO_IN_NON_EMPTY_SUBPATH );
-                return;
+                return this;
             }
 
             if ( null===this._currentPoint ) {
@@ -155,7 +158,7 @@ module cc.math.path {
 
             if ( this._closed ) {
                 cc.Debug.warn( locale.WARN_TRACE_ON_CLOSED_SUBPATH, "lineTo" );
-                return;
+                return this;
             }
 
             if ( this.isEmpty() ) {
@@ -165,14 +168,10 @@ module cc.math.path {
             } else {
 
                 this.addSegment(new SegmentLine({
-                    start: {
-                        x: this._currentPoint.x,
-                        y: this._currentPoint.y
-                    },
-                    end: {
-                        x: x,
-                        y: y
-                    }
+                    points : [
+                        this._currentPoint.clone(),
+                        new Vector(x,y)
+                    ]
                 }));
             }
 
@@ -221,14 +220,10 @@ module cc.math.path {
 
                 var sp : Vector = segment.getStartingPoint();
                 this.addSegment( new SegmentLine({
-                    start : {
-                        x: this._currentPoint.x,
-                        y: this._currentPoint.y
-                    },
-                    end : {
-                        x : sp.x,
-                        y : sp.y
-                    }
+                    points : [
+                        this._currentPoint.clone(),
+                        new Vector( sp.x, sp.y )
+                    ]
                 }))
             }
             this.addSegment( segment );
@@ -262,9 +257,10 @@ module cc.math.path {
             var p : Point = this.getStartingPoint();
 
             var segment : Segment = new SegmentLine({
-                    start: { x: this._currentPoint.x, y: this._currentPoint.y },
-                    end: { x: p.x, y: p.y }
-                });
+                points : [
+                    this._currentPoint.clone(),
+                    new Vector( p.x, p.y )
+                ]});
 
             this.addSegment(segment);
 
@@ -300,11 +296,9 @@ module cc.math.path {
          * @returns {cc.math.Vector}
          */
         getEndingPoint() : Vector {
-            if (!this.isEmpty()) {
-                return this._segments.length ?
-                    this._segments[ this._segments.length-1 ].getEndingPoint() :
-                    this._currentPoint;
-            }
+            return this._segments.length ?
+                this._segments[ this._segments.length-1 ].getEndingPoint() :
+                new Vector();
 
             cc.Debug.error( locale.ERR_SUBPATH_NOT_STARTED, "getEndingPoint" );
         }
@@ -332,9 +326,11 @@ module cc.math.path {
             }
 
             this.addSegment( new cc.math.path.SegmentQuadratic({
-                p0: { x:this._currentPoint.x, y: this._currentPoint.y },
-                p1: { x:x0, y:y0 },
-                p2: { x:x1, y:y1 }
+                points : [
+                    this._currentPoint.clone(),
+                    new Vector(x0,y0),
+                    new Vector(x1,y1)
+                ]
             }));
 
             this._currentPoint.x = x1;
@@ -351,10 +347,12 @@ module cc.math.path {
             }
 
             this.addSegment( new cc.math.path.SegmentBezier({
-                p0: { x:this._currentPoint.x, y: this._currentPoint.y },
-                p1: { x:x0, y:y0 },
-                p2: { x:x1, y:y1 },
-                p3: { x:x2, y:y2 }
+                points : [
+                    this._currentPoint.clone(),
+                    new Vector( x0,y0 ),
+                    new Vector( x1,y1 ),
+                    new Vector( x2,y2 )
+                ]
             }));
 
             this._currentPoint.x = x2;
@@ -371,22 +369,12 @@ module cc.math.path {
             }
 
             this.addSegment(new cc.math.path.SegmentCardinalSpline({
-                p0: {
-                    x: this._currentPoint.x,
-                    y: this._currentPoint.y
-                },
-                cp0: {
-                    x: x0,
-                    y: y0
-                },
-                cp1: {
-                    x: x1,
-                    y: y1
-                },
-                p1: {
-                    x: x2,
-                    y: y2
-                },
+                points : [
+                    this._currentPoint.clone(),
+                    new Vector( x0,y0 ),
+                    new Vector( x1,y1 ),
+                    new Vector( x2,y2 )
+                ],
                 tension:tension
             }));
 
@@ -414,5 +402,18 @@ module cc.math.path {
             ctx.fill();
         }
 
+        getInitializer() : SubPathSegmentInitializer {
+
+            var initializer:any= super.getInitializer("SubPath");
+            initializer.closed= this._closed;
+
+            return <SubPathSegmentInitializer>initializer;
+        }
+
+        __createFromInitializer( initializer : SubPathSegmentInitializer ) {
+            super.__createFromInitializer( initializer );
+            this._closed= initializer.closed;
+            this._currentPoint= this.getEndingPoint().clone();
+        }
     }
 }

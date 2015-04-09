@@ -1751,9 +1751,12 @@ var cc;
                     this._length = 0;
                     this._dirty = true;
                     if (data) {
-                        this.initialize(data.start, data.end);
+                        this.__createFromInitializer(data);
                     }
                 }
+                SegmentLine.prototype.__createFromInitializer = function (data) {
+                    this.initialize(data.points[0], data.points[1]);
+                };
                 /**
                  * Get the Segment's parent Segment.
                  * @method cc.math.path.SegmentLine#getParent
@@ -1846,14 +1849,10 @@ var cc;
                  */
                 SegmentLine.prototype.clone = function () {
                     var sl = new SegmentLine({
-                        start: {
-                            x: this._start.x,
-                            y: this._start.y
-                        },
-                        end: {
-                            x: this._end.x,
-                            y: this._end.y
-                        }
+                        points: [
+                            this._start.clone(),
+                            this._end.clone()
+                        ]
                     });
                     sl._length = this._length;
                     return this;
@@ -1895,6 +1894,15 @@ var cc;
                 };
                 SegmentLine.prototype.canvasFill = function (ctx) {
                     ctx.lineTo(this._end.x, this._end.y);
+                };
+                SegmentLine.prototype.getInitializer = function () {
+                    return {
+                        type: "SegmentLine",
+                        points: [
+                            this._start.clone(),
+                            this._end.clone(),
+                        ]
+                    };
                 };
                 return SegmentLine;
             })();
@@ -2298,9 +2306,12 @@ var cc;
                      */
                     this._length = 0;
                     if (data) {
-                        this.initialize(data.p0, data.p1, data.p2);
+                        this.__createFromInitializer(data);
                     }
                 }
+                SegmentQuadratic.prototype.__createFromInitializer = function (data) {
+                    this.initialize(data.points[0], data.points[1], data.points[2]);
+                };
                 /**
                  * Initialize the Segment with the supplied points.
                  * @param p0 {cc.math.Point} start curve point.
@@ -2425,18 +2436,11 @@ var cc;
                  */
                 SegmentQuadratic.prototype.clone = function () {
                     var segment = new SegmentQuadratic({
-                        p0: {
-                            x: this._p0.x,
-                            y: this._p0.y
-                        },
-                        p1: {
-                            x: this._cp0.x,
-                            y: this._cp0.y
-                        },
-                        p2: {
-                            x: this._p1.x,
-                            y: this._p1.y
-                        }
+                        points: [
+                            this._p0.clone(),
+                            this._cp0.clone(),
+                            this._p1.clone()
+                        ]
                     });
                     segment._length = this._length;
                     return segment;
@@ -2478,6 +2482,16 @@ var cc;
                 };
                 SegmentQuadratic.prototype.canvasFill = function (ctx) {
                     ctx.quadraticCurveTo(this._cp0.x, this._cp0.y, this._p1.x, this._p1.y);
+                };
+                SegmentQuadratic.prototype.getInitializer = function () {
+                    return {
+                        type: "SegmentQuadratic",
+                        points: [
+                            this._p0.clone(),
+                            this._cp0.clone(),
+                            this._p1.clone()
+                        ]
+                    };
                 };
                 return SegmentQuadratic;
             })();
@@ -2577,9 +2591,12 @@ var cc;
                      */
                     this._length = 0;
                     if (data) {
-                        this.initialize(data.p0, data.p1, data.p2, data.p3);
+                        this.__createFromInitializer(data);
                     }
                 }
+                SegmentBezier.prototype.__createFromInitializer = function (data) {
+                    this.initialize(data.points[0], data.points[1], data.points[2], data.points[3]);
+                };
                 /**
                  * Initialize the Segment with the supplied points.
                  * @param p0 {cc.math.Point} start curve point.
@@ -2720,22 +2737,12 @@ var cc;
                  */
                 SegmentBezier.prototype.clone = function () {
                     var segment = new SegmentBezier({
-                        p0: {
-                            x: this._p0.x,
-                            y: this._p0.y
-                        },
-                        p1: {
-                            x: this._cp0.x,
-                            y: this._cp0.y
-                        },
-                        p2: {
-                            x: this._cp1.x,
-                            y: this._cp1.y
-                        },
-                        p3: {
-                            x: this._p1.x,
-                            y: this._p1.y
-                        }
+                        points: [
+                            this._p0.clone(),
+                            this._cp0.clone(),
+                            this._cp1.clone(),
+                            this._p1.clone()
+                        ]
                     });
                     segment._length = this._length;
                     return segment;
@@ -2778,6 +2785,17 @@ var cc;
                 };
                 SegmentBezier.prototype.canvasFill = function (ctx) {
                     ctx.bezierCurveTo(this._cp0.x, this._cp0.y, this._cp1.x, this._cp1.y, this._p1.x, this._p1.y);
+                };
+                SegmentBezier.prototype.getInitializer = function () {
+                    return {
+                        type: "SegmentBezier",
+                        points: [
+                            this._p0.clone(),
+                            this._cp0.clone(),
+                            this._cp1.clone(),
+                            this._p1.clone()
+                        ]
+                    };
                 };
                 return SegmentBezier;
             })();
@@ -2841,8 +2859,13 @@ var cc;
                      * @private
                      */
                     this._length = 0;
-                    this.initialize(data);
+                    if (data) {
+                        this.__createFromInitializer(data);
+                    }
                 }
+                SegmentArc.prototype.__createFromInitializer = function (data) {
+                    this.initialize(data);
+                };
                 /**
                  * Initialize the Arc Segment with data.
                  * @method cc.math.path.SegmentArc#initialize
@@ -3002,6 +3025,18 @@ var cc;
                 SegmentArc.prototype.canvasFill = function (ctx) {
                     ctx.arc(this._x, this._y, this._radius, this._startAngle, this._endAngle, this._ccw);
                 };
+                SegmentArc.prototype.getInitializer = function () {
+                    return {
+                        type: "SegmentArc",
+                        points: null,
+                        x: this._x,
+                        y: this._y,
+                        radius: this._radius,
+                        startAngle: this._startAngle,
+                        endAngle: this._endAngle,
+                        ccw: this._ccw
+                    };
+                };
                 return SegmentArc;
             })();
             path.SegmentArc = SegmentArc;
@@ -3099,24 +3134,13 @@ var cc;
                      * @private
                      */
                     this._length = 0;
-                    /**
-                     * Whether the Quadratic is internally treated as a polyline.
-                     * @member cc.math.path.SegmentCardinalSpline#_flattened
-                     * @type {boolean}
-                     * @private
-                     */
-                    this._flattened = false;
-                    /**
-                     * A cache of points on the curve. This is approximation with which the length is calculated.
-                     * @member cc.math.path.SegmentCardinalSpline#_cachedContourPoints
-                     * @type {Array<cc.math.Vector>}
-                     * @private
-                     */
-                    this._cachedContourPoints = null;
                     if (data) {
-                        this.initialize(data.p0, data.cp0, data.cp1, data.p1, data.tension);
+                        this.__createFromInitializer(data);
                     }
                 }
+                SegmentCardinalSpline.prototype.__createFromInitializer = function (data) {
+                    this.initialize(data.points[0], data.points[1], data.points[2], data.points[3], data.tension);
+                };
                 /**
                  * Initialize the Segment with the supplied points.
                  * @param p0 {cc.math.Point}
@@ -3266,10 +3290,12 @@ var cc;
                  */
                 SegmentCardinalSpline.prototype.clone = function () {
                     var segment = new SegmentCardinalSpline({
-                        p0: this._p0,
-                        cp0: this._cp0,
-                        cp1: this._cp1,
-                        p1: this._p1,
+                        points: [
+                            this._p0.clone(),
+                            this._cp0.clone(),
+                            this._cp1.clone(),
+                            this._p1.clone()
+                        ],
                         tension: this._tension
                     });
                     segment._length = this._length;
@@ -3317,6 +3343,18 @@ var cc;
                         ctx.lineTo(c[i].x, c[i].y);
                     }
                 };
+                SegmentCardinalSpline.prototype.getInitializer = function () {
+                    return {
+                        type: "SegmentCardinalSpline",
+                        tension: this._tension,
+                        points: [
+                            this._p0.clone(),
+                            this._cp0.clone(),
+                            this._cp1.clone(),
+                            this._p1.clone()
+                        ]
+                    };
+                };
                 return SegmentCardinalSpline;
             })();
             path.SegmentCardinalSpline = SegmentCardinalSpline;
@@ -3328,6 +3366,7 @@ var cc;
  * Created by ibon on 11/22/14.
  */
 /// <reference path="./Segment.ts"/>
+/// <reference path="../Path.ts"/>
 /// <reference path="../../render/RenderingContext.ts"/>
 var cc;
 (function (cc) {
@@ -3346,7 +3385,7 @@ var cc;
              *
              */
             var ContainerSegment = (function () {
-                function ContainerSegment() {
+                function ContainerSegment(initializer) {
                     /**
                      * Parent Segment. An instance of <code>ContainerSegment</code>
                      * @member cc.math.path.SegmentLine
@@ -3376,7 +3415,16 @@ var cc;
                      * @private
                      */
                     this._dirty = true;
+                    if (typeof initializer !== "undefined") {
+                        this.__createFromInitializer(initializer);
+                    }
                 }
+                ContainerSegment.prototype.__createFromInitializer = function (initializer) {
+                    for (var i = 0; i < initializer.segments.length; i++) {
+                        var segment = cc.math.path.ParseSegment(initializer.segments[i]);
+                        this.addSegment(segment);
+                    }
+                };
                 /**
                  * Get ContainerSegment's all segments lengths.
                  * @returns {number}
@@ -3533,6 +3581,24 @@ var cc;
                         this._segments[i].canvasFill(ctx);
                     }
                 };
+                ContainerSegment.prototype.getInitializer = function (type) {
+                    var initializer = {
+                        type: typeof type === "undefined" ? "ContainerSegment" : type,
+                        segments: []
+                    };
+                    for (var i = 0; i < this._segments.length; i++) {
+                        initializer.segments.push(this._segments[i].getInitializer());
+                    }
+                    return initializer;
+                };
+                /**
+                 * Add a Segment to the SubPath and set the Segment's parent as the SubPath.
+                 * @param s {cc.math.path.Segment}
+                 */
+                ContainerSegment.prototype.addSegment = function (s) {
+                    s.setParent(this);
+                    this._segments.push(s);
+                };
                 return ContainerSegment;
             })();
             path.ContainerSegment = ContainerSegment;
@@ -3593,7 +3659,7 @@ var cc;
                  * Build a new SubPath instance.
                  * @method cc.math.path.SubPath#constructor
                  */
-                function SubPath() {
+                function SubPath(initializer) {
                     _super.call(this);
                     /**
                      * Path current tracing point. When adding segments to the path, this is the reference point.
@@ -3609,6 +3675,9 @@ var cc;
                      * @private
                      */
                     this._closed = false;
+                    if (initializer) {
+                        this.__createFromInitializer(initializer);
+                    }
                 }
                 /**
                  * Whether the SubPath is closed.
@@ -3633,14 +3702,6 @@ var cc;
                     return this._segments.length;
                 };
                 /**
-                 * Add a Segment to the SubPath and set the Segment's parent as the SubPath.
-                 * @param s {cc.math.path.Segment}
-                 */
-                SubPath.prototype.addSegment = function (s) {
-                    s.setParent(this);
-                    this._segments.push(s);
-                };
-                /**
                  * Clear all sub-path data, and revert to the original path object status.
                  * Make sure this path is not another's path segment.
                  *
@@ -3663,7 +3724,7 @@ var cc;
                 SubPath.prototype.moveTo = function (x, y) {
                     if (this._closed) {
                         cc.Debug.warn(cc.locale.WARN_MOVETO_IN_NON_EMPTY_SUBPATH);
-                        return;
+                        return this;
                     }
                     if (null === this._currentPoint) {
                         this._currentPoint = new Vector();
@@ -3685,21 +3746,17 @@ var cc;
                 SubPath.prototype.lineTo = function (x, y) {
                     if (this._closed) {
                         cc.Debug.warn(cc.locale.WARN_TRACE_ON_CLOSED_SUBPATH, "lineTo");
-                        return;
+                        return this;
                     }
                     if (this.isEmpty()) {
                         this._currentPoint = new Vector();
                     }
                     else {
                         this.addSegment(new SegmentLine({
-                            start: {
-                                x: this._currentPoint.x,
-                                y: this._currentPoint.y
-                            },
-                            end: {
-                                x: x,
-                                y: y
-                            }
+                            points: [
+                                this._currentPoint.clone(),
+                                new Vector(x, y)
+                            ]
                         }));
                     }
                     this._currentPoint.x = x;
@@ -3741,14 +3798,10 @@ var cc;
                     if (addLineTo) {
                         var sp = segment.getStartingPoint();
                         this.addSegment(new SegmentLine({
-                            start: {
-                                x: this._currentPoint.x,
-                                y: this._currentPoint.y
-                            },
-                            end: {
-                                x: sp.x,
-                                y: sp.y
-                            }
+                            points: [
+                                this._currentPoint.clone(),
+                                new Vector(sp.x, sp.y)
+                            ]
                         }));
                     }
                     this.addSegment(segment);
@@ -3774,8 +3827,10 @@ var cc;
                     }
                     var p = this.getStartingPoint();
                     var segment = new SegmentLine({
-                        start: { x: this._currentPoint.x, y: this._currentPoint.y },
-                        end: { x: p.x, y: p.y }
+                        points: [
+                            this._currentPoint.clone(),
+                            new Vector(p.x, p.y)
+                        ]
                     });
                     this.addSegment(segment);
                     this._currentPoint = segment.getEndingPoint();
@@ -3802,9 +3857,7 @@ var cc;
                  * @returns {cc.math.Vector}
                  */
                 SubPath.prototype.getEndingPoint = function () {
-                    if (!this.isEmpty()) {
-                        return this._segments.length ? this._segments[this._segments.length - 1].getEndingPoint() : this._currentPoint;
-                    }
+                    return this._segments.length ? this._segments[this._segments.length - 1].getEndingPoint() : new Vector();
                     cc.Debug.error(cc.locale.ERR_SUBPATH_NOT_STARTED, "getEndingPoint");
                 };
                 SubPath.prototype.clone = function () {
@@ -3823,9 +3876,11 @@ var cc;
                         return this;
                     }
                     this.addSegment(new cc.math.path.SegmentQuadratic({
-                        p0: { x: this._currentPoint.x, y: this._currentPoint.y },
-                        p1: { x: x0, y: y0 },
-                        p2: { x: x1, y: y1 }
+                        points: [
+                            this._currentPoint.clone(),
+                            new Vector(x0, y0),
+                            new Vector(x1, y1)
+                        ]
                     }));
                     this._currentPoint.x = x1;
                     this._currentPoint.y = y1;
@@ -3837,10 +3892,12 @@ var cc;
                         return this;
                     }
                     this.addSegment(new cc.math.path.SegmentBezier({
-                        p0: { x: this._currentPoint.x, y: this._currentPoint.y },
-                        p1: { x: x0, y: y0 },
-                        p2: { x: x1, y: y1 },
-                        p3: { x: x2, y: y2 }
+                        points: [
+                            this._currentPoint.clone(),
+                            new Vector(x0, y0),
+                            new Vector(x1, y1),
+                            new Vector(x2, y2)
+                        ]
                     }));
                     this._currentPoint.x = x2;
                     this._currentPoint.y = y2;
@@ -3852,22 +3909,12 @@ var cc;
                         return this;
                     }
                     this.addSegment(new cc.math.path.SegmentCardinalSpline({
-                        p0: {
-                            x: this._currentPoint.x,
-                            y: this._currentPoint.y
-                        },
-                        cp0: {
-                            x: x0,
-                            y: y0
-                        },
-                        cp1: {
-                            x: x1,
-                            y: y1
-                        },
-                        p1: {
-                            x: x2,
-                            y: y2
-                        },
+                        points: [
+                            this._currentPoint.clone(),
+                            new Vector(x0, y0),
+                            new Vector(x1, y1),
+                            new Vector(x2, y2)
+                        ],
                         tension: tension
                     }));
                     this._currentPoint.x = x0;
@@ -3887,6 +3934,16 @@ var cc;
                     ctx.moveTo(fp.x, fp.y);
                     _super.prototype.canvasFill.call(this, ctx);
                     ctx.fill();
+                };
+                SubPath.prototype.getInitializer = function () {
+                    var initializer = _super.prototype.getInitializer.call(this, "SubPath");
+                    initializer.closed = this._closed;
+                    return initializer;
+                };
+                SubPath.prototype.__createFromInitializer = function (initializer) {
+                    _super.prototype.__createFromInitializer.call(this, initializer);
+                    this._closed = initializer.closed;
+                    this._currentPoint = this.getEndingPoint().clone();
                 };
                 return SubPath;
             })(ContainerSegment);
@@ -4562,6 +4619,25 @@ var cc;
         var __v3 = new Vector();
         var __m0 = new Float32Array([1.0, 0, 0, 0, 1.0, 0, 0, 0, 1.0]);
         var __m1 = new Float32Array([1.0, 0, 0, 0, 1.0, 0, 0, 0, 1.0]);
+        var path;
+        (function (path) {
+            function ParseSegment(initializer) {
+                var segment = null;
+                if (initializer.type) {
+                    if (cc.math.path[initializer.type]) {
+                        segment = new cc.math.path[initializer.type]();
+                    }
+                    else if (cc.math[initializer.type]) {
+                        segment = new cc.math[initializer.type]();
+                    }
+                    if (segment) {
+                        segment.__createFromInitializer(initializer);
+                    }
+                }
+                return segment;
+            }
+            path.ParseSegment = ParseSegment;
+        })(path = math.path || (math.path = {}));
         /**
          *
          * @class cc.math.Path
@@ -4584,7 +4660,7 @@ var cc;
              * Build a new Path instance.
              * @method cc.math.Path#constructor
              */
-            function Path() {
+            function Path(initializer) {
                 _super.call(this);
                 /**
                  * Path current sub path to add segments to. Initially, the current sub-path is the path itself.
@@ -4622,7 +4698,16 @@ var cc;
                  * @private
                  */
                 this._fillDirty = true;
+                if (initializer) {
+                    this.__createFromInitializer(initializer);
+                }
             }
+            Path.prototype.__createFromInitializer = function (initializer) {
+                _super.prototype.__createFromInitializer.call(this, initializer);
+                if (this._segments.length > 0) {
+                    this._currentSubPath = this._segments[this._segments.length - 1];
+                }
+            };
             /**
              * Get the Path's number of SubPaths.
              * @method cc.math.Path#numSubPaths
@@ -4931,9 +5016,6 @@ var cc;
                     y = __v0.y;
                 }
                 this.__ensureSubPath(x, y);
-                if (!this._currentSubPath.isEmpty()) {
-                    this.__newSubPath();
-                }
                 this._currentSubPath.moveTo(x, y);
                 return this;
             };
@@ -5130,7 +5212,7 @@ var cc;
                     var buffers = [];
                     for (var i = 0; i < this._segments.length; i++) {
                         var subPath = this._segments[i];
-                        var contourPoints = subPath.trace();
+                        //var contourPoints = subPath.trace();
                         var contour = subPath.trace();
                         var buffer = cc.math.path.geometry.tessellate(contour);
                         if (null !== buffer) {
@@ -5150,6 +5232,9 @@ var cc;
                 }
                 return this._fillGeometry;
             };
+            Path.prototype.getInitializer = function () {
+                return _super.prototype.getInitializer.call(this, "Path");
+            };
             return Path;
         })(ContainerSegment);
         math.Path = Path;
@@ -5168,8 +5253,22 @@ var cc;
 (function (cc) {
     var math;
     (function (math) {
+        /**
+         * @class cc.math.ShapePathAttributes
+         * @classdesc
+         *
+         * This is a companion class for the Shape object.
+         * It represents the information for one of its Path objects, where the path itself and fill/stroke
+         * information is kept together.
+         *
+         * You'll never need to interact with this object directly.
+         */
         var ShapePathAttributes = (function () {
             function ShapePathAttributes() {
+                /**
+                 *
+                 * @type {null}
+                 */
                 this.path = null;
                 this.isStroked = false;
                 this.isFilled = false;
@@ -5221,24 +5320,92 @@ var cc;
          * @class cc.math.Shape
          * @classdesc
          *
-         * A Shape object is a collection of <code>cc.math.Path</code> objects and a fill style associated with each of them.
+         * A Shape object is a collection of <code>cc.math.Path</code> objects and a fill/stroke styles associated with each of them.
          * The idea is to keep under an easy-to-handle class the responsibility of stroke/paint a collection of different
-         * path objects. For example, this is a good fit for SVG elements which on average are composed of a collection of
-         * path and contour objects.
+         * path objects. For example, this is a good fit complex objects built of vector data since the shape will
+         * cache all contour/fill geometry and the renderer will batch calls whenever possible.
+         * For example, the following code will create an Arrow Shape:
          *
-         * PENDING: Shape objects currently don't honor the current transformation matrix.
+         * <code>
+         * var arrow= new cc.math.Shape().
+         *     setStrokeStyle( "#fff" ).
+         *     setLineWidth(3).
+         *     setLineJoin( cc.render.LineJoin.ROUND).
+         *     setLineCap( cc.render.LineJoin.ROUND).
+         *     beginPath().
+         *         moveTo(3,8).
+         *         lineTo(15,8).
+         *         lineTo(10,3).
+         *     stroke().
+         *     beginPath().
+         *         moveTo(3,8).
+         *         lineTo(15,8).
+         *         lineTo(10,13).
+         *     stroke();
+         * </code>
          *
+         * later, you can draw the awwor by calling:
+         *
+         * <code>arrow.draw( ctx );</code>
          */
         var Shape = (function () {
+            /**
+             * Build a new Shape instance.
+             * @method cc.math.Shape#constructor
+             */
             function Shape() {
+                /**
+                 * Shape paths data.
+                 * @member cc.math.Shape#_pattAttributes
+                 * @type {cc.math.ShapePathAttributes[]}
+                 * @private
+                 */
                 this._pathAttributes = [];
+                /**
+                 * Current path info.
+                 * All segment creation or stroke/attribute function calls will affect this path.
+                 * @member cc.math.Shape#_currentPathAttributes
+                 * @type {cc.math.ShapePathAttributes}
+                 * @private
+                 */
                 this._currentPathAttributes = null;
+                /**
+                 * From the current path info, this is the actual traced path.
+                 * @member cc.math.Shape#_currentPath
+                 * @type {cc.math.Path}
+                 * @private
+                 */
                 this._currentPath = null;
+                /**
+                 * Shape line join type. All paths will get this value until changed.
+                 * @member cc.math.Shape#lineJoin
+                 * @type {cc.render.LineJoin}
+                 */
                 this.lineJoin = 1 /* MITER */;
+                /**
+                 * Shape line cap type. All paths will get this value until changed.
+                 * @member cc.math.Shape#lineCap
+                 * @type {cc.render.LineCap}
+                 */
                 this.lineCap = 0 /* BUTT */;
+                /**
+                 * Shape miter limit. All paths will get this value until changed.
+                 * @member cc.math.Shape#miterLimit
+                 * @type {number}
+                 */
                 this.miterLimit = 10;
+                /**
+                 * Shape lineWidth. All paths will get this value until changed.
+                 * @member cc.math.Shape#lineWidth
+                 * @type {number}
+                 */
                 this.lineWidth = 1;
             }
+            /**
+             * Create a new Path and chain it to all the other Shape's paths.
+             * @method cc.math.Shape#beginPath
+             * @returns {cc.math.Shape}
+             */
             Shape.prototype.beginPath = function () {
                 var ppa = this._currentPathAttributes;
                 var spa = new ShapePathAttributes();
@@ -5251,62 +5418,162 @@ var cc;
                 }
                 return this;
             };
+            /**
+             * This method ensures there's a path in case after creating the Shape,
+             * no call to `beginPath()` is made.
+             * @method cc.math.Shape#__ensureCurrentPathAttributes
+             * @private
+             */
             Shape.prototype.__ensureCurrentPathAttributes = function () {
                 if (null === this._currentPathAttributes) {
                     this.beginPath();
                 }
             };
+            /**
+             * Set the line width for the current and future Shape paths.
+             * @method cc.math.Shape#setLineWidth
+             * @param w {number}
+             * @returns {cc.math.Shape}
+             */
             Shape.prototype.setLineWidth = function (w) {
                 this.lineWidth = w;
                 return this;
             };
+            /**
+             * Set the miter limit for the current and future Shape paths.
+             * @method cc.math.Shape#setMiterLimit
+             * @param w {number}
+             * @returns {cc.math.Shape}
+             */
             Shape.prototype.setMiterLimit = function (w) {
                 this.miterLimit = w;
                 return this;
             };
+            /**
+             * Set the line cap for the current and future Shape paths.
+             * @method cc.math.Shape#setLineCap
+             * @param w {cc.render.LineCap}
+             * @returns {cc.math.Shape}
+             */
             Shape.prototype.setLineCap = function (w) {
                 this.lineCap = w;
                 return this;
             };
+            /**
+             * Set the line join for the current and future Shape paths.
+             * @method cc.math.Shape#setLineJoin
+             * @param w {cc.render.LineJoin}
+             * @returns {cc.math.Shape}
+             */
             Shape.prototype.setLineJoin = function (w) {
                 this.lineJoin = w;
                 return this;
             };
+            /**
+             * Move the current path's cursor position. This may imply creating a SubPath.
+             * @method cc.math.Shape#moveTo
+             * @param x {number}
+             * @param y {number}
+             * @param matrix {Float32Array=}
+             * @returns {cc.math.Shape}
+             */
             Shape.prototype.moveTo = function (x, y, matrix) {
                 this.__ensureCurrentPathAttributes();
                 this._currentPath.moveTo(x, y, matrix);
                 return this;
             };
+            /**
+             * Add a line segment to the current path.
+             * @method cc.math.Shape#lineTo
+             * @param x {number}
+             * @param y {number}
+             * @param matrix {Float32Array=}
+             * @returns {cc.math.Shape}
+             */
             Shape.prototype.lineTo = function (x, y, matrix) {
                 this.__ensureCurrentPathAttributes();
                 this._currentPath.lineTo(x, y, matrix);
                 return this;
             };
+            /**
+             * Add a bezier curve to the current path.
+             * @method cc.math.Shape#bezierCurveTo
+             * @param cp0x {number}
+             * @param cp0y {number}
+             * @param cp1x {number}
+             * @param cp1y {number}
+             * @param p2x {number}
+             * @param p2y {number}
+             * @param matrix {Float32Array=}
+             * @returns {cc.math.Shape}
+             */
             Shape.prototype.bezierCurveTo = function (cp0x, cp0y, cp1x, cp1y, p2x, p2y, matrix) {
                 this.__ensureCurrentPathAttributes();
                 this._currentPath.bezierCurveTo(cp0x, cp0y, cp1x, cp1y, p2x, p2y, matrix);
                 return this;
             };
+            /**
+             * Add a quadratic curve to the current path.
+             * @method cc.math.Shape#quadraticCurveTo
+             * @param cp0x {number}
+             * @param cp0y {number}
+             * @param p2x {number}
+             * @param p2y {number}
+             * @param matrix {Float32Array=}
+             * @returns {cc.math.Shape}
+             */
             Shape.prototype.quadraticCurveTo = function (cp0x, cp0y, p2x, p2y, matrix) {
                 this.__ensureCurrentPathAttributes();
                 this._currentPath.quadraticCurveTo(cp0x, cp0y, p2x, p2y, matrix);
                 return this;
             };
+            /**
+             * Add a rectangle subpath to the current path
+             * @method cc.math.Shape#rect
+             * @param x {number}
+             * @param y {number}
+             * @param width {number}
+             * @param height {number}
+             * @param matrix {Float32Array=}
+             * @returns {cc.math.Shape}
+             */
             Shape.prototype.rect = function (x, y, width, height, matrix) {
                 this.__ensureCurrentPathAttributes();
                 this._currentPath.rect(x, y, width, height, matrix);
                 return this;
             };
+            /**
+             * Add an arc to the current path.
+             * @method cc.math.Shape#arc
+             * @param x {number}
+             * @param y {number}
+             * @param radius {number}
+             * @param startAngle {number}
+             * @param endAngle {number}
+             * @param counterClockWise {boolean}
+             * @param matrix {Float32Array=}
+             * @returns {cc.math.Shape}
+             */
             Shape.prototype.arc = function (x, y, radius, startAngle, endAngle, counterClockWise, matrix) {
                 this.__ensureCurrentPathAttributes();
                 this._currentPath.arc(x, y, radius, startAngle, endAngle, counterClockWise, matrix);
                 return this;
             };
+            /**
+             * Add a line segment to close the current path.
+             * @method cc.math.Shape#closePath
+             * @returns {cc.math.Shape}
+             */
             Shape.prototype.closePath = function () {
                 this.__ensureCurrentPathAttributes();
                 this._currentPath.closePath();
                 return this;
             };
+            /**
+             * Stroke (trace contour) the current path.
+             * @method cc.math.Shape#stroke
+             * @returns {cc.math.Shape}
+             */
             Shape.prototype.stroke = function () {
                 this._currentPathAttributes.setStroked();
                 this._currentPath.getStrokeGeometry({
@@ -5317,17 +5584,33 @@ var cc;
                 });
                 return this;
             };
+            /**
+             * Fill the current path.
+             * @method cc.math.Shape#fill
+             * @returns {cc.math.Shape}
+             */
             Shape.prototype.fill = function () {
                 this._currentPathAttributes.setFilled();
                 this._currentPath.getFillGeometry();
                 return this;
             };
+            /**
+             * Set the current and future shape's paths stroke style.
+             * @method cc.math.Shape#setStrokeStyle
+             * @param ss {object}
+             * @returns {cc.math.Shape}
+             */
             Shape.prototype.setStrokeStyle = function (ss) {
                 this.__ensureCurrentPathAttributes();
                 this._currentPathAttributes.strokeStyle = ss;
                 return this;
             };
             Object.defineProperty(Shape.prototype, "strokeStyle", {
+                /**
+                 * Setter for the current and future shape paths stroke style
+                 * @method cc.math.Shape#set:strokeStyle
+                 * @param ss
+                 */
                 set: function (ss) {
                     this.setStrokeStyle(ss);
                 },
@@ -5335,17 +5618,33 @@ var cc;
                 configurable: true
             });
             Object.defineProperty(Shape.prototype, "fillStyle", {
+                /**
+                 * Setter for the current and future shape paths fill style
+                 * @method cc.math.Shape#set:fillStyle
+                 * @param ss
+                 */
                 set: function (ss) {
                     this.setFillStyle(ss);
                 },
                 enumerable: true,
                 configurable: true
             });
+            /**
+             * Set the current and future shape's paths fill style.
+             * @method cc.math.Shape#setFillStyle
+             * @param ss {object}
+             * @returns {cc.math.Shape}
+             */
             Shape.prototype.setFillStyle = function (ss) {
                 this.__ensureCurrentPathAttributes();
                 this._currentPathAttributes.fillStyle = ss;
                 return this;
             };
+            /**
+             * Draw the shape in a `cc.render.RenderingContext`.
+             * @method cc.math.Shape#draw
+             * @param ctx {cc.render.RenderingContext}
+             */
             Shape.prototype.draw = function (ctx) {
                 for (var i = 0; i < this._pathAttributes.length; i++) {
                     this._pathAttributes[i].draw(ctx);
@@ -10738,6 +11037,8 @@ var __extends = this.__extends || function (d, b) {
 };
 /// <reference path="../math/Point.ts"/>
 /// <reference path="../math/path/Segment.ts"/>
+/// <reference path="../math/path/ContainerSegment.ts"/>
+/// <reference path="../math/Path.ts"/>
 /// <reference path="../node/Node.ts"/>
 /// <reference path="./Action.ts"/>
 var cc;
@@ -10843,9 +11144,11 @@ var cc;
              */
             PathAction.prototype.__createFromInitializer = function (data) {
                 _super.prototype.__createFromInitializer.call(this, data);
-                // BUGBUG initializer must have serializable data.
-                console.log("Path initializer not yet implemented.");
-                this._segment = data.segment;
+                this._segment = cc.math.path.ParseSegment(data.path);
+            };
+            PathAction.prototype.setPath = function (path) {
+                this._segment = path;
+                return this;
             };
             /**
              * Update target Node's position.
@@ -20831,6 +21134,9 @@ var cc;
         var mesh;
         (function (mesh) {
             /**
+             * @class cc.render.mesh.Mesh
+             * @classdesc
+             *
              * A mesh is a grid composed of geometry and u,v information.
              */
             var Mesh = (function () {
@@ -27485,7 +27791,6 @@ var cc;
     var AnimateAction = cc.action.AnimateAction;
     var PathAction = cc.action.PathAction;
     var JumpAction = cc.action.JumpAction;
-    var SegmentBezier = cc.math.path.SegmentBezier;
     var Path = cc.math.Path;
     var Interpolator = cc.action.Interpolator;
     /**
@@ -27568,7 +27873,7 @@ var cc;
     }
     function __catmull(timeInSecs, p, tension, relative, closed) {
         var segment = new Path().catmullRomTo(p, closed, tension);
-        return new PathAction({ type: "PathAction", segment: segment }).setRelative(relative).timeInfo(0, timeInSecs);
+        return new PathAction().setPath(segment).setRelative(relative).timeInfo(0, timeInSecs);
     }
     function cardinalSplineTo(timeInSecs, p, tension, closed) {
         if (closed === void 0) { closed = false; }
@@ -27593,12 +27898,20 @@ var cc;
     function __bezier(timeInSecs, p, relative) {
         return new PathAction({
             type: "PathAction",
-            segment: new SegmentBezier({
-                p0: { x: 0, y: 0 },
-                p1: p[0],
-                p2: p[1],
-                p3: p[2]
-            })
+            path: {
+                type: "Path",
+                segments: [
+                    {
+                        type: "SegmentBezier",
+                        points: [
+                            { x: 0, y: 0 },
+                            p[0],
+                            p[1],
+                            p[2]
+                        ]
+                    }
+                ]
+            }
         }).setRelative(relative).timeInfo(0, timeInSecs);
     }
     function bezierTo(timeInSecs, p) {

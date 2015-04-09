@@ -13,6 +13,8 @@ module cc.math.path {
 
     import Vector= cc.math.Vector;
     import Matrix3= cc.math.Matrix3;
+    import Point = cc.math.Point;
+    import RenderingContext = cc.render.RenderingContext;
 
     export var DEFAULT_TRACE_LENGTH : number = 50;
 
@@ -36,8 +38,23 @@ module cc.math.path {
         return __v1.sub(__v0);
     }
 
-    import Point = cc.math.Point;
-    import RenderingContext = cc.render.RenderingContext;
+    /**
+     * @class cc.math.path.SegmentInitializer
+     * @interface
+     * @classdesc
+     *
+     * This class represents abstract info to initialize a segment from serialized data.
+     */
+    export interface SegmentInitializer {
+
+        /**
+         * Segment type. This defines the constructor function.
+         * @member cc.math.path.SegmentInitializer#type
+         * @type {null}
+         */
+        type? : string;
+
+    }
 
     /**
      * @class cc.math.path.Segment
@@ -147,6 +164,12 @@ module cc.math.path {
          * @methodcc.math.path.Segment#setDirty
          */
         setDirty( d:boolean );
+
+        /**
+         * Get segment serializable form data.
+         * @method cc.math.path.Segment#getInitializer
+         */
+        getInitializer() : SegmentInitializer;
 
         canvasStroke( ctx:RenderingContext );
         canvasFill( ctx:RenderingContext );

@@ -22,21 +22,9 @@ module cc.math.path {
      * SegmentLine initialization object.
      *
      */
-    export interface SegmentLineInitializer {
+    export interface SegmentLineInitializer extends cc.math.path.SegmentInitializer {
 
-        /**
-         * Line start point.
-         * @member cc.math.path.SegmentLineInitializer#start
-         * @type {cc.math.Point}
-         */
-        start : Point;
-
-        /**
-         * Line end point.
-         * @member cc.math.path.SegmentLineInitializer#end
-         * @type {cc.math.Point}
-         */
-        end : Point;
+        points : cc.math.Point[];
     }
 
     var __v : Vector = new Vector();
@@ -93,9 +81,13 @@ module cc.math.path {
          * @param data {SegmentLineInitializer=}
          */
         constructor(data?:SegmentLineInitializer) {
-            if ( data ) {
-                this.initialize(data.start, data.end);
+            if (data) {
+                this.__createFromInitializer(data);
             }
+        }
+
+        __createFromInitializer(data:SegmentLineInitializer) {
+            this.initialize(data.points[0], data.points[1]);
         }
 
         /**
@@ -211,14 +203,10 @@ module cc.math.path {
         clone() : SegmentLine {
 
             var sl= new SegmentLine({
-                start : {
-                    x: this._start.x,
-                    y: this._start.y
-                },
-                end : {
-                    x: this._end.x,
-                    y: this._end.y
-                }
+                points : [
+                    this._start.clone(),
+                    this._end.clone()
+                ]
             });
 
             sl._length= this._length;
@@ -270,5 +258,14 @@ module cc.math.path {
             ctx.lineTo( this._end.x, this._end.y );
         }
 
+        getInitializer() : SegmentLineInitializer {
+            return {
+                type : "SegmentLine",
+                points : [
+                    this._start.clone(),
+                    this._end.clone(),
+                ]
+            }
+        }
     }
 }

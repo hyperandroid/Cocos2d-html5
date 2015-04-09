@@ -10,8 +10,22 @@
 
 module cc.math {
 
+    /**
+     * @class cc.math.ShapePathAttributes
+     * @classdesc
+     *
+     * This is a companion class for the Shape object.
+     * It represents the information for one of its Path objects, where the path itself and fill/stroke
+     * information is kept together.
+     *
+     * You'll never need to interact with this object directly.
+     */
     export class ShapePathAttributes {
 
+        /**
+         *
+         * @type {null}
+         */
         path :          cc.math.Path= null;
         isStroked :     boolean= false;
         isFilled :      boolean= false;
