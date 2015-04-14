@@ -57,7 +57,7 @@ module cc.Debug {
      * @param msg {string} message to show
      * @param rest {Array<any>} other parameters to show in console.
      */
-    export function debug( level : DebugLevel, msg : string, rest : Array<any> ) {
+    export function debug( level : DebugLevel, msg : string, rest : any ) {
 
         if ( !enabled ) {
             return;

@@ -143,7 +143,7 @@ module cc.render {
          * @type {any}
          * @private
          */
-        _currentPath : any = null;
+        _currentPath : cc.math.Path = null;
 
         /**
          * Current clipping paths stack
@@ -281,6 +281,10 @@ module cc.render {
          */
         arc( x:number, y:number, radius:number, startAngle:number, endAngle:number, counterClockWise:boolean ) {
             this._currentPath.arc( x, y, radius, startAngle, endAngle, counterClockWise, this._currentMatrix );
+        }
+
+        arcTo( x1:number, y1:number, x2:number, y2:number, radius:number ) {
+            this._currentPath.arcTo( x1,y1, x2,y2, radius, this._currentMatrix );
         }
 
         /**

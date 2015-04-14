@@ -379,11 +379,11 @@ module cc.math {
                 }
 
                 this.__catmullRomTo(
-                    p0,rest[0],
-                    rest[1],rest[2],
-                    rest[3],rest[4],
-                    tension,
-                    arguments.length>6 ? <Float32Array>rest[5] : null);
+                    p0,             <number>rest[0],
+                    <number>rest[1],<number>rest[2],
+                    <number>rest[3],<number>rest[4],
+                    <number>rest[5],
+                    arguments.length>6 ? <Float32Array>rest[6] : null);
 
             } else if ( Array.isArray(p0) ) {
 
@@ -491,6 +491,9 @@ module cc.math {
             }
 
             this.__ensureSubPath(x,y);
+            if ( this._currentSubPath.numSegments()>0 ) {
+                this.__newSubPath();
+            }
             this._currentSubPath.moveTo(x,y);
 
             return this;
@@ -571,10 +574,31 @@ module cc.math {
             return this;
         }
 
+        arcTo( x1:number, y1:number, x2:number, y2:number, radius:number, matrix?:Float32Array ) {
+
+            if ( matrix ) {
+                __v0.set( x1,y1 );
+                Matrix3.transformPoint( matrix, __v0 );
+                x1= __v0.x;
+                y1= __v0.y;
+
+                __v0.set( x2,y2 );
+                Matrix3.transformPoint( matrix, __v0 );
+                x2= __v0.x;
+                y2= __v0.y;
+
+                radius= cc.math.path.getDistanceVector( radius, matrix ).length();
+            }
+
+            this.__ensureSubPath( x1, y1 );
+            this._currentSubPath.arcTo( x1,y1,x2,y2,radius );
+            this.setDirty();
+        }
+
         /**
          * Create an arc segment and add it to the current SubPath.
          * If a SubPath exists, a straight line to (x,y) is added.
-         * if the angle difference is > 2PI the angle will be clampled to 2PI. The angle difference will be
+         * if the angle difference is > 2PI the angle will be clamped to 2PI. The angle difference will be
          * endAngle - startAngle if anticlockwise is false, and startAngle - endAngle otherwise.
          * In this implementation if the radius is < 0, the radius will be set to 0.
          * If the radius is 0 or the diffangle is 0, no arc is added.
@@ -593,12 +617,12 @@ module cc.math {
             var addLine : boolean = false;
 
             // transform position (center) based on transformation
-            __v0.set( x,y );
             if ( matrix ) {
+                __v0.set( x,y );
                 Matrix3.transformPoint( matrix, __v0 );
+                x= __v0.x;
+                y= __v0.y;
             }
-            x= __v0.x;
-            y= __v0.y;
 
             // ensure a valid subpath to add the segment to exists.
             this.__ensureSubPath(x,y);

@@ -181,7 +181,7 @@ module cc.render {
 
         /**
          * Currently set line join stroke hint.
-         * @member cc.render.DecoratedRenderingContext#_currentLineJoin
+         * @member cc.render.DecoratedWebGLRenderingContext#_currentLineJoin
          * @type {cc.render.LineJoin}
          * @private
          */
@@ -189,7 +189,7 @@ module cc.render {
 
         /**
          * Currently set line cap stroke hint.
-         * @member cc.render.DecoratedRenderingContext#_currentLineCap
+         * @member cc.render.DecoratedWebGLRenderingContext#_currentLineCap
          * @type {cc.render.LineCap}
          * @private
          */
@@ -197,7 +197,7 @@ module cc.render {
 
         /**
          * Currently set line width stroke hint.
-         * @member cc.render.DecoratedRenderingContext#_currentLineWidth
+         * @member cc.render.DecoratedWebGLRenderingContext#_currentLineWidth
          * @type {number}
          * @private
          */
@@ -1144,6 +1144,10 @@ module cc.render {
 
         arc( x:number, y:number, radius:number, startAngle:number, endAngle:number, counterClockWise:boolean ) {
             this._currentContextSnapshot.arc( x, y, radius, startAngle, endAngle, counterClockWise );
+        }
+
+        arcTo( x1:number, y1:number, x2:number, y2:number, radius:number ) {
+            this._currentContextSnapshot.arcTo( x1,y1, x2,y2, radius );
         }
 
         save() {

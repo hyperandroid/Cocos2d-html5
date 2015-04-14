@@ -476,6 +476,8 @@ module cc.render {
          */
         arc( x:number, y:number, radius:number, startAngle:number, endAngle:number, counterClockWise:boolean );
 
+        arcTo( x1:number, y1:number, x2:number, y2:number, radius:number );
+
         /**
          * Close the current contour on the current path.
          * Successive path operations will create a new contour.

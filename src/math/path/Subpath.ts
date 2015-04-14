@@ -15,6 +15,8 @@
 
 module cc.math.path {
 
+    var EPSILON:number= 0.0001;
+
     import Vector= cc.math.Vector;
     import Segment= cc.math.path.Segment;
     import SegmentLine = cc.math.path.SegmentLine;
@@ -236,6 +238,56 @@ module cc.math.path {
 
         }
 
+        arcTo( x1:number, y1:number, x2:number, y2:number, radius:number ) {
+
+            var cp= this.getEndingPoint();
+
+            var a1 = cp.y - y1;
+           	var b1 = cp.x - x1;
+           	var a2 = y2 - y1;
+           	var b2 = x2 - x1;
+           	var mm = Math.abs(a1 * b2 - b1 * a2);
+
+           	if( mm < EPSILON || radius === 0.0) {
+                this.lineTo(x1,y1);
+           	}
+           	else {
+           		var dd = a1 * a1 + b1 * b1;
+           		var cc_ = a2 * a2 + b2 * b2;
+           		var tt = a1 * a2 + b1 * b2;
+           		var k1 = radius * Math.sqrt(dd) / mm;
+           		var k2 = radius * Math.sqrt(cc_) / mm;
+           		var j1 = k1 * tt / dd;
+           		var j2 = k2 * tt / cc_;
+           		var cx = k1 * b2 + k2 * b1;
+           		var cy = k1 * a2 + k2 * a1;
+           		var px = b1 * (k2 + j1);
+           		var py = a1 * (k2 + j1);
+           		var qx = b2 * (k1 + j2);
+           		var qy = a2 * (k1 + j2);
+           		var startAngle =  Math.atan2( py - cy, px - cx) ;
+           		var endAngle = Math.atan2( qy - cy, qx - cx);
+
+                var arcSegment= new cc.math.path.SegmentArc({
+                    x: cx + x1,
+                    y: cy + y1,
+                    radius: radius,
+                    startAngle: startAngle,
+                    endAngle: endAngle,
+                    ccw: (b1 * a2 > b2 * a1)
+                });
+                var lp= this.getEndingPoint();
+                var arcFirstPoints= arcSegment.getStartingPoint();
+                if ( Math.abs(arcFirstPoints.x - lp.x)>EPSILON || Math.abs( arcFirstPoints.y - lp.y) > EPSILON ) {
+                    this.lineTo( arcFirstPoints.x, arcFirstPoints.y );
+                }
+
+                this._segments.push( arcSegment );
+           	}
+
+            return this;
+        }
+
         /**
          * Close the SubPath.
          * If the SubPath was already closed, in DEBUG mode will show a console message. In either case, nothing happens.
@@ -298,7 +350,7 @@ module cc.math.path {
         getEndingPoint() : Vector {
             return this._segments.length ?
                 this._segments[ this._segments.length-1 ].getEndingPoint() :
-                new Vector();
+                new Vector( this._currentPoint.x, this._currentPoint.y );
 
             cc.Debug.error( locale.ERR_SUBPATH_NOT_STARTED, "getEndingPoint" );
         }
