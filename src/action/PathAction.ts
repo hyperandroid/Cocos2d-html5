@@ -4,6 +4,8 @@
 
 /// <reference path="../math/Point.ts"/>
 /// <reference path="../math/path/Segment.ts"/>
+/// <reference path="../math/path/ContainerSegment.ts"/>
+/// <reference path="../math/Path.ts"/>
 /// <reference path="../node/Node.ts"/>
 /// <reference path="./Action.ts"/>
 
@@ -14,7 +16,6 @@ module cc.action {
     import Point = cc.math.Point;
     import Vector= cc.math.Vector;
     import Segment= cc.math.path.Segment;
-
     import Node = cc.node.Node;
     import Action = cc.action.Action;
 
@@ -36,7 +37,7 @@ module cc.action {
          * @member cc.action.PathActionInitializer#segment
          * @type {cc.math.path.Segment}
          */
-        segment : Segment;
+        path: cc.math.path.ContainerSegmentInitializer;
 
     }
 
@@ -145,11 +146,12 @@ module cc.action {
          */
         __createFromInitializer(data?:PathActionInitializer ) {
             super.__createFromInitializer( data );
+            this._segment= cc.math.path.ParseSegment( data.path );
+        }
 
-            // BUGBUG initializer must have serializable data.
-            console.log("Path initializer not yet implemented.");
-            this._segment= data.segment;
-
+        setPath( path:cc.math.path.Segment ) {
+            this._segment= path;
+            return this;
         }
 
         /**

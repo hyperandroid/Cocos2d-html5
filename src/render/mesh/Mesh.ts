@@ -10,6 +10,9 @@ module cc.render.mesh {
 
 
     /**
+     * @class cc.render.mesh.Mesh
+     * @classdesc
+     *
      * A mesh is a grid composed of geometry and u,v information.
      */
     export class Mesh {

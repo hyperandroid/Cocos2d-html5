@@ -27,35 +27,15 @@ module cc.math.path {
      * A Cubic curve is composed of 2 points (initial=p0 and end point=p3) and a two tension control points (p1 and p2).
      *
      */
-    export interface SegmentBezierInitializer {
+    export interface SegmentBezierInitializer extends cc.math.path.SegmentInitializer {
 
         /**
-         * First curve point.
-         * @member cc.math.path.SegmentBezierInitializer#p0
-         * @type {cc.math.Point}
+         * Segment points.
+         * @member cc.math.path.SegmentBezierInitializer#points
+         * @type {cc.math.Point[]}
          */
-        p0 : Point;
+        points : cc.math.Point[];
 
-        /**
-         * First Curve control point.
-         * @member cc.math.path.SegmentBezierInitializer#p1
-         * @type {cc.math.Point}
-         */
-        p1 : Point;
-
-        /**
-         * Second Curve control point.
-         * @member cc.math.path.SegmentBezierInitializer#p2
-         * @type {cc.math.Point}
-         */
-        p2 : Point;
-
-        /**
-         * last curve point.
-         * @member cc.math.path.SegmentBezierInitializer#p2
-         * @type {cc.math.Point}
-         */
-        p3 : Point;
     }
 
     /**
@@ -140,8 +120,12 @@ module cc.math.path {
          */
         constructor( data? : SegmentBezierInitializer ) {
             if ( data ) {
-                this.initialize( data.p0, data.p1, data.p2, data.p3 );
+                this.__createFromInitializer( data );
             }
+        }
+
+        __createFromInitializer( data? : SegmentBezierInitializer ) {
+            this.initialize(data.points[0],data.points[1],data.points[2],data.points[3] );
         }
 
         /**
@@ -308,22 +292,12 @@ module cc.math.path {
          */
         clone() : SegmentBezier {
             var segment= new SegmentBezier({
-                p0 : {
-                    x: this._p0.x,
-                    y: this._p0.y
-                },
-                p1 : {
-                    x: this._cp0.x,
-                    y: this._cp0.y
-                },
-                p2 : {
-                    x: this._cp1.x,
-                    y: this._cp1.y
-                },
-                p3 : {
-                    x: this._p1.x,
-                    y: this._p1.y
-                }
+                points : [
+                    this._p0.clone(),
+                    this._cp0.clone(),
+                    this._cp1.clone(),
+                    this._p1.clone()
+                ]
             });
 
             segment._length= this._length;
@@ -375,6 +349,18 @@ module cc.math.path {
 
         canvasFill( ctx:cc.render.RenderingContext ) {
             ctx.bezierCurveTo( this._cp0.x, this._cp0.y, this._cp1.x, this._cp1.y, this._p1.x, this._p1.y );
+        }
+
+        getInitializer() : SegmentBezierInitializer {
+            return {
+                type : "SegmentBezier",
+                points : [
+                    this._p0.clone(),
+                    this._cp0.clone(),
+                    this._cp1.clone(),
+                    this._p1.clone()
+                ]
+            }
         }
 
     }

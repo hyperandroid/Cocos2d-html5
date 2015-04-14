@@ -24,7 +24,7 @@
 
             // the renderer will setup pre-loaded textures for the renderer type.
             // it will also create necessary SpriteFrames for each texture, in this case a frame for the image dude.png
-            var renderer= new cc.render.WebGLRenderer(W,H,document.getElementById("c"));
+            var renderer= new cc.render.CanvasRenderer(W,H,document.getElementById("c"));
 
             // director is the main Cocos Node, and must exist.
             var director= new cc.node.Director().
@@ -54,6 +54,23 @@
             createInfo();
         }
 
+        var arrow= new cc.math.Shape().
+                setStrokeStyle( "#fff" ).
+                setLineWidth(3).
+                setLineJoin( cc.render.LineJoin.ROUND).
+                setLineCap( cc.render.LineJoin.ROUND).
+                beginPath().
+                    moveTo(3,8).
+                    lineTo(15,8).
+                    lineTo(10,3).
+                stroke().
+                beginPath().
+                    moveTo(3,8).
+                    lineTo(15,8).
+                    lineTo(10,13).
+                stroke();
+
+
         function createNodeAndChildren(pw,ph,pcolor,pcolorin, cw,ch,ccolor,ccolorin, scene, priority) {
 
             var node= createNode(pw,ph,pcolor,pcolorin).
@@ -70,18 +87,8 @@
                 ctx.rect(0,0,this._contentSize.width,this._contentSize.height);
                 ctx.stroke();
 
-                ctx.lineWidth=2;
-                ctx.setStrokeStyleColor(cc.math.Color.WHITE);
-                ctx.beginPath();
-                ctx.moveTo(3,8);
-                ctx.lineTo(15,8);
-                ctx.lineTo(10,3);
-                ctx.stroke();
-                ctx.beginPath();
-                ctx.moveTo(3,8);
-                ctx.lineTo(15,8);
-                ctx.lineTo(10,13);
-                ctx.stroke();
+                ctx.scale(2,2);
+                arrow.draw(ctx);
 
             };
 

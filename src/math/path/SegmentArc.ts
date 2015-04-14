@@ -14,11 +14,11 @@ module cc.math.path {
     import ContainerSegment = cc.math.path.ContainerSegment;
 
     /**
-     * @class cc.math.path.SegmentArcInitializer
+     * @class cc.math.path.ArcSegmentInitializer
      * @interface
      * @classdesc
      */
-    export interface SegmentArcInitializer {
+    export interface ArcSegmentInitializer extends cc.math.path.SegmentInitializer {
         x : number;
         y : number;
         radius : number;
@@ -132,7 +132,13 @@ module cc.math.path {
          * @method cc.math.path.SegmentArc#constructor
          * @param data {cc.math.path.SegmentArcInitializer=} optional arc initialization data.
          */
-        constructor(data?:SegmentArcInitializer) {
+        constructor(data?:ArcSegmentInitializer) {
+            if ( data ) {
+                this.__createFromInitializer(data);
+            }
+        }
+
+        __createFromInitializer(data:ArcSegmentInitializer) {
             this.initialize(data);
         }
 
@@ -141,7 +147,7 @@ module cc.math.path {
          * @method cc.math.path.SegmentArc#initialize
          * @param data {cc.math.path.SegmentArcInitializer}
          */
-        initialize(data:SegmentArcInitializer) {
+        initialize(data:ArcSegmentInitializer) {
 
             this._x = data.x;
             this._y = data.y;
@@ -322,5 +328,17 @@ module cc.math.path {
             ctx.arc( this._x, this._y, this._radius, this._startAngle, this._endAngle, this._ccw );
         }
 
+        getInitializer() : ArcSegmentInitializer {
+            return {
+                type: "SegmentArc",
+                points : null,
+                x: this._x,
+                y: this._y,
+                radius : this._radius,
+                startAngle : this._startAngle,
+                endAngle : this._endAngle,
+                ccw : this._ccw
+            };
+        }
     }
 }

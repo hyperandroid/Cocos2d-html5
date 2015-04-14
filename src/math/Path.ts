@@ -26,6 +26,28 @@ module cc.math {
     var __m0 : Float32Array = new Float32Array([1.0,0,0, 0,1.0,0, 0,0,1.0]);
     var __m1 : Float32Array = new Float32Array([1.0,0,0, 0,1.0,0, 0,0,1.0]);
 
+    export module path {
+        export function ParseSegment(initializer:cc.math.path.SegmentInitializer):cc.math.path.Segment {
+
+            var segment = null;
+
+            if (initializer.type) {
+
+                if (cc.math.path[initializer.type]) {
+                    segment = new cc.math.path[initializer.type]();
+                } else if (cc.math[initializer.type]) {
+                    segment = new cc.math[initializer.type]();
+                }
+
+                if (segment) {
+                    segment.__createFromInitializer(initializer);
+                }
+            }
+
+            return segment;
+        }
+    }
+
     /**
      * 
      * @class cc.math.Path
@@ -90,8 +112,18 @@ module cc.math {
          * Build a new Path instance.
          * @method cc.math.Path#constructor
          */
-        constructor() {
+        constructor( initializer? : cc.math.path.ContainerSegmentInitializer ) {
             super();
+            if ( initializer ) {
+                this.__createFromInitializer( initializer );
+            }
+        }
+
+        __createFromInitializer(initializer : cc.math.path.ContainerSegmentInitializer) {
+            super.__createFromInitializer(initializer);
+            if ( this._segments.length>0 ) {
+                this._currentSubPath = <cc.math.path.SubPath>this._segments[ this._segments.length-1 ];
+            }
         }
 
         /**
@@ -459,9 +491,6 @@ module cc.math {
             }
 
             this.__ensureSubPath(x,y);
-            if (!this._currentSubPath.isEmpty()) {
-                this.__newSubPath();
-            }
             this._currentSubPath.moveTo(x,y);
 
             return this;
@@ -709,7 +738,7 @@ module cc.math {
                 for( var i=0; i<this._segments.length; i++ ) {
 
                     var subPath = this._segments[i];
-                    var contourPoints = subPath.trace();
+                    //var contourPoints = subPath.trace();
 
                     var contour= subPath.trace();
 
@@ -737,5 +766,8 @@ module cc.math {
             return this._fillGeometry;
         }
 
+        getInitializer() : cc.math.path.ContainerSegmentInitializer {
+            return super.getInitializer( "Path" );
+        }
     }
 }

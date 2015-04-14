@@ -3,6 +3,7 @@
  */
 
 /// <reference path="./Segment.ts"/>
+/// <reference path="../Path.ts"/>
 /// <reference path="../../render/RenderingContext.ts"/>
 
 module cc.math.path {
@@ -10,6 +11,23 @@ module cc.math.path {
     import Segment = cc.math.path.Segment;
 
     var __v0 : Vector = new Vector();
+
+    /**
+     * @class cc.math.path.ContainerSegmentInitializer
+     * @classdesc
+     *
+     * This class in an initializer for a compound Segment.
+     */
+    export interface ContainerSegmentInitializer extends cc.math.path.SegmentInitializer {
+
+        /**
+         * Contained segments.
+         * @member cc.math.path.ContainerSegmentInitializer#segmentInitializers
+         * @type {Array}
+         */
+        segments : cc.math.path.SegmentInitializer[];
+
+    }
 
     /**
      * @class cc.math.path.ContainerSegment
@@ -55,7 +73,18 @@ module cc.math.path {
          */
         _dirty : boolean = true;
 
-        constructor() {
+        constructor( initializer? : ContainerSegmentInitializer ) {
+            if ( typeof initializer!=="undefined" ) {
+                this.__createFromInitializer( initializer );
+            }
+        }
+
+        __createFromInitializer( initializer : ContainerSegmentInitializer ) {
+
+            for( var i=0; i<initializer.segments.length; i++ ) {
+                var segment:cc.math.path.Segment = cc.math.path.ParseSegment(initializer.segments[i] );
+                this.addSegment( segment );
+            }
         }
 
         /**
@@ -246,6 +275,31 @@ module cc.math.path {
             for( var i=0; i<this._segments.length; i++ ) {
                 this._segments[i].canvasFill( ctx );
             }
+        }
+
+        getInitializer( type? : string ) : cc.math.path.ContainerSegmentInitializer {
+
+            var initializer = {
+                type: typeof type==="undefined" ?
+                    "ContainerSegment" :
+                    type,
+                segments : []
+            };
+
+            for( var i=0; i<this._segments.length; i++ ) {
+                initializer.segments.push( this._segments[i].getInitializer() );
+            }
+
+            return initializer;
+        }
+
+        /**
+         * Add a Segment to the SubPath and set the Segment's parent as the SubPath.
+         * @param s {cc.math.path.Segment}
+         */
+        addSegment( s : Segment ) : void {
+            s.setParent( this );
+            this._segments.push(s);
         }
 
     }

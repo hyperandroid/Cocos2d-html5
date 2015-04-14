@@ -27,41 +27,9 @@ module cc.math.path {
      * The curve implementation will duplicate some of the points.
      *
      */
-    export interface SegmentCardinalSplineInitializer {
+    export interface SegmentCardinalSplineInitializer extends cc.math.path.SegmentInitializer {
 
-
-        /**
-         * First curve point.
-         * @member cc.math.path.SegmentCardinalSplineInitializer#p0
-         * @type {cc.math.Point}
-         */
-        p0 : Point;
-
-        /**
-         * First Curve control point.
-         * @member cc.math.path.SegmentCardinalSplineInitializer#p1
-         * @type {cc.math.Point}
-         */
-        cp0 : Point;
-
-        /**
-         * Second Curve control point.
-         * @member cc.math.path.SegmentCardinalSplineInitializer#p2
-         * @type {cc.math.Point}
-         */
-        cp1 : Point;
-
-        /**
-         * last curve point.
-         * @member cc.math.path.SegmentCardinalSplineInitializer#p2
-         * @type {cc.math.Point}
-         */
-        p1 : Point;
-
-        /**
-         * curve tension.
-         * @member cc.math.path.SegmentCardinalSplineInitializer#tension
-         */
+        points : cc.math.Point[];
         tension? : number;
     }
 
@@ -145,29 +113,17 @@ module cc.math.path {
         _length:number = 0;
 
         /**
-         * Whether the Quadratic is internally treated as a polyline.
-         * @member cc.math.path.SegmentCardinalSpline#_flattened
-         * @type {boolean}
-         * @private
-         */
-        _flattened:boolean = false;
-
-        /**
-         * A cache of points on the curve. This is approximation with which the length is calculated.
-         * @member cc.math.path.SegmentCardinalSpline#_cachedContourPoints
-         * @type {Array<cc.math.Vector>}
-         * @private
-         */
-        _cachedContourPoints:Vector[] = null;
-
-        /**
          * Create a new Quadratic Segment instance.
          * @param data {cc.math.path.SegmentCardinalSplineInitializer=}
          */
         constructor(data?:SegmentCardinalSplineInitializer) {
             if (data) {
-                this.initialize(data.p0,data.cp0,data.cp1,data.p1, data.tension);
+                this.__createFromInitializer(data);
             }
+        }
+
+        __createFromInitializer( data:SegmentCardinalSplineInitializer ) {
+            this.initialize(data.points[0],data.points[1],data.points[2],data.points[3], data.tension);
         }
 
         /**
@@ -346,10 +302,12 @@ module cc.math.path {
         clone():SegmentCardinalSpline {
 
             var segment = new SegmentCardinalSpline({
-                p0 : this._p0,
-                cp0: this._cp0,
-                cp1: this._cp1,
-                p1 : this._p1,
+                points : [
+                    this._p0.clone(),
+                    this._cp0.clone(),
+                    this._cp1.clone(),
+                    this._p1.clone()
+                ],
                 tension: this._tension
             });
 
@@ -408,6 +366,19 @@ module cc.math.path {
             for( var i=1 ; i<c.length; i++ ) {
                 ctx.lineTo( c[i].x, c[i].y );
             }
+        }
+
+        getInitializer() : SegmentCardinalSplineInitializer {
+            return {
+                type: "SegmentCardinalSpline",
+                tension: this._tension,
+                points: [
+                    this._p0.clone(),
+                    this._cp0.clone(),
+                    this._cp1.clone(),
+                    this._p1.clone()
+                ]
+            };
         }
 
     }

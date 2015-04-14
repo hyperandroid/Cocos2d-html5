@@ -27,28 +27,9 @@ module cc.math.path {
      * A quadratic curve is composed of 2 points (initial=p0 and end point=p2) and a tension control point=p1.
      *
      */
-    export interface SegmentQuadraticInitializer {
+    export interface SegmentQuadraticInitializer extends cc.math.path.SegmentInitializer {
 
-        /**
-         * First curve point.
-         * @member cc.math.path.SegmentQuadraticInitializer#p0
-         * @type {cc.math.Point}
-         */
-        p0 : Point;
-
-        /**
-         * Curve control point.
-         * @member cc.math.path.SegmentQuadraticInitializer#p1
-         * @type {cc.math.Point}
-         */
-        p1 : Point;
-
-        /**
-         * last curve point.
-         * @member cc.math.path.SegmentQuadraticInitializer#p2
-         * @type {cc.math.Point}
-         */
-        p2 : Point;
+        points : cc.math.Point[];
     }
 
     /**
@@ -125,8 +106,12 @@ module cc.math.path {
          */
         constructor(data?:SegmentQuadraticInitializer) {
             if (data) {
-                this.initialize(data.p0, data.p1, data.p2);
+                this.__createFromInitializer(data);
             }
+        }
+
+        __createFromInitializer(data:SegmentQuadraticInitializer) {
+            this.initialize(data.points[0], data.points[1], data.points[2]);
         }
 
         /**
@@ -272,18 +257,11 @@ module cc.math.path {
         clone():SegmentQuadratic {
 
             var segment = new SegmentQuadratic({
-                p0: {
-                    x: this._p0.x,
-                    y: this._p0.y
-                },
-                p1: {
-                    x: this._cp0.x,
-                    y: this._cp0.y
-                },
-                p2: {
-                    x: this._p1.x,
-                    y: this._p1.y
-                }
+                points : [
+                    this._p0.clone(),
+                    this._cp0.clone(),
+                    this._p1.clone()
+                ]
             });
 
             segment._length = this._length;
@@ -335,6 +313,17 @@ module cc.math.path {
 
         canvasFill(ctx:cc.render.RenderingContext) {
             ctx.quadraticCurveTo(this._cp0.x, this._cp0.y, this._p1.x, this._p1.y);
+        }
+
+        getInitializer() : SegmentQuadraticInitializer {
+            return {
+                type : "SegmentQuadratic",
+                points : [
+                    this._p0.clone(),
+                    this._cp0.clone(),
+                    this._p1.clone()
+                ]
+            }
         }
     }
 }
