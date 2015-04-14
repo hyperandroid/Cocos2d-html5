@@ -2018,6 +2018,8 @@ module cc.math.path {
 
     import Vector= cc.math.Vector;
     import Matrix3= cc.math.Matrix3;
+    import Point = cc.math.Point;
+    import RenderingContext = cc.render.RenderingContext;
 
     export var DEFAULT_TRACE_LENGTH : number = 50;
 
@@ -2041,8 +2043,23 @@ module cc.math.path {
         return __v1.sub(__v0);
     }
 
-    import Point = cc.math.Point;
-    import RenderingContext = cc.render.RenderingContext;
+    /**
+     * @class cc.math.path.SegmentInitializer
+     * @interface
+     * @classdesc
+     *
+     * This class represents abstract info to initialize a segment from serialized data.
+     */
+    export interface SegmentInitializer {
+
+        /**
+         * Segment type. This defines the constructor function.
+         * @member cc.math.path.SegmentInitializer#type
+         * @type {null}
+         */
+        type? : string;
+
+    }
 
     /**
      * @class cc.math.path.Segment
@@ -2153,6 +2170,12 @@ module cc.math.path {
          */
         setDirty( d:boolean );
 
+        /**
+         * Get segment serializable form data.
+         * @method cc.math.path.Segment#getInitializer
+         */
+        getInitializer() : SegmentInitializer;
+
         canvasStroke( ctx:RenderingContext );
         canvasFill( ctx:RenderingContext );
     }
@@ -2182,21 +2205,9 @@ module cc.math.path {
      * SegmentLine initialization object.
      *
      */
-    export interface SegmentLineInitializer {
+    export interface SegmentLineInitializer extends cc.math.path.SegmentInitializer {
 
-        /**
-         * Line start point.
-         * @member cc.math.path.SegmentLineInitializer#start
-         * @type {cc.math.Point}
-         */
-        start : Point;
-
-        /**
-         * Line end point.
-         * @member cc.math.path.SegmentLineInitializer#end
-         * @type {cc.math.Point}
-         */
-        end : Point;
+        points : cc.math.Point[];
     }
 
     var __v : Vector = new Vector();
@@ -2253,9 +2264,13 @@ module cc.math.path {
          * @param data {SegmentLineInitializer=}
          */
         constructor(data?:SegmentLineInitializer) {
-            if ( data ) {
-                this.initialize(data.start, data.end);
+            if (data) {
+                this.__createFromInitializer(data);
             }
+        }
+
+        __createFromInitializer(data:SegmentLineInitializer) {
+            this.initialize(data.points[0], data.points[1]);
         }
 
         /**
@@ -2371,14 +2386,10 @@ module cc.math.path {
         clone() : SegmentLine {
 
             var sl= new SegmentLine({
-                start : {
-                    x: this._start.x,
-                    y: this._start.y
-                },
-                end : {
-                    x: this._end.x,
-                    y: this._end.y
-                }
+                points : [
+                    this._start.clone(),
+                    this._end.clone()
+                ]
             });
 
             sl._length= this._length;
@@ -2430,6 +2441,15 @@ module cc.math.path {
             ctx.lineTo( this._end.x, this._end.y );
         }
 
+        getInitializer() : SegmentLineInitializer {
+            return {
+                type : "SegmentLine",
+                points : [
+                    this._start.clone(),
+                    this._end.clone(),
+                ]
+            }
+        }
     }
 }
 /**
@@ -2804,28 +2824,9 @@ module cc.math.path {
      * A quadratic curve is composed of 2 points (initial=p0 and end point=p2) and a tension control point=p1.
      *
      */
-    export interface SegmentQuadraticInitializer {
+    export interface SegmentQuadraticInitializer extends cc.math.path.SegmentInitializer {
 
-        /**
-         * First curve point.
-         * @member cc.math.path.SegmentQuadraticInitializer#p0
-         * @type {cc.math.Point}
-         */
-        p0 : Point;
-
-        /**
-         * Curve control point.
-         * @member cc.math.path.SegmentQuadraticInitializer#p1
-         * @type {cc.math.Point}
-         */
-        p1 : Point;
-
-        /**
-         * last curve point.
-         * @member cc.math.path.SegmentQuadraticInitializer#p2
-         * @type {cc.math.Point}
-         */
-        p2 : Point;
+        points : cc.math.Point[];
     }
 
     /**
@@ -2902,8 +2903,12 @@ module cc.math.path {
          */
         constructor(data?:SegmentQuadraticInitializer) {
             if (data) {
-                this.initialize(data.p0, data.p1, data.p2);
+                this.__createFromInitializer(data);
             }
+        }
+
+        __createFromInitializer(data:SegmentQuadraticInitializer) {
+            this.initialize(data.points[0], data.points[1], data.points[2]);
         }
 
         /**
@@ -3049,18 +3054,11 @@ module cc.math.path {
         clone():SegmentQuadratic {
 
             var segment = new SegmentQuadratic({
-                p0: {
-                    x: this._p0.x,
-                    y: this._p0.y
-                },
-                p1: {
-                    x: this._cp0.x,
-                    y: this._cp0.y
-                },
-                p2: {
-                    x: this._p1.x,
-                    y: this._p1.y
-                }
+                points : [
+                    this._p0.clone(),
+                    this._cp0.clone(),
+                    this._p1.clone()
+                ]
             });
 
             segment._length = this._length;
@@ -3113,6 +3111,17 @@ module cc.math.path {
         canvasFill(ctx:cc.render.RenderingContext) {
             ctx.quadraticCurveTo(this._cp0.x, this._cp0.y, this._p1.x, this._p1.y);
         }
+
+        getInitializer() : SegmentQuadraticInitializer {
+            return {
+                type : "SegmentQuadratic",
+                points : [
+                    this._p0.clone(),
+                    this._cp0.clone(),
+                    this._p1.clone()
+                ]
+            }
+        }
     }
 }
 /**
@@ -3144,35 +3153,15 @@ module cc.math.path {
      * A Cubic curve is composed of 2 points (initial=p0 and end point=p3) and a two tension control points (p1 and p2).
      *
      */
-    export interface SegmentBezierInitializer {
+    export interface SegmentBezierInitializer extends cc.math.path.SegmentInitializer {
 
         /**
-         * First curve point.
-         * @member cc.math.path.SegmentBezierInitializer#p0
-         * @type {cc.math.Point}
+         * Segment points.
+         * @member cc.math.path.SegmentBezierInitializer#points
+         * @type {cc.math.Point[]}
          */
-        p0 : Point;
+        points : cc.math.Point[];
 
-        /**
-         * First Curve control point.
-         * @member cc.math.path.SegmentBezierInitializer#p1
-         * @type {cc.math.Point}
-         */
-        p1 : Point;
-
-        /**
-         * Second Curve control point.
-         * @member cc.math.path.SegmentBezierInitializer#p2
-         * @type {cc.math.Point}
-         */
-        p2 : Point;
-
-        /**
-         * last curve point.
-         * @member cc.math.path.SegmentBezierInitializer#p2
-         * @type {cc.math.Point}
-         */
-        p3 : Point;
     }
 
     /**
@@ -3257,8 +3246,12 @@ module cc.math.path {
          */
         constructor( data? : SegmentBezierInitializer ) {
             if ( data ) {
-                this.initialize( data.p0, data.p1, data.p2, data.p3 );
+                this.__createFromInitializer( data );
             }
+        }
+
+        __createFromInitializer( data? : SegmentBezierInitializer ) {
+            this.initialize(data.points[0],data.points[1],data.points[2],data.points[3] );
         }
 
         /**
@@ -3425,22 +3418,12 @@ module cc.math.path {
          */
         clone() : SegmentBezier {
             var segment= new SegmentBezier({
-                p0 : {
-                    x: this._p0.x,
-                    y: this._p0.y
-                },
-                p1 : {
-                    x: this._cp0.x,
-                    y: this._cp0.y
-                },
-                p2 : {
-                    x: this._cp1.x,
-                    y: this._cp1.y
-                },
-                p3 : {
-                    x: this._p1.x,
-                    y: this._p1.y
-                }
+                points : [
+                    this._p0.clone(),
+                    this._cp0.clone(),
+                    this._cp1.clone(),
+                    this._p1.clone()
+                ]
             });
 
             segment._length= this._length;
@@ -3494,6 +3477,18 @@ module cc.math.path {
             ctx.bezierCurveTo( this._cp0.x, this._cp0.y, this._cp1.x, this._cp1.y, this._p1.x, this._p1.y );
         }
 
+        getInitializer() : SegmentBezierInitializer {
+            return {
+                type : "SegmentBezier",
+                points : [
+                    this._p0.clone(),
+                    this._cp0.clone(),
+                    this._cp1.clone(),
+                    this._p1.clone()
+                ]
+            }
+        }
+
     }
 }
 /**
@@ -3512,11 +3507,11 @@ module cc.math.path {
     import ContainerSegment = cc.math.path.ContainerSegment;
 
     /**
-     * @class cc.math.path.SegmentArcInitializer
+     * @class cc.math.path.ArcSegmentInitializer
      * @interface
      * @classdesc
      */
-    export interface SegmentArcInitializer {
+    export interface ArcSegmentInitializer extends cc.math.path.SegmentInitializer {
         x : number;
         y : number;
         radius : number;
@@ -3630,7 +3625,13 @@ module cc.math.path {
          * @method cc.math.path.SegmentArc#constructor
          * @param data {cc.math.path.SegmentArcInitializer=} optional arc initialization data.
          */
-        constructor(data?:SegmentArcInitializer) {
+        constructor(data?:ArcSegmentInitializer) {
+            if ( data ) {
+                this.__createFromInitializer(data);
+            }
+        }
+
+        __createFromInitializer(data:ArcSegmentInitializer) {
             this.initialize(data);
         }
 
@@ -3639,7 +3640,7 @@ module cc.math.path {
          * @method cc.math.path.SegmentArc#initialize
          * @param data {cc.math.path.SegmentArcInitializer}
          */
-        initialize(data:SegmentArcInitializer) {
+        initialize(data:ArcSegmentInitializer) {
 
             this._x = data.x;
             this._y = data.y;
@@ -3820,6 +3821,18 @@ module cc.math.path {
             ctx.arc( this._x, this._y, this._radius, this._startAngle, this._endAngle, this._ccw );
         }
 
+        getInitializer() : ArcSegmentInitializer {
+            return {
+                type: "SegmentArc",
+                points : null,
+                x: this._x,
+                y: this._y,
+                radius : this._radius,
+                startAngle : this._startAngle,
+                endAngle : this._endAngle,
+                ccw : this._ccw
+            };
+        }
     }
 }
 /**
@@ -3851,41 +3864,9 @@ module cc.math.path {
      * The curve implementation will duplicate some of the points.
      *
      */
-    export interface SegmentCardinalSplineInitializer {
+    export interface SegmentCardinalSplineInitializer extends cc.math.path.SegmentInitializer {
 
-
-        /**
-         * First curve point.
-         * @member cc.math.path.SegmentCardinalSplineInitializer#p0
-         * @type {cc.math.Point}
-         */
-        p0 : Point;
-
-        /**
-         * First Curve control point.
-         * @member cc.math.path.SegmentCardinalSplineInitializer#p1
-         * @type {cc.math.Point}
-         */
-        cp0 : Point;
-
-        /**
-         * Second Curve control point.
-         * @member cc.math.path.SegmentCardinalSplineInitializer#p2
-         * @type {cc.math.Point}
-         */
-        cp1 : Point;
-
-        /**
-         * last curve point.
-         * @member cc.math.path.SegmentCardinalSplineInitializer#p2
-         * @type {cc.math.Point}
-         */
-        p1 : Point;
-
-        /**
-         * curve tension.
-         * @member cc.math.path.SegmentCardinalSplineInitializer#tension
-         */
+        points : cc.math.Point[];
         tension? : number;
     }
 
@@ -3969,29 +3950,17 @@ module cc.math.path {
         _length:number = 0;
 
         /**
-         * Whether the Quadratic is internally treated as a polyline.
-         * @member cc.math.path.SegmentCardinalSpline#_flattened
-         * @type {boolean}
-         * @private
-         */
-        _flattened:boolean = false;
-
-        /**
-         * A cache of points on the curve. This is approximation with which the length is calculated.
-         * @member cc.math.path.SegmentCardinalSpline#_cachedContourPoints
-         * @type {Array<cc.math.Vector>}
-         * @private
-         */
-        _cachedContourPoints:Vector[] = null;
-
-        /**
          * Create a new Quadratic Segment instance.
          * @param data {cc.math.path.SegmentCardinalSplineInitializer=}
          */
         constructor(data?:SegmentCardinalSplineInitializer) {
             if (data) {
-                this.initialize(data.p0,data.cp0,data.cp1,data.p1, data.tension);
+                this.__createFromInitializer(data);
             }
+        }
+
+        __createFromInitializer( data:SegmentCardinalSplineInitializer ) {
+            this.initialize(data.points[0],data.points[1],data.points[2],data.points[3], data.tension);
         }
 
         /**
@@ -4170,10 +4139,12 @@ module cc.math.path {
         clone():SegmentCardinalSpline {
 
             var segment = new SegmentCardinalSpline({
-                p0 : this._p0,
-                cp0: this._cp0,
-                cp1: this._cp1,
-                p1 : this._p1,
+                points : [
+                    this._p0.clone(),
+                    this._cp0.clone(),
+                    this._cp1.clone(),
+                    this._p1.clone()
+                ],
                 tension: this._tension
             });
 
@@ -4234,6 +4205,19 @@ module cc.math.path {
             }
         }
 
+        getInitializer() : SegmentCardinalSplineInitializer {
+            return {
+                type: "SegmentCardinalSpline",
+                tension: this._tension,
+                points: [
+                    this._p0.clone(),
+                    this._cp0.clone(),
+                    this._cp1.clone(),
+                    this._p1.clone()
+                ]
+            };
+        }
+
     }
 }
 /**
@@ -4241,6 +4225,7 @@ module cc.math.path {
  */
 
 /// <reference path="./Segment.ts"/>
+/// <reference path="../Path.ts"/>
 /// <reference path="../../render/RenderingContext.ts"/>
 
 module cc.math.path {
@@ -4248,6 +4233,23 @@ module cc.math.path {
     import Segment = cc.math.path.Segment;
 
     var __v0 : Vector = new Vector();
+
+    /**
+     * @class cc.math.path.ContainerSegmentInitializer
+     * @classdesc
+     *
+     * This class in an initializer for a compound Segment.
+     */
+    export interface ContainerSegmentInitializer extends cc.math.path.SegmentInitializer {
+
+        /**
+         * Contained segments.
+         * @member cc.math.path.ContainerSegmentInitializer#segmentInitializers
+         * @type {Array}
+         */
+        segments : cc.math.path.SegmentInitializer[];
+
+    }
 
     /**
      * @class cc.math.path.ContainerSegment
@@ -4293,7 +4295,18 @@ module cc.math.path {
          */
         _dirty : boolean = true;
 
-        constructor() {
+        constructor( initializer? : ContainerSegmentInitializer ) {
+            if ( typeof initializer!=="undefined" ) {
+                this.__createFromInitializer( initializer );
+            }
+        }
+
+        __createFromInitializer( initializer : ContainerSegmentInitializer ) {
+
+            for( var i=0; i<initializer.segments.length; i++ ) {
+                var segment:cc.math.path.Segment = cc.math.path.ParseSegment(initializer.segments[i] );
+                this.addSegment( segment );
+            }
         }
 
         /**
@@ -4486,6 +4499,31 @@ module cc.math.path {
             }
         }
 
+        getInitializer( type? : string ) : cc.math.path.ContainerSegmentInitializer {
+
+            var initializer = {
+                type: typeof type==="undefined" ?
+                    "ContainerSegment" :
+                    type,
+                segments : []
+            };
+
+            for( var i=0; i<this._segments.length; i++ ) {
+                initializer.segments.push( this._segments[i].getInitializer() );
+            }
+
+            return initializer;
+        }
+
+        /**
+         * Add a Segment to the SubPath and set the Segment's parent as the SubPath.
+         * @param s {cc.math.path.Segment}
+         */
+        addSegment( s : Segment ) : void {
+            s.setParent( this );
+            this._segments.push(s);
+        }
+
     }
 }
 /**
@@ -4512,6 +4550,14 @@ module cc.math.path {
     import SegmentCardinalSpline = cc.math.path.SegmentCardinalSpline;
     import Locale = cc.locale;
     import ContainerSegment = cc.math.path.ContainerSegment;
+
+    /**
+     * @class cc.math.path.SubPathSegmentInitializer
+     */
+    export interface SubPathSegmentInitializer extends cc.math.path.ContainerSegmentInitializer {
+
+        closed : boolean;
+    }
 
     /**
      * @class cc.math.path.SubPath
@@ -4554,8 +4600,11 @@ module cc.math.path {
          * Build a new SubPath instance.
          * @method cc.math.path.SubPath#constructor
          */
-        constructor() {
+        constructor( initializer? : SubPathSegmentInitializer ) {
             super();
+            if ( initializer ) {
+                this.__createFromInitializer(initializer);
+            }
         }
 
         /**
@@ -4583,14 +4632,6 @@ module cc.math.path {
             return this._segments.length;
         }
 
-        /**
-         * Add a Segment to the SubPath and set the Segment's parent as the SubPath.
-         * @param s {cc.math.path.Segment}
-         */
-        addSegment( s : Segment ) : void {
-            s.setParent( this );
-            this._segments.push(s);
-        }
 
         /**
          * Clear all sub-path data, and revert to the original path object status.
@@ -4618,7 +4659,7 @@ module cc.math.path {
 
             if ( this._closed ) {
                 cc.Debug.warn( locale.WARN_MOVETO_IN_NON_EMPTY_SUBPATH );
-                return;
+                return this;
             }
 
             if ( null===this._currentPoint ) {
@@ -4645,7 +4686,7 @@ module cc.math.path {
 
             if ( this._closed ) {
                 cc.Debug.warn( locale.WARN_TRACE_ON_CLOSED_SUBPATH, "lineTo" );
-                return;
+                return this;
             }
 
             if ( this.isEmpty() ) {
@@ -4655,14 +4696,10 @@ module cc.math.path {
             } else {
 
                 this.addSegment(new SegmentLine({
-                    start: {
-                        x: this._currentPoint.x,
-                        y: this._currentPoint.y
-                    },
-                    end: {
-                        x: x,
-                        y: y
-                    }
+                    points : [
+                        this._currentPoint.clone(),
+                        new Vector(x,y)
+                    ]
                 }));
             }
 
@@ -4711,14 +4748,10 @@ module cc.math.path {
 
                 var sp : Vector = segment.getStartingPoint();
                 this.addSegment( new SegmentLine({
-                    start : {
-                        x: this._currentPoint.x,
-                        y: this._currentPoint.y
-                    },
-                    end : {
-                        x : sp.x,
-                        y : sp.y
-                    }
+                    points : [
+                        this._currentPoint.clone(),
+                        new Vector( sp.x, sp.y )
+                    ]
                 }))
             }
             this.addSegment( segment );
@@ -4752,9 +4785,10 @@ module cc.math.path {
             var p : Point = this.getStartingPoint();
 
             var segment : Segment = new SegmentLine({
-                    start: { x: this._currentPoint.x, y: this._currentPoint.y },
-                    end: { x: p.x, y: p.y }
-                });
+                points : [
+                    this._currentPoint.clone(),
+                    new Vector( p.x, p.y )
+                ]});
 
             this.addSegment(segment);
 
@@ -4790,11 +4824,9 @@ module cc.math.path {
          * @returns {cc.math.Vector}
          */
         getEndingPoint() : Vector {
-            if (!this.isEmpty()) {
-                return this._segments.length ?
-                    this._segments[ this._segments.length-1 ].getEndingPoint() :
-                    this._currentPoint;
-            }
+            return this._segments.length ?
+                this._segments[ this._segments.length-1 ].getEndingPoint() :
+                new Vector();
 
             cc.Debug.error( locale.ERR_SUBPATH_NOT_STARTED, "getEndingPoint" );
         }
@@ -4822,9 +4854,11 @@ module cc.math.path {
             }
 
             this.addSegment( new cc.math.path.SegmentQuadratic({
-                p0: { x:this._currentPoint.x, y: this._currentPoint.y },
-                p1: { x:x0, y:y0 },
-                p2: { x:x1, y:y1 }
+                points : [
+                    this._currentPoint.clone(),
+                    new Vector(x0,y0),
+                    new Vector(x1,y1)
+                ]
             }));
 
             this._currentPoint.x = x1;
@@ -4841,10 +4875,12 @@ module cc.math.path {
             }
 
             this.addSegment( new cc.math.path.SegmentBezier({
-                p0: { x:this._currentPoint.x, y: this._currentPoint.y },
-                p1: { x:x0, y:y0 },
-                p2: { x:x1, y:y1 },
-                p3: { x:x2, y:y2 }
+                points : [
+                    this._currentPoint.clone(),
+                    new Vector( x0,y0 ),
+                    new Vector( x1,y1 ),
+                    new Vector( x2,y2 )
+                ]
             }));
 
             this._currentPoint.x = x2;
@@ -4861,22 +4897,12 @@ module cc.math.path {
             }
 
             this.addSegment(new cc.math.path.SegmentCardinalSpline({
-                p0: {
-                    x: this._currentPoint.x,
-                    y: this._currentPoint.y
-                },
-                cp0: {
-                    x: x0,
-                    y: y0
-                },
-                cp1: {
-                    x: x1,
-                    y: y1
-                },
-                p1: {
-                    x: x2,
-                    y: y2
-                },
+                points : [
+                    this._currentPoint.clone(),
+                    new Vector( x0,y0 ),
+                    new Vector( x1,y1 ),
+                    new Vector( x2,y2 )
+                ],
                 tension:tension
             }));
 
@@ -4904,6 +4930,19 @@ module cc.math.path {
             ctx.fill();
         }
 
+        getInitializer() : SubPathSegmentInitializer {
+
+            var initializer:any= super.getInitializer("SubPath");
+            initializer.closed= this._closed;
+
+            return <SubPathSegmentInitializer>initializer;
+        }
+
+        __createFromInitializer( initializer : SubPathSegmentInitializer ) {
+            super.__createFromInitializer( initializer );
+            this._closed= initializer.closed;
+            this._currentPoint= this.getEndingPoint().clone();
+        }
     }
 }
 /**
@@ -5749,6 +5788,28 @@ module cc.math {
     var __m0 : Float32Array = new Float32Array([1.0,0,0, 0,1.0,0, 0,0,1.0]);
     var __m1 : Float32Array = new Float32Array([1.0,0,0, 0,1.0,0, 0,0,1.0]);
 
+    export module path {
+        export function ParseSegment(initializer:cc.math.path.SegmentInitializer):cc.math.path.Segment {
+
+            var segment = null;
+
+            if (initializer.type) {
+
+                if (cc.math.path[initializer.type]) {
+                    segment = new cc.math.path[initializer.type]();
+                } else if (cc.math[initializer.type]) {
+                    segment = new cc.math[initializer.type]();
+                }
+
+                if (segment) {
+                    segment.__createFromInitializer(initializer);
+                }
+            }
+
+            return segment;
+        }
+    }
+
     /**
      * 
      * @class cc.math.Path
@@ -5813,8 +5874,18 @@ module cc.math {
          * Build a new Path instance.
          * @method cc.math.Path#constructor
          */
-        constructor() {
+        constructor( initializer? : cc.math.path.ContainerSegmentInitializer ) {
             super();
+            if ( initializer ) {
+                this.__createFromInitializer( initializer );
+            }
+        }
+
+        __createFromInitializer(initializer : cc.math.path.ContainerSegmentInitializer) {
+            super.__createFromInitializer(initializer);
+            if ( this._segments.length>0 ) {
+                this._currentSubPath = <cc.math.path.SubPath>this._segments[ this._segments.length-1 ];
+            }
         }
 
         /**
@@ -6182,9 +6253,6 @@ module cc.math {
             }
 
             this.__ensureSubPath(x,y);
-            if (!this._currentSubPath.isEmpty()) {
-                this.__newSubPath();
-            }
             this._currentSubPath.moveTo(x,y);
 
             return this;
@@ -6432,7 +6500,7 @@ module cc.math {
                 for( var i=0; i<this._segments.length; i++ ) {
 
                     var subPath = this._segments[i];
-                    var contourPoints = subPath.trace();
+                    //var contourPoints = subPath.trace();
 
                     var contour= subPath.trace();
 
@@ -6460,6 +6528,9 @@ module cc.math {
             return this._fillGeometry;
         }
 
+        getInitializer() : cc.math.path.ContainerSegmentInitializer {
+            return super.getInitializer( "Path" );
+        }
     }
 }
 /**
@@ -6474,8 +6545,22 @@ module cc.math {
 
 module cc.math {
 
+    /**
+     * @class cc.math.ShapePathAttributes
+     * @classdesc
+     *
+     * This is a companion class for the Shape object.
+     * It represents the information for one of its Path objects, where the path itself and fill/stroke
+     * information is kept together.
+     *
+     * You'll never need to interact with this object directly.
+     */
     export class ShapePathAttributes {
 
+        /**
+         *
+         * @type {null}
+         */
         path :          cc.math.Path= null;
         isStroked :     boolean= false;
         isFilled :      boolean= false;
@@ -6536,29 +6621,102 @@ module cc.math {
      * @class cc.math.Shape
      * @classdesc
      *
-     * A Shape object is a collection of <code>cc.math.Path</code> objects and a fill style associated with each of them.
+     * A Shape object is a collection of <code>cc.math.Path</code> objects and a fill/stroke styles associated with each of them.
      * The idea is to keep under an easy-to-handle class the responsibility of stroke/paint a collection of different
-     * path objects. For example, this is a good fit for SVG elements which on average are composed of a collection of
-     * path and contour objects.
+     * path objects. For example, this is a good fit complex objects built of vector data since the shape will
+     * cache all contour/fill geometry and the renderer will batch calls whenever possible.
+     * For example, the following code will create an Arrow Shape:
      *
-     * PENDING: Shape objects currently don't honor the current transformation matrix.
+     * <code>
+     * var arrow= new cc.math.Shape().
+     *     setStrokeStyle( "#fff" ).
+     *     setLineWidth(3).
+     *     setLineJoin( cc.render.LineJoin.ROUND).
+     *     setLineCap( cc.render.LineJoin.ROUND).
+     *     beginPath().
+     *         moveTo(3,8).
+     *         lineTo(15,8).
+     *         lineTo(10,3).
+     *     stroke().
+     *     beginPath().
+     *         moveTo(3,8).
+     *         lineTo(15,8).
+     *         lineTo(10,13).
+     *     stroke();
+     * </code>
      *
+     * later, you can draw the awwor by calling:
+     *
+     * <code>arrow.draw( ctx );</code>
      */
     export class Shape {
 
+        /**
+         * Shape paths data.
+         * @member cc.math.Shape#_pattAttributes
+         * @type {cc.math.ShapePathAttributes[]}
+         * @private
+         */
         _pathAttributes : ShapePathAttributes[]= [];
+
+        /**
+         * Current path info.
+         * All segment creation or stroke/attribute function calls will affect this path.
+         * @member cc.math.Shape#_currentPathAttributes
+         * @type {cc.math.ShapePathAttributes}
+         * @private
+         */
         _currentPathAttributes : ShapePathAttributes = null;
+
+        /**
+         * From the current path info, this is the actual traced path.
+         * @member cc.math.Shape#_currentPath
+         * @type {cc.math.Path}
+         * @private
+         */
         _currentPath : cc.math.Path = null;
 
+        /**
+         * Shape line join type. All paths will get this value until changed.
+         * @member cc.math.Shape#lineJoin
+         * @type {cc.render.LineJoin}
+         */
         lineJoin : cc.render.LineJoin = cc.render.LineJoin.MITER;
+
+        /**
+         * Shape line cap type. All paths will get this value until changed.
+         * @member cc.math.Shape#lineCap
+         * @type {cc.render.LineCap}
+         */
         lineCap  : cc.render.LineCap = cc.render.LineCap.BUTT;
+
+        /**
+         * Shape miter limit. All paths will get this value until changed.
+         * @member cc.math.Shape#miterLimit
+         * @type {number}
+         */
         miterLimit : number = 10;
+
+        /**
+         * Shape lineWidth. All paths will get this value until changed.
+         * @member cc.math.Shape#lineWidth
+         * @type {number}
+         */
         lineWidth : number = 1;
 
+        /**
+         * Build a new Shape instance.
+         * @method cc.math.Shape#constructor
+         */
         constructor() {
 
         }
 
+        /**
+         * Create a new Path and chain it to all the other Shape's paths.
+         * @method cc.math.Shape#beginPath
+         * @returns {cc.math.Shape}
+         */
         beginPath() {
 
             var ppa= this._currentPathAttributes;
@@ -6576,74 +6734,174 @@ module cc.math {
             return this;
         }
 
+        /**
+         * This method ensures there's a path in case after creating the Shape,
+         * no call to `beginPath()` is made.
+         * @method cc.math.Shape#__ensureCurrentPathAttributes
+         * @private
+         */
         __ensureCurrentPathAttributes() {
             if ( null===this._currentPathAttributes ) {
                 this.beginPath();
             }
         }
 
+        /**
+         * Set the line width for the current and future Shape paths.
+         * @method cc.math.Shape#setLineWidth
+         * @param w {number}
+         * @returns {cc.math.Shape}
+         */
         setLineWidth( w:number ) {
             this.lineWidth= w;
             return this;
         }
 
+        /**
+         * Set the miter limit for the current and future Shape paths.
+         * @method cc.math.Shape#setMiterLimit
+         * @param w {number}
+         * @returns {cc.math.Shape}
+         */
         setMiterLimit( w:number ) {
             this.miterLimit= w;
             return this;
         }
 
+        /**
+         * Set the line cap for the current and future Shape paths.
+         * @method cc.math.Shape#setLineCap
+         * @param w {cc.render.LineCap}
+         * @returns {cc.math.Shape}
+         */
         setLineCap( w:cc.render.LineCap ) {
             this.lineCap= w;
             return this;
         }
 
+        /**
+         * Set the line join for the current and future Shape paths.
+         * @method cc.math.Shape#setLineJoin
+         * @param w {cc.render.LineJoin}
+         * @returns {cc.math.Shape}
+         */
         setLineJoin( w:cc.render.LineJoin ) {
             this.lineJoin= w;
             return this;
         }
 
+        /**
+         * Move the current path's cursor position. This may imply creating a SubPath.
+         * @method cc.math.Shape#moveTo
+         * @param x {number}
+         * @param y {number}
+         * @param matrix {Float32Array=}
+         * @returns {cc.math.Shape}
+         */
         moveTo( x:number, y:number, matrix?:Float32Array ) {
             this.__ensureCurrentPathAttributes();
             this._currentPath.moveTo(x,y,matrix);
             return this;
         }
 
+        /**
+         * Add a line segment to the current path.
+         * @method cc.math.Shape#lineTo
+         * @param x {number}
+         * @param y {number}
+         * @param matrix {Float32Array=}
+         * @returns {cc.math.Shape}
+         */
         lineTo( x:number, y:number, matrix?:Float32Array ) {
             this.__ensureCurrentPathAttributes();
             this._currentPath.lineTo(x,y,matrix);
             return this;
         }
 
+        /**
+         * Add a bezier curve to the current path.
+         * @method cc.math.Shape#bezierCurveTo
+         * @param cp0x {number}
+         * @param cp0y {number}
+         * @param cp1x {number}
+         * @param cp1y {number}
+         * @param p2x {number}
+         * @param p2y {number}
+         * @param matrix {Float32Array=}
+         * @returns {cc.math.Shape}
+         */
         bezierCurveTo( cp0x:number, cp0y:number, cp1x:number, cp1y:number, p2x:number, p2y:number, matrix?:Float32Array  ) {
             this.__ensureCurrentPathAttributes();
             this._currentPath.bezierCurveTo( cp0x, cp0y, cp1x, cp1y, p2x, p2y, matrix );
             return this;
         }
 
+        /**
+         * Add a quadratic curve to the current path.
+         * @method cc.math.Shape#quadraticCurveTo
+         * @param cp0x {number}
+         * @param cp0y {number}
+         * @param p2x {number}
+         * @param p2y {number}
+         * @param matrix {Float32Array=}
+         * @returns {cc.math.Shape}
+         */
         quadraticCurveTo( cp0x:number, cp0y:number, p2x:number, p2y:number, matrix?:Float32Array ) {
             this.__ensureCurrentPathAttributes();
             this._currentPath.quadraticCurveTo( cp0x, cp0y, p2x, p2y, matrix );
             return this;
         }
 
+        /**
+         * Add a rectangle subpath to the current path
+         * @method cc.math.Shape#rect
+         * @param x {number}
+         * @param y {number}
+         * @param width {number}
+         * @param height {number}
+         * @param matrix {Float32Array=}
+         * @returns {cc.math.Shape}
+         */
         rect( x:number, y:number, width:number, height:number, matrix?:Float32Array ) {
             this.__ensureCurrentPathAttributes();
             this._currentPath.rect( x, y, width, height, matrix );
             return this;
         }
 
+        /**
+         * Add an arc to the current path.
+         * @method cc.math.Shape#arc
+         * @param x {number}
+         * @param y {number}
+         * @param radius {number}
+         * @param startAngle {number}
+         * @param endAngle {number}
+         * @param counterClockWise {boolean}
+         * @param matrix {Float32Array=}
+         * @returns {cc.math.Shape}
+         */
         arc( x:number, y:number, radius:number, startAngle:number, endAngle:number, counterClockWise:boolean, matrix?:Float32Array ) {
             this.__ensureCurrentPathAttributes();
             this._currentPath.arc( x, y, radius, startAngle, endAngle, counterClockWise, matrix );
             return this;
         }
 
+        /**
+         * Add a line segment to close the current path.
+         * @method cc.math.Shape#closePath
+         * @returns {cc.math.Shape}
+         */
         closePath() {
             this.__ensureCurrentPathAttributes();
             this._currentPath.closePath();
             return this;
         }
 
+        /**
+         * Stroke (trace contour) the current path.
+         * @method cc.math.Shape#stroke
+         * @returns {cc.math.Shape}
+         */
         stroke( ) {
             this._currentPathAttributes.setStroked();
             this._currentPath.getStrokeGeometry( {
@@ -6655,32 +6913,64 @@ module cc.math {
             return this;
         }
 
+        /**
+         * Fill the current path.
+         * @method cc.math.Shape#fill
+         * @returns {cc.math.Shape}
+         */
         fill( ) {
             this._currentPathAttributes.setFilled();
             this._currentPath.getFillGeometry();
             return this;
         }
 
+        /**
+         * Set the current and future shape's paths stroke style.
+         * @method cc.math.Shape#setStrokeStyle
+         * @param ss {object}
+         * @returns {cc.math.Shape}
+         */
         setStrokeStyle( ss:any ) {
             this.__ensureCurrentPathAttributes();
             this._currentPathAttributes.strokeStyle= ss;
             return this;
         }
 
+        /**
+         * Setter for the current and future shape paths stroke style
+         * @method cc.math.Shape#set:strokeStyle
+         * @param ss
+         */
         set strokeStyle( ss:any ) {
             this.setStrokeStyle(ss);
         }
 
+        /**
+         * Setter for the current and future shape paths fill style
+         * @method cc.math.Shape#set:fillStyle
+         * @param ss
+         */
         set fillStyle( ss:any ) {
             this.setFillStyle(ss);
         }
 
+        /**
+         * Set the current and future shape's paths fill style.
+         * @method cc.math.Shape#setFillStyle
+         * @param ss {object}
+         * @returns {cc.math.Shape}
+         */
         setFillStyle( ss:any ) {
             this.__ensureCurrentPathAttributes();
             this._currentPathAttributes.fillStyle= ss;
             return this;
         }
 
+        /**
+         * Draw the shape in a `cc.render.RenderingContext`.
+         * @method cc.math.Shape#draw
+         * @param ctx {cc.render.RenderingContext}
+         */
         draw( ctx:cc.render.RenderingContext ) {
             for( var i=0; i<this._pathAttributes.length; i++ ) {
                 this._pathAttributes[i].draw( ctx );
@@ -13165,6 +13455,8 @@ module cc.action {
 
 /// <reference path="../math/Point.ts"/>
 /// <reference path="../math/path/Segment.ts"/>
+/// <reference path="../math/path/ContainerSegment.ts"/>
+/// <reference path="../math/Path.ts"/>
 /// <reference path="../node/Node.ts"/>
 /// <reference path="./Action.ts"/>
 
@@ -13175,7 +13467,6 @@ module cc.action {
     import Point = cc.math.Point;
     import Vector= cc.math.Vector;
     import Segment= cc.math.path.Segment;
-
     import Node = cc.node.Node;
     import Action = cc.action.Action;
 
@@ -13197,7 +13488,7 @@ module cc.action {
          * @member cc.action.PathActionInitializer#segment
          * @type {cc.math.path.Segment}
          */
-        segment : Segment;
+        path: cc.math.path.ContainerSegmentInitializer;
 
     }
 
@@ -13306,11 +13597,12 @@ module cc.action {
          */
         __createFromInitializer(data?:PathActionInitializer ) {
             super.__createFromInitializer( data );
+            this._segment= cc.math.path.ParseSegment( data.path );
+        }
 
-            // BUGBUG initializer must have serializable data.
-            console.log("Path initializer not yet implemented.");
-            this._segment= data.segment;
-
+        setPath( path:cc.math.path.Segment ) {
+            this._segment= path;
+            return this;
         }
 
         /**
@@ -25673,6 +25965,9 @@ module cc.render.mesh {
 
 
     /**
+     * @class cc.render.mesh.Mesh
+     * @classdesc
+     *
      * A mesh is a grid composed of geometry and u,v information.
      */
     export class Mesh {
@@ -33971,7 +34266,8 @@ module cc {
 
         var segment:Path = new Path().catmullRomTo(p, closed, tension);
 
-        return new PathAction({type:"PathAction", segment: segment}).
+        return new PathAction().
+            setPath(segment).
             setRelative(relative).
             timeInfo(0, timeInSecs );
 
@@ -33995,13 +34291,22 @@ module cc {
 
     function __bezier( timeInSecs : number, p : Array<Point>, relative : boolean ) : Action {
         return new PathAction({
-            type : "PathAction",
-            segment : new SegmentBezier({
-                    p0 : { x:0, y:0 },
-                    p1 : p[0],
-                    p2 : p[1],
-                    p3 : p[2]
-                })
+            type: "PathAction",
+            path:
+                {
+                    type : "Path",
+                    segments: [
+                        {
+                            type: "SegmentBezier",
+                            points: [
+                                {x: 0, y: 0},
+                                p[0],
+                                p[1],
+                                p[2]
+                            ]
+                        }
+                    ]
+                }
             }).
             setRelative( relative ).
             timeInfo( 0, timeInSecs );
