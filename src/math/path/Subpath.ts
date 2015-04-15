@@ -246,9 +246,9 @@ module cc.math.path {
            	var b1 = cp.x - x1;
            	var a2 = y2 - y1;
            	var b2 = x2 - x1;
-           	var mm = Math.abs(a1 * b2 - b1 * a2);
+            var mm = Math.abs(a1 * b2 - b1 * a2);
 
-           	if( mm < EPSILON || radius === 0.0) {
+           	if( mm < EPSILON || radius < 1 ) {
                 this.lineTo(x1,y1);
            	}
            	else {
@@ -265,24 +265,11 @@ module cc.math.path {
            		var py = a1 * (k2 + j1);
            		var qx = b2 * (k1 + j2);
            		var qy = a2 * (k1 + j2);
-           		var startAngle =  Math.atan2( py - cy, px - cx) ;
-           		var endAngle = Math.atan2( qy - cy, qx - cx);
+           		var startAngle =  Math.atan2( (py - cy), px - cx) ;
+           		var endAngle = Math.atan2( (qy - cy), qx - cx);
+                var ccw= (b1 * a2 > b2 * a1);
 
-                var arcSegment= new cc.math.path.SegmentArc({
-                    x: cx + x1,
-                    y: cy + y1,
-                    radius: radius,
-                    startAngle: startAngle,
-                    endAngle: endAngle,
-                    ccw: (b1 * a2 > b2 * a1)
-                });
-                var lp= this.getEndingPoint();
-                var arcFirstPoints= arcSegment.getStartingPoint();
-                if ( Math.abs(arcFirstPoints.x - lp.x)>EPSILON || Math.abs( arcFirstPoints.y - lp.y) > EPSILON ) {
-                    this.lineTo( arcFirstPoints.x, arcFirstPoints.y );
-                }
-
-                this._segments.push( arcSegment );
+                this.arc( cx+x1, cy+y1, radius, startAngle, endAngle, ccw, true );
            	}
 
             return this;
