@@ -253,7 +253,7 @@ module cc.Debug {
      * @param msg {string} message to show
      * @param rest {Array<any>} other parameters to show in console.
      */
-    export function debug( level : DebugLevel, msg : string, rest : Array<any> ) {
+    export function debug( level : DebugLevel, msg : string, rest : any ) {
 
         if ( !enabled ) {
             return;
@@ -3656,12 +3656,6 @@ module cc.math.path {
                 this._startAngle += 2 * Math.PI;
             }
 
-            if ( this._startAngle>this._endAngle ) {
-                var tmp= this._startAngle;
-                this._startAngle= this._endAngle;
-                this._endAngle= tmp;
-            }
-
             var s:Vector = this.getValueAt(0);
             this._startingPoint = new Vector();
             this._startingPoint.x = s.x;
@@ -4543,6 +4537,8 @@ module cc.math.path {
 
 module cc.math.path {
 
+    var EPSILON:number= 0.0001;
+
     import Vector= cc.math.Vector;
     import Segment= cc.math.path.Segment;
     import SegmentLine = cc.math.path.SegmentLine;
@@ -4764,6 +4760,43 @@ module cc.math.path {
 
         }
 
+        arcTo( x1:number, y1:number, x2:number, y2:number, radius:number ) {
+
+            var cp= this.getEndingPoint();
+
+            var a1 = cp.y - y1;
+           	var b1 = cp.x - x1;
+           	var a2 = y2 - y1;
+           	var b2 = x2 - x1;
+            var mm = Math.abs(a1 * b2 - b1 * a2);
+
+           	if( mm < EPSILON || radius < 1 ) {
+                this.lineTo(x1,y1);
+           	}
+           	else {
+           		var dd = a1 * a1 + b1 * b1;
+           		var cc_ = a2 * a2 + b2 * b2;
+           		var tt = a1 * a2 + b1 * b2;
+           		var k1 = radius * Math.sqrt(dd) / mm;
+           		var k2 = radius * Math.sqrt(cc_) / mm;
+           		var j1 = k1 * tt / dd;
+           		var j2 = k2 * tt / cc_;
+           		var cx = k1 * b2 + k2 * b1;
+           		var cy = k1 * a2 + k2 * a1;
+           		var px = b1 * (k2 + j1);
+           		var py = a1 * (k2 + j1);
+           		var qx = b2 * (k1 + j2);
+           		var qy = a2 * (k1 + j2);
+           		var startAngle =  Math.atan2( (py - cy), px - cx) ;
+           		var endAngle = Math.atan2( (qy - cy), qx - cx);
+                var ccw= (b1 * a2 > b2 * a1);
+
+                this.arc( cx+x1, cy+y1, radius, startAngle, endAngle, ccw, true );
+           	}
+
+            return this;
+        }
+
         /**
          * Close the SubPath.
          * If the SubPath was already closed, in DEBUG mode will show a console message. In either case, nothing happens.
@@ -4826,7 +4859,7 @@ module cc.math.path {
         getEndingPoint() : Vector {
             return this._segments.length ?
                 this._segments[ this._segments.length-1 ].getEndingPoint() :
-                new Vector();
+                new Vector( this._currentPoint.x, this._currentPoint.y );
 
             cc.Debug.error( locale.ERR_SUBPATH_NOT_STARTED, "getEndingPoint" );
         }
@@ -6141,11 +6174,11 @@ module cc.math {
                 }
 
                 this.__catmullRomTo(
-                    p0,rest[0],
-                    rest[1],rest[2],
-                    rest[3],rest[4],
-                    tension,
-                    arguments.length>6 ? <Float32Array>rest[5] : null);
+                    p0,             <number>rest[0],
+                    <number>rest[1],<number>rest[2],
+                    <number>rest[3],<number>rest[4],
+                    <number>rest[5],
+                    arguments.length>6 ? <Float32Array>rest[6] : null);
 
             } else if ( Array.isArray(p0) ) {
 
@@ -6253,6 +6286,9 @@ module cc.math {
             }
 
             this.__ensureSubPath(x,y);
+            if ( this._currentSubPath.numSegments()>0 ) {
+                this.__newSubPath();
+            }
             this._currentSubPath.moveTo(x,y);
 
             return this;
@@ -6333,10 +6369,31 @@ module cc.math {
             return this;
         }
 
+        arcTo( x1:number, y1:number, x2:number, y2:number, radius:number, matrix?:Float32Array ) {
+
+            if ( matrix ) {
+                __v0.set( x1,y1 );
+                Matrix3.transformPoint( matrix, __v0 );
+                x1= __v0.x;
+                y1= __v0.y;
+
+                __v0.set( x2,y2 );
+                Matrix3.transformPoint( matrix, __v0 );
+                x2= __v0.x;
+                y2= __v0.y;
+
+                radius= cc.math.path.getDistanceVector( radius, matrix ).length();
+            }
+
+            this.__ensureSubPath( x1, y1 );
+            this._currentSubPath.arcTo( x1,y1,x2,y2,radius );
+            this.setDirty();
+        }
+
         /**
          * Create an arc segment and add it to the current SubPath.
          * If a SubPath exists, a straight line to (x,y) is added.
-         * if the angle difference is > 2PI the angle will be clampled to 2PI. The angle difference will be
+         * if the angle difference is > 2PI the angle will be clamped to 2PI. The angle difference will be
          * endAngle - startAngle if anticlockwise is false, and startAngle - endAngle otherwise.
          * In this implementation if the radius is < 0, the radius will be set to 0.
          * If the radius is 0 or the diffangle is 0, no arc is added.
@@ -6355,12 +6412,12 @@ module cc.math {
             var addLine : boolean = false;
 
             // transform position (center) based on transformation
-            __v0.set( x,y );
             if ( matrix ) {
+                __v0.set( x,y );
                 Matrix3.transformPoint( matrix, __v0 );
+                x= __v0.x;
+                y= __v0.y;
             }
-            x= __v0.x;
-            y= __v0.y;
 
             // ensure a valid subpath to add the segment to exists.
             this.__ensureSubPath(x,y);
@@ -19011,6 +19068,8 @@ module cc.widget {
 
         setEnabled( b:boolean ) {
             this._enabled= b;
+
+            return this;
         }
 
         setText( text:string ) {
@@ -19020,13 +19079,19 @@ module cc.widget {
 
             this._text= text;
             this.__initLabel();
+
+            return this;
         }
 
         setString( text:string ) {
-            this.setText(text);
+            return this.setText(text);
         }
 
         __initLabel() {
+
+            if ( !this._text ) {
+                return;
+            }
 
             if ( this._texture ) {
                 this._texture.release();
@@ -19079,6 +19144,7 @@ module cc.widget {
                 offsetX+= this._strokeSize / 2;
                 offsetY+= this._strokeSize / 2;
                 size.width+= this._strokeSize;
+                size.height+= this._strokeSize;
             }
             if ( this._shadowBlur ) {
                 size.width+= this._shadowBlur + this._shadowOffsetX;
@@ -19090,15 +19156,17 @@ module cc.widget {
 
             var canvas= document.createElement("canvas");
             canvas.width= size.width;
-            canvas.height= size.height;
+            canvas.height= size.height + this._size*.3; // + descent
             var ctx= canvas.getContext("2d");
             this.__prepareContext(ctx);
 
             y= offsetY;
 
             var lines= text.split("\n");
-            for( var l=0; l<lines.length; l++ ) {
+            var linesWidth= [];
 
+            // calculate each line width
+            for( var l=0; l<lines.length; l++ ) {
                 var x:number= offsetX;
                 var words= lines[l].split(" ");
 
@@ -19108,8 +19176,45 @@ module cc.widget {
                     var wordLength= ctx.measureText(word).width;
 
                     if ( x+wordLength > flowWidth ) {
-                        y+= this._size;
+                        linesWidth.push( x );
                         x= 0;
+                    }
+
+                    x += wordLength;
+                }
+
+                linesWidth.push( x );
+            }
+
+            function calculateOffset( ha ) {
+                switch( ha ) {
+                    case HALIGN.LEFT:
+                        return offsetX;
+                    case HALIGN.CENTER:
+                        return (flowWidth - linesWidth[currentLine])/2;
+                    case HALIGN.RIGHT:
+                        return flowWidth - linesWidth[currentLine] - offsetX - 1;
+                }
+
+                return 0;
+            }
+
+            var currentLine= 0;
+            for( var l=0; l<lines.length; l++ ) {
+
+                var x:number= calculateOffset( this._horizontalAlignment );
+
+                var words= lines[l].split(" ");
+
+                for( var w=0; w<words.length; w++ ) {
+
+                    var word= words[w] + (w<words.length-1 ? " " : "");
+                    var wordLength= ctx.measureText(word).width;
+
+                    if ( x+wordLength > flowWidth ) {
+                        y+= this._size;
+                        currentLine++;
+                        x= calculateOffset( this._horizontalAlignment );
                     }
 
                     if ( this._stroke ) {
@@ -19183,6 +19288,7 @@ module cc.widget {
         getFontSize() : number {
             return this._size;
         }
+
     }
 }
 /**
@@ -22663,6 +22769,8 @@ module cc.render {
          */
         arc( x:number, y:number, radius:number, startAngle:number, endAngle:number, counterClockWise:boolean );
 
+        arcTo( x1:number, y1:number, x2:number, y2:number, radius:number );
+
         /**
          * Close the current contour on the current path.
          * Successive path operations will create a new contour.
@@ -22981,7 +23089,7 @@ module cc.render {
          * @type {any}
          * @private
          */
-        _currentPath : any = null;
+        _currentPath : cc.math.Path = null;
 
         /**
          * Current clipping paths stack
@@ -23119,6 +23227,10 @@ module cc.render {
          */
         arc( x:number, y:number, radius:number, startAngle:number, endAngle:number, counterClockWise:boolean ) {
             this._currentPath.arc( x, y, radius, startAngle, endAngle, counterClockWise, this._currentMatrix );
+        }
+
+        arcTo( x1:number, y1:number, x2:number, y2:number, radius:number ) {
+            this._currentPath.arcTo( x1,y1, x2,y2, radius, this._currentMatrix );
         }
 
         /**
@@ -23949,7 +24061,7 @@ module cc.render {
 
         /**
          * Currently set line join stroke hint.
-         * @member cc.render.DecoratedRenderingContext#_currentLineJoin
+         * @member cc.render.DecoratedWebGLRenderingContext#_currentLineJoin
          * @type {cc.render.LineJoin}
          * @private
          */
@@ -23957,7 +24069,7 @@ module cc.render {
 
         /**
          * Currently set line cap stroke hint.
-         * @member cc.render.DecoratedRenderingContext#_currentLineCap
+         * @member cc.render.DecoratedWebGLRenderingContext#_currentLineCap
          * @type {cc.render.LineCap}
          * @private
          */
@@ -23965,7 +24077,7 @@ module cc.render {
 
         /**
          * Currently set line width stroke hint.
-         * @member cc.render.DecoratedRenderingContext#_currentLineWidth
+         * @member cc.render.DecoratedWebGLRenderingContext#_currentLineWidth
          * @type {number}
          * @private
          */
@@ -24912,6 +25024,10 @@ module cc.render {
 
         arc( x:number, y:number, radius:number, startAngle:number, endAngle:number, counterClockWise:boolean ) {
             this._currentContextSnapshot.arc( x, y, radius, startAngle, endAngle, counterClockWise );
+        }
+
+        arcTo( x1:number, y1:number, x2:number, y2:number, radius:number ) {
+            this._currentContextSnapshot.arcTo( x1,y1, x2,y2, radius );
         }
 
         save() {
@@ -28646,10 +28762,11 @@ module cc.plugin.font {
                 var lineWidth= this.getStringWidth( lines[n] );
                 switch( halign ) {
                     case cc.widget.HALIGN.CENTER:
-                        //xoffset= (width-lineWidth)/2;
+                        xoffset= (width-lineWidth)/2;
                         break;
                     case cc.widget.HALIGN.RIGHT:
-                        //xoffset= width-lineWidth-1;
+                        xoffset= width-lineWidth-1;
+                        break;
                 }
 
                 var words= lines[n].split(" ");

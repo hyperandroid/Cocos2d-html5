@@ -684,10 +684,11 @@ module cc.plugin.font {
                 var lineWidth= this.getStringWidth( lines[n] );
                 switch( halign ) {
                     case cc.widget.HALIGN.CENTER:
-                        //xoffset= (width-lineWidth)/2;
+                        xoffset= (width-lineWidth)/2;
                         break;
                     case cc.widget.HALIGN.RIGHT:
-                        //xoffset= width-lineWidth-1;
+                        xoffset= width-lineWidth-1;
+                        break;
                 }
 
                 var words= lines[n].split(" ");

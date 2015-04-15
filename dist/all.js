@@ -1,6 +1,12 @@
 /**
  * License: see license.txt file.
  */
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
 /**
  * @name cc
  * @namespace
@@ -150,7 +156,6 @@ var cc;
         win.cancelAnimationFrame = win.cancelAnimationFrame || win.cancelRequestAnimationFrame || win.msCancelRequestAnimationFrame || win.mozCancelRequestAnimationFrame || win.oCancelRequestAnimationFrame || win.webkitCancelRequestAnimationFrame || win.msCancelAnimationFrame || win.mozCancelAnimationFrame || win.webkitCancelAnimationFrame || win.oCancelAnimationFrame || ctTime;
     })();
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -263,7 +268,6 @@ var cc;
         Debug.info = info;
     })(Debug = cc.Debug || (cc.Debug = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -398,7 +402,6 @@ var cc;
         locale.ERR_SOUND_POOL_EMPTY = "Can't play, sound pool is empty.";
     })(locale = cc.locale || (cc.locale = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -768,7 +771,6 @@ var cc;
         math.Color = Color;
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -1167,7 +1169,6 @@ var cc;
         var _workingMatrix = cc.math.Matrix3.create();
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -1184,7 +1185,6 @@ var cc;
         math.Matrix4 = Matrix4;
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -1368,7 +1368,6 @@ var cc;
         math.Vector = Vector;
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -1597,7 +1596,6 @@ var cc;
         math.Rectangle = Rectangle;
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
@@ -1662,7 +1660,6 @@ var cc;
         math.Dimension = Dimension;
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  * Created by ibon on 11/20/14.
  */
@@ -1702,7 +1699,6 @@ var cc;
         })(path = math.path || (math.path = {}));
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
@@ -1910,7 +1906,6 @@ var cc;
         })(path = math.path || (math.path = {}));
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
@@ -2221,7 +2216,6 @@ var cc;
         })(path = math.path || (math.path = {}));
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -2499,7 +2493,6 @@ var cc;
         })(path = math.path || (math.path = {}));
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -2803,7 +2796,6 @@ var cc;
         })(path = math.path || (math.path = {}));
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  * Created by ibon on 11/23/14.
  */
@@ -2883,11 +2875,6 @@ var cc;
                     }
                     else if (this._ccw && this._startAngle <= this._endAngle) {
                         this._startAngle += 2 * Math.PI;
-                    }
-                    if (this._startAngle > this._endAngle) {
-                        var tmp = this._startAngle;
-                        this._startAngle = this._endAngle;
-                        this._endAngle = tmp;
                     }
                     var s = this.getValueAt(0);
                     this._startingPoint = new Vector();
@@ -3043,7 +3030,6 @@ var cc;
         })(path = math.path || (math.path = {}));
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
@@ -3361,7 +3347,6 @@ var cc;
         })(path = math.path || (math.path = {}));
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  * Created by ibon on 11/22/14.
  */
@@ -3605,16 +3590,9 @@ var cc;
         })(path = math.path || (math.path = {}));
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="../Point.ts"/>
 /// <reference path="./Segment.ts"/>
 /// <reference path="./SegmentLine.ts"/>
@@ -3631,6 +3609,7 @@ var cc;
     (function (math) {
         var path;
         (function (path) {
+            var EPSILON = 0.0001;
             var Vector = cc.math.Vector;
             var SegmentLine = cc.math.path.SegmentLine;
             var SegmentArc = cc.math.path.SegmentArc;
@@ -3810,6 +3789,37 @@ var cc;
                     this._dirty = true;
                     return this;
                 };
+                SubPath.prototype.arcTo = function (x1, y1, x2, y2, radius) {
+                    var cp = this.getEndingPoint();
+                    var a1 = cp.y - y1;
+                    var b1 = cp.x - x1;
+                    var a2 = y2 - y1;
+                    var b2 = x2 - x1;
+                    var mm = Math.abs(a1 * b2 - b1 * a2);
+                    if (mm < EPSILON || radius < 1) {
+                        this.lineTo(x1, y1);
+                    }
+                    else {
+                        var dd = a1 * a1 + b1 * b1;
+                        var cc_ = a2 * a2 + b2 * b2;
+                        var tt = a1 * a2 + b1 * b2;
+                        var k1 = radius * Math.sqrt(dd) / mm;
+                        var k2 = radius * Math.sqrt(cc_) / mm;
+                        var j1 = k1 * tt / dd;
+                        var j2 = k2 * tt / cc_;
+                        var cx = k1 * b2 + k2 * b1;
+                        var cy = k1 * a2 + k2 * a1;
+                        var px = b1 * (k2 + j1);
+                        var py = a1 * (k2 + j1);
+                        var qx = b2 * (k1 + j2);
+                        var qy = a2 * (k1 + j2);
+                        var startAngle = Math.atan2((py - cy), px - cx);
+                        var endAngle = Math.atan2((qy - cy), qx - cx);
+                        var ccw = (b1 * a2 > b2 * a1);
+                        this.arc(cx + x1, cy + y1, radius, startAngle, endAngle, ccw, true);
+                    }
+                    return this;
+                };
                 /**
                  * Close the SubPath.
                  * If the SubPath was already closed, in DEBUG mode will show a console message. In either case, nothing happens.
@@ -3857,7 +3867,7 @@ var cc;
                  * @returns {cc.math.Vector}
                  */
                 SubPath.prototype.getEndingPoint = function () {
-                    return this._segments.length ? this._segments[this._segments.length - 1].getEndingPoint() : new Vector();
+                    return this._segments.length ? this._segments[this._segments.length - 1].getEndingPoint() : new Vector(this._currentPoint.x, this._currentPoint.y);
                     cc.Debug.error(cc.locale.ERR_SUBPATH_NOT_STARTED, "getEndingPoint");
                 };
                 SubPath.prototype.clone = function () {
@@ -3951,7 +3961,6 @@ var cc;
         })(path = math.path || (math.path = {}));
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  *
  * License: see license.txt file.
@@ -4378,7 +4387,6 @@ var cc;
         })(path = math.path || (math.path = {}));
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  *
@@ -4588,16 +4596,9 @@ var cc;
         })(path = math.path || (math.path = {}));
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="./path/Segment.ts"/>
 /// <reference path="./path/ContainerSegment.ts"/>
 /// <reference path="./path/SubPath.ts"/>
@@ -4926,7 +4927,7 @@ var cc;
                         // not enough arguments
                         return;
                     }
-                    this.__catmullRomTo(p0, rest[0], rest[1], rest[2], rest[3], rest[4], tension, arguments.length > 6 ? rest[5] : null);
+                    this.__catmullRomTo(p0, rest[0], rest[1], rest[2], rest[3], rest[4], rest[5], arguments.length > 6 ? rest[6] : null);
                 }
                 else if (Array.isArray(p0)) {
                     var points = p0;
@@ -5016,6 +5017,9 @@ var cc;
                     y = __v0.y;
                 }
                 this.__ensureSubPath(x, y);
+                if (this._currentSubPath.numSegments() > 0) {
+                    this.__newSubPath();
+                }
                 this._currentSubPath.moveTo(x, y);
                 return this;
             };
@@ -5080,10 +5084,26 @@ var cc;
                 this.setDirty();
                 return this;
             };
+            Path.prototype.arcTo = function (x1, y1, x2, y2, radius, matrix) {
+                if (matrix) {
+                    __v0.set(x1, y1);
+                    Matrix3.transformPoint(matrix, __v0);
+                    x1 = __v0.x;
+                    y1 = __v0.y;
+                    __v0.set(x2, y2);
+                    Matrix3.transformPoint(matrix, __v0);
+                    x2 = __v0.x;
+                    y2 = __v0.y;
+                    radius = cc.math.path.getDistanceVector(radius, matrix).length();
+                }
+                this.__ensureSubPath(x1, y1);
+                this._currentSubPath.arcTo(x1, y1, x2, y2, radius);
+                this.setDirty();
+            };
             /**
              * Create an arc segment and add it to the current SubPath.
              * If a SubPath exists, a straight line to (x,y) is added.
-             * if the angle difference is > 2PI the angle will be clampled to 2PI. The angle difference will be
+             * if the angle difference is > 2PI the angle will be clamped to 2PI. The angle difference will be
              * endAngle - startAngle if anticlockwise is false, and startAngle - endAngle otherwise.
              * In this implementation if the radius is < 0, the radius will be set to 0.
              * If the radius is 0 or the diffangle is 0, no arc is added.
@@ -5100,12 +5120,12 @@ var cc;
             Path.prototype.arc = function (x, y, radius, startAngle, endAngle, anticlockwise, matrix) {
                 var addLine = false;
                 // transform position (center) based on transformation
-                __v0.set(x, y);
                 if (matrix) {
+                    __v0.set(x, y);
                     Matrix3.transformPoint(matrix, __v0);
+                    x = __v0.x;
+                    y = __v0.y;
                 }
-                x = __v0.x;
-                y = __v0.y;
                 // ensure a valid subpath to add the segment to exists.
                 this.__ensureSubPath(x, y);
                 // flag add a straight line from the last trace point to the start of the arc (if apply)
@@ -5240,7 +5260,6 @@ var cc;
         math.Path = Path;
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
@@ -5655,7 +5674,6 @@ var cc;
         math.Shape = Shape;
     })(math = cc.math || (cc.math = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -7564,7 +7582,6 @@ var cc;
         _node.Node = Node;
     })(node = cc.node || (cc.node = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -8673,7 +8690,6 @@ var cc;
         _action.Action = Action;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -9280,19 +9296,12 @@ var cc;
         action.Interpolator = Interpolator;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
 /// <reference path="../node/Node.ts"/>
 /// <reference path="./Action.ts"/>
 "use strict";
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 var cc;
 (function (cc) {
     var action;
@@ -9448,16 +9457,9 @@ var cc;
         action.AlphaAction = AlphaAction;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="../math/Point.ts"/>
 /// <reference path="../node/Node.ts"/>
 /// <reference path="./Action.ts"/>
@@ -9641,16 +9643,9 @@ var cc;
         action.MoveAction = MoveAction;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="../node/Node.ts"/>
 /// <reference path="../action/Action.ts"/>
 var cc;
@@ -9968,16 +9963,9 @@ var cc;
         action.PropertyAction = PropertyAction;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="../node/Node.ts"/>
 /// <reference path="./Action.ts"/>
 var cc;
@@ -10131,16 +10119,9 @@ var cc;
         action.RotateAction = RotateAction;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="./Action.ts"/>
 /// <reference path="../math/Point.ts"/>
 /// <reference path="../node/Node.ts"/>
@@ -10318,16 +10299,9 @@ var cc;
         action.ScaleAction = ScaleAction;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="../node/Node.ts"/>
 /// <reference path="./Action.ts"/>
 /// <reference path="./MoveAction.ts"/>
@@ -10642,16 +10616,9 @@ var cc;
         _action.SequenceAction = SequenceAction;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="../node/Node.ts"/>
 /// <reference path="../math/Point.ts"/>
 /// <reference path="./Action.ts"/>
@@ -10826,16 +10793,9 @@ var cc;
         action.TintAction = TintAction;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="./Action.ts"/>
 /// <reference path="../node/sprite/Animation.ts"/>
 /// <reference path="../node/sprite/SpriteFrame.ts"/>
@@ -11025,16 +10985,9 @@ var cc;
         action.AnimateAction = AnimateAction;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="../math/Point.ts"/>
 /// <reference path="../math/path/Segment.ts"/>
 /// <reference path="../math/path/ContainerSegment.ts"/>
@@ -11343,7 +11296,6 @@ var cc;
         action.PathAction = PathAction;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
@@ -11351,12 +11303,6 @@ var cc;
 /// <reference path="../node/Node.ts"/>
 /// <reference path="./Action.ts"/>
 "use strict";
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 var cc;
 (function (cc) {
     var action;
@@ -11506,7 +11452,6 @@ var cc;
         action.JumpAction = JumpAction;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -11763,16 +11708,9 @@ var cc;
         __action.ActionManager = ActionManager;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="./Action.ts"/>
 /// <reference path="../node/Node.ts"/>
 var cc;
@@ -12317,7 +12255,6 @@ var cc;
         action.SchedulerQueue = SchedulerQueue;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
@@ -12759,16 +12696,9 @@ var cc;
         _action.ActionChainContext = ActionChainContext;
     })(action = cc.action || (cc.action = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 var cc;
 (function (cc) {
     var Performance;
@@ -12880,16 +12810,9 @@ var cc;
         _Performance.Performance = Performance;
     })(Performance = cc.Performance || (cc.Performance = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="../action/Action.ts"/>
 /// <reference path="../action/SchedulerQueue.ts"/>
 /// <reference path="./Node.ts"/>
@@ -13359,16 +13282,9 @@ var cc;
         _node.Scene = Scene;
     })(node = cc.node || (cc.node = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="./Node.ts"/>
 /// <reference path="./Scene.ts"/>
 /// <reference path="../math/Dimension.ts"/>
@@ -13893,7 +13809,6 @@ var cc;
         node.Director = Director;
     })(node = cc.node || (cc.node = {}));
 })(cc || (cc = {}));
-
 /**
  * Created by ibon on 11/17/14.
  */
@@ -14104,7 +14019,6 @@ var cc;
         render.Texture2D = Texture2D;
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * Created by ibon on 11/26/14.
  */
@@ -14450,7 +14364,6 @@ var cc;
         })(sprite = node.sprite || (node.sprite = {}));
     })(node = cc.node || (cc.node = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -14660,16 +14573,9 @@ var cc;
         })(sprite = node.sprite || (node.sprite = {}));
     })(node = cc.node || (cc.node = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="Node.ts"/>
 /// <reference path="./sprite/SpriteFrame.ts"/>
 /// <reference path="../math/Color.ts"/>
@@ -15013,16 +14919,9 @@ var cc;
         node.SpriteBatchNode = SpriteBatchNode;
     })(node = cc.node || (cc.node = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="./Node.ts"/>
 /// <reference path="./Sprite.ts"/>
 /// <reference path="../render/RenderingContext.ts"/>
@@ -15078,16 +14977,9 @@ var cc;
         node.FastSprite = FastSprite;
     })(node = cc.node || (cc.node = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="../node/Node.ts"/>
 /// <reference path="../node/sprite/SpriteFrame.ts"/>
 /// <reference path="../input/InputManager.ts"/>
@@ -15534,16 +15426,9 @@ var cc;
     })(cc.node.Node);
     cc.MenuItemToggle = MenuItemToggle;
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="../math/Dimension.ts"/>
 /// <reference path="../node/Node.ts"/>
 /// <reference path="../node/Sprite.ts"/>
@@ -15786,6 +15671,7 @@ var cc;
             };
             LabelTTF.prototype.setEnabled = function (b) {
                 this._enabled = b;
+                return this;
             };
             LabelTTF.prototype.setText = function (text) {
                 if (this._text === text) {
@@ -15793,11 +15679,15 @@ var cc;
                 }
                 this._text = text;
                 this.__initLabel();
+                return this;
             };
             LabelTTF.prototype.setString = function (text) {
-                this.setText(text);
+                return this.setText(text);
             };
             LabelTTF.prototype.__initLabel = function () {
+                if (!this._text) {
+                    return;
+                }
                 if (this._texture) {
                     this._texture.release();
                 }
@@ -15834,6 +15724,7 @@ var cc;
                     offsetX += this._strokeSize / 2;
                     offsetY += this._strokeSize / 2;
                     size.width += this._strokeSize;
+                    size.height += this._strokeSize;
                 }
                 if (this._shadowBlur) {
                     size.width += this._shadowBlur + this._shadowOffsetX;
@@ -15843,11 +15734,12 @@ var cc;
                 }
                 var canvas = document.createElement("canvas");
                 canvas.width = size.width;
-                canvas.height = size.height;
+                canvas.height = size.height + this._size * .3; // + descent
                 var ctx = canvas.getContext("2d");
                 this.__prepareContext(ctx);
                 y = offsetY;
                 var lines = text.split("\n");
+                var linesWidth = [];
                 for (var l = 0; l < lines.length; l++) {
                     var x = offsetX;
                     var words = lines[l].split(" ");
@@ -15855,8 +15747,35 @@ var cc;
                         var word = words[w] + (w < words.length - 1 ? " " : "");
                         var wordLength = ctx.measureText(word).width;
                         if (x + wordLength > flowWidth) {
-                            y += this._size;
+                            linesWidth.push(x);
                             x = 0;
+                        }
+                        x += wordLength;
+                    }
+                    linesWidth.push(x);
+                }
+                function calculateOffset(ha) {
+                    switch (ha) {
+                        case 0 /* LEFT */:
+                            return offsetX;
+                        case 1 /* CENTER */:
+                            return (flowWidth - linesWidth[currentLine]) / 2;
+                        case 2 /* RIGHT */:
+                            return flowWidth - linesWidth[currentLine] - offsetX - 1;
+                    }
+                    return 0;
+                }
+                var currentLine = 0;
+                for (var l = 0; l < lines.length; l++) {
+                    var x = calculateOffset(this._horizontalAlignment);
+                    var words = lines[l].split(" ");
+                    for (var w = 0; w < words.length; w++) {
+                        var word = words[w] + (w < words.length - 1 ? " " : "");
+                        var wordLength = ctx.measureText(word).width;
+                        if (x + wordLength > flowWidth) {
+                            y += this._size;
+                            currentLine++;
+                            x = calculateOffset(this._horizontalAlignment);
                         }
                         if (this._stroke) {
                             ctx.strokeText(word, x, y);
@@ -15916,7 +15835,6 @@ var cc;
         widget.LabelTTF = LabelTTF;
     })(widget = cc.widget || (cc.widget = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
@@ -16184,16 +16102,9 @@ var cc;
         render.WebGLState = WebGLState;
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="../node/Node.ts"/>
 /// <reference path="../node/Scene.ts"/>
 /// <reference path="../node/Director.ts"/>
@@ -16516,16 +16427,9 @@ var cc;
         _transition.TransitionSlideInB = TransitionSlideInB;
     })(transition = cc.transition || (cc.transition = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="../WebGLState.ts"/>
 var cc;
 (function (cc) {
@@ -16717,7 +16621,6 @@ var cc;
         })(shader = render.shader || (render.shader = {}));
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -16778,7 +16681,6 @@ var cc;
         })(shader = render.shader || (render.shader = {}));
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -17035,16 +16937,9 @@ var cc;
         })(shader = render.shader || (render.shader = {}));
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="./AbstractShader.ts"/>
 /// <reference path="../webGLState.ts"/>
 /// <reference path="../../util/util.ts"/>
@@ -17143,16 +17038,9 @@ var cc;
         })(shader = render.shader || (render.shader = {}));
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * Created by ibon on 11/17/14.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="./AbstractShader.ts"/>
 /// <reference path="../WebGLState.ts"/>
 /// <reference path="../RenderingContextSnapshot.ts"/>
@@ -17353,16 +17241,9 @@ var cc;
         })(shader = render.shader || (render.shader = {}));
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="./AbstractShader.ts"/>
 /// <reference path="../webGLState.ts"/>
 /// <reference path="../../util/util.ts"/>
@@ -17482,16 +17363,9 @@ var cc;
         })(shader = render.shader || (render.shader = {}));
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="./AbstractShader.ts"/>
 /// <reference path="../RenderingContextSnapshot.ts"/>
 var cc;
@@ -17592,7 +17466,6 @@ var cc;
         })(shader = render.shader || (render.shader = {}));
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * Created by ibon on 11/19/14.
  */
@@ -17646,16 +17519,9 @@ var cc;
         })(shader = render.shader || (render.shader = {}));
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="../math/Dimension.ts"/>
 /// <reference path="../math/Color.ts"/>
 /// <reference path="../math/Matrix3.ts"/>
@@ -18376,7 +18242,6 @@ var cc;
         };
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -18490,7 +18355,6 @@ var cc;
         var LineJoin = render.LineJoin;
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -18744,6 +18608,9 @@ var cc;
             RenderingContextSnapshot.prototype.arc = function (x, y, radius, startAngle, endAngle, counterClockWise) {
                 this._currentPath.arc(x, y, radius, startAngle, endAngle, counterClockWise, this._currentMatrix);
             };
+            RenderingContextSnapshot.prototype.arcTo = function (x1, y1, x2, y2, radius) {
+                this._currentPath.arcTo(x1, y1, x2, y2, radius, this._currentMatrix);
+            };
             /**
              * Tell the current path to create geometry for its contour stroke.
              * The stroke will different based on the line width, and contour hints line join/cap.
@@ -18794,7 +18661,6 @@ var cc;
         render.RenderingContextSnapshot = RenderingContextSnapshot;
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -19264,7 +19130,6 @@ var cc;
         render.GeometryBatcher = GeometryBatcher;
     })(render = _cc.render || (_cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -19425,21 +19290,21 @@ var cc;
             function DecoratedWebGLRenderingContext(r) {
                 /**
                  * Currently set line join stroke hint.
-                 * @member cc.render.DecoratedRenderingContext#_currentLineJoin
+                 * @member cc.render.DecoratedWebGLRenderingContext#_currentLineJoin
                  * @type {cc.render.LineJoin}
                  * @private
                  */
                 this._currentLineJoin = 1 /* MITER */;
                 /**
                  * Currently set line cap stroke hint.
-                 * @member cc.render.DecoratedRenderingContext#_currentLineCap
+                 * @member cc.render.DecoratedWebGLRenderingContext#_currentLineCap
                  * @type {cc.render.LineCap}
                  * @private
                  */
                 this._currentLineCap = 0 /* BUTT */;
                 /**
                  * Currently set line width stroke hint.
-                 * @member cc.render.DecoratedRenderingContext#_currentLineWidth
+                 * @member cc.render.DecoratedWebGLRenderingContext#_currentLineWidth
                  * @type {number}
                  * @private
                  */
@@ -20223,6 +20088,9 @@ var cc;
             DecoratedWebGLRenderingContext.prototype.arc = function (x, y, radius, startAngle, endAngle, counterClockWise) {
                 this._currentContextSnapshot.arc(x, y, radius, startAngle, endAngle, counterClockWise);
             };
+            DecoratedWebGLRenderingContext.prototype.arcTo = function (x1, y1, x2, y2, radius) {
+                this._currentContextSnapshot.arcTo(x1, y1, x2, y2, radius);
+            };
             DecoratedWebGLRenderingContext.prototype.save = function () {
             };
             DecoratedWebGLRenderingContext.prototype.restore = function () {
@@ -20271,7 +20139,6 @@ var cc;
         render.DecoratedWebGLRenderingContext = DecoratedWebGLRenderingContext;
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
@@ -21055,7 +20922,6 @@ var cc;
         render.ScaleManager = ScaleManager;
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -21120,7 +20986,6 @@ var cc;
         })(util = render.util || (render.util = {}));
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
@@ -21214,7 +21079,6 @@ var cc;
         })(mesh = render.mesh || (render.mesh = {}));
     })(render = cc.render || (cc.render = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -21315,7 +21179,6 @@ var cc;
         util.fromPosixRegularExpression = fromPosixRegularExpression;
     })(util = cc.util || (cc.util = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
@@ -21503,7 +21366,6 @@ var cc;
         })(loader = plugin.loader || (plugin.loader = {}));
     })(plugin = cc.plugin || (cc.plugin = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
@@ -21537,7 +21399,6 @@ var cc;
         })(loader = plugin.loader || (plugin.loader = {}));
     })(plugin = cc.plugin || (cc.plugin = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
@@ -21602,16 +21463,9 @@ var cc;
         })(loader = plugin.loader || (plugin.loader = {}));
     })(plugin = cc.plugin || (cc.plugin = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="./ResourceLoader.ts"/>
 /// <reference path="../../util/Debug.ts"/>
 /// <reference path="../../locale/Locale.ts"/>
@@ -21854,7 +21708,6 @@ var cc;
         })(loader = plugin.loader || (plugin.loader = {}));
     })(plugin = cc.plugin || (cc.plugin = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
@@ -21952,7 +21805,6 @@ var cc;
         })(loader = plugin.loader || (plugin.loader = {}));
     })(plugin = cc.plugin || (cc.plugin = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
@@ -22155,7 +22007,6 @@ var cc;
         })(loader = plugin.loader || (plugin.loader = {}));
     })(plugin = cc.plugin || (cc.plugin = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -22676,7 +22527,6 @@ var cc;
         })(texture = plugin.texture || (plugin.texture = {}));
     })(plugin = cc.plugin || (cc.plugin = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -23188,8 +23038,11 @@ var cc;
                         var lineWidth = this.getStringWidth(lines[n]);
                         switch (halign) {
                             case 1 /* CENTER */:
+                                xoffset = (width - lineWidth) / 2;
                                 break;
                             case 2 /* RIGHT */:
+                                xoffset = width - lineWidth - 1;
+                                break;
                         }
                         var words = lines[n].split(" ");
                         for (var i = 0; i < words.length; i++) {
@@ -23303,7 +23156,6 @@ var cc;
         })(font = plugin.font || (plugin.font = {}));
     })(plugin = cc.plugin || (cc.plugin = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
@@ -23445,7 +23297,6 @@ var cc;
         })(font = plugin.font || (plugin.font = {}));
     })(plugin = cc.plugin || (cc.plugin = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
@@ -23779,7 +23630,6 @@ var cc;
         })(asset = plugin.asset || (plugin.asset = {}));
     })(plugin = cc.plugin || (cc.plugin = {}));
 })(cc || (cc = {}));
-
 /**
  *
  */
@@ -24797,16 +24647,9 @@ var cc;
         })(audio = plugin.audio || (plugin.audio = {}));
     })(plugin = cc.plugin || (cc.plugin = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="../../math/Rectangle.ts"/>
 /// <reference path="../../math/Dimension.ts"/>
 var cc;
@@ -25775,7 +25618,6 @@ var cc;
         })(layout = plugin.layout || (plugin.layout = {}));
     })(plugin = cc.plugin || (cc.plugin = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -26143,16 +25985,9 @@ var cc;
         input.SceneGraphInputTreeNode = SceneGraphInputTreeNode;
     })(input = cc.input || (cc.input = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="../math/Point.ts"/>
 /// <reference path="../node/Node.ts"/>
 /// <reference path="../node/Scene.ts"/>
@@ -26823,7 +26658,6 @@ var cc;
         input.MouseInputManager = MouseInputManager;
     })(input = cc.input || (cc.input = {}));
 })(cc || (cc = {}));
-
 /**
  * Created by ibon on 1/6/15.
  */
@@ -27562,7 +27396,6 @@ var cc;
         input.KeyboardInputManager = KeyboardInputManager;
     })(input = cc.input || (cc.input = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -27753,7 +27586,6 @@ var cc;
         _game.Game = Game;
     })(game = cc.game || (cc.game = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -28500,7 +28332,6 @@ var cc;
     }
     cc.easeQuinticActionInOut = easeQuinticActionInOut;
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */
@@ -28773,7 +28604,6 @@ var cc;
         Blink.create = cc.blink;
     })(Blink = cc.Blink || (cc.Blink = {}));
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file
  */
@@ -28991,7 +28821,6 @@ var cc;
     cc.ONE_MINUS_CONSTANT_ALPHA = 0x8004;
     cc.ONE_MINUS_CONSTANT_COLOR = 0x8002;
 })(cc || (cc = {}));
-
 /// <reference path="./AssetManager.ts"/>
 /// <reference path="../loader/Resource.ts"/>
 /// <reference path="../asset/AssetManager.ts"/>
@@ -29109,7 +28938,6 @@ var cc;
     })();
     cc.animationCache = animationCache;
 })(cc || (cc = {}));
-
 /**
  * License: see license.txt file.
  */

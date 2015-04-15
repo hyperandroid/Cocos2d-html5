@@ -166,7 +166,7 @@ declare module cc.Debug {
      * @param msg {string} message to show
      * @param rest {Array<any>} other parameters to show in console.
      */
-    function debug(level: DebugLevel, msg: string, rest: Array<any>): void;
+    function debug(level: DebugLevel, msg: string, rest: any): void;
     /**
      * Show an error message.
      * @method cc.Debug.error
@@ -2352,6 +2352,7 @@ declare module cc.math.path {
          * @returns {cc.math.path.SubPath}
          */
         arc(x: number, y: number, radius: number, startAngle: number, endAngle: number, anticlockwise: boolean, addLineTo?: boolean): SubPath;
+        arcTo(x1: number, y1: number, x2: number, y2: number, radius: number): SubPath;
         /**
          * Close the SubPath.
          * If the SubPath was already closed, in DEBUG mode will show a console message. In either case, nothing happens.
@@ -2704,10 +2705,11 @@ declare module cc.math {
          * @returns {cc.math.Path}
          */
         rect(x: number, y: number, w: number, h: number, matrix?: Float32Array): Path;
+        arcTo(x1: number, y1: number, x2: number, y2: number, radius: number, matrix?: Float32Array): void;
         /**
          * Create an arc segment and add it to the current SubPath.
          * If a SubPath exists, a straight line to (x,y) is added.
-         * if the angle difference is > 2PI the angle will be clampled to 2PI. The angle difference will be
+         * if the angle difference is > 2PI the angle will be clamped to 2PI. The angle difference will be
          * endAngle - startAngle if anticlockwise is false, and startAngle - endAngle otherwise.
          * In this implementation if the radius is < 0, the radius will be set to 0.
          * If the radius is 0 or the diffangle is 0, no arc is added.
@@ -8765,9 +8767,9 @@ declare module cc.widget {
         _enabled: boolean;
         constructor(_initializer?: LabelTTFInitializer | string, font?: string, fontSize?: number, dimensions?: cc.math.Dimension, halign?: cc.widget.HALIGN, valign?: cc.widget.VALIGN);
         initialize(init: LabelTTFInitializer): LabelTTF;
-        setEnabled(b: boolean): void;
-        setText(text: string): void;
-        setString(text: string): void;
+        setEnabled(b: boolean): LabelTTF;
+        setText(text: string): LabelTTF;
+        setString(text: string): LabelTTF;
         __initLabel(): void;
         __prepareContext(ctx: CanvasRenderingContext2D): void;
         __drawText(text: string, size: cc.math.Dimension): HTMLCanvasElement;
@@ -10419,6 +10421,7 @@ declare module cc.render {
          * @method cc.render.RenderingContext#arc
          */
         arc(x: number, y: number, radius: number, startAngle: number, endAngle: number, counterClockWise: boolean): any;
+        arcTo(x1: number, y1: number, x2: number, y2: number, radius: number): any;
         /**
          * Close the current contour on the current path.
          * Successive path operations will create a new contour.
@@ -10693,7 +10696,7 @@ declare module cc.render {
          * @type {any}
          * @private
          */
-        _currentPath: any;
+        _currentPath: cc.math.Path;
         /**
          * Current clipping paths stack
          * @member cc.render.RenderingContextSnapshot#_clippingStack
@@ -10781,6 +10784,7 @@ declare module cc.render {
          * @method cc.render.RenderingContextSnapshot#arc
          */
         arc(x: number, y: number, radius: number, startAngle: number, endAngle: number, counterClockWise: boolean): void;
+        arcTo(x1: number, y1: number, x2: number, y2: number, radius: number): void;
         /**
          * Tell the current path to create geometry for its contour stroke.
          * The stroke will different based on the line width, and contour hints line join/cap.
@@ -11144,21 +11148,21 @@ declare module cc.render {
         static CTX_ALPHA: boolean;
         /**
          * Currently set line join stroke hint.
-         * @member cc.render.DecoratedRenderingContext#_currentLineJoin
+         * @member cc.render.DecoratedWebGLRenderingContext#_currentLineJoin
          * @type {cc.render.LineJoin}
          * @private
          */
         _currentLineJoin: cc.render.LineJoin;
         /**
          * Currently set line cap stroke hint.
-         * @member cc.render.DecoratedRenderingContext#_currentLineCap
+         * @member cc.render.DecoratedWebGLRenderingContext#_currentLineCap
          * @type {cc.render.LineCap}
          * @private
          */
         _currentLineCap: cc.render.LineCap;
         /**
          * Currently set line width stroke hint.
-         * @member cc.render.DecoratedRenderingContext#_currentLineWidth
+         * @member cc.render.DecoratedWebGLRenderingContext#_currentLineWidth
          * @type {number}
          * @private
          */
@@ -11454,6 +11458,7 @@ declare module cc.render {
         quadraticCurveTo(cp0x: number, cp0y: number, p2x: number, p2y: number): void;
         rect(x: number, y: number, width: number, height: number): void;
         arc(x: number, y: number, radius: number, startAngle: number, endAngle: number, counterClockWise: boolean): void;
+        arcTo(x1: number, y1: number, x2: number, y2: number, radius: number): void;
         save(): void;
         restore(): void;
         drawMesh(geometry: Float32Array, uv: Float32Array, indices: Uint32Array, color: number, texture: Texture2D): void;

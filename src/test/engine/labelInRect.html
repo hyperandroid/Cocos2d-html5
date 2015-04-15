@@ -12,7 +12,7 @@
     (function() {
 
         var W=800;
-        var H=600;
+        var H=800;
         var AssetManager= cc.plugin.asset.AssetManager;
 
         /**
@@ -79,8 +79,8 @@
             var nodes= [ label00, label01, label02, label10, label11, label12, label20, label21, label22 ];
             for( var i=0; i<3; i++ ) {
                 for( var j=0; j<3; j++ ) {
-                    nodes[i*3+j].setContentSize(W/3,H/3);
-                    nodes[i*3+j].setPosition(j*W/3,i*H/3);
+                    nodes[i*3+j].setContentSize(W/3,H/6);
+                    nodes[i*3+j].setPosition(j*W/3,i*H/6);
                     nodes[i*3+j].setColor(.5+Math.random()/2,.5+Math.random()/2,.5+Math.random()/2);
                 }
             }
@@ -94,6 +94,29 @@
             scene.addChild(label02);
             scene.addChild(label12);
             scene.addChild(label22);
+
+            var ha= [ cc.widget.HALIGN.LEFT, cc.widget.HALIGN.CENTER, cc.widget.HALIGN.RIGHT ];
+            var va= [ cc.widget.VALIGN.TOP, cc.widget.VALIGN.MIDDLE, cc.widget.VALIGN.BOTTOM ];
+
+            var attrs= {
+                font: "Arial",
+                size: 35,
+                flowWidth: W/3,
+                fillColor: "yellow",
+            };
+
+            for( var i=0; i<3; i++ ) {
+                for ( var j=0; j<3; j++ ) {
+
+                    var l0= new cc.widget.LabelTTF(attrs);
+                    l0._horizontalAlignment= ha[j];
+                    l0._verticalAlignment= va[i];
+                    l0.setText("el milegWMpqsmo va a llegar.").
+                            setPosition( j*W/3, H/2+H/6*i);
+                    scene.addChild( l0 );
+
+                }
+            }
 
             // run the scene.
             director.runScene( scene );

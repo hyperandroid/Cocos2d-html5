@@ -276,6 +276,8 @@ module cc.widget {
 
         setEnabled( b:boolean ) {
             this._enabled= b;
+
+            return this;
         }
 
         setText( text:string ) {
@@ -285,13 +287,19 @@ module cc.widget {
 
             this._text= text;
             this.__initLabel();
+
+            return this;
         }
 
         setString( text:string ) {
-            this.setText(text);
+            return this.setText(text);
         }
 
         __initLabel() {
+
+            if ( !this._text ) {
+                return;
+            }
 
             if ( this._texture ) {
                 this._texture.release();
@@ -344,6 +352,7 @@ module cc.widget {
                 offsetX+= this._strokeSize / 2;
                 offsetY+= this._strokeSize / 2;
                 size.width+= this._strokeSize;
+                size.height+= this._strokeSize;
             }
             if ( this._shadowBlur ) {
                 size.width+= this._shadowBlur + this._shadowOffsetX;
@@ -355,15 +364,17 @@ module cc.widget {
 
             var canvas= document.createElement("canvas");
             canvas.width= size.width;
-            canvas.height= size.height;
+            canvas.height= size.height + this._size*.3; // + descent
             var ctx= canvas.getContext("2d");
             this.__prepareContext(ctx);
 
             y= offsetY;
 
             var lines= text.split("\n");
-            for( var l=0; l<lines.length; l++ ) {
+            var linesWidth= [];
 
+            // calculate each line width
+            for( var l=0; l<lines.length; l++ ) {
                 var x:number= offsetX;
                 var words= lines[l].split(" ");
 
@@ -373,8 +384,45 @@ module cc.widget {
                     var wordLength= ctx.measureText(word).width;
 
                     if ( x+wordLength > flowWidth ) {
-                        y+= this._size;
+                        linesWidth.push( x );
                         x= 0;
+                    }
+
+                    x += wordLength;
+                }
+
+                linesWidth.push( x );
+            }
+
+            function calculateOffset( ha ) {
+                switch( ha ) {
+                    case HALIGN.LEFT:
+                        return offsetX;
+                    case HALIGN.CENTER:
+                        return (flowWidth - linesWidth[currentLine])/2;
+                    case HALIGN.RIGHT:
+                        return flowWidth - linesWidth[currentLine] - offsetX - 1;
+                }
+
+                return 0;
+            }
+
+            var currentLine= 0;
+            for( var l=0; l<lines.length; l++ ) {
+
+                var x:number= calculateOffset( this._horizontalAlignment );
+
+                var words= lines[l].split(" ");
+
+                for( var w=0; w<words.length; w++ ) {
+
+                    var word= words[w] + (w<words.length-1 ? " " : "");
+                    var wordLength= ctx.measureText(word).width;
+
+                    if ( x+wordLength > flowWidth ) {
+                        y+= this._size;
+                        currentLine++;
+                        x= calculateOffset( this._horizontalAlignment );
                     }
 
                     if ( this._stroke ) {
@@ -448,5 +496,6 @@ module cc.widget {
         getFontSize() : number {
             return this._size;
         }
+
     }
 }
