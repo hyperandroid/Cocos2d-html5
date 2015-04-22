@@ -726,12 +726,12 @@ module cc.input {
                 target.addEventListener("touchend", touchEnd, false);
             } else {
 
-                window.addEventListener('mouseup',  mouseUp,    false);
-                window.addEventListener('mousedown',mouseDown,  false);
-                window.addEventListener('mouseover',mouseOver,  false);
-                window.addEventListener('mouseout', mouseOut,   false);
-                window.addEventListener('mousemove',mouseMove,  false);
-                window.addEventListener('dblclick', doubleClick,false);
+                target.addEventListener('mouseup',  mouseUp,    false);
+                target.addEventListener('mousedown',mouseDown,  false);
+                target.addEventListener('mouseover',mouseOver,  false);
+                target.addEventListener('mouseout', mouseOut,   false);
+                target.addEventListener('mousemove',mouseMove,  false);
+                target.addEventListener('dblclick', doubleClick,false);
             }
         }
 
